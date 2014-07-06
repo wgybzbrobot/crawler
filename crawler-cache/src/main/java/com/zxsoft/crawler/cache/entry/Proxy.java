@@ -1,6 +1,6 @@
-package com.zxsoft.crawler.protocols.proxy;
+package com.zxsoft.crawler.cache.entry;
 
-public class Proxy {
+public class Proxy implements CacheEntry {
 
 	private String username;
 	private String password;

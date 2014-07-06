@@ -1,12 +1,17 @@
 package com.zxsoft.crawler.protocols.proxy;
 
-import java.util.List;
+import com.zxsoft.crawler.cache.ehcache.EhcacheProxy;
+import com.zxsoft.crawler.cache.entry.Proxy;
+
 
 public class RandomProxy {
 
+	
+	
 	public Proxy randomProxy() {
-		
-		
-		return null;
+		int i = (int) (Math.random() * proxies.length);
+		EhcacheProxy
 	}
+
+	
 }

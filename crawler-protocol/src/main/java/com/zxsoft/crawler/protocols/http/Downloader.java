@@ -11,19 +11,12 @@ import org.springframework.util.StringUtils;
 import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.Seed;
 import com.zxsoft.crawler.storage.WebPageMy;
-import com.zxsoft.crawler.util.Tool;
-import com.zxsoft.crawler.util.Tools;
 import com.zxsoft.crawler.util.Utils;
 
-public class Downloader implements Tool {
+public class Downloader {
 
 	private static Logger LOG = LoggerFactory.getLogger(Downloader.class);
 
-	private Tools tools;
-
-	public Downloader(Tools tools) {
-		this.tools = tools;
-	}
 
 	/**
 	 * 访问URL
@@ -45,12 +38,12 @@ public class Downloader implements Tool {
 			LOG.error(url + "种子的首页URL没有配置.");
 			return null;
 		}
-		ListConf listConf = tools.getDomService().getListConf(seed.getIndexUrl());
+		/*ListConf listConf = tools.getDomService().getListConf(seed.getIndexUrl());
 		if (listConf == null) {
 			LOG.error("Cannot find information for " + seed.getIndexUrl() + " from database.");
 			return null;
 		}
-		page.setListConf(listConf);
+		page.setListConf(listConf);*/
 
 		/*if (listConf.isAjax()) {
 			AjaxLoader loader = new AjaxLoader();
@@ -63,17 +56,10 @@ public class Downloader implements Tool {
 			page.setDocument(loader.load(seed, true));
 		}*/
 		SmartLoader loader = new SmartLoader();
-		String dom = listConf.getListdom() + " " + listConf.getLinedom();
-		page.setDocument(loader.load(url, dom));
+//		String dom = listConf.getListdom() + " " + listConf.getLinedom();
+//		page.setDocument(loader.load(url, dom));
 		return page;
 	}
 
-	public Tools getTools() {
-		return tools;
-	}
-
-	public void setTools(Tools tools) {
-		this.tools = tools;
-	}
 
 }

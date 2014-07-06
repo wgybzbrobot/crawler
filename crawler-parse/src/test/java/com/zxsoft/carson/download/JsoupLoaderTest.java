@@ -1,6 +1,9 @@
 package com.zxsoft.carson.download;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -15,7 +18,7 @@ import org.junit.Test;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import com.zxsoft.carson.util.Utils;
+import com.zxsoft.crawler.util.Utils;
 
 public class JsoupLoaderTest {
 	
@@ -207,13 +210,20 @@ public class JsoupLoaderTest {
     
     /**
      * Only for Baidu Tieba
+     * @throws MalformedURLException 
      */
     @Test
-	public void test1() {
-		String url = "http://tieba.baidu.com/p/3070706026";
+	public void test1() throws MalformedURLException {
+//		String url = "http://tieba.baidu.com/p/3070706026";
+		String url = "http://61.191.206.4/p/3070706026";
+		URL u = new URL("http", "61.191.206.4", 80, "/p/3070706026");
 		Document document = null;
         try {
-	        document = Jsoup.connect(url).get();
+        	URLConnection conn = u.openConnection();
+        	conn.connect();
+        	System.out.println(conn.getContent());
+        	document = Jsoup.parse(u, 8000);
+//	        document = Jsoup.connect(url).get();
         } catch (IOException e) {
 	        e.printStackTrace();
         }

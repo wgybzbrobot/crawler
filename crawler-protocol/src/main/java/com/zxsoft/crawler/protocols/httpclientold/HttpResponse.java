@@ -1,22 +1,19 @@
-package com.zxsoft.crawler.protocols.httpclient;
+package com.zxsoft.crawler.protocols.httpclientold;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
 
-
-
 // HTTP Client imports
 import org.apache.avro.util.Utf8;
-//import org.apache.commons.httpclient.Header;
-//import org.apache.commons.httpclient.HttpVersion;
-//import org.apache.commons.httpclient.cookie.CookiePolicy;
-//import org.apache.commons.httpclient.methods.GetMethod;
-//import org.apache.commons.httpclient.params.HttpMethodParams;
-//import org.apache.commons.httpclient.params.HttpParams;
-//import org.apache.commons.httpclient.HttpException;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpVersion;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.httpclient.HttpException;
+
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
@@ -29,6 +26,7 @@ import com.zxsoft.crawler.storage.WebPage;
 /**
  * An HTTP response.
  *
+ * @author Susam Pal
  */
 public class HttpResponse implements Response {
 
@@ -57,16 +55,7 @@ public class HttpResponse implements Response {
 
 		// Prepare GET method for HTTP request
 		this.url = url;
-		HttpGet get = new HttpGet(url.toString());
-		
-		
-		if (http.getUseHttp11()) {
-			params.setVersion(HttpVersion.HTTP_1_1);
-		} else {
-			params.setVersion(HttpVersion.HTTP_1_0);
-		}
-		
-		/*GetMethod get = new GetMethod(url.toString());
+		GetMethod get = new GetMethod(url.toString());
 		get.setFollowRedirects(followRedirects);
 		get.setDoAuthentication(true);
 		if (page.getModifiedTime() > 0) {
@@ -84,14 +73,14 @@ public class HttpResponse implements Response {
 		params.makeLenient();
 		params.setContentCharset("UTF-8");
 		params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-		params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);*/
+		params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
 		// XXX (ab) not sure about this... the default is to retry 3 times; if
 		// XXX the request body was sent the method is not retried, so there is
 		// XXX little danger in retrying...
 		// params.setParameter(HttpMethodParams.RETRY_HANDLER, null);
 		try {
 			code = Http.getClient().executeMethod(get);
-			
+
 			Header[] heads = get.getResponseHeaders();
 
 			for (int i = 0; i < heads.length; i++) {

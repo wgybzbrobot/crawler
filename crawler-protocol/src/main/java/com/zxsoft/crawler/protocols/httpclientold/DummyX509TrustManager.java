@@ -18,7 +18,7 @@
  * Based on EasyX509TrustManager from commons-httpclient.
  */
 
-package com.zxsoft.crawler.protocols.httpclient;
+package com.zxsoft.crawler.protocols.httpclientold;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;

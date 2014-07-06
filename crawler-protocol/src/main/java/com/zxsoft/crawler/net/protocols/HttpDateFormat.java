@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.net.protocols;
+package com.zxsoft.crawler.net.protocols;
 
 import java.util.Calendar;
 import java.util.Date;

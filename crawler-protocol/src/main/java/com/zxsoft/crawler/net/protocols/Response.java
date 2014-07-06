@@ -14,34 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.zxsoft.crawler.net.protocols;
 
-package org.apache.nutch.net.protocols;
+// JDK imports
+import java.net.URL;
 
-import java.io.Serializable;
+// Nutch imports
+import org.apache.nutch.metadata.HttpHeaders;
+import org.apache.nutch.metadata.Metadata;
+
 
 /**
- * Base exception for all protocol handlers
- * @deprecated Use {@link org.apache.nutch.protocol.ProtocolException} instead.
+ * A response inteface.  Makes all protocols model HTTP.
  */
-@Deprecated
-@SuppressWarnings("serial")
-public class ProtocolException extends Exception implements Serializable {
+public interface Response extends HttpHeaders {
+  
+  /** Returns the URL used to retrieve this response. */
+  public URL getUrl();
 
+  /** Returns the response code. */
+  public int getCode();
 
-  public ProtocolException() {
-    super();
-  }
+  /** Returns the value of a named header. */
+  public String getHeader(String name);
 
-  public ProtocolException(String message) {
-    super(message);
-  }
-
-  public ProtocolException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  public ProtocolException(Throwable cause) {
-    super(cause);
-  }
+  /** Returns all the headers. */
+  public Metadata getHeaders();
+  
+  /** Returns the full content of the response. */
+  public byte[] getContent();
 
 }

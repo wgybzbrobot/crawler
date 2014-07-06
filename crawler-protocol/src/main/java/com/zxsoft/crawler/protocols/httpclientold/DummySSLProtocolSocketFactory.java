@@ -23,7 +23,7 @@
  * -0800 (Sat, 26 Feb 2005) $
  */
 
-package com.zxsoft.crawler.protocols.httpclient;
+package com.zxsoft.crawler.protocols.httpclientold;
 
 import java.io.IOException;
 import java.net.InetAddress;

@@ -19,10 +19,10 @@ package com.zxsoft.crawler.protocols.http;
 // JDK imports
 import java.io.IOException;
 import java.net.URL;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolOutput;
@@ -32,6 +32,7 @@ import org.apache.nutch.util.GZIPUtils;
 import org.apache.nutch.util.DeflateUtils;
 import org.apache.nutch.util.MimeUtil;
 
+import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.storage.WebPage;
 
 public abstract class HttpBase {
