@@ -1,20 +1,31 @@
-package com.zxsoft.crawler.cache.ehcache;
+package com.zxsoft.crawler.proxy.cache.ehcache;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.zxsoft.crawler.cache.entry.Proxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.zxsoft.crawler.proxy.cache.Proxy;
 
 public class ProxyReader {
 
-	private static final String PROXY_FILE = "proxy.ini";
+	private static Logger LOG = LoggerFactory.getLogger(ProxyReader.class);
+	private static final String PROXY_FILE = "src/main/resources/proxy.ini";
 	
-	public List<Proxy> getProxies() throws IOException {
+	public List<Proxy> getProxies() throws IOException   {
 		List<Proxy> proxies = new ArrayList<Proxy>();
-		BufferedReader reader = new BufferedReader(new FileReader(PROXY_FILE));
+		BufferedReader reader = null;
+        try {
+	        reader = new BufferedReader(new FileReader(PROXY_FILE));
+        } catch (FileNotFoundException e1) {
+        	e1.printStackTrace();
+        	return null;
+        }
 		
 		String line = null;
 		while ((line = reader.readLine()) != null) {
@@ -24,8 +35,12 @@ public class ProxyReader {
 			
 			if (line.startsWith("#"))
 				continue;
+			
 			String[] ini = line.split(":");
 			if (ini == null || ini.length != 4) continue;
+			if (line.indexOf("@") != -1) {
+				line = line.substring(0, line.indexOf("@"));
+			}
 			String username = ini[0];
 			String password = ini[1];
 			String host = ini[2];
@@ -37,7 +52,7 @@ public class ProxyReader {
 				
 			}
 			Proxy proxy = new Proxy(username, password, host, port);
-			
+			LOG.info("Put proxy in cache: " + proxy);
 			proxies.add(proxy);
 		}
 		reader.close();

@@ -2,16 +2,18 @@ package com.zxsoft.crawler.cache;
 
 import java.io.IOException;
 
-import com.zxsoft.crawler.cache.entry.CacheEntry;
+import net.sf.ehcache.Element;
+
+import com.zxsoft.crawler.entity.cache.CacheEntry;
 
 /**
  * A cache, mostly works like a map in lookup, insert and delete. A cache may be
  * persistent over sessions. A cache may clean itself over time.
  *
  */
-public interface Cache {
+public interface ProxyCache {
 
-	void putEntry(String key, CacheEntry entry) throws IOException;
+	void put(String key, Element entry) throws IOException;
 
 	/**
 	 * Retrieves the cache entry stored under the given key or null if no entry
@@ -22,7 +24,7 @@ public interface Cache {
 	 * @return an {@link HttpCacheEntry} or {@code null} if no entry exists
 	 * @throws IOException
 	 */
-	CacheEntry getEntry(String key) throws IOException;
+	Element get(String key) throws IOException;
 
 	/**
 	 * Deletes/invalidates/removes any cache entries currently stored under the
@@ -31,6 +33,6 @@ public interface Cache {
 	 * @param key
 	 * @throws IOException
 	 */
-	void removeEntry(String key) throws IOException;
+	void remove(String key) throws IOException;
 
 }

@@ -1,6 +1,5 @@
 package com.zxsoft.framework.utils;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -8,9 +7,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -161,35 +157,8 @@ public class Utils {
 		return formatDate(content.get("date").getAsString());
 	}
 
-	public static int extractNum(String str) {
-		int result = -1;
-		Pattern pattern = Pattern.compile("\\d+");
-		Matcher matcher = pattern.matcher(str);
-		if (matcher.find()) {
-			try {
-				result = Integer.valueOf(matcher.group(0));
-			} catch (NumberFormatException e) {
-				LOG.error("NumberFormatException: cannot extract number from " + str);
-			}
-		}
-		return result;
-	}
 
-	public static boolean isNum(String str) {
-		if (!StringUtils.isEmpty(str)) {
-			if (str.matches("\\d+"))
-				return true;
-		}
-		return false;
-	}
 
-	public static String enCodeStr(String str) {
-		try {
-			return new String(str.getBytes("iso-8859-1"), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+	
 
 }

@@ -8,6 +8,12 @@
 	</parent>
 	<artifactId>crawler-cache</artifactId>
 	<dependencies>
+	
+		<dependency>
+			<groupId>com.zxsoft.crawler</groupId>
+			<artifactId>crawler-common</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache</artifactId>

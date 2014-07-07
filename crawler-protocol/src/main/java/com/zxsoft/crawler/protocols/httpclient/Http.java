@@ -11,6 +11,8 @@ import java.util.HashSet;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+
+
 // HTTP Client imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.http.HttpHost;
@@ -19,6 +21,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -57,23 +60,12 @@ public class Http extends HttpBase {
 	// Since the Configuration has not yet been set,
 	// then an unconfigured client is returned.
 	// private static HttpClient client = new HttpClient(connectionManager);
-	CloseableHttpClient client = HttpClients.custom().setConnectionManager(connectionManager)
+	private CloseableHttpClient client = HttpClients.custom().setConnectionManager(connectionManager)
 	        .build();
-
-	private static String defaultUsername;
-	private static String defaultPassword;
-	private static String defaultRealm;
-	private static String defaultScheme;
-	private static String authFile;
-	private static String agentHost;
-	private static boolean authRulesRead = false;
+	
 	private static Configuration conf;
 
 	int maxThreadsTotal = 10;
-
-	private String proxyUsername;
-	private String proxyPassword;
-	private String proxyRealm;
 
 	private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -114,11 +106,6 @@ public class Http extends HttpBase {
 		super.setConf(conf);
 		Http.conf = conf;
 		this.maxThreadsTotal = conf.getInt("fetcher.threads.fetch", 10);
-		this.proxyUsername = conf.get("http.proxy.username", "");
-		this.proxyPassword = conf.get("http.proxy.password", "");
-		this.proxyRealm = conf.get("http.proxy.realm", "");
-		agentHost = conf.get("http.agent.host", "");
-		authFile = conf.get("http.auth.file", "");
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -129,7 +116,11 @@ public class Http extends HttpBase {
 
 	protected Response getResponse(URL url, WebPage page, boolean redirect)
 	        throws ProtocolException, IOException {
-		return new HttpResponse(this, url, page, redirect);
+		try {
+	        return new WebClient(this, url, page, redirect);
+        } catch (Exception e) {
+	        e.printStackTrace();
+        }
+		return null;
 	}
-
 }
