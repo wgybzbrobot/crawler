@@ -51,6 +51,9 @@ public class Crawler extends Thread {
 //		confDao.getListConf("http://bbs.anhuinews.com/forum-319-1.html");
 		String url = urlbaseFactory.peek();
 		System.out.println(url);
+		confDao.getListConf("http://bbs.anhuinews.com/forum-319-1.html");
+//		String url = urlbaseFactory.peek();
+//		System.out.println(url);
 //		while (!executor.isShutdown()) {
 			
 //			Seed seed = tools.getInfoService().getSeed();
