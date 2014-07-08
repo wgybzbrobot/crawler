@@ -1,4 +1,4 @@
-package com.zxsoft.carson.core;
+package com.zxsoft.crawler.core;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
