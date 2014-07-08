@@ -1,10 +1,29 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.zxsoft.crawler</groupId>
-    <artifactId>crawler</artifactId>
-    <version>1.0.0</version>
-  </parent>
-  <artifactId>crawler-dao</artifactId>
-  <name>crawler-dao</name>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.zxsoft.crawler</groupId>
+		<artifactId>crawler</artifactId>
+		<version>1.0.0</version>
+	</parent>
+	<artifactId>crawler-dao</artifactId>
+	<name>crawler-dao</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.zxsoft.crawler</groupId>
+			<artifactId>crawler-common</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>1.3.1.RELEASE</version>
+		</dependency>
+	<!-- 	<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>4.0.3.RELEASE</version>
+		</dependency> -->
+	</dependencies>
 </project>
