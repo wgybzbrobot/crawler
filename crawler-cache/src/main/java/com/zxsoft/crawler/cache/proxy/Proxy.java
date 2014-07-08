@@ -1,4 +1,4 @@
-package com.zxsoft.crawler.proxy.cache;
+package com.zxsoft.crawler.cache.proxy;
 
 import java.io.Serializable;
 

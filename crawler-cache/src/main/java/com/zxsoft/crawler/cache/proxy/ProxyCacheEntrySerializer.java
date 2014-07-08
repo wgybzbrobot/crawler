@@ -24,13 +24,11 @@
  * <http://www.apache.org/>.
  *
  */
-package com.zxsoft.crawler.cache;
+package com.zxsoft.crawler.cache.proxy;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import com.zxsoft.crawler.proxy.cache.Proxy;
 
 /**
  * Used by some {@link HttpCacheStorage} implementations to serialize

@@ -1,4 +1,4 @@
-package com.zxsoft.crawler.cache;
+package com.zxsoft.crawler.cache.proxy;
 
 import java.io.IOException;
 

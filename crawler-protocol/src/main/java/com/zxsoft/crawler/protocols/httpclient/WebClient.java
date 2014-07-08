@@ -14,6 +14,8 @@ import java.util.Arrays;
 
 
 
+
+
 // HTTP Client imports
 import org.apache.avro.util.Utf8;
 import org.apache.nutch.metadata.Metadata;
@@ -69,11 +71,11 @@ import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.util.CharArrayBuffer;
 
+import com.zxsoft.crawler.cache.proxy.Proxy;
+import com.zxsoft.crawler.cache.proxy.ProxyRandom;
+import com.zxsoft.crawler.cache.proxy.ehcache.EhcacheProxyCacheStorage;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocols.http.HttpBase;
-import com.zxsoft.crawler.proxy.cache.Proxy;
-import com.zxsoft.crawler.proxy.cache.ProxyRandom;
-import com.zxsoft.crawler.proxy.cache.ehcache.EhcacheProxyCacheStorage;
 import com.zxsoft.crawler.storage.WebPage;
 
 /**

@@ -24,15 +24,13 @@
  * <http://www.apache.org/>.
  *
  */
-package com.zxsoft.crawler.cache;
+package com.zxsoft.crawler.cache.proxy;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-
-import com.zxsoft.crawler.proxy.cache.Proxy;
 
 
 /**

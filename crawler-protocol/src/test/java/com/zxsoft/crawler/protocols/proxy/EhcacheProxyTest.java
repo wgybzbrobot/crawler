@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.zxsoft.crawler.proxy.cache.Proxy;
-import com.zxsoft.crawler.proxy.cache.ehcache.EhcacheProxyCacheStorage;
+import com.zxsoft.crawler.cache.proxy.Proxy;
+import com.zxsoft.crawler.cache.proxy.ehcache.EhcacheProxyCacheStorage;
 
 public class EhcacheProxyTest {
 
