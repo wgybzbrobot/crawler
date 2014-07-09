@@ -3,80 +3,58 @@ package com.zxsoft.crawler.core;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
-import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zxsoft.crawler.protocols.http.Downloader;
+import com.zxsoft.crawler.protocols.http.SmartLoader;
 import com.zxsoft.crawler.storage.Seed;
-import com.zxsoft.crawler.storage.WebPageMy;
-import com.zxsoft.crawler.tools.Tool;
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.tools.Tools;
 import com.zxsoft.crawler.util.parse.ParseUtil;
 import com.zxsoft.crawler.util.parse.ParserNotFoundException;
 
-public class Spider implements Runnable, Tool, Configurable {
+public class Spider implements Runnable {
 
 	private static Logger LOG = LoggerFactory.getLogger(Spider.class);
 
-	private Tools tools;
 	private Configuration conf;
-	private Seed seed;
-
+	private String url;
 	public void setConf(Configuration conf) {
 		this.conf = conf;
 	}
 
-	public void setSeed(Seed seed) {
-		this.seed = seed;
+	public Spider(String url) {
+		this.url = url;
 	}
-
-	public Spider() {
-	}
-
-	public Spider(Tools tools) {
-		this.tools = tools;
-	}
-
+	
 	public void run() {
-		if (seed == null) {
+		if (url == null) {
 			return;
 		}
-		Downloader downloader = new Downloader(tools);
-		WebPageMy page = null;
+//		Downloader downloader = new Downloader();
+//		WebPage page = null;
+//		page = downloader.connect(url);
+		
+		SmartLoader loader = new SmartLoader();
 		try {
-	        page = downloader.connect(seed);
-        } catch (MalformedURLException e1) {
-	        e1.printStackTrace();
-	        return;
-        } catch (IOException e1) {
-        	tools.getInfoService().addSeed(seed);
-	        e1.printStackTrace();
-	        return;
+	        Document document = loader.load(url);
+	        LOG.info(document.toString());
+        } catch (Exception e) {
+	        e.printStackTrace();
         }
 
-		if (page == null || page.getDocument() == null)
-			return;
-		ParseUtil parseUtil = new ParseUtil();
-		parseUtil.setTools(tools);
-		parseUtil.setConf(conf);
-		try {
-			parseUtil.parse(page);
-		} catch (ParserNotFoundException e) {
-			LOG.error("Parser Not Found " + seed.getUrl(), e);
-			return;
-		}
-	}
-
-	public Tools getTools() {
-		return tools;
-	}
-
-	public void setTools(Tools tools) {
-		this.tools = tools;
-	}
-
-	public Configuration getConf() {
-		return this.conf;
+//		if (page == null)
+//			return;
+//		ParseUtil parseUtil = new ParseUtil();
+//		parseUtil.setConf(conf);
+//		try {
+//			parseUtil.parse(page);
+//		} catch (ParserNotFoundException e) {
+//			LOG.error("Parser Not Found " + url, e);
+//			return;
+//		}
 	}
 }

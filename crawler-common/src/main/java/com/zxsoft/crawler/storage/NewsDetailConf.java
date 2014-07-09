@@ -18,7 +18,23 @@ public class NewsDetailConf extends SeedConf implements Serializable {
     private String replyNum;
     private String forwardNum;
     private String reviewNum;
-    public String getHost() {
+    
+    public NewsDetailConf() {}
+    
+    public NewsDetailConf(String host, String title, String content, String sources, String author,
+            String releaseDate, String replyNum, String forwardNum, String reviewNum) {
+	    super();
+	    this.host = host;
+	    this.title = title;
+	    this.content = content;
+	    this.sources = sources;
+	    this.author = author;
+	    this.releaseDate = releaseDate;
+	    this.replyNum = replyNum;
+	    this.forwardNum = forwardNum;
+	    this.reviewNum = reviewNum;
+    }
+	public String getHost() {
         return host;
     }
     public void setHost(String host) {

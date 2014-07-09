@@ -13,7 +13,7 @@ import org.springframework.util.StringUtils;
 import com.zxsoft.crawler.util.Utils;
 
 /**
- * Smart Loader contains Jsoup Loader and HtmlUnit Loader, do not care whether
+ * Smart Loader contains HttpClient Loader and HtmlUnit Loader, do not care whether
  * the url is loaded by ajax.
  */
 public class SmartLoader {
@@ -24,9 +24,12 @@ public class SmartLoader {
 	 * @throws IOException
 	 */
 	public Document load(String url) throws IOException {
-		if (StringUtils.isEmpty(url)) return null;
-		JsoupLoader jsoupLoader = new JsoupLoader();
-		return jsoupLoader.load(url);
+//		if (StringUtils.isEmpty(url)) return null;
+//		JsoupLoader jsoupLoader = new JsoupLoader();
+//		return jsoupLoader.load(url);
+		
+		AjaxLoader ajaxLoader = new AjaxLoader();
+		return ajaxLoader.load(url);
 	}
 	public Document load(String url, String dom) throws IOException {
 		JsoupLoader jsoupLoader = new JsoupLoader();

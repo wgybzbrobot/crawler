@@ -2,21 +2,21 @@ package com.zxsoft.crawler.protocols.http;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.UnknownHostException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
-import com.gargoylesoftware.htmlunit.CookieManager;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
+import com.gargoylesoftware.htmlunit.ProxyConfig;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.zxsoft.crawler.cache.proxy.Proxy;
+import com.zxsoft.crawler.protocols.http.proxy.ProxyRandom;
 import com.zxsoft.crawler.storage.WebPageMy;
 import com.zxsoft.crawler.util.Utils;
 
@@ -33,8 +33,13 @@ public final class AjaxLoader {
         webClient.getOptions().setJavaScriptEnabled(true);
         webClient.getOptions().setCssEnabled(false);
         webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-        webClient.getOptions().setTimeout(50000);
+        webClient.getOptions().setTimeout(20000);
         webClient.getOptions().setThrowExceptionOnScriptError(false);
+        Proxy proxy = ProxyRandom.random();
+        if (proxy != null) {
+	        ProxyConfig proxyConfig = new ProxyConfig(proxy.getHost(), proxy.getPort());
+	        webClient.getOptions().setProxyConfig(proxyConfig);
+        }
     }
     
     /**

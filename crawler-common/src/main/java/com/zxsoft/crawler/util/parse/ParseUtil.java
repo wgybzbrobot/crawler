@@ -24,16 +24,16 @@ import org.springframework.util.StringUtils;
 
 import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.Seed;
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.storage.WebPageMy;
 import com.zxsoft.crawler.tools.Tool;
 import com.zxsoft.crawler.tools.Tools;
 import com.zxsoft.crawler.util.Utils;
 
-public class ParseUtil implements Tool {
+public class ParseUtil {
 
 	private static Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
 
-	private Tools tools;
 	private Configuration conf;
 
 	private ThreadPoolExecutor pool = null;
@@ -41,23 +41,18 @@ public class ParseUtil implements Tool {
 	private AtomicBoolean continuePage = new AtomicBoolean(true);
 	private AtomicInteger pageNum = new AtomicInteger(1);
 
-	public void setTools(Tools tools) {
-		this.tools = tools;
-	}
-
 	public void setConf(Configuration conf) {
 		this.conf = conf;
 	}
 
-	public ParseStatus parse(WebPageMy page) throws ParserNotFoundException {
+	public ParseStatus parse(WebPage page) throws ParserNotFoundException {
 		ParserFactory factory = new ParserFactory();
 		factory.setConf(conf);
 		Parser parser = factory.getParserByCategory(page.getListConf().getCategory());
-		parser.setTools(tools);
 		return runParser(page, parser);
 	}
 
-	public ParseStatus runParser(WebPageMy page, Parser parser) {
+	public ParseStatus runParser(WebPage page, Parser parser) {
 		ParseStatus status = null;
 		Seed seed = page.getSeed();
 		if (seed.getType() == Category.LIST_PAGE) { // 列表页
@@ -132,7 +127,6 @@ public class ParseUtil implements Tool {
 				WebPageMy wp = new WebPageMy();
 				Seed detailPageSeed = new Seed(curl, indexUrl, 0, Category.DETAIL_PAGE, title, releasedate, curl, page.getSeed().getLimitDate());
 				JsoupLoader loader = new JsoupLoader();
-				loader.setTools(tools);
 				Document dtemp = loader.load(detailPageSeed);
 				if (dtemp == null) {
 					continue;
@@ -182,7 +176,6 @@ public class ParseUtil implements Tool {
 						seedCopy.setRemain(2);
 						seedCopy.setLose(true);
 						seedCopy.setType(Category.DETAIL_PAGE);
-						tools.getInfoService().addSeed(seedCopy);
 					} catch (CloneNotSupportedException ce) {
 						ce.printStackTrace();
 					}
@@ -232,10 +225,6 @@ public class ParseUtil implements Tool {
 			}
 			return status;
 		}
-	}
-
-	public Tools getTools() {
-		return tools;
 	}
 
 	public ThreadPoolExecutor newFixedThreadPool(int nThreads) {

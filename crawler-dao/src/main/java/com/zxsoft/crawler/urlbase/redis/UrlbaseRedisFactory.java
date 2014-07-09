@@ -19,7 +19,7 @@ public class UrlbaseRedisFactory extends UrlbaseFactory {
 	@Override
     public String peek() {
 		
-		return "http:baidu";
+		return "http://tieba.baidu.com/f?kw=%B0%F6%B2%BA";
     }
 
 }

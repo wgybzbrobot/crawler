@@ -16,7 +16,7 @@ public class ForumDetailConf extends SeedConf implements Serializable {
 	private String forwardNum;
 	private String reviewNum;
 	
-	private String pagebar;	// 翻页条DOM
+//	private String pagebar;	// 翻页条DOM
 	private boolean fetchorder; // 抓取顺序，true从最后一页开始抓
 
 	// 主帖模块
@@ -37,6 +37,34 @@ public class ForumDetailConf extends SeedConf implements Serializable {
 	private String subReplyDate;
 	private String subReplyContent;
 
+	public ForumDetailConf() {}
+	
+	public ForumDetailConf(String host, String comment, String replyNum, String forwardNum,
+            String reviewNum, /*String pagebar,*/ boolean fetchorder, String master,
+            String masterAuthor, String masterDate, String masterContent, String reply,
+            String replyAuthor, String replyDate, String replyContent, String subReply,
+            String subReplyAuthor, String subReplyDate, String subReplyContent) {
+	    super();
+	    this.host = host;
+	    this.comment = comment;
+	    this.replyNum = replyNum;
+	    this.forwardNum = forwardNum;
+	    this.reviewNum = reviewNum;
+//	    this.pagebar = pagebar;
+	    this.fetchorder = fetchorder;
+	    this.master = master;
+	    this.masterAuthor = masterAuthor;
+	    this.masterDate = masterDate;
+	    this.masterContent = masterContent;
+	    this.reply = reply;
+	    this.replyAuthor = replyAuthor;
+	    this.replyDate = replyDate;
+	    this.replyContent = replyContent;
+	    this.subReply = subReply;
+	    this.subReplyAuthor = subReplyAuthor;
+	    this.subReplyDate = subReplyDate;
+	    this.subReplyContent = subReplyContent;
+    }
 
 	public boolean isFetchorder() {
 		return fetchorder;
@@ -46,13 +74,13 @@ public class ForumDetailConf extends SeedConf implements Serializable {
 		this.fetchorder = fetchorder;
 	}
 
-	public String getPagebar() {
-		return pagebar;
-	}
-
-	public void setPagebar(String pagebar) {
-		this.pagebar = pagebar;
-	}
+//	public String getPagebar() {
+//		return pagebar;
+//	}
+//
+//	public void setPagebar(String pagebar) {
+//		this.pagebar = pagebar;
+//	}
 
 	public String getComment() {
 		return comment;

@@ -35,52 +35,38 @@ public class Crawler extends Thread {
 	private UrlbaseRedisFactory urlbaseFactory;
 	
 	@Autowired
-	private   JdbcTemplate jdbcTemplate;
-	
-	@Autowired
 	private ConfDao confDao;
 	
 	@Override
 	public void run() {
-//		SpringApplication.run(Crawler.class, args);
 		
-//		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
 		org.apache.hadoop.conf.Configuration conf = CrawlerConfiguration.create();
 		ThreadPoolExecutor executor = newFixedThreadPool(conf.getInt("spider.thread.num", 10));
 
-//		confDao.getListConf("http://bbs.anhuinews.com/forum-319-1.html");
-		String url = urlbaseFactory.peek();
-		System.out.println(url);
-		confDao.getListConf("http://bbs.anhuinews.com/forum-319-1.html");
-//		String url = urlbaseFactory.peek();
-//		System.out.println(url);
-//		while (!executor.isShutdown()) {
+		while (!executor.isShutdown()) {
 			
-//			Seed seed = tools.getInfoService().getSeed();
-//			if (seed == null) {
-//				try {
-//	                TimeUnit.SECONDS.sleep(30);
-//                } catch (InterruptedException e) {
-//	                e.printStackTrace();
-//                }
-//				continue;
-//			}
-//			seed.setLimitDate(seed.getLastfetchtime());
-//			if (seed.getType() == Category.LIST_PAGE && seed.getFetchinterval() > 0) {// 列表页
-//				seed.setLastfetchtime(new Date());
-//				tools.getInfoService().updateSeed(seed);
-//			} else {
-//				tools.getInfoService().deleteSeed(seed);
-//			}
-//				
-//			Spider spider = new Spider(tools);
-//			spider.setSeed(seed);
-//			spider.setConf(conf);
-//			executor.execute(spider);
-//		}
-
-//		context.close();
-		System.exit(0);
+/*			String url = urlbaseFactory.peek();
+			if (url == null) {
+				try {
+	                TimeUnit.SECONDS.sleep(30);
+                } catch (InterruptedException e) {
+	                e.printStackTrace();
+                }
+				continue;
+			}
+			Spider spider = new Spider(url);
+			spider.setConf(conf);
+			executor.execute(spider);
+*/	
+			confDao.getListConf("http://bbs.anhuinews.com/forum-319-1.html");
+			try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+		}
+		
+		LOG.info("Crawler exit.");
 	}
 
 	public static ThreadPoolExecutor newFixedThreadPool(int nThreads) {

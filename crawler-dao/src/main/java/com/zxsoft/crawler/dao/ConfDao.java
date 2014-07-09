@@ -1,11 +1,17 @@
 package com.zxsoft.crawler.dao;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import com.zxsoft.crawler.storage.ForumDetailConf;
 import com.zxsoft.crawler.storage.ListConf;
@@ -14,8 +20,8 @@ import com.zxsoft.crawler.storage.NewsDetailConf;
 @Component("confDao")
 public class ConfDao {
 
-	private Logger LOG = LoggerFactory.getLogger(ConfDao.class);
 	private JdbcTemplate jdbcTemplate;
+private Logger LOG = LoggerFactory.getLogger(ConfDao.class);
 
 	@Autowired
 	public ConfDao(JdbcTemplate jdbcTemplate) {
@@ -30,8 +36,22 @@ public class ConfDao {
 	 */
 	@Cacheable(value = "listConfCache", key = "#url")
 	public ListConf getListConf(String url) {
-		ListConf listConf = jdbcTemplate.queryForObject("select * from conf_list where url = ?",
-		        new Object[] { url }, ListConf.class);
+		List<ListConf> list = jdbcTemplate.query("select * from conf_list where url = ?",
+		        new Object[] { url }, new RowMapper<ListConf>() {
+			        public ListConf mapRow(ResultSet rs, int rowNum) throws SQLException {
+				        return new ListConf(rs.getString("comment"), rs.getString("url"), rs
+				                .getString("category"), rs.getInt("fetchinterval"), rs
+				                .getInt("pageNum"), rs.getString("filterurl"), rs
+				                .getString("listdom"), rs.getString("linedom"), rs
+				                .getString("urldom"), rs.getString("datedom"), rs
+				                .getString("updatedom"), rs.getInt("numThreads"));
+			        }
+		        });
+		ListConf listConf = null;
+		if (!CollectionUtils.isEmpty(list)) {
+			listConf = list.get(0);
+		}
+		LOG.info("get list conf.........");
 		return listConf;
 	}
 
@@ -40,9 +60,25 @@ public class ConfDao {
 	 */
 	@Cacheable(value = "forumDetailConf", key = "#host")
 	public ForumDetailConf getForumDetailConf(String host) {
-		ForumDetailConf detailConf = jdbcTemplate.queryForObject(
+		List<ForumDetailConf> list = jdbcTemplate.query(
 		        "select * from forumconf_detail where host = ?", new Object[] { host },
-		        ForumDetailConf.class);
+		        new RowMapper<ForumDetailConf>() {
+			        public ForumDetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
+				        return new ForumDetailConf(rs.getString("host"), rs.getString("comment"),
+				                rs.getString("replyNum"), rs.getString("forwardNum"), rs
+				                        .getString("reviewNum"), rs.getBoolean("fetchorder"), rs
+				                        .getString("master"), rs.getString("masterAuthor"), rs
+				                        .getString("masterDate"), rs.getString("masterContent"), rs
+				                        .getString("reply"), rs.getString("replyAuthor"), rs
+				                        .getString("replyDate"), rs.getString("replyContent"), rs
+				                        .getString("subReply"), rs.getString("subReplyAuthor"), rs
+				                        .getString("subReplyDate"), rs.getString("subReplyContent"));
+			        }
+		        });
+		ForumDetailConf detailConf = null;
+		if (!CollectionUtils.isEmpty(list)) {
+			detailConf = list.get(0);
+		}
 		return detailConf;
 	}
 
@@ -50,9 +86,20 @@ public class ConfDao {
 	 * 获取新闻资讯详细页配置信息
 	 */
 	public NewsDetailConf getNewsDetailConf(String host) {
-		NewsDetailConf detailConf = jdbcTemplate.queryForObject(
+		List<NewsDetailConf> list = jdbcTemplate.query(
 		        "select * from newsconf_detail where host = ?", new Object[] { host },
-		        NewsDetailConf.class);
+		        new RowMapper<NewsDetailConf>() {
+			        public NewsDetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
+				        return new NewsDetailConf(rs.getString("host"), rs.getString("title"), rs
+				                .getString("content"), rs.getString("sources"), rs.getString("author"), rs
+				                .getString("releaseDate"), rs.getString("replyNum"), rs.getString("forwardNum"), rs
+				                .getString("reviewNum"));
+			        }
+		        });
+		NewsDetailConf detailConf = null;
+		if (!CollectionUtils.isEmpty(list)) {
+			detailConf = list.get(0);
+		}
 		return detailConf;
 	}
 
