@@ -13,19 +13,21 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.zxsoft.crawler.dao.ConfDao;
+import com.zxsoft.crawler.duplicate.DuplicateInspector;
+import com.zxsoft.crawler.parse.Category;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
+import com.zxsoft.crawler.parse.PageHelper;
+import com.zxsoft.crawler.parse.ParseException;
+import com.zxsoft.crawler.parse.ParseStatus;
+import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.storage.Forum;
 import com.zxsoft.crawler.storage.ForumDetailConf;
 import com.zxsoft.crawler.storage.Reply;
 import com.zxsoft.crawler.storage.Seed;
 import com.zxsoft.crawler.storage.WebPageMy;
-import com.zxsoft.crawler.tools.Tools;
 import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
-import com.zxsoft.crawler.util.parse.Category;
-import com.zxsoft.crawler.util.parse.ParseException;
-import com.zxsoft.crawler.util.parse.ParseStatus;
-import com.zxsoft.crawler.util.parse.Parser;
 
 /**
  * <ol>
@@ -35,17 +37,16 @@ import com.zxsoft.crawler.util.parse.Parser;
  * <li>4. 翻页</li>
  * </ol>
  */
+
 public class ForumParser extends Parser {
 
 	private static Logger LOG = LoggerFactory.getLogger(ForumParser.class);
-	private Tools tools;
 	private JsoupLoader loader = new JsoupLoader();
+	
+	private DuplicateInspector duplicateInspector;
+	private ConfDao confDao;
 
-	public void setTools(Tools tools) {
-		this.tools = tools;
-		loader.setTools(tools);
-	}
-
+	private String rule; // filter regular expression
 	@Override
 	public ParseStatus parse(WebPageMy page) throws Exception {
 		Assert.notNull(page, "Page is null");
@@ -56,10 +57,10 @@ public class ForumParser extends Parser {
 
 		String url = seed.getUrl();
 		String md5 = Md5Signatrue.generateMd5(url);
-		if (tools.getRedisSerivice().judgeMd5Exist(md5)) return null;
+		if (duplicateInspector.md5Exist(md5)) return null;
 		
 		ParseStatus status = new ParseStatus(url);
-		ForumDetailConf detailConf = tools.getDomService().getForumDetailConf(page.getHost());
+		ForumDetailConf detailConf = confDao.getForumDetailConf(page.getHost());
 
 		if (detailConf == null) {
 			LOG.warn(url + " detail page has no configuration in database.");
@@ -103,7 +104,7 @@ public class ForumParser extends Parser {
 			if (!CollectionUtils.isEmpty(contentEles)) {
 				Element contentEle = contentEles.first();
 				forum.setContent(contentEle.text());
-				forum.setImgUrl(MultimediaExtractor.extractImgUrl(contentEle, page.getListConf().getFilterurl()));
+				forum.setImgUrl(MultimediaExtractor.extractImgUrl(contentEle, rule));
 				forum.setAudioUrl(MultimediaExtractor.extractAudioUrl(contentEle));
 				forum.setVideoUrl(MultimediaExtractor.extractVideoUrl(contentEle));
 			}
@@ -122,7 +123,7 @@ public class ForumParser extends Parser {
 
 			String md5 = Md5Signatrue.generateMd5(forum.getUrl(), forum.getAuthor(), forum.getContent(),
 			        forum.getImgUrl(), forum.getAudioUrl(), forum.getVideoUrl());
-			if (!tools.getRedisSerivice().md5Exist(md5)) {
+			if (!duplicateInspector.md5Exist(md5)) {
 				tools.getRedisSerivice().addMd5(md5);
 				tools.getInfoService().addForum(forum);
 			}
@@ -246,7 +247,7 @@ public class ForumParser extends Parser {
 		if (!CollectionUtils.isEmpty(contentEles)) {
 			Element contentEle = contentEles.first();
 			reply.setContent(contentEle.text());
-			reply.setImgUrl(MultimediaExtractor.extractImgUrl(contentEle, page.getListConf().getFilterurl()));
+			reply.setImgUrl(MultimediaExtractor.extractImgUrl(contentEle, rule));
 			reply.setAudioUrl(MultimediaExtractor.extractAudioUrl(contentEle));
 			reply.setVideoUrl(MultimediaExtractor.extractVideoUrl(contentEle));
 		}
@@ -261,7 +262,7 @@ public class ForumParser extends Parser {
 
 		String md5 = Md5Signatrue.generateMd5(reply.getMainUrl(), reply.getAuthorAccount(), reply.getContent(),
 		        reply.getImgUrl(), reply.getAudioUrl(), reply.getVideoUrl());
-		if (!tools.getRedisSerivice().md5Exist(md5)) {
+		if (!duplicateInspector.md5Exist(md5)) {
 			reply.setParentId(parentId);
 			reply.setMd5(md5);
 			tools.getRedisSerivice().addMd5(md5);
@@ -301,7 +302,7 @@ public class ForumParser extends Parser {
 
 		String md5 = Md5Signatrue.generateMd5(reply.getMainUrl(), reply.getAuthorAccount(), reply.getContent(),
 		        reply.getImgUrl(), reply.getAudioUrl(), reply.getVideoUrl());
-		if (!tools.getRedisSerivice().md5Exist(md5)) {
+		if (!duplicateInspector.md5Exist(md5)) {
 			reply.setMd5(md5);
 			reply.setParentId(parentId);
 			tools.getRedisSerivice().addMd5(md5);
@@ -309,10 +310,6 @@ public class ForumParser extends Parser {
 		}
 		
 		return id;
-	}
-
-	public Tools getTools() {
-		return tools;
 	}
 
 }

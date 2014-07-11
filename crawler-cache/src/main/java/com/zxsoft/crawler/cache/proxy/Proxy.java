@@ -10,16 +10,40 @@ public class Proxy implements Serializable {
 	private String password;
 	private String host;
 	private int port;
+	private String type;
+	private String realm;
 	
 	
-	public Proxy(String username, String password, String host, int port) {
+	public Proxy(String type, String username, String password, String host, int port, String realm) {
 	    super();
 	    this.username = username;
 	    this.password = password;
 	    this.host = host;
 	    this.port = port;
+	    this.type = type;
     }
 	
+	
+	public String getRealm() {
+		return realm;
+	}
+
+
+	public void setRealm(String realm) {
+		this.realm = realm;
+	}
+
+
+	public String getType() {
+		return type;
+	}
+
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+
 	public String toString() {
 		return username + ":" + password + ":" + host + ":" + port;
 	}

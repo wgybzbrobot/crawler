@@ -10,7 +10,7 @@ public class ForumDetailConf extends SeedConf implements Serializable {
     private static final long serialVersionUID = -7536047593216572652L;
 
     private String host;
-    private String comment;
+//    private String comment;
 	
 	private String replyNum;
 	private String forwardNum;
@@ -39,14 +39,14 @@ public class ForumDetailConf extends SeedConf implements Serializable {
 
 	public ForumDetailConf() {}
 	
-	public ForumDetailConf(String host, String comment, String replyNum, String forwardNum,
+	public ForumDetailConf(String host, /*String comment,*/ String replyNum, String forwardNum,
             String reviewNum, /*String pagebar,*/ boolean fetchorder, String master,
             String masterAuthor, String masterDate, String masterContent, String reply,
             String replyAuthor, String replyDate, String replyContent, String subReply,
             String subReplyAuthor, String subReplyDate, String subReplyContent) {
 	    super();
 	    this.host = host;
-	    this.comment = comment;
+//	    this.comment = comment;
 	    this.replyNum = replyNum;
 	    this.forwardNum = forwardNum;
 	    this.reviewNum = reviewNum;
@@ -82,13 +82,13 @@ public class ForumDetailConf extends SeedConf implements Serializable {
 //		this.pagebar = pagebar;
 //	}
 
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+//	public String getComment() {
+//		return comment;
+//	}
+//
+//	public void setComment(String comment) {
+//		this.comment = comment;
+//	}
 
 
 	public String getHost() {

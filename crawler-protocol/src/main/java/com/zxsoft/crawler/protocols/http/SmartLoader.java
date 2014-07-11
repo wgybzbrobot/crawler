@@ -10,6 +10,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.zxsoft.crawler.parse.PageHelper;
 import com.zxsoft.crawler.util.Utils;
 
 /**

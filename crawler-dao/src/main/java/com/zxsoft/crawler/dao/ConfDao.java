@@ -21,7 +21,10 @@ import com.zxsoft.crawler.storage.NewsDetailConf;
 public class ConfDao {
 
 	private JdbcTemplate jdbcTemplate;
-private Logger LOG = LoggerFactory.getLogger(ConfDao.class);
+	private Logger LOG = LoggerFactory.getLogger(ConfDao.class);
+
+	public ConfDao() {
+	}
 
 	@Autowired
 	public ConfDao(JdbcTemplate jdbcTemplate) {
@@ -36,6 +39,7 @@ private Logger LOG = LoggerFactory.getLogger(ConfDao.class);
 	 */
 	@Cacheable(value = "listConfCache", key = "#url")
 	public ListConf getListConf(String url) {
+		LOG.info("Getting list config:" + url);
 		List<ListConf> list = jdbcTemplate.query("select * from conf_list where url = ?",
 		        new Object[] { url }, new RowMapper<ListConf>() {
 			        public ListConf mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -51,20 +55,20 @@ private Logger LOG = LoggerFactory.getLogger(ConfDao.class);
 		if (!CollectionUtils.isEmpty(list)) {
 			listConf = list.get(0);
 		}
-		LOG.info("get list conf.........");
 		return listConf;
 	}
 
 	/**
 	 * 获取论坛详细页配置信息
 	 */
-	@Cacheable(value = "forumDetailConf", key = "#host")
+	@Cacheable(value = "forumDetailConfCache", key = "#host")
 	public ForumDetailConf getForumDetailConf(String host) {
+		LOG.info("Getting forum detail config:" + host);
 		List<ForumDetailConf> list = jdbcTemplate.query(
 		        "select * from forumconf_detail where host = ?", new Object[] { host },
 		        new RowMapper<ForumDetailConf>() {
 			        public ForumDetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
-				        return new ForumDetailConf(rs.getString("host"), rs.getString("comment"),
+				        return new ForumDetailConf(rs.getString("host"), /*rs.getString("comment"),*/
 				                rs.getString("replyNum"), rs.getString("forwardNum"), rs
 				                        .getString("reviewNum"), rs.getBoolean("fetchorder"), rs
 				                        .getString("master"), rs.getString("masterAuthor"), rs
@@ -85,14 +89,17 @@ private Logger LOG = LoggerFactory.getLogger(ConfDao.class);
 	/**
 	 * 获取新闻资讯详细页配置信息
 	 */
+	@Cacheable(value = "newsDetailConfCache", key = "#host")
 	public NewsDetailConf getNewsDetailConf(String host) {
+		LOG.info("Getting news detail config:" + host);
 		List<NewsDetailConf> list = jdbcTemplate.query(
 		        "select * from newsconf_detail where host = ?", new Object[] { host },
 		        new RowMapper<NewsDetailConf>() {
 			        public NewsDetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
-				        return new NewsDetailConf(rs.getString("host"), rs.getString("title"), rs
-				                .getString("content"), rs.getString("sources"), rs.getString("author"), rs
-				                .getString("releaseDate"), rs.getString("replyNum"), rs.getString("forwardNum"), rs
+				        return new NewsDetailConf(rs.getString("host"), /*rs.getString("title"),*/ rs
+				                .getString("content"), rs.getString("sources"), rs
+				                .getString("author"), /*rs.getString("releaseDate"),*/ rs
+				                .getString("replyNum"), rs.getString("forwardNum"), rs
 				                .getString("reviewNum"));
 			        }
 		        });

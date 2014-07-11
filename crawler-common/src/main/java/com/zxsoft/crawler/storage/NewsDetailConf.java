@@ -10,26 +10,26 @@ public class NewsDetailConf extends SeedConf implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String host;
-    private String title;
+//    private String title;
     private String content;
     private String sources;
     private String author;
-    private String releaseDate;
+//    private String releaseDate;
     private String replyNum;
     private String forwardNum;
     private String reviewNum;
     
     public NewsDetailConf() {}
     
-    public NewsDetailConf(String host, String title, String content, String sources, String author,
-            String releaseDate, String replyNum, String forwardNum, String reviewNum) {
+    public NewsDetailConf(String host,/* String title, */String content, String sources, String author,
+           /* String releaseDate,*/ String replyNum, String forwardNum, String reviewNum) {
 	    super();
 	    this.host = host;
-	    this.title = title;
+//	    this.title = title;
 	    this.content = content;
 	    this.sources = sources;
 	    this.author = author;
-	    this.releaseDate = releaseDate;
+//	    this.releaseDate = releaseDate;
 	    this.replyNum = replyNum;
 	    this.forwardNum = forwardNum;
 	    this.reviewNum = reviewNum;
@@ -40,12 +40,12 @@ public class NewsDetailConf extends SeedConf implements Serializable {
     public void setHost(String host) {
         this.host = host;
     }
-    public String getTitle() {
-        return title;
-    }
-    public void setTitle(String title) {
-        this.title = title;
-    }
+//    public String getTitle() {
+//        return title;
+//    }
+//    public void setTitle(String title) {
+//        this.title = title;
+//    }
     public String getContent() {
         return content;
     }
@@ -64,12 +64,12 @@ public class NewsDetailConf extends SeedConf implements Serializable {
     public void setAuthor(String author) {
         this.author = author;
     }
-    public String getReleaseDate() {
-        return releaseDate;
-    }
-    public void setReleaseDate(String releaseDate) {
-        this.releaseDate = releaseDate;
-    }
+//    public String getReleaseDate() {
+//        return releaseDate;
+//    }
+//    public void setReleaseDate(String releaseDate) {
+//        this.releaseDate = releaseDate;
+//    }
     public String getReplyNum() {
         return replyNum;
     }

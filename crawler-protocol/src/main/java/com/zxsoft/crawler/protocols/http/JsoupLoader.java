@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+
+import com.zxsoft.crawler.parse.PageHelper;
 //import com.zxsoft.carson.parse.PageHelper;
 import com.zxsoft.crawler.storage.Seed;
 //import com.zxsoft.crawler.util.Tool;

@@ -17,22 +17,27 @@
 package com.zxsoft.crawler.protocols.http;
 
 // JDK imports
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.DeflateUtils;
+import org.apache.nutch.util.GZIPUtils;
+import org.apache.nutch.util.MimeUtil;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ProtocolException;
-import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.ProtocolStatusCodes;
-import org.apache.nutch.protocol.ProtocolStatusUtils;
-import org.apache.nutch.util.GZIPUtils;
-import org.apache.nutch.util.DeflateUtils;
-import org.apache.nutch.util.MimeUtil;
 
+import com.zxsoft.crawler.cache.proxy.Proxy;
+import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
+import com.zxsoft.crawler.protocol.Content;
+import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.protocol.ProtocolStatusCodes;
+import com.zxsoft.crawler.protocol.ProtocolStatusUtils;
 import com.zxsoft.crawler.storage.WebPage;
 
 public abstract class HttpBase {
@@ -100,8 +105,6 @@ public abstract class HttpBase {
     this.conf = conf;
     this.proxyHost = conf.get("http.proxy.host");
     this.proxyPort = conf.getInt("http.proxy.port", 8080);
-//    this.proxyHost = "69.164.201.149";
-//    this.proxyPort = 7070;
     this.useProxy = (proxyHost != null && proxyHost.length() > 0);
     this.timeout = conf.getInt("http.timeout", 10000);
     this.maxContent = conf.getInt("http.content.limit",1024 * 1024);
@@ -119,21 +122,22 @@ public abstract class HttpBase {
     return this.conf;
   }
 
-  public ProtocolOutput getProtocolOutput(String url, WebPage page) {
+  public Document getProtocolOutput(String url, Proxy proxy, WebPage page) {
 
+	  Document document = null;
     try {
       URL u = new URL(url);
-      Response response = getResponse(u, page, false); // make a request
+      Response response = getResponse(u, proxy, page, false); // make a request
       int code = response.getCode();
       byte[] content = response.getContent();
-      Content c = new Content(u.toString(), u.toString(),
-          (content == null ? EMPTY_CONTENT : content),
-          response.getHeader("Content-Type"),
-          response.getHeaders(), mimeTypes);
+      
+      InputStream in = new ByteArrayInputStream(content);
+      
+      document = Jsoup.parse(in, response.getCharset(), response.getUrl().toString());
 
       if (code == 200) { // got a good response
-        return new ProtocolOutput(c); // return it
-      } else if (code == 410) { // page is gone
+        return document; // return it
+      }/* else if (code == 410) { // page is gone
         return new ProtocolOutput(c,
             ProtocolStatusUtils.makeStatus(ProtocolStatusCodes.GONE, "Http: " + code + " url=" + url));
       } else if (code >= 300 && code < 400) { // handle redirect
@@ -182,12 +186,12 @@ public abstract class HttpBase {
         return new ProtocolOutput(c,
             ProtocolStatusUtils.makeStatus(ProtocolStatusCodes.EXCEPTION, "Http code=" + code + ", url="
                 + u));
-      }
+      }*/
     } catch (Throwable e) {
       logger.error("Failed with the following error: ", e);
-      return new ProtocolOutput(null,
-          ProtocolStatusUtils.makeStatus(ProtocolStatusCodes.EXCEPTION, e.toString()));
+      return null;
     }
+    return document;
   }
 
   /* -------------------------- *
@@ -328,7 +332,7 @@ public abstract class HttpBase {
     return content;
   }
 
-  protected static void main(HttpBase http, String[] args) throws Exception {
+  protected static void main(HttpBase http, Proxy proxy, String[] args) throws Exception {
     @SuppressWarnings("unused")
     boolean verbose = false;
     String url = null;
@@ -352,21 +356,21 @@ public abstract class HttpBase {
         url = args[i];
     }
 
-    ProtocolOutput out = http.getProtocolOutput(url, new WebPage());
-    Content content = out.getContent();
-
-    System.out.println("Status: " + out.getStatus());
-    if (content != null) {
-      System.out.println("Content Type: " + content.getContentType());
-      System.out.println("Content Length: " +
-          content.getMetadata().get(Response.CONTENT_LENGTH));
-      System.out.println("Content:");
-      String text = new String(content.getContent());
-      System.out.println(text);
-    }
+    Document out = http.getProtocolOutput(url, proxy, new WebPage());
+//    Content content = out.getContent();
+//
+//    System.out.println("Status: " + out.getStatus());
+//    if (content != null) {
+//      System.out.println("Content Type: " + content.getContentType());
+//      System.out.println("Content Length: " +
+//          content.getMetadata().get(Response.CONTENT_LENGTH));
+//      System.out.println("Content:");
+//      String text = new String(content.getContent());
+//      System.out.println(text);
+//    }
   }
 
-  protected abstract Response getResponse(URL url,
+  protected abstract Response getResponse(URL url, Proxy proxy,
       WebPage page, boolean followRedirects)
   throws ProtocolException, IOException;
 

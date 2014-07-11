@@ -20,8 +20,9 @@ package com.zxsoft.crawler.net.protocols;
 import java.net.URL;
 
 // Nutch imports
-import org.apache.nutch.metadata.HttpHeaders;
-import org.apache.nutch.metadata.Metadata;
+
+import com.zxsoft.crawler.metadata.HttpHeaders;
+import com.zxsoft.crawler.metadata.Metadata;
 
 
 /**
@@ -43,5 +44,7 @@ public interface Response extends HttpHeaders {
   
   /** Returns the full content of the response. */
   public byte[] getContent();
+  
+  public String getCharset();
 
 }

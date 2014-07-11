@@ -21,6 +21,11 @@ public class Utils {
 
 	private static Logger LOG = LoggerFactory.getLogger(Utils.class);
 
+	public static int getPositiveNumber (int i, int j) {
+		if (j < 1) j = 1;
+		if (i < 1) return j;
+		return i;
+	}
 	/**
 	 * 获取域名
 	 */

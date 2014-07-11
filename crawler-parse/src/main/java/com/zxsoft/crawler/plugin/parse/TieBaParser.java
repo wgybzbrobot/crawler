@@ -17,18 +17,20 @@ import org.springframework.util.StringUtils;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.zxsoft.crawler.dao.ConfDao;
+import com.zxsoft.crawler.duplicate.DuplicateInspector;
+import com.zxsoft.crawler.parse.Category;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
+import com.zxsoft.crawler.parse.PageHelper;
+import com.zxsoft.crawler.parse.ParseStatus;
+import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.storage.Forum;
 import com.zxsoft.crawler.storage.ForumDetailConf;
 import com.zxsoft.crawler.storage.Reply;
 import com.zxsoft.crawler.storage.Seed;
 import com.zxsoft.crawler.storage.WebPageMy;
-import com.zxsoft.crawler.tools.Tools;
 import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
-import com.zxsoft.crawler.util.parse.Category;
-import com.zxsoft.crawler.util.parse.ParseStatus;
-import com.zxsoft.crawler.util.parse.Parser;
 
 /**
  * 百度贴吧解析器，从ForumParser中隔离出来
@@ -36,13 +38,10 @@ import com.zxsoft.crawler.util.parse.Parser;
 public class TieBaParser extends Parser {
 
 	private static Logger LOG = LoggerFactory.getLogger(TieBaParser.class);
-	private Tools tools;
 	private JsoupLoader loader = new JsoupLoader();
 
-	public void setTools(Tools tools) {
-		this.tools = tools;
-		loader.setTools(tools);
-	}
+	private DuplicateInspector duplicateInspector;
+	private ConfDao confDao;
 
 	public ParseStatus parse(WebPageMy page) throws Exception {
 		Assert.notNull(page, "Page is null");
@@ -123,7 +122,7 @@ public class TieBaParser extends Parser {
 			forum.setReleasedate(Utils.extractDate(mainEle.attr("data-field")));
 			String md5 = Md5Signatrue.generateMd5(forum.getUrl(), forum.getAuthor(), forum.getContent(),
 			        forum.getImgUrl(), forum.getAudioUrl(), forum.getVideoUrl());
-			if (!tools.getRedisSerivice().md5Exist(md5)) {
+			if (!duplicateInspector.md5Exist(md5)) {
 				tools.getRedisSerivice().addMd5(md5);
 				tools.getInfoService().addForum(forum);
 			}
@@ -277,7 +276,7 @@ public class TieBaParser extends Parser {
 
 		String md5 = Md5Signatrue.generateMd5(reply.getMainUrl(), reply.getAuthorAccount(), reply.getContent(),
 		        reply.getImgUrl(), reply.getAudioUrl(), reply.getVideoUrl());
-		if (!tools.getRedisSerivice().md5Exist(md5)) {
+		if (!duplicateInspector.md5Exist(md5)) {
 			reply.setMd5(md5);
 			tools.getRedisSerivice().addMd5(md5);
 			tools.getInfoService().addReply(reply);
@@ -366,7 +365,7 @@ public class TieBaParser extends Parser {
 
 			String md5 = Md5Signatrue.generateMd5(reply.getMainUrl(), reply.getAuthorAccount(), reply.getContent(),
 			        reply.getImgUrl(), reply.getAudioUrl(), reply.getVideoUrl());
-			if (tools.getRedisSerivice().md5Exist(md5)) { // 判断是否已经抓取
+			if (duplicateInspector.md5Exist(md5)) { // 判断是否已经抓取
 				return;
 			}
 			tools.getRedisSerivice().addMd5(md5);
@@ -484,9 +483,5 @@ public class TieBaParser extends Parser {
 	}
 
 	// }
-
-	public Tools getTools() {
-		return tools;
-	}
 
 }

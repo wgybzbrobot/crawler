@@ -1,7 +1,10 @@
 package com.zxsoft.crawler.protocols.http;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,12 +12,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.util.CollectionUtils;
 
+import com.gargoylesoftware.htmlunit.BinaryPage;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.ProxyConfig;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.zxsoft.crawler.cache.proxy.Proxy;
 import com.zxsoft.crawler.protocols.http.proxy.ProxyRandom;
 import com.zxsoft.crawler.storage.WebPageMy;
@@ -28,6 +34,7 @@ public final class AjaxLoader {
 
     private WebClient webClient = new WebClient();
     private HtmlPage htmlPage;
+    private long contentLength = Long.MAX_VALUE;
     
     public AjaxLoader() {
         webClient.getOptions().setJavaScriptEnabled(true);
@@ -40,6 +47,7 @@ public final class AjaxLoader {
 	        ProxyConfig proxyConfig = new ProxyConfig(proxy.getHost(), proxy.getPort());
 	        webClient.getOptions().setProxyConfig(proxyConfig);
         }
+        
     }
     
     /**
@@ -48,6 +56,27 @@ public final class AjaxLoader {
      */
     public Document load(String url) throws FailingHttpStatusCodeException, MalformedURLException, IOException {
         this.htmlPage= webClient.getPage(url);
+        BinaryPage binaryPage = webClient.getPage(url);
+        WebResponse response = binaryPage.getWebResponse();
+        String charset = response.getContentCharset();
+        int statusCode = response.getStatusCode();
+        String contentType = response.getContentType();
+        List<NameValuePair> headers =  response.getResponseHeaders();
+        
+        InputStream in = response.getContentAsStream();
+        byte[] buffer = new byte[HttpBase.BUFFER_SIZE];
+		int bufferFilled = 0;
+		int totalRead = 0;
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1
+		        && totalRead + bufferFilled <= contentLength) {
+			totalRead += bufferFilled;
+			out.write(buffer, 0, bufferFilled);
+		}
+
+		byte[] content = out.toByteArray();
+		
+		
 		Document document = Jsoup.parse(this.htmlPage.asXml(), Utils.getHost(url));
 		return document;
     }

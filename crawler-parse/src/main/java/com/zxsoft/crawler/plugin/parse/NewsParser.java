@@ -12,25 +12,24 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.zxsoft.crawler.dao.ConfDao;
+import com.zxsoft.crawler.duplicate.DuplicateInspector;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
+import com.zxsoft.crawler.parse.ParseStatus;
+import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.News;
 import com.zxsoft.crawler.storage.NewsDetailConf;
 import com.zxsoft.crawler.storage.Seed;
 import com.zxsoft.crawler.storage.WebPageMy;
-import com.zxsoft.crawler.tools.Tools;
 import com.zxsoft.crawler.util.Md5Signatrue;
-import com.zxsoft.crawler.util.parse.ParseStatus;
-import com.zxsoft.crawler.util.parse.Parser;
 
 public class NewsParser extends Parser {
 
     private static Logger LOG = LoggerFactory.getLogger(NewsParser.class);
-    private Tools tools;
-   
-    public void setTools(Tools tools) {
-        this.tools = tools;
-    }
+ 
+	private DuplicateInspector duplicateInspector;
+	private ConfDao confDao;
     
     public ParseStatus parse(WebPageMy page) throws Exception {
     	Assert.notNull(page, "Page is null");
@@ -40,7 +39,7 @@ public class NewsParser extends Parser {
 		Assert.notNull(seed, "Seed is null");
 		
 		String md5 = Md5Signatrue.generateMd5(seed.getUrl());
-		if (tools.getRedisSerivice().judgeMd5Exist(md5)) return null;
+		if (duplicateInspector.md5Exist(md5)) return null;
 		else tools.getRedisSerivice().addJudgeMd5(md5);
 		
         ListConf listConf = page.getListConf();
@@ -102,10 +101,4 @@ public class NewsParser extends Parser {
         return tools.getInfoService().addNews(news);
     }
 
-    public Tools getTools() {
-        return tools;
-    }
-
-
-    
 }

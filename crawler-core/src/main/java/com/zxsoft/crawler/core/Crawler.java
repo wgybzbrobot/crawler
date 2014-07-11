@@ -1,7 +1,5 @@
 package com.zxsoft.crawler.core;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -9,43 +7,32 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
 
-import com.zxsoft.crawler.dao.ConfDao;
-import com.zxsoft.crawler.storage.Seed;
+import com.zxsoft.crawler.CrawlerServer;
 import com.zxsoft.crawler.urlbase.UrlbaseFactory;
-import com.zxsoft.crawler.urlbase.redis.UrlbaseRedisFactory;
 import com.zxsoft.crawler.util.CrawlerConfiguration;
-import com.zxsoft.crawler.util.parse.Category;
 
-@Component
 public class Crawler extends Thread {
 
 	private static Logger LOG = LoggerFactory.getLogger(Crawler.class);
 
-	@Autowired
-	private UrlbaseRedisFactory urlbaseFactory;
+	private UrlbaseFactory urlbaseFactory;
 	
-	@Autowired
-	private ConfDao confDao;
+	public Crawler (UrlbaseFactory urlbaseFactory) {
+		this.urlbaseFactory = urlbaseFactory;
+	}
 	
 	@Override
 	public void run() {
+		System.out.println("Crawler is started.");
+		
+		CrawlerServer.startTime = System.currentTimeMillis();
 		
 		org.apache.hadoop.conf.Configuration conf = CrawlerConfiguration.create();
 		ThreadPoolExecutor executor = newFixedThreadPool(conf.getInt("spider.thread.num", 10));
-
 		while (!executor.isShutdown()) {
 			
-/*			String url = urlbaseFactory.peek();
+			String url = urlbaseFactory.peek();
 			if (url == null) {
 				try {
 	                TimeUnit.SECONDS.sleep(30);
@@ -57,13 +44,7 @@ public class Crawler extends Thread {
 			Spider spider = new Spider(url);
 			spider.setConf(conf);
 			executor.execute(spider);
-*/	
-			confDao.getListConf("http://bbs.anhuinews.com/forum-319-1.html");
-			try {
-                TimeUnit.SECONDS.sleep(3);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+	
 		}
 		
 		LOG.info("Crawler exit.");

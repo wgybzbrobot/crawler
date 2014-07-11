@@ -2,6 +2,9 @@ package com.zxsoft.crawler.storage;
 
 import java.io.Serializable;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.gemfire.mapping.Region;
+
 /**
  * 所有"列表页"配置
  * <p>包括‘资讯新闻’、‘论坛’等
