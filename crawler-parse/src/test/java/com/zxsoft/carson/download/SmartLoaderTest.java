@@ -11,6 +11,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
+import com.zxsoft.crawler.protocols.http.AjaxLoader;
+import com.zxsoft.crawler.protocols.http.JsoupLoader;
+import com.zxsoft.crawler.protocols.http.SmartLoader;
 
 public class SmartLoaderTest {
 

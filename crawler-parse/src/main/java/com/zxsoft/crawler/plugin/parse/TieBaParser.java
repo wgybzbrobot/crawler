@@ -21,14 +21,16 @@ import com.zxsoft.crawler.dao.ConfDao;
 import com.zxsoft.crawler.duplicate.DuplicateInspector;
 import com.zxsoft.crawler.parse.Category;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
-import com.zxsoft.crawler.parse.PageHelper;
 import com.zxsoft.crawler.parse.ParseStatus;
 import com.zxsoft.crawler.parse.Parser;
+import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.protocols.http.PageHelper;
 import com.zxsoft.crawler.storage.Forum;
 import com.zxsoft.crawler.storage.ForumDetailConf;
+import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.Reply;
 import com.zxsoft.crawler.storage.Seed;
-import com.zxsoft.crawler.storage.WebPageMy;
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
 
@@ -38,30 +40,33 @@ import com.zxsoft.crawler.util.Utils;
 public class TieBaParser extends Parser {
 
 	private static Logger LOG = LoggerFactory.getLogger(TieBaParser.class);
-	private JsoupLoader loader = new JsoupLoader();
+	private String mainUrl;
+	private String rule; // filter regular expression
+	private long fetchTime;
+	private long prevFetchTime;
+	private boolean ajax;
 
-	private DuplicateInspector duplicateInspector;
-	private ConfDao confDao;
-
-	public ParseStatus parse(WebPageMy page) throws Exception {
+	public ParseStatus parse(WebPage page) throws Exception {
 		Assert.notNull(page, "Page is null");
 		Document document = page.getDocument();
 		Assert.notNull(document, "Document is null");
-		Seed seed = page.getSeed();
-		Assert.notNull(seed, "Seed is null");
+		ajax = page.isAjax();
+		mainUrl = page.getBaseUrl();
+		fetchTime = page.getFetchTime();
+		prevFetchTime = page.getPrevFetchTime();
+		
+		ForumDetailConf detailConf = confDao.getForumDetailConf(Utils.getHost(mainUrl));
 
-		ParseStatus status = new ParseStatus(seed.getUrl());
-		ForumDetailConf detailConf = tools.getDomService().getForumDetailConf(page.getHost());
+//		if (seed.getType() == Category.DETAIL_PAGE) { // 新的详细页 或 丢失的详细页
+//			fetchContent(page, detailConf);
+//		} else if (seed.getType() == Category.REPLY_PAGE) { // 丢失的回复页
+//			parsePage(page, document, seed.getMainUrl(), seed.getUrl(), detailConf);
+//		} else {
+//			LOG.error("Seed error occur.");
+//		}
+		fetchContent(page, detailConf);
 
-		if (seed.getType() == Category.DETAIL_PAGE) { // 新的详细页 或 丢失的详细页
-			fetchContent(page, detailConf);
-		} else if (seed.getType() == Category.REPLY_PAGE) { // 丢失的回复页
-			parsePage(page, document, seed.getMainUrl(), seed.getUrl(), detailConf);
-		} else {
-			LOG.error("Seed error occur.");
-		}
-
-		return status;
+		return null;
 	}
 
 	/**
@@ -72,31 +77,30 @@ public class TieBaParser extends Parser {
 	 * @param detailConf
 	 *            详细页配置对象(Object of detail page configuration)
 	 */
-	private void fetchContent(WebPageMy page, ForumDetailConf detailConf) {
-		Seed seed = page.getSeed();
-		Forum forum = new Forum(seed.getTitle(), seed.getUrl(), new Date());
+	private void fetchContent(WebPage page, ForumDetailConf detailConf) {
+		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, page.getFetchTime());
 
-		Document document = loader.load(seed, false);
+		Document document = httpFetcher.fetch(mainUrl).getDocument();
 		page.setDocument(document);
 		if (document == null)
 			return;
 		if (detailConf == null) {
-			LOG.warn(forum.getUrl() + " detail page has no configuration in database.");
+			LOG.warn("Detail page has no configuration in database:" + mainUrl);
 			return;
 		}
 
 		if (!CollectionUtils.isEmpty(document.select(detailConf.getReplyNum()))) {
-			forum.setReplyNum(Integer.valueOf(document.select(detailConf.getReplyNum()).first().text()));
+			info.setComment_count(Integer.valueOf(document.select(detailConf.getReplyNum()).first().text()));
 		}
 		
 		// if url + reply number is not changed, then stop fetch.
-		String _md5 = Md5Signatrue.generateMd5(seed.getUrl(), String.valueOf(forum.getReplyNum()));
-		if (tools.getRedisSerivice().judgeMd5Exist(_md5))
+		String _md5 = Md5Signatrue.generateMd5(mainUrl, String.valueOf(info.getComment_count()));
+		if (duplicateInspector.md5Exist(_md5))
 			return;
 		
 		if (!StringUtils.isEmpty(detailConf.getReviewNum())
 		        && !CollectionUtils.isEmpty(document.select(detailConf.getReviewNum()))) {
-			forum.setReviewNum(Integer.valueOf(document.select(detailConf.getReviewNum()).first().text()));
+			info.setRead_count(Integer.valueOf(document.select(detailConf.getReviewNum()).first().text()));
 		}
 
 		Elements mainEles = document.select(detailConf.getMaster());
@@ -104,31 +108,27 @@ public class TieBaParser extends Parser {
 		if (!CollectionUtils.isEmpty(mainEles)) {
 			Element mainEle = mainEles.first();
 			if (!CollectionUtils.isEmpty(mainEle.select(detailConf.getMasterAuthor()))) {
-				forum.setAuthor(mainEle.select(detailConf.getMasterAuthor()).first().text());
+				info.setNickname(mainEle.select(detailConf.getMasterAuthor()).first().text());
 			}
 			Elements contentEles = mainEle.select(detailConf.getMasterContent());
 			if (!CollectionUtils.isEmpty(contentEles)) {
 				Element contentEle = contentEles.first();
-				forum.setContent(contentEle.text());
-				forum.setImgUrl(MultimediaExtractor.extractImgUrl(contentEle, page.getListConf().getFilterurl()));
-				forum.setVideoUrl(MultimediaExtractor.extractVideoUrl(contentEle));
+				info.setContent(contentEle.text());
+				info.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, rule));
+				info.setVideo_url(MultimediaExtractor.extractVideoUrl(contentEle));
 			}
 			if (!CollectionUtils.isEmpty(mainEle.select("a.voice_player_inner"))) {
-				String tid = extractTid(forum.getUrl());
+				String tid = extractTid(info.getUrl());
 				String json = mainEle.attr("data-field");
 				String pid = extractPid(json);
-				forum.setAudioUrl("http://tieba.baidu.com/voice/index?tid=" + tid + "&pid=" + pid);
+				info.setVoice_url("http://tieba.baidu.com/voice/index?tid=" + tid + "&pid=" + pid);
 			}
-			forum.setReleasedate(Utils.extractDate(mainEle.attr("data-field")));
-			String md5 = Md5Signatrue.generateMd5(forum.getUrl(), forum.getAuthor(), forum.getContent(),
-			        forum.getImgUrl(), forum.getAudioUrl(), forum.getVideoUrl());
-			if (!duplicateInspector.md5Exist(md5)) {
-				tools.getRedisSerivice().addMd5(md5);
-				tools.getInfoService().addForum(forum);
-			}
+			info.setTimestamp(Utils.extractDate(mainEle.attr("data-field")).getTime());
+			
+			recordInfos.add(info);
 			parseReply(page, detailConf);
 		} else {
-			LOG.warn(forum.getUrl() + "主帖信息配置有误.");
+			LOG.warn("主帖信息配置有误:" + mainUrl);
 			return;
 		}
 	}
@@ -136,75 +136,72 @@ public class TieBaParser extends Parser {
 	/**
 	 * 解析回复
 	 */
-	private void parseReply(WebPageMy page, ForumDetailConf detailConf) {
+	private void parseReply(WebPage page, ForumDetailConf detailConf) {
 		String newPageUrl = "", currentPageText = "1";
 		Document doc = page.getDocument();
-		Seed seed = new Seed();
-		try {
-			seed = page.getSeed().clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		String mainUrl = seed.getMainUrl();
-		seed.setType(Category.REPLY_PAGE);
 		String currentUrl = mainUrl;
 
 		if (!detailConf.isFetchorder()) { // 从第一页
 			do {
-				boolean isContinue = parsePage(page, doc, mainUrl, currentUrl, detailConf);
+				boolean isContinue = parsePage(page, doc, currentUrl, detailConf);
 				if (!isContinue) {
 					break;
 				}
 				// 获取下一页
-				Element pagebar = PageHelper.getPageBar(doc);
-				if (pagebar != null) {
-					Element pg = PageHelper.getNextPage(pagebar, currentPageText);
-					if (pg != null) {
-						currentPageText = pg.text();
-						newPageUrl = pg.absUrl("href");
-					}
-				}
-				seed.setUrl(newPageUrl);
-				doc = loader.load(seed);
+//				Element pagebar = PageHelper.getPageBar(doc);
+//				if (pagebar != null) {
+//					Element pg = pageHelper.loadNextPage(pagebar, currentPageText);
+//					if (pg != null) {
+//						currentPageText = pg.text();
+//						newPageUrl = pg.absUrl("href");
+//					}
+//				}
+//				doc = httpFetcher.fetch(newPageUrl).getDocument();
+				doc = pageHelper.loadNextPage(doc, ajax).getDocument();
 				currentUrl = newPageUrl;
 			} while (!StringUtils.isEmpty(newPageUrl));
 
 		} else { // fetch from last page
 			// jump to last page
-			String u = "";
-			Element pg = null;
-			Element pagebar = PageHelper.getPageBar(doc);
-			if (pagebar != null) {
-				pg = PageHelper.getLastPage(pagebar);
-				if (pg != null) {
-					currentPageText = pg.text();
-					u = pg.absUrl("href");
-				}
+//			String u = "";
+//			Element pg = null;
+//			Element pagebar = PageHelper.getPageBar(doc);
+//			if (pagebar != null) {
+//				pg = PageHelper.getLastPage(pagebar);
+//				if (pg != null) {
+//					currentPageText = pg.text();
+//					u = pg.absUrl("href");
+//				}
+//			}
+			ProtocolOutput ptemp = pageHelper.loadLastPage(doc, ajax); 
+			if (ptemp == null) {
+				LOG.info("++++++++++++++++++++");
+				return;
 			}
-
-			if (StringUtils.isEmpty(u)) { // 无分页
-				parsePage(page, doc, mainUrl, currentUrl, detailConf);
+				
+			Document lastDoc = ptemp.getDocument();
+			if (lastDoc == null) { // 无分页
+				parsePage(page, doc, currentUrl, detailConf);
 			} else {
-				seed.setUrl(u);
-				doc = loader.load(seed);
-				currentUrl = u;
+				doc = lastDoc;
+				currentUrl = doc.location();
 				while (true) {
 					if (doc == null || StringUtils.isEmpty(currentUrl))
 						break;
-					boolean isContinue = parsePage(page, doc, mainUrl, currentUrl, detailConf);
+					boolean isContinue = parsePage(page, doc, currentUrl, detailConf);
 					if (!isContinue) {
 						break;
 					}
 					// 获取上一页
-					pagebar = PageHelper.getPageBar(doc);
-					pg = PageHelper.getPrePage(pagebar, currentPageText);
-					if (pg == null)
-						break;
-					currentPageText = pg.text();
-					newPageUrl = pg.absUrl("href");
-					seed.setUrl(newPageUrl);
-					doc = loader.load(seed);
-					currentUrl = newPageUrl;
+//					pagebar = PageHelper.getPageBar(doc);
+//					pg = PageHelper.getPrePage(pagebar, currentPageText);
+//					if (pg == null)
+//						break;
+//					currentPageText = pg.text();
+//					newPageUrl = pg.absUrl("href");
+//					doc = httpFetcher.fetch(newPageUrl).getDocument();
+					doc = pageHelper.loadPrevPage(doc, ajax).getDocument();
+					currentUrl = doc.location();
 					LOG.info(currentUrl);
 				}
 			}
@@ -223,27 +220,31 @@ public class TieBaParser extends Parser {
 	 * @param detailConf
 	 *            详细页配置对象(Object of detail page configuration)
 	 */
-	private boolean parsePage(WebPageMy page, Document doc, String mainUrl, String currentUrl, ForumDetailConf detailConf) {
+	private boolean parsePage(WebPage page, Document doc, String currentUrl, ForumDetailConf detailConf) {
 		Elements replyEles = doc.select(detailConf.getReply()); // 所有回复
 		String tid = extractTid(mainUrl);
-		Date limitDate = page.getSeed().getLimitDate();
 		Collections.reverse(replyEles);
 		for (Element element : replyEles) {
-			Reply reply = new Reply();
-			reply.setMainUrl(mainUrl);
-			reply.setCurrentUrl(currentUrl);
+			RecordInfo info = new RecordInfo();
+			info.setOriginal_url(mainUrl);
+			info.setUrl(currentUrl);
+			
 			String json = element.attr("data-field");
 			String pid = extractPid(json);
-			reply = save(reply, element, detailConf, tid, pid, page); // 保存回复
+			info = save(info, element, detailConf, tid, pid, page); // 保存回复
 
-			if (reply.getReleasedate() != null && reply.getReleasedate().before(limitDate))
+			if (info.getTimestamp() != 0 && info.getTimestamp() < prevFetchTime)
 				return false;
 			/*
 			 * 解析子回复
 			 */
 			String surl = "http://tieba.baidu.com/p/comment?tid=" + tid + "&pid=" + pid + "&pn=1&t="
 			        + System.currentTimeMillis();
-			Reply subReply = new Reply(mainUrl, currentUrl, reply.getId());
+			
+			RecordInfo subReply = new RecordInfo();
+			subReply.setOriginal_url(mainUrl);
+			subReply.setUrl(currentUrl);
+			subReply.setOriginal_id(info.getId());
 			saveSub(subReply, surl, detailConf, tid);
 		}
 		return true;
@@ -252,44 +253,38 @@ public class TieBaParser extends Parser {
 	/**
 	 * 保存回复
 	 */
-	private Reply save(Reply reply, Element element, ForumDetailConf detailConf, String tid, String pid, WebPageMy page) {
-
-		reply.setReleasedate(Utils.extractDate(element.attr("data-field")));
+	private RecordInfo save(RecordInfo info, Element element, ForumDetailConf detailConf, String tid, String pid, WebPage page) {
+		
+		info.setTimestamp(Utils.extractDate(element.attr("data-field")).getTime());
 		String id = UUID.randomUUID().toString();
-		reply.setId(id);
+		info.setId(id);
 		if (!CollectionUtils.isEmpty(element.select(detailConf.getReplyAuthor()))) {
-			reply.setAuthorAccount(element.select(detailConf.getReplyAuthor()).first().text());
+			info.setNickname(element.select(detailConf.getReplyAuthor()).first().text());
 		}
 
 		Elements contentEles = element.select(detailConf.getReplyContent());
 		if (!CollectionUtils.isEmpty(contentEles)) {
 			Element contentEle = contentEles.first();
-			reply.setContent(contentEle.text());
-			String filterurl = page.getListConf().getFilterurl();
-			reply.setImgUrl(MultimediaExtractor.extractImgUrl(contentEle, filterurl));
-			reply.setVideoUrl(null);
+			info.setContent(contentEle.text());
+			info.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, rule));
+			info.setVideo_url("");
 		}
 		if (!CollectionUtils.isEmpty(element.select("a.voice_player_inner"))) {
-			reply.setAudioUrl("http://tieba.baidu.com/voice/index?tid=" + tid + "&pid=" + pid);
-		}
-		reply.setAddress(null);
-
-		String md5 = Md5Signatrue.generateMd5(reply.getMainUrl(), reply.getAuthorAccount(), reply.getContent(),
-		        reply.getImgUrl(), reply.getAudioUrl(), reply.getVideoUrl());
-		if (!duplicateInspector.md5Exist(md5)) {
-			reply.setMd5(md5);
-			tools.getRedisSerivice().addMd5(md5);
-			tools.getInfoService().addReply(reply);
+			info.setVoice_url("http://tieba.baidu.com/voice/index?tid=" + tid + "&pid=" + pid);
 		}
 
-		return reply;
+		recordInfos.add(info);
+		return info;
 	}
 
 	/**
 	 * 解析子回复
 	 */
-	private void saveSub(Reply reply, String surl, ForumDetailConf detailConf, String tid) {
-		Document doc = loader.load(new Seed(surl));
+	private void saveSub(RecordInfo reply, String surl, ForumDetailConf detailConf, String tid) {
+		ProtocolOutput ptemp = httpFetcher.fetch(surl);
+		if (ptemp.getStatus().getCode() != 200)
+			return;
+		Document doc = ptemp.getDocument();
 		if (doc == null) {
 			LOG.info("No Sub reply infomation.");
 			return;
@@ -305,7 +300,7 @@ public class TieBaParser extends Parser {
 			parseSubPage(reply, doc, detailConf, tid);
 		} else {
 			// jump to last page
-			doc = loader.load(new Seed(u));
+			doc = httpFetcher.fetch(u).getDocument();
 			while (true) {
 				if (doc == null)
 					break;
@@ -318,7 +313,7 @@ public class TieBaParser extends Parser {
 				if (newPageUrl == null) {
 					break;
 				}
-				doc = loader.load(new Seed(newPageUrl));
+				doc = httpFetcher.fetch(newPageUrl).getDocument();
 			}
 		}
 	}
@@ -326,7 +321,7 @@ public class TieBaParser extends Parser {
 	/**
 	 * 保存子回复
 	 */
-	private void parseSubPage(Reply reply, Document doc, ForumDetailConf detailConf, String tid) {
+	private void parseSubPage(RecordInfo reply, Document doc, ForumDetailConf detailConf, String tid) {
 
 		Elements elements = doc.select("li.lzl_single_post.j_lzl_s_p");
 		if (CollectionUtils.isEmpty(elements))
@@ -339,7 +334,7 @@ public class TieBaParser extends Parser {
 			String spid = extractSpid(json);
 
 			if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyAuthor()))) {
-				reply.setAuthorAccount(element.select(detailConf.getSubReplyAuthor()).first().text());
+				reply.setNickname(element.select(detailConf.getSubReplyAuthor()).first().text());
 			}
 			if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyContent()))) {
 				reply.setContent(element.select(detailConf.getSubReplyContent()).first().text());
@@ -349,28 +344,20 @@ public class TieBaParser extends Parser {
 			for (Element img : imgs) {
 				imgUrlSb.append(img.attr("abs:src"));
 			}
-			reply.setImgUrl(imgUrlSb.toString());
+			reply.setPic_url(imgUrlSb.toString());
 
 			if (!CollectionUtils.isEmpty(element.select("a.voice_player_inner")) && !StringUtils.isEmpty(spid)) {
-				reply.setAudioUrl("http://tieba.baidu.com/voice/index?tid=" + tid + "&pid=" + spid);
+				reply.setVoice_url("http://tieba.baidu.com/voice/index?tid=" + tid + "&pid=" + spid);
 			}
-			reply.setVideoUrl(null);
-			reply.setAddress(null);
+			reply.setVideo_url("");
 
 			String dateStr = "";
 			if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyDate()))) {
 				dateStr = element.select(detailConf.getSubReplyDate()).first().text();
-				reply.setReleasedate(Utils.formatDate(dateStr));
+				reply.setTimestamp(Utils.formatDate(dateStr).getTime());
 			}
 
-			String md5 = Md5Signatrue.generateMd5(reply.getMainUrl(), reply.getAuthorAccount(), reply.getContent(),
-			        reply.getImgUrl(), reply.getAudioUrl(), reply.getVideoUrl());
-			if (duplicateInspector.md5Exist(md5)) { // 判断是否已经抓取
-				return;
-			}
-			tools.getRedisSerivice().addMd5(md5);
-			reply.setMd5(md5);
-			tools.getInfoService().addReply(reply);
+			recordInfos.add(reply);
 		}
 	}
 

@@ -1,4 +1,4 @@
-package com.zxsoft.carson.parse;
+package com.zxsoft.crawler.parse;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -17,7 +17,7 @@ import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.zxsoft.carson.util.Utils;
+import com.zxsoft.crawler.util.Utils;
 
 public class TestMultimediaExtractor {
 

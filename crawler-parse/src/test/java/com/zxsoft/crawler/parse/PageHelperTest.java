@@ -1,4 +1,4 @@
-package com.zxsoft.carson.parse;
+package com.zxsoft.crawler.parse;
 
 import java.io.IOException;
 
@@ -8,11 +8,13 @@ import org.jsoup.nodes.Element;
 import org.junit.Test;
 import org.springframework.util.Assert;
 
-import com.zxsoft.carson.download.JsoupLoader;
-import com.zxsoft.crawler.protocol.http.PageHelper;
+import com.zxsoft.crawler.protocols.http.HttpFetcher;
+import com.zxsoft.crawler.protocols.http.PageHelper;
 
 public class PageHelperTest {
 
+	HttpFetcher httpFetcher;
+	
 	@Test
 	public void testGetLastPage1() { // 3
 		String url = "http://bbs.news.qq.com/t-1881967-1.htm";
@@ -130,8 +132,7 @@ public class PageHelperTest {
 	@Test
 	public void testGetPagebarTianYa () throws IOException {
 		String url = "http://bbs.tianya.cn/list-52985-1.shtml";
-		JsoupLoader loader = new JsoupLoader();
-		Document document = loader.load(url);
+		Document document = httpFetcher.fetch(url).getDocument();
 		Element pagebar = PageHelper.getPageBar(document);
 		Assert.notNull(pagebar);
 		Assert.notEmpty(pagebar.select("a:matches(上一页|上页|<上一页|下一页|下页|下一页>|尾页|末页)"));
@@ -141,8 +142,7 @@ public class PageHelperTest {
 	@Test
 	public void testGetPagebarTieXue () throws IOException {
 		String url = "http://bbs.tiexue.net/bbs32-0-1.html";
-		JsoupLoader loader = new JsoupLoader();
-		Document document = loader.load(url);
+		Document document = httpFetcher.fetch(url).getDocument();
 		Element pagebar = PageHelper.getPageBar(document);
 		Assert.notNull(pagebar);
 		Assert.notEmpty(pagebar.select("a:matches(上一页|上页|<上一页|下一页|下页|下一页>|尾页|末页|>>)"));
@@ -152,8 +152,7 @@ public class PageHelperTest {
 	@Test
 	public void testGetPagebarDaQi () throws IOException {
 		String url = "http://shehui.daqi.com/bbs/709319.html";
-		JsoupLoader loader = new JsoupLoader();
-		Document document = loader.load(url);
+		Document document = httpFetcher.fetch(url).getDocument();
 		Element pagebar = PageHelper.getPageBar(document);
 		Assert.notNull(pagebar);
 		Assert.notEmpty(pagebar.select("a:matches(^上一页|上页|<上一页|下一页|下页|下一页>|尾页|末页|>>|4$)"));

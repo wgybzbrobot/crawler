@@ -1,10 +1,7 @@
 package com.zxsoft.crawler.parse;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.net.MalformedURLException;
 import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
@@ -16,54 +13,57 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hadoop.conf.Configuration;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.zxsoft.crawler.dao.ConfDao;
-import com.zxsoft.crawler.protocols.http.SmartLoader;
-import com.zxsoft.crawler.protocols.http.proxy.ProxyRandom;
+import com.zxsoft.crawler.plugin.parse.ForumParser;
+import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.protocols.http.HttpFetcher;
+import com.zxsoft.crawler.protocols.http.PageHelper;
 import com.zxsoft.crawler.storage.ListConf;
-import com.zxsoft.crawler.storage.Seed;
 import com.zxsoft.crawler.storage.WebPage;
-import com.zxsoft.crawler.storage.WebPageMy;
 import com.zxsoft.crawler.util.Utils;
 
-public class ParseUtil {
+//@Component
+//@Scope("prototype")
+public final class ParseUtil {
 
 	private static Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
-
+	public static ApplicationContext ctx;
 	private Configuration conf;
-	
-	private ProxyRandom random;
-	
-	@Autowired
-	public ParseUtil (ProxyRandom random) {
-		this.random = random;
-	}
-
 	private ThreadPoolExecutor pool = null;
-
 	private AtomicBoolean continuePage = new AtomicBoolean(true);
 	private AtomicInteger pageNum = new AtomicInteger(1);
-
+	private String indexUrl;
+	private boolean ajax;
+	
+	private HttpFetcher httpFetcher;
+	private PageHelper pageHelper;
 	private ConfDao confDao;
 	
-	public void setConf(Configuration conf) {
+	public ParseUtil(ApplicationContext context, Configuration conf) {
+		ctx = context;
 		this.conf = conf;
+		httpFetcher = ctx.getBean(HttpFetcher.class);
+		pageHelper = ctx.getBean(PageHelper.class);
+		confDao = ctx.getBean(ConfDao.class);
 	}
 
 	public ParseStatus parse(WebPage page) throws ParserNotFoundException {
 		ParserFactory factory = new ParserFactory();
 		factory.setConf(conf);
 		
-		ListConf listConf = confDao.getListConf(page.getBaseUrl().toString());
+		ListConf listConf = confDao.getListConf(page.getBaseUrl());
 		ParseStatus status = null;
 		
 		if (listConf != null) {
@@ -83,17 +83,17 @@ public class ParseUtil {
 	 * 解析列表页()
 	 */
 	public ParseStatus parseListPage(WebPage page, Parser parser, ListConf listConf) {
-		ParseStatus status = null;
-		InputStream inputStream = new ByteArrayInputStream(page.getContent());
-		Document document = Jsoup.parse(inputStream, charsetName, baseUri);
-		String indexUrl = page.getBaseUrl().toString();
+		ParseStatus status = new ParseStatus();
+		Document document = page.getDocument();
+		indexUrl = page.getBaseUrl();
+		ajax = page.isAjax();
 		
 		LOG.info("【" + listConf.getComment() + "】抓取开始");
 		
 		while (true) {
 			Elements list = document.select(listConf.getListdom());
 			if (CollectionUtils.isEmpty(list)) {
-				LOG.warn("main dom set error.");
+				LOG.warn("main dom set error:" + indexUrl);
 				return null;
 			}
 			Elements lines = list.first().select(listConf.getLinedom());
@@ -127,25 +127,15 @@ public class ParseUtil {
 				String curl = line.select(listConf.getUrldom()).first().absUrl("href");
 				String title = line.select(listConf.getUrldom()).first().text();
 				LOG.info(title + lastupdate);
-				WebPageMy wp = new WebPageMy();
-				Seed detailPageSeed = new Seed(curl, indexUrl, 0, Category.DETAIL_PAGE, title, releasedate, curl, page.getSeed().getLimitDate());
 				
-				
-				
-				Document dtemp = loader.load(detailPageSeed);
+				ProtocolOutput otemp = httpFetcher.fetch(curl); 
+				if (otemp == null) continue;
+				Document dtemp = otemp.getDocument();
 				if (dtemp == null) {
 					continue;
 				}
-				wp.setDocument(dtemp);
-				wp.setSeed(detailPageSeed);
-				wp.getSeed().setLimitDate(page.getSeed().getLimitDate());
-				wp.setAjaxLoader(page.getAjaxLoader());
-				try {
-					wp.setHost(Utils.getHost(curl));
-				} catch (MalformedURLException e1) {
-					e1.printStackTrace();
-				}
-
+				WebPage wp = new WebPage(title, curl, otemp.getFetchTime(), dtemp);
+				
 				try {
 					ParseCallable pc = new ParseCallable(parser, wp);
 					Future<ParseStatus> future = pool.submit(pc);
@@ -163,23 +153,10 @@ public class ParseUtil {
 				break;
 			} else { // 翻页
 				Document oldDoc = document;
-				SmartLoader loader = new SmartLoader();
-				try {
-					document = loader.loadNexPage(pageNum.get(), document);
-				} catch (IOException e) {
-					LOG.error(indexUrl + "列表页翻页出错");
-					try {
-						Seed seedCopy = page.getSeed().clone();
-						seedCopy.setUrl(document.location());
-						seedCopy.setRemain(2);
-						seedCopy.setLose(true);
-						seedCopy.setType(Category.DETAIL_PAGE);
-					} catch (CloneNotSupportedException ce) {
-						ce.printStackTrace();
-					}
-					e.printStackTrace();
-				}
-
+				ProtocolOutput ptemp = pageHelper.loadNextPage(pageNum.get(), document, ajax);
+				if (ptemp.getStatus().getCode() != 200)
+					break;
+				document = ptemp.getDocument();
 				if (document == null || document.html().equals(oldDoc.html())) {
 					LOG.info("document == null or current page is same to next page，break");
 					break;
@@ -195,7 +172,7 @@ public class ParseUtil {
 	/**
 	 * 解析丢失的详细页
 	 */
-	public ParseStatus parseDetailPage(WebPageMy page, Parser parser) {
+	public ParseStatus parseDetailPage(WebPage page, Parser parser) {
 		ParseStatus status = new ParseStatus();
 		try {
 			status = parser.parse(page);
@@ -207,9 +184,9 @@ public class ParseUtil {
 
 	private static class ParseCallable implements Callable<ParseStatus> {
 		private Parser parser;
-		private WebPageMy page;
+		private WebPage page;
 
-		public ParseCallable(Parser parser, WebPageMy page) {
+		public ParseCallable(Parser parser, WebPage page) {
 			this.parser = parser;
 			this.page = page;
 		}

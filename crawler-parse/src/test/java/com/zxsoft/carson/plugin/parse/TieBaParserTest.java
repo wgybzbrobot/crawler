@@ -9,17 +9,18 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.zxsoft.carson.download.JsoupLoader;
-import com.zxsoft.carson.pojo.Seed;
+import com.zxsoft.crawler.protocols.http.HttpFetcher;
 
 public class TieBaParserTest {
 
+	HttpFetcher httpFetcher = new HttpFetcher();
+	
 	@Test
 	public void testGetSubReply1() {
 		
+		
 		String uno = "http://tieba.baidu.com/p/comment?tid=3073183090&pid=51350571182&pn=1&t=1401331331927";
-//		String uno = "http://tieba.baidu.com/p/3073183090";
-		Document document = new JsoupLoader().load(new Seed(uno));
+		Document document = httpFetcher.fetch(uno).getDocument();
 		
 		Elements elements = document.select("li.lzl_single_post.j_lzl_s_p");
 		
@@ -37,7 +38,7 @@ public class TieBaParserTest {
 	public void testGetSubReply2() {
 		String uyes = "http://tieba.baidu.com/p/comment?tid=2715141907&pid=41926303511&pn=1&t=1401331331927";
 //		String uyes = "http://tieba.baidu.com/p/2715141907";
-		Document document = new JsoupLoader().load(new Seed(uyes));
+		Document document = httpFetcher.fetch(uyes).getDocument();
 		Elements elements = document.select("li.lzl_single_post.j_lzl_s_p");
 		if (CollectionUtils.isEmpty(elements)) {
 			System.out.println("2: no sub reply");

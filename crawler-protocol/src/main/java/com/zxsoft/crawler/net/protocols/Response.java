@@ -1,19 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.zxsoft.crawler.net.protocols;
 
 // JDK imports
@@ -24,27 +8,34 @@ import java.net.URL;
 import com.zxsoft.crawler.metadata.HttpHeaders;
 import com.zxsoft.crawler.metadata.Metadata;
 
+public class Response extends HttpHeaders {
 
-/**
- * A response inteface.  Makes all protocols model HTTP.
- */
-public interface Response extends HttpHeaders {
-  
-  /** Returns the URL used to retrieve this response. */
-  public URL getUrl();
+	/** Returns the URL used to retrieve this response. */
+	public URL url;
 
-  /** Returns the response code. */
-  public int getCode();
+	/** Returns the response code. */
+	public int code;
 
-  /** Returns the value of a named header. */
-  public String getHeader(String name);
+	/** Returns the value of a named header. */
+	public String getHeader(String name) {
+		return headers.get(name);
+	}
 
-  /** Returns all the headers. */
-  public Metadata getHeaders();
-  
-  /** Returns the full content of the response. */
-  public byte[] getContent();
-  
-  public String getCharset();
+	/** Returns all the headers. */
+	public Metadata headers;
+
+	/** Returns the full content of the response. */
+	public byte[] content;
+
+	public String charset;
+
+	public Response(URL url, int code, Metadata headers, byte[] content, String charset) {
+		super();
+		this.url = url;
+		this.code = code;
+		this.headers = headers;
+		this.content = content;
+		this.charset = charset;
+	}
 
 }

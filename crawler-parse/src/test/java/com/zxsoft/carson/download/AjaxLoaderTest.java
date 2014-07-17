@@ -8,6 +8,8 @@ import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.springframework.util.Assert;
 
+import com.zxsoft.crawler.protocols.http.AjaxLoader;
+
 public class AjaxLoaderTest {
 
 	@Test

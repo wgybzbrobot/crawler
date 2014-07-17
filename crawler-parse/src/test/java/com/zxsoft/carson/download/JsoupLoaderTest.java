@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import com.zxsoft.crawler.protocols.http.JsoupLoader;
 import com.zxsoft.crawler.util.Utils;
 
 public class JsoupLoaderTest {

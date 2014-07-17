@@ -15,6 +15,7 @@ import java.util.List;
 
 
 
+
 // HTTP Client imports
 import org.apache.avro.util.Utf8;
 import org.apache.commons.httpclient.Header;
@@ -35,6 +36,7 @@ import org.apache.http.auth.NTCredentials;
 import com.gargoylesoftware.htmlunit.BinaryPage;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.zxsoft.crawler.cache.proxy.Proxy;
 import com.zxsoft.crawler.metadata.Metadata;
@@ -55,14 +57,14 @@ public class HtmlUnitResponse implements Response {
 	private byte[] content;
 	private int code;
 	private Metadata headers = new SpellCheckedMetadata();
-	
+	private String charset;
 	private String proxyUsername;
 	private String proxyPassword;
 	private String proxyHost;
 	private int proxyPort;
 	private String proxyRealm;
 
-	public HtmlUnitResponse(HtmlUnit http, URL url, Proxy proxy, WebPage page, boolean followRedirects) throws IOException {
+	public HtmlUnitResponse(HtmlUnit http, URL url, Proxy proxy, boolean followRedirects) throws IOException {
 
 		// Prepare GET method for HTTP request
 		this.url = url;
@@ -85,16 +87,11 @@ public class HtmlUnitResponse implements Response {
 		else 
 			request.setSocksProxy(false);
 		
-		if (page.getModifiedTime() > 0) {
-			request.setAdditionalHeader("If-Modified-Since",
-			        HttpDateFormat.toString(page.getModifiedTime()));
-		}
-
 		try {
-
-			BinaryPage binaryPage = http.getClient().getPage(url);
-	        WebResponse response = binaryPage.getWebResponse();
-	        String charset = response.getContentCharset();
+			HtmlPage htmlPage = http.getClient().getPage(request);
+			System.out.println(htmlPage.asXml());
+	        WebResponse response = htmlPage.getWebResponse();
+	        charset = response.getContentCharset();
 	        code = response.getStatusCode();
 	        String contentType = response.getContentType();
 	        
@@ -117,7 +114,6 @@ public class HtmlUnitResponse implements Response {
 				contentLength = http.getMaxContent();
 			}
 			
-			// always read content. Sometimes content is useful to find a cause for error.
 	        InputStream in = response.getContentAsStream();
 	        try {
 		        byte[] buffer = new byte[HttpBase.BUFFER_SIZE];
@@ -133,7 +129,6 @@ public class HtmlUnitResponse implements Response {
 			} catch (Exception e) {
 				if (code == 200)
 					throw new IOException(e.toString());
-				// for codes other than 200 OK, we are fine with empty content
 			} finally {
 				if (in != null) {
 					in.close();
@@ -141,47 +136,21 @@ public class HtmlUnitResponse implements Response {
 //				request.close();
 			}
 
-			StringBuilder fetchTrace = null;
-			if (HtmlUnit.LOG.isTraceEnabled()) {
-				// Trace message
-				fetchTrace = new StringBuilder("url: " + url + "; status code: " + code
-				        + "; bytes received: " + content.length);
-				if (getHeader(Response.CONTENT_LENGTH) != null)
-					fetchTrace.append("; Content-Length: " + getHeader(Response.CONTENT_LENGTH));
-				if (getHeader(Response.LOCATION) != null)
-					fetchTrace.append("; Location: " + getHeader(Response.LOCATION));
-			}
 			// Extract gzip, x-gzip and deflate content
 			if (content != null) {
 				// check if we have to uncompress it
 				String contentEncoding = headers.get(Response.CONTENT_ENCODING);
 				if (contentEncoding != null && HtmlUnit.LOG.isTraceEnabled())
-					fetchTrace.append("; Content-Encoding: " + contentEncoding);
 				if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
 					content = http.processGzipEncoded(content, url);
-					if (HtmlUnit.LOG.isTraceEnabled())
-						fetchTrace.append("; extracted to " + content.length + " bytes");
 				} else if ("deflate".equals(contentEncoding)) {
 					content = http.processDeflateEncoded(content, url);
-					if (HtmlUnit.LOG.isTraceEnabled())
-						fetchTrace.append("; extracted to " + content.length + " bytes");
 				}
 			}
 
-			// add headers in metadata to row
-			if (page.getHeaders() != null) {
-				page.getHeaders().clear();
-			}
-			for (String key : headers.names()) {
-				page.putToHeaders(new Utf8(key), new Utf8(headers.get(key)));
-			}
-
-			// Logger trace message
-			if (HtmlUnit.LOG.isTraceEnabled()) {
-				HtmlUnit.LOG.trace(fetchTrace.toString());
-			}
 		} finally {
 //			get.releaseConnection();
+			 http.getClient().closeAllWindows();
 		}
 	}
 	

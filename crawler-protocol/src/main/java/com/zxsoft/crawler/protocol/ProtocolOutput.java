@@ -17,40 +17,47 @@
 
 package com.zxsoft.crawler.protocol;
 
+import org.jsoup.nodes.Document;
 
 /**
- * Simple aggregate to pass from protocol plugins both content and
- * protocol status.
- * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
+ * Simple aggregate to pass from protocol plugins both content and protocol
+ * status.
+ * 
  */
 public class ProtocolOutput {
-  private Content content;
-  private /*org.apache.nutch.storage.*/ProtocolStatus status;
+	private Document document;
+	private ProtocolStatus status;
+	private long fetchtime;
+	
+	public ProtocolOutput(Document document, ProtocolStatus status) {
+		this.document = document;
+		this.status = status;
+		this.fetchtime = System.currentTimeMillis();
+	}
 
-  public ProtocolOutput(Content content,
-      /*org.apache.nutch.storage.*/ProtocolStatus status) {
-    this.content = content;
-    this.status = status;
-  }
+	public ProtocolOutput(Document document) {
+		this.document = document;
+		this.status = ProtocolStatusUtils.STATUS_SUCCESS;
+		this.fetchtime = System.currentTimeMillis();
+	}
 
-  public ProtocolOutput(Content content) {
-    this.content = content;
-    this.status = ProtocolStatusUtils.STATUS_SUCCESS;
-  }
+	public long getFetchTime() {
+		return fetchtime;
+	}
+	public Document getDocument() {
+		return document;
+	}
 
-  public Content getContent() {
-    return content;
-  }
+	public void setDocument(Document document) {
+		this.document = document;
+	}
 
-  public void setContent(Content content) {
-    this.content = content;
-  }
+	public ProtocolStatus getStatus() {
+		return status;
+	}
 
-  public /*org.apache.nutch.storage.*/ProtocolStatus getStatus() {
-    return status;
-  }
+	public void setStatus(ProtocolStatus status) {
+		this.status = status;
+	}
 
-  public void setStatus(/*org.apache.nutch.storage.*/ProtocolStatus status) {
-    this.status = status;
-  }
 }

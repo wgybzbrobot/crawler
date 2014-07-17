@@ -7,8 +7,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 import com.zxsoft.crawler.CrawlerServer;
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.urlbase.UrlbaseFactory;
 import com.zxsoft.crawler.util.CrawlerConfiguration;
 
@@ -16,35 +19,44 @@ public class Crawler extends Thread {
 
 	private static Logger LOG = LoggerFactory.getLogger(Crawler.class);
 
-	private UrlbaseFactory urlbaseFactory;
+	private ApplicationContext ctx;
 	
-	public Crawler (UrlbaseFactory urlbaseFactory) {
-		this.urlbaseFactory = urlbaseFactory;
-	}
+	public Crawler(ApplicationContext ctx) {
+		this.ctx = ctx;
+    }
+	
+	private static ThreadPoolExecutor executor;
 	
 	@Override
 	public void run() {
+		UrlbaseFactory urlbaseRedisFactory = ctx.getBean(UrlbaseFactory.class);
+		
 		System.out.println("Crawler is started.");
 		
 		CrawlerServer.startTime = System.currentTimeMillis();
 		
 		org.apache.hadoop.conf.Configuration conf = CrawlerConfiguration.create();
-		ThreadPoolExecutor executor = newFixedThreadPool(conf.getInt("spider.thread.num", 10));
+		executor = newFixedThreadPool(conf.getInt("spider.thread.num", 10));
 		while (!executor.isShutdown()) {
 			
-			String url = urlbaseFactory.peek();
+			WebPage page = urlbaseRedisFactory.peek();
+			String url = page.getBaseUrl();
 			if (url == null) {
 				try {
-	                TimeUnit.SECONDS.sleep(30);
+	                TimeUnit.SECONDS.sleep(160);
                 } catch (InterruptedException e) {
 	                e.printStackTrace();
                 }
 				continue;
 			}
-			Spider spider = new Spider(url);
-			spider.setConf(conf);
-			executor.execute(spider);
-	
+			CrawlJob crawlJob = new CrawlJob(ctx, page, conf);
+			executor.execute(crawlJob);
+			
+			try {
+                TimeUnit.SECONDS.sleep(160);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 		}
 		
 		LOG.info("Crawler exit.");

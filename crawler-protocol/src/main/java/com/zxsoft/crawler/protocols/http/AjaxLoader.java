@@ -42,12 +42,6 @@ public final class AjaxLoader {
         webClient.setAjaxController(new NicelyResynchronizingAjaxController());
         webClient.getOptions().setTimeout(20000);
         webClient.getOptions().setThrowExceptionOnScriptError(false);
-        Proxy proxy = ProxyRandom.random();
-        if (proxy != null) {
-	        ProxyConfig proxyConfig = new ProxyConfig(proxy.getHost(), proxy.getPort());
-	        webClient.getOptions().setProxyConfig(proxyConfig);
-        }
-        
     }
     
     /**
@@ -75,8 +69,6 @@ public final class AjaxLoader {
 		}
 
 		byte[] content = out.toByteArray();
-		
-		
 		Document document = Jsoup.parse(this.htmlPage.asXml(), Utils.getHost(url));
 		return document;
     }
@@ -88,11 +80,6 @@ public final class AjaxLoader {
      * @throws MalformedURLException 
      * @throws FailingHttpStatusCodeException 
      */
-    @Deprecated
-    public Document loadNextPage (WebPageMy webPage) throws IOException {
-        return loadNextPage(1, webPage.getDocument());
-    }
-    
     public Document loadNextPage (int pageNum, Document currentDoc) throws IOException {
     	String url = currentDoc.location();
      	if (htmlPage == null) {

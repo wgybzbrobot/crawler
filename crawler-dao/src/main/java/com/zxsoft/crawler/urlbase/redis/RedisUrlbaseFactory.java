@@ -4,22 +4,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.urlbase.UrlbaseFactory;
 
 @Component
-public class UrlbaseRedisFactory extends UrlbaseFactory {
+public class RedisUrlbaseFactory extends UrlbaseFactory {
 
 	private StringRedisTemplate template;
 
 	@Autowired
-	public UrlbaseRedisFactory(StringRedisTemplate template) {
+	public RedisUrlbaseFactory(StringRedisTemplate template) {
 	    this.template = template;
     }
 	
 	@Override
-    public String peek() {
+    public WebPage peek() {
+		WebPage page = new WebPage();
+		page.setBaseUrl("http://tieba.baidu.com/f?kw=%B0%F6%B2%BA");
+		page.setAjax(false);
+		page.setPrevFetchTime(0);
 		
-		return "http://tieba.baidu.com/f?kw=%B0%F6%B2%BA";
+		return page;
     }
 
 }

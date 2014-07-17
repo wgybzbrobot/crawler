@@ -2,16 +2,17 @@ package com.zxsoft.crawler.parse;
 
 import java.util.concurrent.Callable;
 
-import com.zxsoft.crawler.storage.WebPageMy;
+import com.zxsoft.crawler.storage.WebPage;
+
 
 
 public class ParseCallable implements Callable<ParseStatus>{
 
 	private Parser parser;
-	private WebPageMy page;
+	private WebPage page;
 	
 	
-	public ParseCallable(Parser parser, WebPageMy page) {
+	public ParseCallable(Parser parser, WebPage page) {
 		super();
 		this.parser = parser;
 		this.page = page;
