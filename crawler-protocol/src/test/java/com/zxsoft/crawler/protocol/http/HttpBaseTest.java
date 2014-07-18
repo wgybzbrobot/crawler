@@ -1,4 +1,4 @@
-package com.zxsoft.crawler.http;
+package com.zxsoft.crawler.protocol.http;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -77,7 +77,7 @@ import com.zxsoft.crawler.protocols.http.HttpBase;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClient;
 import com.zxsoft.crawler.storage.WebPage;
 
-public class HttpClientTest {
+public class HttpBaseTest {
 
 	@Test
 	public void testProxy() {

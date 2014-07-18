@@ -25,6 +25,7 @@ import com.zxsoft.crawler.protocol.ProtocolStatusCodes;
 import com.zxsoft.crawler.protocol.ProtocolStatusUtils;
 import com.zxsoft.crawler.protocols.http.htmlunit.HtmlUnit;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClient;
+import com.zxsoft.crawler.protocols.http.httpclient.HttpClientPageHelper;
 import com.zxsoft.crawler.protocols.http.proxy.ProxyRandom;
 
 /**
@@ -53,11 +54,10 @@ public abstract class HttpBase {
 	protected int maxContent = 1024 * 1024;
 
 	/** The Nutch 'User-Agent' request header */
-	protected String userAgent = getAgentString("NutchCVS", null, "Nutch",
-	        "http://lucene.apache.org/nutch/bot.html", "nutch-agent@lucene.apache.org");
+	protected String userAgent = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36";
 
 	/** The "Accept-Language" request header value. */
-	protected String acceptLanguage = "en-us,en-gb,en;q=0.7,*;q=0.3";
+	protected String acceptLanguage = "en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4,zh-TW;q=0.2";
 
 	/** The "Accept" request header value. */
 	protected String accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
@@ -77,9 +77,7 @@ public abstract class HttpBase {
 		this.useProxy = conf.getBoolean("http.proxy.use", true);
 		this.timeout = conf.getInt("http.timeout", 10000);
 		this.maxContent = conf.getInt("http.content.limit", 1024 * 1024);
-		this.userAgent = getAgentString(conf.get("http.agent.name"),
-		        conf.get("http.agent.version"), conf.get("http.agent.description"),
-		        conf.get("http.agent.url"), conf.get("http.agent.email"));
+		this.userAgent = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36";
 		this.acceptLanguage = conf.get("http.accept.language", acceptLanguage);
 		this.accept = conf.get("http.accept", accept);
 		this.useHttp11 = conf.getBoolean("http.useHttp11", false);
@@ -93,6 +91,12 @@ public abstract class HttpBase {
 	@Autowired
 	private ProxyRandom proxyRandom;
 
+	
+	public ProtocolOutput getProtocolOutput(String url, HttpClientPageHelper.PageType pageType, boolean followRedirect) {
+		
+		return null;
+	}
+	
 	public ProtocolOutput getProtocolOutput(String url) {
 		Proxy proxy = proxyRandom.random();
 		
@@ -100,7 +104,7 @@ public abstract class HttpBase {
 		try {
 			LOG.info(url);
 			URL u = new URL(url);
-			Response response = getResponse(u, proxy, false); 
+			Response response = getResponse(u, proxy , false); 
 			int code = response.code;
 			byte[] content = response.content;
 
@@ -214,48 +218,6 @@ public abstract class HttpBase {
 		return useHttp11;
 	}
 
-	private static String getAgentString(String agentName, String agentVersion, String agentDesc,
-	        String agentURL, String agentEmail) {
-
-		if ((agentName == null) || (agentName.trim().length() == 0)) {
-			// TODO : NUTCH-258
-			if (LOG.isErrorEnabled()) {
-				LOG.error("No User-Agent string set (http.agent.name)!");
-			}
-		}
-
-		StringBuffer buf = new StringBuffer();
-
-		buf.append(agentName);
-		if (agentVersion != null) {
-			buf.append("/");
-			buf.append(agentVersion);
-		}
-		if (((agentDesc != null) && (agentDesc.length() != 0))
-		        || ((agentEmail != null) && (agentEmail.length() != 0))
-		        || ((agentURL != null) && (agentURL.length() != 0))) {
-			buf.append(" (");
-
-			if ((agentDesc != null) && (agentDesc.length() != 0)) {
-				buf.append(agentDesc);
-				if ((agentURL != null) || (agentEmail != null))
-					buf.append("; ");
-			}
-
-			if ((agentURL != null) && (agentURL.length() != 0)) {
-				buf.append(agentURL);
-				if (agentEmail != null)
-					buf.append("; ");
-			}
-
-			if ((agentEmail != null) && (agentEmail.length() != 0))
-				buf.append(agentEmail);
-
-			buf.append(")");
-		}
-		return buf.toString();
-	}
-
 	public byte[] processGzipEncoded(byte[] compressed, URL url) throws IOException {
 
 		if (LOG.isTraceEnabled()) {
@@ -295,45 +257,6 @@ public abstract class HttpBase {
 			        + content.length + " bytes) from " + url);
 		}
 		return content;
-	}
-
-	protected static void main(HttpBase http, Proxy proxy, String[] args) throws Exception {
-		@SuppressWarnings("unused")
-		boolean verbose = false;
-		String url = null;
-
-		String usage = "Usage: Http [-verbose] [-timeout N] url";
-
-		if (args.length == 0) {
-			System.err.println(usage);
-			System.exit(-1);
-		}
-
-		for (int i = 0; i < args.length; i++) { // parse command line
-			if (args[i].equals("-timeout")) { // found -timeout option
-				http.timeout = Integer.parseInt(args[++i]) * 1000;
-			} else if (args[i].equals("-verbose")) { // found -verbose option
-				verbose = true;
-			} else if (i != args.length - 1) {
-				System.err.println(usage);
-				System.exit(-1);
-			} else
-				// root is required parameter
-				url = args[i];
-		}
-
-		Document out = http.getProtocolOutput(url).getDocument();
-		// Content content = out.getContent();
-		//
-		// System.out.println("Status: " + out.getStatus());
-		// if (content != null) {
-		// System.out.println("Content Type: " + content.getContentType());
-		// System.out.println("Content Length: " +
-		// content.getMetadata().get(Response.CONTENT_LENGTH));
-		// System.out.println("Content:");
-		// String text = new String(content.getContent());
-		// System.out.println(text);
-		// }
 	}
 
 	protected abstract Response getResponse(URL url, Proxy proxy,

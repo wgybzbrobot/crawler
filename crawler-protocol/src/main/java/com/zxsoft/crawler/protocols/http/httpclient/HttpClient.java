@@ -66,6 +66,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.zxsoft.crawler.cache.proxy.Proxy;
+import com.zxsoft.crawler.dns.DNSCache;
 import com.zxsoft.crawler.metadata.Metadata;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
@@ -76,17 +77,7 @@ import com.zxsoft.crawler.protocols.http.HttpBase;
 public class HttpClient extends HttpBase {
 
 	public static final Logger LOG = LoggerFactory.getLogger(HttpClient.class);
-
-	private int retryNum = 5;
-
-	private static PoolingHttpClientConnectionManager connectionManager = new ConnectionManager()
-	        .getManager();
-
-	private CloseableHttpClient client /*
-										 * = HttpClients.custom()
-										 * .setConnectionManager
-										 * (connectionManager).build()
-										 */;
+	private CloseableHttpClient client;
 
 	public CloseableHttpClient getClient() {
 		// Use custom message parser / writer to customize the way HTTP
@@ -124,23 +115,22 @@ public class HttpClient extends HttpBase {
 		};
 		HttpMessageWriterFactory<HttpRequest> requestWriterFactory = new DefaultHttpRequestWriterFactory();
 
-		// Use a custom connection factory to customize the process of
-		// initialization of outgoing HTTP connections. Beside standard
-		// connection
-		// configuration parameters HTTP connection factory can define
-		// message
-		// parser / writer routines to be employed by individual
-		// connections.
+		/*
+		 * Use a custom connection factory to customize the process of
+		 * initialization of outgoing HTTP connections. Beside standard
+		 * connection configuration parameters HTTP connection factory can
+		 * define message parser / writer routines to be employed by individual
+		 * connections.
+		 */
 		HttpConnectionFactory<HttpRoute, ManagedHttpClientConnection> connFactory = new ManagedHttpClientConnectionFactory(
 		        requestWriterFactory, responseParserFactory);
 
-		// Client HTTP connection objects when fully initialized can be
-		// bound to
-		// an arbitrary network socket. The process of network socket
-		// initialization,
-		// its connection to a remote address and binding to a local one is
-		// controlled
-		// by a connection socket factory.
+		/*
+		 * Client HTTP connection objects when fully initialized can be bound to
+		 * an arbitrary network socket. The process of network socket
+		 * initialization, its connection to a remote address and binding to a
+		 * local one is controlled by a connection socket factory.
+		 */
 
 		// SSL context for secure connections can be created either based on
 		// system or application specific properties.
@@ -227,12 +217,10 @@ public class HttpClient extends HttpBase {
 		return client;
 	}
 
-	String ip = "";
-	
 	@Override
 	protected Response getResponse(URL url, Proxy proxy, boolean followRedirects)
 	        throws ProtocolException, IOException {
-		
+
 		int code;
 		Metadata headers = new Metadata();
 		byte[] content = null;
@@ -270,25 +258,24 @@ public class HttpClient extends HttpBase {
 		};
 		HttpMessageWriterFactory<HttpRequest> requestWriterFactory = new DefaultHttpRequestWriterFactory();
 
-		// Use a custom connection factory to customize the process of
-		// initialization of outgoing HTTP connections. Beside standard
-		// connection
-		// configuration parameters HTTP connection factory can define
-		// message
-		// parser / writer routines to be employed by individual
-		// connections.
+		/*
+		 * Use a custom connection factory to customize the process of
+		 * initialization of outgoing HTTP connections. Beside standard
+		 * connection configuration parameters HTTP connection factory can
+		 * define message parser / writer routines to be employed by individual
+		 * connections.
+		 */
 		HttpConnectionFactory<HttpRoute, ManagedHttpClientConnection> connFactory = new ManagedHttpClientConnectionFactory(
 		        requestWriterFactory, responseParserFactory);
 
-		// Client HTTP connection objects when fully initialized can be
-		// bound to
-		// an arbitrary network socket. The process of network socket
-		// initialization,
-		// its connection to a remote address and binding to a local one is
-		// controlled
-		// by a connection socket factory.
-		// SSL context for secure connections can be created either based on
-		// system or application specific properties.
+		/*
+		 * Client HTTP connection objects when fully initialized can be bound to
+		 * an arbitrary network socket. The process of network socket
+		 * initialization, its connection to a remote address and binding to a
+		 * local one is controlled by a connection socket factory. SSL context
+		 * for secure connections can be created either based on system or
+		 * application specific properties.
+		 */
 		SSLContext sslcontext = SSLContexts.createSystemDefault();
 		// Use custom hostname verifier to customize SSL hostname
 		// verification.
@@ -308,12 +295,12 @@ public class HttpClient extends HttpBase {
 
 			@Override
 			public InetAddress[] resolve(final String host) throws UnknownHostException {
-				if (host.equalsIgnoreCase("localhost")) {
-					return new InetAddress[] { InetAddress
-					        .getByAddress(new byte[] { 127, 0, 0, 1 }) };
-				} else {
-					return super.resolve(host); 
+				InetAddress[] addrs = DNSCache.get(host);
+				if (addrs == null) {
+					addrs = super.resolve(host);
+					DNSCache.put(host, addrs);
 				}
+				return addrs;
 			}
 
 		};
@@ -328,7 +315,8 @@ public class HttpClient extends HttpBase {
 		// either
 		// by default or for a specific host.
 		connManager.setDefaultSocketConfig(socketConfig);
-		connManager.setSocketConfig(new HttpHost("somehost", 80), socketConfig);
+		// connManager.setSocketConfig(new HttpHost("somehost", 80),
+		// socketConfig);
 
 		// Create message constraints
 		MessageConstraints messageConstraints = MessageConstraints.custom().setMaxHeaderCount(200)
@@ -342,14 +330,16 @@ public class HttpClient extends HttpBase {
 		// either
 		// by default or for a specific host.
 		connManager.setDefaultConnectionConfig(connectionConfig);
-		connManager.setConnectionConfig(new HttpHost("somehost", 80), ConnectionConfig.DEFAULT);
+		// connManager.setConnectionConfig(new HttpHost("somehost", 80),
+		// ConnectionConfig.DEFAULT);
 
-		// Configure total max or per route limits for persistent
-		// connections
-		// that can be kept in the pool or leased by the connection manager.
+		/*
+		 * Configure total max or per route limits for persistent connections
+		 * that can be kept in the pool or leased by the connection manager.
+		 */
 		connManager.setMaxTotal(100);
 		connManager.setDefaultMaxPerRoute(10);
-		connManager.setMaxPerRoute(new HttpRoute(new HttpHost("somehost", 80)), 20);
+//		connManager.setMaxPerRoute(new HttpRoute(new HttpHost("somehost", 80)), 20);
 
 		// Use custom cookie store if necessary.
 		CookieStore cookieStore = new BasicCookieStore();
@@ -407,7 +397,7 @@ public class HttpClient extends HttpBase {
 				for (int i = 0; i < heads.length; i++) {
 					headers.set(heads[i].getName(), heads[i].getValue());
 				}
-				
+
 				long contentLength = Long.MAX_VALUE;
 				InputStream in = null;
 				in = httpResponse.getEntity().getContent();
@@ -431,7 +421,7 @@ public class HttpClient extends HttpBase {
 						content = processDeflateEncoded(content, url);
 					}
 				}
-				
+
 			} finally {
 				try {
 					httpResponse.close();
@@ -446,7 +436,6 @@ public class HttpClient extends HttpBase {
 				e.printStackTrace();
 			}
 		}
-		System.out.println(headers.get(Response.LOCATION));
 		return new Response(url, code, headers, content, headers.get(Response.CONTENT_ENCODING));
 	}
 }

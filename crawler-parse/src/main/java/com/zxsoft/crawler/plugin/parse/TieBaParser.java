@@ -24,7 +24,7 @@ import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.ParseStatus;
 import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
-import com.zxsoft.crawler.protocols.http.PageHelper;
+import com.zxsoft.crawler.protocols.http.httpclient.HttpClientPageHelper;
 import com.zxsoft.crawler.storage.Forum;
 import com.zxsoft.crawler.storage.ForumDetailConf;
 import com.zxsoft.crawler.storage.RecordInfo;
@@ -200,7 +200,12 @@ public class TieBaParser extends Parser {
 //					currentPageText = pg.text();
 //					newPageUrl = pg.absUrl("href");
 //					doc = httpFetcher.fetch(newPageUrl).getDocument();
-					doc = pageHelper.loadPrevPage(doc, ajax).getDocument();
+					ProtocolOutput potemp = pageHelper.loadPrevPage(doc, ajax); 
+					if (potemp == null) {
+						LOG.error("Error: parse reply " + currentUrl);
+						break;
+					}
+					doc = potemp.getDocument();
 					currentUrl = doc.location();
 					LOG.info(currentUrl);
 				}

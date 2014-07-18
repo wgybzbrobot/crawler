@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.springframework.util.Assert;
 
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
-import com.zxsoft.crawler.protocols.http.PageHelper;
+import com.zxsoft.crawler.protocols.http.httpclient.HttpClientPageHelper;
 
 public class PageHelperTest {
 
@@ -25,7 +25,7 @@ public class PageHelperTest {
 	        e.printStackTrace();
         }	
 		Element element = document.select("div#pgt").first();
-		System.out.println("1: " + new PageHelper().getLastPage(element));
+		System.out.println("1: " + new HttpClientPageHelper().getLastPage(element));
 		
 	}
 	
@@ -39,7 +39,7 @@ public class PageHelperTest {
 			e.printStackTrace();
 		}
 		Element element = document.select("div.pgb").first();
-		System.out.println("2: " + new PageHelper().getLastPage(element));
+		System.out.println("2: " + new HttpClientPageHelper().getLastPage(element));
 		
 	}
 	
@@ -53,7 +53,7 @@ public class PageHelperTest {
 			e.printStackTrace();
 		}
 		Element element = document.select("div.pages").first();
-		System.out.println("3: " + (new PageHelper().getLastPage(element)));
+		System.out.println("3: " + (new HttpClientPageHelper().getLastPage(element)));
 		
 	}
 	
@@ -67,7 +67,7 @@ public class PageHelperTest {
 			e.printStackTrace();
 		}
 		Element element = document.select("div.pages").first();
-		System.out.println("4: " + new PageHelper().getLastPage(element));
+		System.out.println("4: " + new HttpClientPageHelper().getLastPage(element));
 		
 	}
 	
@@ -81,7 +81,7 @@ public class PageHelperTest {
 			e.printStackTrace();
 		}
 		Element element = document.select("div#pgt").first();
-		System.out.println("5: " + new PageHelper().getLastPage(element));
+		System.out.println("5: " + new HttpClientPageHelper().getLastPage(element));
 		
 	}
 	
@@ -95,7 +95,7 @@ public class PageHelperTest {
 			e.printStackTrace();
 		}
 		Element element = document.select("div.l_thread_info ul.l_posts_num").first();
-		System.out.println("6: " + new PageHelper().getLastPage(element));
+		System.out.println("6: " + new HttpClientPageHelper().getLastPage(element));
 		
 	}
 	
@@ -109,7 +109,7 @@ public class PageHelperTest {
 			e.printStackTrace();
 		}
 		Element element = document.select("div.tie-page").first();
-		System.out.println("6: " + new PageHelper().getLastPage(element));
+		System.out.println("6: " + new HttpClientPageHelper().getLastPage(element));
 		
 	}
 	
@@ -133,7 +133,7 @@ public class PageHelperTest {
 	public void testGetPagebarTianYa () throws IOException {
 		String url = "http://bbs.tianya.cn/list-52985-1.shtml";
 		Document document = httpFetcher.fetch(url).getDocument();
-		Element pagebar = PageHelper.getPageBar(document);
+		Element pagebar = HttpClientPageHelper.getPageBar(document);
 		Assert.notNull(pagebar);
 		Assert.notEmpty(pagebar.select("a:matches(上一页|上页|<上一页|下一页|下页|下一页>|尾页|末页)"));
 		System.out.println(pagebar);
@@ -143,7 +143,7 @@ public class PageHelperTest {
 	public void testGetPagebarTieXue () throws IOException {
 		String url = "http://bbs.tiexue.net/bbs32-0-1.html";
 		Document document = httpFetcher.fetch(url).getDocument();
-		Element pagebar = PageHelper.getPageBar(document);
+		Element pagebar = HttpClientPageHelper.getPageBar(document);
 		Assert.notNull(pagebar);
 		Assert.notEmpty(pagebar.select("a:matches(上一页|上页|<上一页|下一页|下页|下一页>|尾页|末页|>>)"));
 		System.out.println(pagebar); // << 
@@ -153,7 +153,7 @@ public class PageHelperTest {
 	public void testGetPagebarDaQi () throws IOException {
 		String url = "http://shehui.daqi.com/bbs/709319.html";
 		Document document = httpFetcher.fetch(url).getDocument();
-		Element pagebar = PageHelper.getPageBar(document);
+		Element pagebar = HttpClientPageHelper.getPageBar(document);
 		Assert.notNull(pagebar);
 		Assert.notEmpty(pagebar.select("a:matches(^上一页|上页|<上一页|下一页|下页|下一页>|尾页|末页|>>|4$)"));
 		System.out.println(pagebar);

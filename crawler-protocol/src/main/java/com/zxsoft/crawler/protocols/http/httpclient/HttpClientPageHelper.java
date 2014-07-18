@@ -1,17 +1,16 @@
-package com.zxsoft.crawler.protocols.http;
-
-import java.io.IOException;
+package com.zxsoft.crawler.protocols.http.httpclient;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.util.URLNormalizer;
 import com.zxsoft.crawler.util.Utils;
 
@@ -21,81 +20,49 @@ import com.zxsoft.crawler.util.Utils;
  * @return url
  */
 @Component
-public final class PageHelper {
+public final class HttpClientPageHelper {
 
+	public enum PageType {
+		CURRENT_PAGE,
+		PREV_PAGE,
+		NEXT_PAGE,
+		LAST_PAGE
+	}
 	@Autowired
 	private HttpFetcher httpFetcher;
 	
 	private String currentUrl;
 	private String currentText;
 	
-	private ProtocolOutput load(Element ele, boolean ajax) {
+	private ProtocolOutput load(Element ele) {
 		String url = ele.absUrl("href");
 		currentText = ele.text();
-		url = URLNormalizer.normalize(url);
-		if (!url.matches("^(https|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
-			ajax = true;
-		}
-		return httpFetcher.fetch(url, ajax);
+			if (StringUtils.isEmpty(url))
+				return null;
+			url = URLNormalizer.normalize(url);
+		return httpFetcher.fetch(url, false);
 	}
 
-	/**
-	 * 加载下一页
-	 * 
-	 * @param currentDoc
-	 *            当前页的Document
-	 */
-	public ProtocolOutput loadNextPage(Document currentDoc, boolean ajax)  {
+	public ProtocolOutput loadNextPage(int pageNum, Document currentDoc)  {
 		currentUrl = currentDoc.location();
 		Elements elements = currentDoc.select("a:matchesOwn(下一页|下页|下一页>)");
 		if (!CollectionUtils.isEmpty(elements)) {
-			return load(elements.first(), ajax);
+			return load(elements.first());
 		} else {
 			/*
 			 * Find the position of current page url from page bar, get next
 			 * achor as the next page url. However, there is a problem. It's not
-			 * very Accurate, some url cannot find from page bar, because it
+			 * very accurate, some url cannot find from page bar, because it
 			 * changed when load it.
 			 */
-			int pageNum = 1;
-			if (Utils.isNum(currentText))
-				pageNum = Integer.valueOf(currentText);
-			Element pagebar = PageHelper.getPageBar(currentDoc);
-			if (pagebar != null) {
-				Elements achors = pagebar.getElementsByTag("a");
-				if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
-					for (int i = 0; i < achors.size(); i++) {
-						if (Utils.isNum(achors.get(i).text())
-						        && Integer.valueOf(achors.get(i).text().trim()) == pageNum + 1) {
-							return load(achors.get(i), ajax);
-						}
-					}
-				}
-			}
-		}
-		return null;
-	}
-	
-	public ProtocolOutput loadNextPage(int pageNum, Document currentDoc, boolean ajax)  {
-		currentUrl = currentDoc.location();
-		Elements elements = currentDoc.select("a:matchesOwn(下一页|下页|下一页>)");
-		if (!CollectionUtils.isEmpty(elements)) {
-			return load(elements.first(), ajax);
-		} else {
-			/*
-			 * Find the position of current page url from page bar, get next
-			 * achor as the next page url. However, there is a problem. It's not
-			 * very Accurate, some url cannot find from page bar, because it
-			 * changed when load it.
-			 */
-			Element pagebar = PageHelper.getPageBar(currentDoc);
+			Element pagebar = HttpClientPageHelper.getPageBar(currentDoc);
 			if (pagebar != null) {
 				Elements achors = pagebar.getElementsByTag("a");
 				if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
 					for (int i = 0; i < achors.size(); i++) {
 						if (Utils.isNum(achors.get(i).text())
 								&& Integer.valueOf(achors.get(i).text().trim()) == pageNum + 1) {
-							return load(achors.get(i), ajax);
+							return load(achors.get(i));
 						}
 					}
 				}
@@ -113,18 +80,20 @@ public final class PageHelper {
 		if (CollectionUtils.isEmpty(elements)) {
 			return null;
 		}
-		return load(elements.first(), ajax);
+		return load(elements.first());
 	}
 
 	public ProtocolOutput loadLastPage(Document currentDoc, boolean ajax) {
 		currentUrl = currentDoc.location();
 		Elements lastEles = currentDoc.select("a:matchesOwn(尾页|末页|最后一页)");
 		if (!CollectionUtils.isEmpty(lastEles)) {
-			return load(lastEles.first(), ajax);
+			return load(lastEles.first());
 		}
 
 		// 1. get all links from page bar
-		Element pagebar = PageHelper.getPageBar(currentDoc);
+		Element pagebar = HttpClientPageHelper.getPageBar(currentDoc);
+		if (pagebar == null)
+			return null;
 		Elements links = pagebar.getElementsByTag("a");
 		if (CollectionUtils.isEmpty(links)) {
 			return null;
@@ -144,7 +113,7 @@ public final class PageHelper {
 			}
 		}
 
-		return load(el, ajax);
+		return load(el);
 	}
 
 	/**

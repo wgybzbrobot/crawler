@@ -29,7 +29,7 @@ import com.zxsoft.crawler.dao.ConfDao;
 import com.zxsoft.crawler.plugin.parse.ForumParser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
-import com.zxsoft.crawler.protocols.http.PageHelper;
+import com.zxsoft.crawler.protocols.http.httpclient.HttpClientPageHelper;
 import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
@@ -48,14 +48,14 @@ public final class ParseUtil {
 	private boolean ajax;
 	
 	private HttpFetcher httpFetcher;
-	private PageHelper pageHelper;
+	private HttpClientPageHelper pageHelper;
 	private ConfDao confDao;
 	
 	public ParseUtil(ApplicationContext context, Configuration conf) {
 		ctx = context;
 		this.conf = conf;
 		httpFetcher = ctx.getBean(HttpFetcher.class);
-		pageHelper = ctx.getBean(PageHelper.class);
+		pageHelper = ctx.getBean(HttpClientPageHelper.class);
 		confDao = ctx.getBean(ConfDao.class);
 	}
 

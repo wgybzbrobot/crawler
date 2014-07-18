@@ -1,4 +1,4 @@
-package com.zxsoft.crawler.http;
+package com.zxsoft.crawler.protocol.http;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

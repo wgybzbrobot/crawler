@@ -1,4 +1,4 @@
-package com.zxsoft.crawler.http;
+package com.zxsoft.crawler.protocol.http;
 
 import org.jsoup.nodes.Document;
 import org.junit.Test;

@@ -14,12 +14,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -32,9 +30,7 @@ import com.zxsoft.crawler.cache.proxy.Proxy;
 import com.zxsoft.crawler.metadata.Metadata;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocols.http.HttpBase;
-import com.zxsoft.crawler.protocols.http.proxy.ProxyRandom;
 import com.zxsoft.crawler.storage.WebPage;
-import com.zxsoft.crawler.storage.WebPageMy;
 import com.zxsoft.crawler.util.Utils;
 
 @Component
@@ -63,59 +59,6 @@ public class HtmlUnit extends HttpBase {
 		// webClient.waitForBackgroundJavaScriptStartingBefore(10000);
 	}
 
-	/**
-	 * 根据配置加载下一页
-	 * 
-	 * @return page html
-	 * @throws IOException
-	 * @throws MalformedURLException
-	 * @throws FailingHttpStatusCodeException
-	 */
-	@Deprecated
-	public Document loadNextPage(WebPageMy webPage) throws IOException {
-		return loadNextPage(1, webPage.getDocument());
-	}
-
-	public Document loadNextPage(int pageNum, Document currentDoc) throws IOException {
-		String url = currentDoc.location();
-		if (htmlPage == null) {
-			try {
-				htmlPage = client.getPage(url);
-			} catch (FailingHttpStatusCodeException | IOException e) {
-				e.printStackTrace();
-				return null;
-			}
-		}
-		String host = "";
-		try {
-			host = Utils.getHost(url);
-		} catch (MalformedURLException e1) {
-			e1.printStackTrace();
-			return null;
-		}
-		String pageXml = htmlPage.asXml();
-		Document document = Jsoup.parse(pageXml, host);
-		Elements elements = document.select("a:matchesOwn(下一页|下页|下一页>)");
-		if (!CollectionUtils.isEmpty(elements)) {
-			HtmlAnchor nextaAnchor = htmlPage.getAnchorByText(elements.first().text());
-			htmlPage = nextaAnchor.click();
-			pageXml = htmlPage.asXml();
-			document = Jsoup.parse(pageXml, host);
-			return document;
-		} else { // no "下一页|下页|下一页>"
-		// Element pagebar = PageHelper.getPageBar(currentDoc);
-		// Elements achors = pagebar.getElementsByTag("a");
-		// if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
-		// for (int i = 0; i < achors.size(); i++) {
-		// if (Utils.isNum(achors.get(i).text())
-		// && Integer.valueOf(achors.get(i).text().trim()) == pageNum + 1) {
-		// return load(achors.get(i).absUrl("href"));
-		// }
-		// }
-		// }
-		}
-		return null;
-	}
 
 	/**
 	 * 加载上一页
@@ -131,26 +74,26 @@ public class HtmlUnit extends HttpBase {
 	protected Response getResponse(URL url, Proxy proxy, boolean followRedirects)
 	        throws com.zxsoft.crawler.net.protocols.ProtocolException, IOException {
 		int code;
-		Metadata headers = null;
+		Metadata headers = new Metadata();
 		byte[] content = null;
 		String charset = "utf-8";
-		
+
 		WebRequest request = new WebRequest(url);
-		request.setProxyHost(proxyHost);
-		request.setProxyPort(proxyPort);
+		if (proxy != null) {
+			request.setProxyHost(proxyHost);
+			request.setProxyPort(proxyPort);
 
-		NTCredentials proxyCredentials = new NTCredentials(proxy.getUsername(), proxy.getPassword(),
-		        proxyHost, "http");
-		;
-		request.setCredentials(proxyCredentials);
-		if ("SOCKS".equalsIgnoreCase(proxy.getType()))
-			request.setSocksProxy(true);
-		else
-			request.setSocksProxy(false);
-
+			NTCredentials proxyCredentials = new NTCredentials(proxy.getUsername(),
+			        proxy.getPassword(), proxyHost, "http");
+			request.setCredentials(proxyCredentials);
+			if ("SOCKS".equalsIgnoreCase(proxy.getType()))
+				request.setSocksProxy(true);
+			else
+				request.setSocksProxy(false);
+		}
+		
 		try {
 			HtmlPage htmlPage = getClient().getPage(request);
-			System.out.println(htmlPage.asXml());
 			WebResponse response = htmlPage.getWebResponse();
 			charset = response.getContentCharset();
 			code = response.getStatusCode();
@@ -201,7 +144,7 @@ public class HtmlUnit extends HttpBase {
 			// get.releaseConnection();
 			getClient().closeAllWindows();
 		}
-		return null;
+		return new Response(url, code, headers, content, headers.get(Response.CONTENT_ENCODING));
 	}
 
 	public WebClient getClient() {
