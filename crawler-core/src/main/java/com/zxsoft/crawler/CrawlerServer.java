@@ -20,7 +20,7 @@ import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.Region;
 import com.zxsoft.crawler.core.Crawler;
 import com.zxsoft.crawler.urlbase.UrlbaseFactory;
-import com.zxsoft.crawler.urlbase.impl.UrlbaseRedisFactory;
+import com.zxsoft.crawler.urlbase.redis.RedisUrlbaseFactory;
 
 @Configuration
 @RestController
@@ -40,10 +40,9 @@ public class CrawlerServer {
 		app.setShowBanner(false);
 		ctx = app.run(args);
 		
-		UrlbaseFactory urlbaseFactory = ctx.getBean(UrlbaseRedisFactory.class);
-		
+		ctx = app.run(args);
 		System.out.println("Starting Crawler ...");
-		Crawler crawler = new Crawler(urlbaseFactory);
+		Crawler crawler = new Crawler(ctx);
 		crawler.start();
 	}
 	

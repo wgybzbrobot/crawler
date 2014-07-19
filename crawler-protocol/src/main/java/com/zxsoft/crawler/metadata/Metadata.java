@@ -35,8 +35,7 @@ import org.apache.hadoop.io.Writable;
  * @author J&eacute;r&ocirc;me Charron
  *
  */
-public class Metadata implements Writable, CreativeCommons,
-DublinCore, HttpHeaders, Nutch, Feed {
+public class Metadata extends HttpHeaders {
 
   /**
    * A map of all metadata attributes.

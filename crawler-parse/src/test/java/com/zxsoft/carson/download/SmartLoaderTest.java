@@ -11,6 +11,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
+import com.zxsoft.crawler.protocols.http.JsoupLoader;
+import com.zxsoft.crawler.protocols.http.SmartLoader;
+import com.zxsoft.crawler.protocols.http.htmlunit.HtmlUnitPageHelper;
 
 public class SmartLoaderTest {
 
@@ -79,7 +82,7 @@ public class SmartLoaderTest {
 	@Test
 	public void testLoadNextpage163() throws IOException {
 		String url = "http://news.163.com/latest/";
-		AjaxLoader ajaxLoader = new AjaxLoader();
+		HtmlUnitPageHelper ajaxLoader = new HtmlUnitPageHelper();
 		Document currentDoc = ajaxLoader.load(url);
 		Document document = ajaxLoader.loadNextPage(1, currentDoc);
 		Elements elements = document.select("div#instantPanel ul li");
@@ -90,7 +93,7 @@ public class SmartLoaderTest {
 	@Test
 	public void testLoadNextpageSina() throws FailingHttpStatusCodeException, MalformedURLException, IOException {
 		String url = "http://roll.news.sina.com.cn/s/channel.php?ch=01#col=89&spec=&type=&ch=01&k=&offset_page=0&offset_num=0&num=60&asc=&page=1";
-		AjaxLoader ajaxLoader = new AjaxLoader();
+		HtmlUnitPageHelper ajaxLoader = new HtmlUnitPageHelper();
 		Document currentDoc = ajaxLoader.load(url);
 		Document document = ajaxLoader.loadNextPage(1, currentDoc);
 		Elements elements = document.select("div#d_list ul li");
@@ -105,7 +108,7 @@ public class SmartLoaderTest {
 		Document currentDoc = loader.load(url);
 		currentDoc = loader.loadNextPage(1, currentDoc);
 		if (currentDoc == null) {
-			AjaxLoader aloader = new AjaxLoader();
+			HtmlUnitPageHelper aloader = new HtmlUnitPageHelper();
 			currentDoc = aloader.load(url);
 			currentDoc = aloader.loadNextPage(1, currentDoc);
 		}
@@ -124,7 +127,7 @@ public class SmartLoaderTest {
 		Document currentDoc = loader.load(url);
 		currentDoc = loader.loadNextPage(1, currentDoc);
 		if (currentDoc == null) {
-			AjaxLoader aloader = new AjaxLoader();
+			HtmlUnitPageHelper aloader = new HtmlUnitPageHelper();
 			currentDoc = aloader.load(url);
 			currentDoc = aloader.loadNextPage(1, currentDoc);
 		}
@@ -146,7 +149,7 @@ public class SmartLoaderTest {
 		Document currentDoc = loader.load(url);
 		Document nextDoc = loader.loadNextPage(1, currentDoc);
 		if (nextDoc == null) {
-			AjaxLoader aloader = new AjaxLoader();
+			HtmlUnitPageHelper aloader = new HtmlUnitPageHelper();
 			currentDoc = aloader.load(url);
 			currentDoc = aloader.loadNextPage(1, currentDoc);
 		}
@@ -165,7 +168,7 @@ public class SmartLoaderTest {
 		Document currentDoc = loader.load(url);
 		Document nextDoc = loader.loadNextPage(1, currentDoc);
 		if (nextDoc == null) {
-			AjaxLoader aloader = new AjaxLoader();
+			HtmlUnitPageHelper aloader = new HtmlUnitPageHelper();
 			currentDoc = aloader.load(url);
 			currentDoc = aloader.loadNextPage(1, currentDoc);
 		}
@@ -182,7 +185,7 @@ public class SmartLoaderTest {
 			Document currentDoc = loader.load(url);
 			Document nextDoc = loader.loadNextPage(1, currentDoc);
 			if (nextDoc == null) {
-				AjaxLoader ajaxLoader = new AjaxLoader();
+				HtmlUnitPageHelper ajaxLoader = new HtmlUnitPageHelper();
 				currentDoc = ajaxLoader.load(url);
 				nextDoc = ajaxLoader.loadNextPage(1, currentDoc);
 			}

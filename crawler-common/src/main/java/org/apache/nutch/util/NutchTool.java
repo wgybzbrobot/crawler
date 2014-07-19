@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.nutch.metadata.Nutch;
 
 public abstract class NutchTool extends Configured {
   
@@ -38,29 +37,6 @@ public abstract class NutchTool extends Configured {
    * May return results, or null.
    */
   public abstract Map<String,Object> run(Map<String,Object> args) throws Exception;
-  
-  /** Returns relative progress of the tool, a float in range [0,1]. */
-  public float getProgress() {
-    float res = 0;
-    if (currentJob != null) {
-      try {
-        res = (currentJob.mapProgress() + currentJob.reduceProgress()) / 2.0f;
-      } catch (IOException e) {
-        e.printStackTrace();
-        res = 0;
-      } catch (IllegalStateException ile) {
-        ile.printStackTrace();
-        res = 0;
-      }
-    }
-    // take into account multiple jobs
-    if (numJobs > 1) {
-      res = (currentJobNum + res) / (float)numJobs;
-    }
-    status.put(Nutch.STAT_PROGRESS, res);
-    return res;
-  }
-  
   
   /** Returns current status of the running tool. */
   public Map<String,Object> getStatus() {
