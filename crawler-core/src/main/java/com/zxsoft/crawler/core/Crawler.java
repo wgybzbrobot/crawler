@@ -26,6 +26,7 @@ public class Crawler extends Thread {
 	public void run() {
 		System.out.println("Crawler is started.");
 		
+		CrawlerServer.start = true;
 		CrawlerServer.startTime = System.currentTimeMillis();
 		
 		org.apache.hadoop.conf.Configuration conf = CrawlerConfiguration.create();

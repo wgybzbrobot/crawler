@@ -9,3 +9,5 @@ bin
 *.war
 *.ear
 *.rdb
+vf.gf.dmn-event.txt
+vf.gf.dmn-license.cfg

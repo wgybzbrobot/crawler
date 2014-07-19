@@ -1,4 +1,4 @@
-package com.zxsoft.crawler.urlbase.redis;
+package com.zxsoft.crawler.urlbase.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
