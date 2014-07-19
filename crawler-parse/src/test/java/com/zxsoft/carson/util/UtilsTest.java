@@ -5,6 +5,8 @@ import java.util.Calendar;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.zxsoft.crawler.util.Utils;
+
 public class UtilsTest {
 
     @Test

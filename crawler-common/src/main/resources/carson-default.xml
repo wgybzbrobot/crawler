@@ -16,7 +16,7 @@
 	</property>
 	<property>
 		<name>spider.parse.thread.max</name>
-		<value>20</value>
+		<value>2</value>
 		<description>一个URL种子的最大解析线程数</description>
 	</property>	
 	<property> <!-- 解析器配置文件 -->

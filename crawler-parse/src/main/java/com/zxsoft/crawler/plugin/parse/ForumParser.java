@@ -2,6 +2,8 @@ package com.zxsoft.crawler.plugin.parse;
 
 import java.net.ConnectException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 import org.jsoup.nodes.Document;
@@ -9,6 +11,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -17,15 +21,17 @@ import com.zxsoft.crawler.dao.ConfDao;
 import com.zxsoft.crawler.duplicate.DuplicateInspector;
 import com.zxsoft.crawler.parse.Category;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
-import com.zxsoft.crawler.parse.PageHelper;
 import com.zxsoft.crawler.parse.ParseException;
 import com.zxsoft.crawler.parse.ParseStatus;
 import com.zxsoft.crawler.parse.Parser;
+import com.zxsoft.crawler.protocols.http.httpclient.HttpClientPageHelper;
 import com.zxsoft.crawler.storage.Forum;
 import com.zxsoft.crawler.storage.ForumDetailConf;
+import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.Reply;
 import com.zxsoft.crawler.storage.Seed;
-import com.zxsoft.crawler.storage.WebPageMy;
+import com.zxsoft.crawler.storage.WebPage;
+import com.zxsoft.crawler.store.Output;
 import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
 
@@ -37,60 +43,61 @@ import com.zxsoft.crawler.util.Utils;
  * <li>4. 翻页</li>
  * </ol>
  */
-
+//@Component
+//@Scope("prototype")
 public class ForumParser extends Parser {
 
 	private static Logger LOG = LoggerFactory.getLogger(ForumParser.class);
-	private JsoupLoader loader = new JsoupLoader();
-	
-	private DuplicateInspector duplicateInspector;
-	private ConfDao confDao;
-
 	private String rule; // filter regular expression
+	private String mainUrl;
+	private boolean ajax;
+	
 	@Override
-	public ParseStatus parse(WebPageMy page) throws Exception {
+	public ParseStatus parse(WebPage page) throws Exception {
 		Assert.notNull(page, "Page is null");
 		Document document = page.getDocument();
 		Assert.notNull(document, "Document is null");
-		Seed seed = page.getSeed();
-		Assert.notNull(seed, "Seed is null");
 
-		String url = seed.getUrl();
-		String md5 = Md5Signatrue.generateMd5(url);
+		ajax = page.isAjax();
+		mainUrl = page.getBaseUrl();
+		String md5 = Md5Signatrue.generateMd5(mainUrl);
 		if (duplicateInspector.md5Exist(md5)) return null;
 		
-		ParseStatus status = new ParseStatus(url);
-		ForumDetailConf detailConf = confDao.getForumDetailConf(page.getHost());
+		
+		ParseStatus status = new ParseStatus(mainUrl);
+		ForumDetailConf detailConf = confDao.getForumDetailConf(Utils.getHost(mainUrl));
 
 		if (detailConf == null) {
-			LOG.warn(url + " detail page has no configuration in database.");
-			status.setMessage(" detail page has no configuration in database.");
+			LOG.warn("Detail page has no configuration in database." + mainUrl);
+			status.setMessage("detail page has no configuration in database.");
 			return status;
 		}
 
-		if (seed.getType() == Category.DETAIL_PAGE) { // 新的详细页 或 丢失的详细页
+		/*if (seed.getType() == Category.DETAIL_PAGE) { // 新的详细页 或 丢失的详细页
 			fetchContent(page, detailConf);
 		} else if (seed.getType() == Category.REPLY_PAGE) { // 丢失的回复页
 			parsePage(page, document, seed.getMainUrl(), seed.getUrl(), detailConf);
 		} else {
 			LOG.error("Seed error occur.");
-		}
-
+		}*/
+		fetchContent(page, detailConf);
+		
+		indexWriter.write(recordInfos);
 		return status;
 	}
 
-	private void fetchContent(WebPageMy page, ForumDetailConf detailConf) throws ParseException, ConnectException {
-		Seed seed = page.getSeed();
-		Forum forum = new Forum(seed.getTitle(), seed.getUrl(), new Date());
+	private void fetchContent(WebPage page, ForumDetailConf detailConf) throws ParseException, ConnectException {
+		
+		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, page.getFetchTime());
+		
 		Document document = page.getDocument();
-
 		// Elements titleEle = document.select(detailConf.getTitle()); //
 		if (!CollectionUtils.isEmpty(document.select(detailConf.getReplyNum()))) {
-			forum.setReplyNum(Utils.extractNum(document.select(detailConf.getReplyNum()).first().text()));
+			info.setComment_count(Utils.extractNum(document.select(detailConf.getReplyNum()).first().text()));
 		}
 		if (!StringUtils.isEmpty(detailConf.getReviewNum())
 		        && !CollectionUtils.isEmpty(document.select(detailConf.getReviewNum()))) {
-			forum.setReviewNum(Integer.valueOf(Utils.extractNum(document.select(detailConf.getReviewNum()).first().text())));
+			info.setRead_count(Integer.valueOf(Utils.extractNum(document.select(detailConf.getReviewNum()).first().text())));
 		}
 		Elements mainEles = document.select(detailConf.getMaster());
 		// 主帖页面, 取得主帖信息
@@ -98,39 +105,33 @@ public class ForumParser extends Parser {
 			Element mainEle = mainEles.first();
 			if (!StringUtils.isEmpty(detailConf.getMasterAuthor())
 			        && !CollectionUtils.isEmpty(mainEle.select(detailConf.getMasterAuthor())))
-				forum.setAuthor(mainEle.select(detailConf.getMasterAuthor()).first().text());
+				info.setNickname(mainEle.select(detailConf.getMasterAuthor()).first().text());
 
 			Elements contentEles = mainEle.select(detailConf.getMasterContent());
 			if (!CollectionUtils.isEmpty(contentEles)) {
 				Element contentEle = contentEles.first();
-				forum.setContent(contentEle.text());
-				forum.setImgUrl(MultimediaExtractor.extractImgUrl(contentEle, rule));
-				forum.setAudioUrl(MultimediaExtractor.extractAudioUrl(contentEle));
-				forum.setVideoUrl(MultimediaExtractor.extractVideoUrl(contentEle));
+				info.setContent(contentEle.text());
+				info.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, rule));
+				info.setVoice_url(MultimediaExtractor.extractAudioUrl(contentEle));
+				info.setVideo_url(MultimediaExtractor.extractVideoUrl(contentEle));
 			}
 
 			String dateStr = "";
-			if (forum.getReleasedate() == null) {
+			if (info.getTimestamp() == 0) {
 				if (!StringUtils.isEmpty(detailConf.getMasterDate())
 				        && !CollectionUtils.isEmpty(mainEle.select(detailConf.getMasterDate()))) {
 					dateStr = mainEle.select(detailConf.getMasterDate()).first().text();
 					if (!StringUtils.isEmpty(dateStr)) {
-						forum.setReleasedate(Utils.formatDate(dateStr));
+						info.setTimestamp(Utils.formatDate(dateStr).getTime());
 					}
 				}
 			}
-			// dateStr = forum.getReleasedate().toString();
 
-			String md5 = Md5Signatrue.generateMd5(forum.getUrl(), forum.getAuthor(), forum.getContent(),
-			        forum.getImgUrl(), forum.getAudioUrl(), forum.getVideoUrl());
-			if (!duplicateInspector.md5Exist(md5)) {
-				tools.getRedisSerivice().addMd5(md5);
-				tools.getInfoService().addForum(forum);
-			}
+			recordInfos.add(info);
 
 			parseReply(page, detailConf);
 		} else {
-			LOG.warn(forum.getUrl() + "主帖信息配置有误.");
+			LOG.warn("主帖信息配置有误:" + mainUrl);
 			return;
 		}
 	}
@@ -138,66 +139,41 @@ public class ForumParser extends Parser {
 	/**
 	 * 解析回复
 	 */
-	private void parseReply(WebPageMy page, ForumDetailConf detailConf) {
+	private void parseReply(WebPage page, ForumDetailConf detailConf) {
 		Document doc = page.getDocument();
-		Seed seed = new Seed();
-		try {
-			seed = page.getSeed().clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		String mainUrl = seed.getMainUrl();
-		seed.setType(Category.REPLY_PAGE);
 		String currentUrl = mainUrl;
 		String newPageUrl = "", currentPageText = "";
 		if (!detailConf.isFetchorder()) { // 从第一页
 			do {
 				parsePage(page, doc, mainUrl, currentUrl, detailConf);
 				// get next page
-				Element pagebar = PageHelper.getPageBar(doc);
-				if (pagebar != null) {
-					Element pg = PageHelper.getNextPage(pagebar, currentPageText);
-					if (pg != null) {
-						currentPageText = pg.text();
-						newPageUrl = pg.absUrl("href");
-					}
-				}
-				seed.setUrl(newPageUrl);
-				doc = loader.load(seed);
+//				Element pagebar = PageHelper.getPageBar(doc);
+//				if (pagebar != null) {
+//					Element pg = new PageHelper().loadNextPage(pagebar, currentPageText);
+//					if (pg != null) {
+//						currentPageText = pg.text();
+//						newPageUrl = pg.absUrl("href");
+//					}
+//				}
+				doc = pageHelper.loadNextPage(doc, ajax).getDocument();
 				currentUrl = newPageUrl;
 			} while (!StringUtils.isEmpty(newPageUrl));
 
 		} else { // fetch from last page
 			// jump to last page
-			String lastPageUrl = "";
-			Element pagebar = PageHelper.getPageBar(doc);
-			if (pagebar != null) {
-				Element pg = PageHelper.getLastPage(pagebar);
-				if (pg != null) {
-					currentPageText = String.valueOf(Utils.extractNum(pg.text()));
-					lastPageUrl = pg.absUrl("href");
-				}
-			}
-			if (StringUtils.isEmpty(lastPageUrl)) { // 无分页
+			Document lastDoc = pageHelper.loadLastPage(doc, ajax).getDocument();
+			if (lastDoc == null) { // 无分页
 				parsePage(page, doc, mainUrl, currentUrl, detailConf);
 			} else {
-				seed.setUrl(lastPageUrl);
-				doc = loader.load(seed);
-				currentUrl = lastPageUrl;
+				doc = lastDoc;
+				currentUrl = doc.location();
 				while (true) {
 					if (doc == null || StringUtils.isEmpty(currentUrl))
 						break;
 					parsePage(page, doc, mainUrl, currentUrl, detailConf);
 					// 获取上一页
-					pagebar = PageHelper.getPageBar(doc);
-					Element pg = PageHelper.getPrePage(pagebar, currentPageText);
-					if (pg == null)
-						break;
-					currentPageText = pg.text();
-					newPageUrl = pg.absUrl("href");
-					seed.setUrl(newPageUrl);
-					doc = loader.load(seed);
-					currentUrl = newPageUrl;
+					doc = pageHelper.loadPrevPage(doc, ajax).getDocument();
+					currentUrl = doc.location();
 					LOG.info(currentUrl);
 				}
 			}
@@ -207,7 +183,7 @@ public class ForumParser extends Parser {
 	/**
 	 * 解析一页
 	 */
-	private void parsePage(WebPageMy page, Document doc, String mainUrl, String currentUrl, ForumDetailConf detailConf) {
+	private void parsePage(WebPage page, Document doc, String mainUrl, String currentUrl, ForumDetailConf detailConf) {
 		Elements replyEles = doc.select(detailConf.getReply());
 		for (Element element : replyEles) {
 			Reply reply = new Reply();
@@ -236,7 +212,7 @@ public class ForumParser extends Parser {
 	/**
 	 * 保存回复
 	 */
-	private String save(WebPageMy page, Reply reply, Element element, ForumDetailConf detailConf, String parentId) {
+	private String save(WebPage page, Reply reply, Element element, ForumDetailConf detailConf, String parentId) {
 		String id = UUID.randomUUID().toString();
 		reply.setId(id);
 		if (!CollectionUtils.isEmpty(element.select(detailConf.getReplyAuthor()))) {
@@ -262,11 +238,11 @@ public class ForumParser extends Parser {
 
 		String md5 = Md5Signatrue.generateMd5(reply.getMainUrl(), reply.getAuthorAccount(), reply.getContent(),
 		        reply.getImgUrl(), reply.getAudioUrl(), reply.getVideoUrl());
+		RecordInfo info = null;
 		if (!duplicateInspector.md5Exist(md5)) {
 			reply.setParentId(parentId);
 			reply.setMd5(md5);
-			tools.getRedisSerivice().addMd5(md5);
-			tools.getInfoService().addReply(reply);
+			recordInfos.add(info);
 		}
 		
 		return id;
@@ -302,11 +278,11 @@ public class ForumParser extends Parser {
 
 		String md5 = Md5Signatrue.generateMd5(reply.getMainUrl(), reply.getAuthorAccount(), reply.getContent(),
 		        reply.getImgUrl(), reply.getAudioUrl(), reply.getVideoUrl());
+		RecordInfo info = null;
 		if (!duplicateInspector.md5Exist(md5)) {
 			reply.setMd5(md5);
 			reply.setParentId(parentId);
-			tools.getRedisSerivice().addMd5(md5);
-			tools.getInfoService().addReply(reply);
+			recordInfos.add(info);
 		}
 		
 		return id;

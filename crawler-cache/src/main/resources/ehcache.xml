@@ -28,5 +28,6 @@
     		  diskPersistent="true" timeToIdleSeconds="300" 
     		  timeToLiveSeconds="600" diskExpiryThreadIntervalSeconds="1" 
     		  memoryStoreEvictionPolicy="LFU">
-    	</cache>
+    </cache>
+    
  </ehcache>

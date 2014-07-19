@@ -2,17 +2,17 @@
 <parse-plugins>
 	<plugin>
 		<type>forum</type>
-		<class>com.zxsoft.carson.plugin.parse.ForumParser</class>
+		<class>com.zxsoft.crawler.plugin.parse.ForumParser</class>
 		<description>论坛解析器</description>
 	</plugin>
 	<plugin>
 		<type>tieba</type>
-		<class>com.zxsoft.carson.plugin.parse.TieBaParser</class>
+		<class>com.zxsoft.crawler.plugin.parse.TieBaParser</class>
 		<description>百度贴吧解析器</description>
 	</plugin>
 	<plugin>
 		<type>news</type>
-		<class>com.zxsoft.carson.plugin.parse.NewsParser</class>
+		<class>com.zxsoft.crawler.plugin.parse.NewsParser</class>
 		<description>资讯解析器</description>
 	</plugin>
 </parse-plugins>

@@ -1,32 +1,9 @@
-/*******************************************************************************
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 package com.zxsoft.crawler.protocol;
 
 import java.net.URL;
-import java.util.Iterator;
 
-import org.apache.avro.generic.GenericArray;
-import org.apache.avro.util.Utf8;
-//import org.apache.nutch.storage.ProtocolStatus;
-import org.apache.nutch.util.TableUtil;
 
 public class ProtocolStatusUtils implements ProtocolStatusCodes {
-  // Useful static instances for status codes that don't usually require any
-  // additional arguments.
   public static final ProtocolStatus STATUS_SUCCESS = makeStatus(SUCCESS);
   public static final ProtocolStatus STATUS_FAILED = makeStatus(FAILED);
   public static final ProtocolStatus STATUS_GONE = makeStatus(GONE);
@@ -76,48 +53,23 @@ public class ProtocolStatusUtils implements ProtocolStatusCodes {
   }
 
   public static ProtocolStatus makeStatus(int code) {
+	  ProtocolStatus pstatus = new ProtocolStatus();
+	  pstatus.setCode(code);
+	  return pstatus;
+  }
+  public static ProtocolStatus makeStatus(int code, URL u) {
     ProtocolStatus pstatus = new ProtocolStatus();
+    pstatus.setU(u);
     pstatus.setCode(code);
-    pstatus.setLastModified(0);
     return pstatus;
-  }
-
-  public static ProtocolStatus makeStatus(int code, String message) {
-    ProtocolStatus pstatus = makeStatus(code);
-    pstatus.addToArgs(new Utf8(message));
-    return pstatus;
-  }
-
-  public static ProtocolStatus makeStatus(int code, URL url) {
-    return makeStatus(code, url.toString());
-  }
-
-  public static String getMessage(ProtocolStatus pstatus) {
-    GenericArray<Utf8> args = pstatus.getArgs();
-    if (args == null || args.size() == 0) {
-      return null;
-    }
-    return TableUtil.toString(args.iterator().next());
   }
   
-  public static String toString(ProtocolStatus status) {
-    if (status == null) {
-      return "(null)";
-    }
-    StringBuilder sb = new StringBuilder();
-    sb.append(getName(status.getCode()));
-    sb.append(", args=[");
-    GenericArray<Utf8> args = status.getArgs();
-    if (args != null) {
-      int i = 0;
-      Iterator<Utf8> it = args.iterator();
-      while (it.hasNext()) {
-        if (i > 0) sb.append(',');
-        sb.append(it.next());
-        i++;
-      }
-    }
-    sb.append("]");
-    return sb.toString();
+  public static ProtocolStatus makeStatus(int code, String message) {
+	  ProtocolStatus pstatus = new ProtocolStatus();
+	  pstatus.setMessage(message);
+	  pstatus.setCode(code);
+	  return pstatus;
   }
+
+
 }
