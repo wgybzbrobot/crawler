@@ -20,7 +20,11 @@ import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.Region;
 import com.zxsoft.crawler.core.Crawler;
 import com.zxsoft.crawler.urlbase.UrlbaseFactory;
+<<<<<<< HEAD
 import com.zxsoft.crawler.urlbase.impl.RedisUrlbaseFactory;
+=======
+import com.zxsoft.crawler.urlbase.redis.RedisUrlbaseFactory;
+>>>>>>> e0da859e27ba5eb6fafd625d352b658a95752736
 
 @Configuration
 @RestController
