@@ -43,8 +43,6 @@ import com.zxsoft.crawler.util.Utils;
  * <li>4. 翻页</li>
  * </ol>
  */
-//@Component
-//@Scope("prototype")
 public class ForumParser extends Parser {
 
 	private static Logger LOG = LoggerFactory.getLogger(ForumParser.class);

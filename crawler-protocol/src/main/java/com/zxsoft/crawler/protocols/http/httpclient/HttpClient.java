@@ -60,6 +60,7 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.util.CharArrayBuffer;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -369,7 +370,7 @@ public class HttpClient extends HttpBase {
 			if (useProxy) {
 				requestConfig = RequestConfig.copy(defaultRequestConfig)
 						.setProxy(new HttpHost(proxy.getHost(), proxy.getPort())).build();
-			} eles {
+			} else {
 				requestConfig = RequestConfig.copy(defaultRequestConfig).build();
 			}
 			httpget.setConfig(requestConfig);
@@ -441,4 +442,22 @@ public class HttpClient extends HttpBase {
 		}
 		return new Response(url, code, headers, content, headers.get(Response.CONTENT_ENCODING));
 	}
+
+	@Override
+    protected Response loadPrevPage(int pageNum, Document currentDoc) {
+	    // TODO Auto-generated method stub
+	    return null;
+    }
+
+	@Override
+    protected Response loadNextPage(int pageNum, Document currentDoc) {
+	    // TODO Auto-generated method stub
+	    return null;
+    }
+
+	@Override
+    protected Response loadLastPage(Document currentDoc) {
+	    // TODO Auto-generated method stub
+	    return null;
+    }
 }

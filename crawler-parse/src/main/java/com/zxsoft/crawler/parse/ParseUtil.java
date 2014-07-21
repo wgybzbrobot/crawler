@@ -34,8 +34,6 @@ import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
 
-//@Component
-//@Scope("prototype")
 public final class ParseUtil {
 
 	private static Logger LOG = LoggerFactory.getLogger(ParseUtil.class);

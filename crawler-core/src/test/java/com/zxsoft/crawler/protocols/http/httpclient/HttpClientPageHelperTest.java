@@ -27,19 +27,33 @@ public class HttpClientPageHelperTest {
 	HttpClientPageHelper pageHelper;
 	
 	@Autowired
-	HttpFetcher httpFetcher;
+	HttpFetcher httpClient;
 	
 	@Test
 	public void testLoadLastPage() throws IOException {
 		Document currentDoc = Jsoup.connect("http://tieba.baidu.com/p/3171682576").get();
-		ProtocolOutput protocolOutput = pageHelper.loadLastPage(currentDoc, false);
+		ProtocolOutput protocolOutput = pageHelper.loadLastPage(currentDoc);
 		Assert.notNull(protocolOutput);
 		Assert.notNull(protocolOutput.getDocument());
-		Assert.isTrue("http://tieba.baidu.com/p/3171682576?pn=8".equals(protocolOutput.getDocument().location()));
-
-		currentDoc = Jsoup.connect("http://tieba.baidu.com/p/3172028013").get();
-		protocolOutput = pageHelper.loadLastPage(currentDoc, false);
-		Assert.isNull(protocolOutput);
+		Assert.isTrue(protocolOutput.getDocument().location().matches("http://tieba.baidu.com/p/3171682576\\?pn=\\d+"));
+	}
+	
+	@Test
+	public void testLoadPrevPage() throws IOException {
+		Document currentDoc = Jsoup.connect("http://tieba.baidu.com/p/3171682576?pn=3").get();
+		ProtocolOutput protocolOutput = pageHelper.loadPrevPage(3, currentDoc);
+		Assert.notNull(protocolOutput);
+		Assert.notNull(protocolOutput.getDocument());
+		Assert.isTrue(protocolOutput.getDocument().location().equals("http://tieba.baidu.com/p/3171682576?pn=2"));
+	}
+	
+	@Test
+	public void testLoadNextPage() throws IOException {
+		Document currentDoc = Jsoup.connect("http://tieba.baidu.com/p/3171682576").get();
+		ProtocolOutput protocolOutput = pageHelper.loadNextPage(1, currentDoc);
+		Assert.notNull(protocolOutput);
+		Assert.notNull(protocolOutput.getDocument());
+		Assert.isTrue(protocolOutput.getDocument().location().equals("http://tieba.baidu.com/p/3171682576?pn=2"));
 	}
 	
 	

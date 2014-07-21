@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
+import com.zxsoft.crawler.protocols.http.PageHelper;
 import com.zxsoft.crawler.util.URLNormalizer;
 import com.zxsoft.crawler.util.Utils;
 
@@ -20,7 +21,7 @@ import com.zxsoft.crawler.util.Utils;
  * @return url
  */
 @Component
-public final class HttpClientPageHelper {
+public final class HttpClientPageHelper extends PageHelper {
 
 	public enum PageType {
 		CURRENT_PAGE,
@@ -28,6 +29,7 @@ public final class HttpClientPageHelper {
 		NEXT_PAGE,
 		LAST_PAGE
 	}
+	
 	@Autowired
 	private HttpFetcher httpFetcher;
 	
@@ -55,7 +57,7 @@ public final class HttpClientPageHelper {
 			 * very accurate, some url cannot find from page bar, because it
 			 * changed when load it.
 			 */
-			Element pagebar = HttpClientPageHelper.getPageBar(currentDoc);
+			Element pagebar = getPageBar(currentDoc);
 			if (pagebar != null) {
 				Elements achors = pagebar.getElementsByTag("a");
 				if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
@@ -74,16 +76,29 @@ public final class HttpClientPageHelper {
 	/**
 	 * 加载上一页
 	 */
-	public ProtocolOutput loadPrevPage(Document currentDoc, boolean ajax)  {
+	public ProtocolOutput loadPrevPage(int pageNum, Document currentDoc)  {
 		currentUrl = currentDoc.location();
 		Elements elements = currentDoc.select("a:matchesOwn(上一页|上页|<上一页)");
-		if (CollectionUtils.isEmpty(elements)) {
-			return null;
+		if (!CollectionUtils.isEmpty(elements)) {
+			return load(elements.first());
+		} else if (pageNum > 1) {
+			Element pagebar = getPageBar(currentDoc);
+			if (pagebar != null) {
+				Elements achors = pagebar.getElementsByTag("a");
+				if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
+					for (int i = 0; i < achors.size(); i++) {
+						if (Utils.isNum(achors.get(i).text())
+								&& Integer.valueOf(achors.get(i).text().trim()) == pageNum - 1) {
+							return load(achors.get(i));
+						}
+					}
+				}
+			}
 		}
-		return load(elements.first());
+		return null;
 	}
 
-	public ProtocolOutput loadLastPage(Document currentDoc, boolean ajax) {
+	public ProtocolOutput loadLastPage(Document currentDoc) {
 		currentUrl = currentDoc.location();
 		Elements lastEles = currentDoc.select("a:matchesOwn(尾页|末页|最后一页)");
 		if (!CollectionUtils.isEmpty(lastEles)) {
@@ -91,7 +106,7 @@ public final class HttpClientPageHelper {
 		}
 
 		// 1. get all links from page bar
-		Element pagebar = HttpClientPageHelper.getPageBar(currentDoc);
+		Element pagebar = getPageBar(currentDoc);
 		if (pagebar == null)
 			return null;
 		Elements links = pagebar.getElementsByTag("a");
@@ -116,59 +131,5 @@ public final class HttpClientPageHelper {
 		return load(el);
 	}
 
-	/**
-	 * Get Page Bar of current page[document] 
-	 * @return page bar element.
-	 */
-	public static Element getPageBar(Document document) {
-		Assert.notNull(document);
-		Elements eles = document.select("a:matches(上一页|上页|<上一页|下一页|下页|下一页>|尾页|末页)");
-		if (!CollectionUtils.isEmpty(eles)) {
-			Elements siblingEles = eles.first().siblingElements();
-			Element parentEle = eles.first().parent();
-
-			if (!CollectionUtils.isEmpty(siblingEles)
-			        || !CollectionUtils.isEmpty(siblingEles = parentEle.siblingElements())) {
-				float sum = siblingEles.size() + 1, count = 0;
-				for (Element ele : siblingEles) {
-					if (!CollectionUtils.isEmpty(ele.getElementsByTag("a"))) {
-						count++;
-					}
-				}
-				if (Math.round(count / sum) == 1) {
-					return parentEle.parent();
-				} else {
-					return parentEle;
-				}
-			}
-		} else { // get pagebar by 1,2,3...
-			eles = document.getElementsByTag("a");
-			if (CollectionUtils.isEmpty(eles))
-				return null;
-			for (Element element : eles) {
-				if (Utils.isNum(element.text())) {
-					Elements siblingEles = element.siblingElements();
-					if (!CollectionUtils.isEmpty(siblingEles)
-					        || !CollectionUtils.isEmpty(siblingEles = element.parent()
-					                .siblingElements())) {
-						float sum = siblingEles.size() + 1, count = 0;
-						int num = 1;
-						for (Element ele : siblingEles) {
-							if (!CollectionUtils.isEmpty(ele.getElementsByTag("a"))) {
-								count++;
-								String str = ele.getElementsByTag("a").first().text();
-								if (Utils.isNum(str) && Integer.valueOf(str) < 1000)
-									num++;
-							}
-						}
-
-						if (Math.round(count / sum) == 1 && num > 1) {
-							return siblingEles.first().parent();
-						}
-					}
-				}
-			}
-		}
-		return null;
-	}
+	
 }

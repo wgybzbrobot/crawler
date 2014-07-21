@@ -17,15 +17,14 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.zxsoft.crawler.cache.proxy.Proxy;
+import com.zxsoft.crawler.metadata.Metadata;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
-import com.zxsoft.crawler.protocol.ProtocolStatus;
 import com.zxsoft.crawler.protocol.ProtocolStatusCodes;
 import com.zxsoft.crawler.protocol.ProtocolStatusUtils;
 import com.zxsoft.crawler.protocols.http.htmlunit.HtmlUnit;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClient;
-import com.zxsoft.crawler.protocols.http.httpclient.HttpClientPageHelper;
 import com.zxsoft.crawler.protocols.http.proxy.ProxyRandom;
 
 /**
@@ -34,7 +33,7 @@ import com.zxsoft.crawler.protocols.http.proxy.ProxyRandom;
  */
 @Component
 @Scope("prototype")
-public abstract class HttpBase {
+public abstract class HttpBase extends PageHelper {
 
 	public static final int BUFFER_SIZE = 8 * 1024;
 
@@ -65,6 +64,13 @@ public abstract class HttpBase {
 	/** Do we use HTTP/1.1? */
 	protected boolean useHttp11 = false;
 
+	
+	protected int code;
+	protected Metadata headers = new Metadata();
+	protected byte[] content = null;
+	protected String charset = "utf-8";
+	protected String contentType;
+	
 	// Inherited Javadoc
 	public void setConf(Configuration conf) {
 		this.conf = conf;
@@ -83,89 +89,118 @@ public abstract class HttpBase {
 	}
 	
 	@Autowired
-	private ProxyRandom proxyRandom;
+	protected ProxyRandom proxyRandom;
 
-	
-	public ProtocolOutput getProtocolOutput(String url, HttpClientPageHelper.PageType pageType, boolean followRedirect) {
-		
-		return null;
-	}
-	
+	/** Get ProtocolOutput of current, prev, next, last page **/
 	public ProtocolOutput getProtocolOutput(String url) {
 		Proxy proxy = proxyRandom.random();
-		
-		Document document = null;
 		try {
 			LOG.info(url);
 			URL u = new URL(url);
 			Response response = getResponse(u, proxy , false); 
-			int code = response.code;
-			byte[] content = response.content;
-
-			InputStream in = new ByteArrayInputStream(content);
-
-			document = Jsoup.parse(in, response.charset, response.url.toString());
-
-			if (code == 200) { // got a good response
-				return new ProtocolOutput(document); // return it
-			} else if (code == 410) { // page is gone
-				return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
-				        ProtocolStatusCodes.GONE, "Http: " + code + " url=" + url));
-			} else if (code >= 300 && code < 400) { // handle redirect
-				String location = response.getHeader("Location");
-				// some broken servers, such as MS IIS, use lowercase header
-				// name...
-				if (location == null)
-					location = response.getHeader("location");
-				if (location == null)
-					location = "";
-				u = new URL(u, location);
-				int protocolStatusCode;
-				switch (code) {
-				case 300: // multiple choices, preferred value in Location
-					protocolStatusCode = ProtocolStatusCodes.MOVED;
-					break;
-				case 301: // moved permanently
-				case 305: // use proxy (Location is URL of proxy)
-					protocolStatusCode = ProtocolStatusCodes.MOVED;
-					break;
-				case 302: // found (temporarily moved)
-				case 303: // see other (redirect after POST)
-				case 307: // temporary redirect
-					protocolStatusCode = ProtocolStatusUtils.TEMP_MOVED;
-					break;
-				case 304: // not modified
-					protocolStatusCode = ProtocolStatusUtils.NOTMODIFIED;
-					break;
-				default:
-					protocolStatusCode = ProtocolStatusUtils.MOVED;
-				}
-				// handle this in the higher layer.
-				return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(protocolStatusCode, u));
-			} else if (code == 400) { // bad request, mark as GONE
-				LOG.trace("400 Bad request: " + u);
-				return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
-				        ProtocolStatusCodes.GONE, u));
-			} else if (code == 401) { // requires authorization, but no valid
-									  // auth provided.
-				LOG.trace("401 Authentication Required");
-				return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
-				        ProtocolStatusCodes.ACCESS_DENIED, "Authentication required: " + url));
-			} else if (code == 404) {
-				return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
-				        ProtocolStatusCodes.NOTFOUND, u));
-			} else if (code == 410) { // permanently GONE
-				return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
-				        ProtocolStatusCodes.GONE, u));
-			} else {
-				return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
-				        ProtocolStatusCodes.EXCEPTION, "Http code=" + code + ", url=" + u));
-			}
+			return dealResponse(response);
 		} catch (Throwable e) {
 			LOG.error("Failed with the following error: ", e);
 			return null;
 		}
 	}
+	
+	public ProtocolOutput getProtocolOutputOfPrevPage(int pageNum, Document currentDoc) {
+        try {
+        	Response response = loadPrevPage(pageNum, currentDoc);
+	        return dealResponse(response); 
+        } catch (IOException e) {
+        	LOG.error("Failed with the following error: ", e);
+        	return null;
+        }
+	}
+	
+	public ProtocolOutput getProtocolOutputOfNextPage(int pageNum, Document currentDoc) {
+		try {
+			Response response = loadNextPage(pageNum, currentDoc);
+			return dealResponse(response); 
+		} catch (IOException e) {
+			LOG.error("Failed with the following error: ", e);
+			return null;
+		}
+	}
+
+	public ProtocolOutput getProtocolOutputOfLastPage(Document currentDoc) {
+		try {
+			Response response = loadLastPage(currentDoc);
+			return dealResponse(response); 
+		} catch (IOException e) {
+			LOG.error("Failed with the following error: ", e);
+			return null;
+		}
+	}
+	/** End get ProtocolOutput of current, prev, next, last page **/
+	
+	
+	public ProtocolOutput dealResponse (Response response) throws IOException {
+		int code = response.code;
+		byte[] content = response.content;
+		URL u = response.url;
+		InputStream in = new ByteArrayInputStream(content);
+
+		Document document = Jsoup.parse(in, response.charset, u.toString());
+
+		if (code == 200) { // got a good response
+			return new ProtocolOutput(document); // return it
+		} else if (code == 410) { // page is gone
+			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
+			        ProtocolStatusCodes.GONE, "Http: " + code + " url=" + response.url.toString()));
+		} else if (code >= 300 && code < 400) { // handle redirect
+			String location = response.getHeader("Location");
+			// some broken servers, such as MS IIS, use lowercase header
+			// name...
+			if (location == null)
+				location = response.getHeader("location");
+			if (location == null)
+				location = "";
+			int protocolStatusCode;
+			switch (code) {
+			case 300: // multiple choices, preferred value in Location
+				protocolStatusCode = ProtocolStatusCodes.MOVED;
+				break;
+			case 301: // moved permanently
+			case 305: // use proxy (Location is URL of proxy)
+				protocolStatusCode = ProtocolStatusCodes.MOVED;
+				break;
+			case 302: // found (temporarily moved)
+			case 303: // see other (redirect after POST)
+			case 307: // temporary redirect
+				protocolStatusCode = ProtocolStatusUtils.TEMP_MOVED;
+				break;
+			case 304: // not modified
+				protocolStatusCode = ProtocolStatusUtils.NOTMODIFIED;
+				break;
+			default:
+				protocolStatusCode = ProtocolStatusUtils.MOVED;
+			}
+			// handle this in the higher layer.
+			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(protocolStatusCode, u));
+		} else if (code == 400) { // bad request, mark as GONE
+			LOG.trace("400 Bad request: " + u);
+			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
+			        ProtocolStatusCodes.GONE, u));
+		} else if (code == 401) { // requires authorization, but no valid
+								  // auth provided.
+			LOG.trace("401 Authentication Required");
+			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
+			        ProtocolStatusCodes.ACCESS_DENIED, "Authentication required: " + u.toString()));
+		} else if (code == 404) {
+			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
+			        ProtocolStatusCodes.NOTFOUND, u));
+		} else if (code == 410) { // permanently GONE
+			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
+			        ProtocolStatusCodes.GONE, u));
+		} else {
+			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
+			        ProtocolStatusCodes.EXCEPTION, "Http code=" + code + ", url=" + u));
+		}
+	}
+	
 
 	public boolean useProxy() {
 		return useProxy;
@@ -243,5 +278,10 @@ public abstract class HttpBase {
 
 	protected abstract Response getResponse(URL url, Proxy proxy,
 	        boolean followRedirects) throws ProtocolException, IOException;
+	
+	
+	protected abstract Response loadPrevPage(int pageNum, Document currentDoc) throws IOException;
+	protected abstract Response loadNextPage(int pageNum, Document currentDoc) throws IOException;
+	protected abstract Response loadLastPage(Document currentDoc) throws IOException;
 
 }

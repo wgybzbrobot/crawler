@@ -14,10 +14,10 @@ public class RESTConfiguration {
 	@Bean
 	public RestServer restServer(Environment env) {
 		int port = 80;
-		if (env.getProperty("rest.port") == null) {
-			port = Integer.valueOf(env.getProperty("rest.port"));
+		if (env.getProperty("output.port") == null) {
+			port = Integer.valueOf(env.getProperty("output.port"));
 		}
 		return new RestServer(env.getProperty("rest.user"), env.getProperty("rest.password"),
-		        env.getProperty("rest.host"), port);
+		        env.getProperty("output.host"), port);
 	}
 }
