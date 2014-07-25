@@ -25,7 +25,7 @@ public class PageHelper {
 	 * Get Page Bar of current page[document]
 	 * 
 	 * @return page bar element.
-	 * @throws PageBarNotFoundException 
+	 * @throws PageBarNotFoundException
 	 */
 	public static Element getPageBar(Document document) throws PageBarNotFoundException {
 		Assert.notNull(document);
@@ -53,35 +53,64 @@ public class PageHelper {
 			if (CollectionUtils.isEmpty(eles))
 				return null;
 			for (Element element : eles) {
-				if (Utils.isNum(element.text())) {
-					Elements siblingEles = element.siblingElements();
+				String eleTxt = element.text();
+				if (Utils.isNum(eleTxt)) {
+
+					/** test if  element's parent only have one anchor **/
+					int count = 0;
+					while (count++ < 20) { 
+						Element parent = element.parent();
+						if (parent.getElementsByTag("a").size() > 1) {
+							break;
+						}
+						element = parent;
+					}
 					
-					if (!CollectionUtils.isEmpty(siblingEles)) {
-						siblingEles = siblingEles.parents();
-					} else {
-						siblingEles = siblingEles.parents();
-						if (!CollectionUtils.isEmpty(siblingEles)) {
-							siblingEles = siblingEles.parents();
+					/** Easy Finding **/
+					String siblingTxt = "";
+					if (element.nextElementSibling() != null) {
+						siblingTxt = element.nextElementSibling().text();
+						if (Utils.isNum(siblingTxt)
+						        && "a".equals(element.nextElementSibling().tagName())
+						        && Integer.valueOf(eleTxt) + 1 == Integer.valueOf(siblingTxt)) {
+							return element.parent();
+						}
+					} else if (element.previousElementSibling() != null) {
+						siblingTxt = element.previousElementSibling().text();
+						if (Utils.isNum(siblingTxt)
+						        && "a".equals(element.previousElementSibling().tagName())
+						        && Integer.valueOf(eleTxt) - 1 == Integer.valueOf(siblingTxt)) {
+							return element.parent();
 						}
 					}
-					
-					float sum = siblingEles.size() + 1, count = 0;
-					int num = 1;
-					SortedSet<Integer> nums = new TreeSet<Integer>();
-					for (Element ele : siblingEles) {
-						if (!CollectionUtils.isEmpty(ele.getElementsByTag("a"))) {
-							count++;
-							String str = ele.getElementsByTag("a").first().text();
-							if (Utils.isNum(str) && Integer.valueOf(str) < 1000) {
-								nums.add(Integer.valueOf(str));
-								num++;
-							}
-						}
-					}
-	
-					if (Math.round(count / sum) == 1 && num > 1) {
-						return siblingEles.first().parent();
-					}
+
+					/** Complex Finding **/
+//					Elements siblingEles = element.siblingElements();
+//					if (!CollectionUtils.isEmpty(siblingEles)) {
+//						siblingEles = siblingEles.parents();
+//					} else {
+//						siblingEles = siblingEles.parents();
+//						if (!CollectionUtils.isEmpty(siblingEles)) {
+//							siblingEles = siblingEles.parents();
+//						}
+//					}
+//					float sum = siblingEles.size() + 1, count = 0;
+//					int num = 1;
+//					SortedSet<Integer> nums = new TreeSet<Integer>();
+//					for (Element ele : siblingEles) {
+//						if (!CollectionUtils.isEmpty(ele.getElementsByTag("a"))) {
+//							count++;
+//							String str = ele.getElementsByTag("a").first().text();
+//							if (Utils.isNum(str) && Integer.valueOf(str) < 1000) {
+//								nums.add(Integer.valueOf(str));
+//								num++;
+//							}
+//						}
+//					}
+//
+//					if (Math.round(count / sum) == 1 && num > 1) {
+//						return siblingEles.first().parent();
+//					}
 				}
 			}
 		}
@@ -90,9 +119,11 @@ public class PageHelper {
 
 	/**
 	 * 计算上一页的url
-	 * @throws PrevPageNotFoundException 
+	 * 
+	 * @throws PrevPageNotFoundException
 	 */
-	public static URL calculatePrevPageUrl(URL currentUrl, URL prevUrl) throws PrevPageNotFoundException {
+	public static URL calculatePrevPageUrl(URL currentUrl, URL prevUrl)
+	        throws PrevPageNotFoundException {
 
 		String currentUrlStr = currentUrl.toString();
 		String testUrlStr = prevUrl.toString();
@@ -134,7 +165,8 @@ public class PageHelper {
 		throw new PrevPageNotFoundException("Preview Page Not Found");
 	}
 
-	public static URL calculatePrevPageUrl(Document currentDoc) throws PrevPageNotFoundException, PageBarNotFoundException {
+	public static URL calculatePrevPageUrl(Document currentDoc) throws PrevPageNotFoundException,
+	        PageBarNotFoundException {
 		Element pagebar = getPageBar(currentDoc);
 		List<String> urls = Utils.extractUrls(pagebar);
 		URL currentUrl = null;
@@ -154,12 +186,12 @@ public class PageHelper {
 				LOG.warn(url + " malfored url exception. Ignored and continue the loop.");
 				continue;
 			}
-			
+
 			try {
-	            realUrl = calculatePrevPageUrl(currentUrl, prevUrl);
-            } catch (PrevPageNotFoundException e) {
-            	continue;
-            }
+				realUrl = calculatePrevPageUrl(currentUrl, prevUrl);
+			} catch (PrevPageNotFoundException e) {
+				continue;
+			}
 			if (realUrl != null)
 				break;
 		}
