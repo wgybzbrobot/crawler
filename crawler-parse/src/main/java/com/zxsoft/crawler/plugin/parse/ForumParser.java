@@ -24,6 +24,8 @@ import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.ParseException;
 import com.zxsoft.crawler.parse.ParseStatus;
 import com.zxsoft.crawler.parse.Parser;
+import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.protocol.ProtocolStatusCodes;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClientPageHelper;
 import com.zxsoft.crawler.storage.Forum;
 import com.zxsoft.crawler.storage.ForumDetailConf;
@@ -34,6 +36,7 @@ import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.store.Output;
 import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
+import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 
 /**
  * <ol>
@@ -46,9 +49,20 @@ import com.zxsoft.crawler.util.Utils;
 public class ForumParser extends Parser {
 
 	private static Logger LOG = LoggerFactory.getLogger(ForumParser.class);
-	private String rule; // filter regular expression
-	private String mainUrl;
-	private boolean ajax;
+//	private String rule; // filter regular expression
+//	private String mainUrl;
+//	private boolean ajax;
+//	private List<RecordInfo> recordInfos = new LinkedList<RecordInfo>();
+	
+	private ThreadLocal<String> mainUrl = new ThreadLocal<String>();
+	private ThreadLocal<String> rule = new ThreadLocal<String>() { protected String initialValue() { return "";}};
+	private ThreadLocal<Long> prevFetchTime = new ThreadLocal<Long>();
+	private ThreadLocal<Boolean> ajax = new ThreadLocal<Boolean>();
+	private ThreadLocal<List<RecordInfo>> recordInfos = new ThreadLocal<List<RecordInfo>>() {
+		protected List<RecordInfo> initialValue() {
+			return new LinkedList<RecordInfo>();
+		}
+	};
 	
 	@Override
 	public ParseStatus parse(WebPage page) throws Exception {
@@ -56,14 +70,20 @@ public class ForumParser extends Parser {
 		Document document = page.getDocument();
 		Assert.notNull(document, "Document is null");
 
-		ajax = page.isAjax();
-		mainUrl = page.getBaseUrl();
-		String md5 = Md5Signatrue.generateMd5(mainUrl);
+//		ajax = page.isAjax();
+//		mainUrl = page.getBaseUrl();
+		
+		mainUrl.set(page.getBaseUrl());
+		prevFetchTime.set(page.getPrevFetchTime());
+		ajax.set(page.isAjax());
+		recordInfos.set(new LinkedList<RecordInfo>());
+		
+		String md5 = Md5Signatrue.generateMd5(mainUrl.get());
 		if (duplicateInspector.md5Exist(md5)) return null;
 		
 		
-		ParseStatus status = new ParseStatus(mainUrl);
-		ForumDetailConf detailConf = confDao.getForumDetailConf(Utils.getHost(mainUrl));
+		ParseStatus status = new ParseStatus(mainUrl.get());
+		ForumDetailConf detailConf = confDao.getForumDetailConf(Utils.getHost(mainUrl.get()));
 
 		if (detailConf == null) {
 			LOG.warn("Detail page has no configuration in database." + mainUrl);
@@ -80,13 +100,14 @@ public class ForumParser extends Parser {
 		}*/
 		fetchContent(page, detailConf);
 		
-		indexWriter.write(recordInfos);
+		int num = indexWriter.write(recordInfos.get());
+		LOG.info(mainUrl.get() + " has " + num + " records.");
 		return status;
 	}
 
 	private void fetchContent(WebPage page, ForumDetailConf detailConf) throws ParseException, ConnectException {
 		
-		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, page.getFetchTime());
+		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl.get(), page.getFetchTime());
 		
 		Document document = page.getDocument();
 		// Elements titleEle = document.select(detailConf.getTitle()); //
@@ -109,23 +130,26 @@ public class ForumParser extends Parser {
 			if (!CollectionUtils.isEmpty(contentEles)) {
 				Element contentEle = contentEles.first();
 				info.setContent(contentEle.text());
-				info.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, rule));
+				info.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, rule.get()));
 				info.setVoice_url(MultimediaExtractor.extractAudioUrl(contentEle));
 				info.setVideo_url(MultimediaExtractor.extractVideoUrl(contentEle));
 			}
 
-			String dateStr = "";
 			if (info.getTimestamp() == 0) {
 				if (!StringUtils.isEmpty(detailConf.getMasterDate())
 				        && !CollectionUtils.isEmpty(mainEle.select(detailConf.getMasterDate()))) {
-					dateStr = mainEle.select(detailConf.getMasterDate()).first().text();
-					if (!StringUtils.isEmpty(dateStr)) {
-						info.setTimestamp(Utils.formatDate(dateStr).getTime());
+					String dateField = mainEle.select(detailConf.getMasterDate()).first().text();
+					if (!StringUtils.isEmpty(dateField)) {
+						try {
+	                        info.setTimestamp(Utils.formatDate(dateField).getTime());
+                        } catch (java.text.ParseException e) {
+                        	LOG.error("Cannot parse date: " + dateField + " in page " + mainUrl.get());
+                        }
 					}
 				}
 			}
 
-			recordInfos.add(info);
+			recordInfos.get().add(info);
 
 			parseReply(page, detailConf);
 		} else {
@@ -139,40 +163,39 @@ public class ForumParser extends Parser {
 	 */
 	private void parseReply(WebPage page, ForumDetailConf detailConf) {
 		Document doc = page.getDocument();
-		String currentUrl = mainUrl;
+		String currentUrl = mainUrl.get();
 		String newPageUrl = "", currentPageText = "";
+		ProtocolOutput ptemp = null;
 		if (!detailConf.isFetchorder()) { // 从第一页
+			int pageNum = 1;
 			do {
-				parsePage(page, doc, mainUrl, currentUrl, detailConf);
-				// get next page
-//				Element pagebar = PageHelper.getPageBar(doc);
-//				if (pagebar != null) {
-//					Element pg = new PageHelper().loadNextPage(pagebar, currentPageText);
-//					if (pg != null) {
-//						currentPageText = pg.text();
-//						newPageUrl = pg.absUrl("href");
-//					}
-//				}
-				doc = pageHelper.loadNextPage(doc, ajax).getDocument();
+				parsePage(page, doc, mainUrl.get(), currentUrl, detailConf);
+				pageNum++;
+				ptemp = fetchNextPage(pageNum, doc, ajax.get());
+				if (ptemp == null || ptemp.getStatus().getCode() != ProtocolStatusCodes.SUCCESS)
+					break;
+				doc = ptemp.getDocument();
 				currentUrl = newPageUrl;
 			} while (!StringUtils.isEmpty(newPageUrl));
 
 		} else { // fetch from last page
 			// jump to last page
-			Document lastDoc = pageHelper.loadLastPage(doc, ajax).getDocument();
-			if (lastDoc == null) { // 无分页
-				parsePage(page, doc, mainUrl, currentUrl, detailConf);
+			ptemp = fetchLastPage(doc, ajax.get());
+			Document lastDoc = null;
+			if (ptemp == null || ptemp.getStatus().getCode() != ProtocolStatusCodes.SUCCESS || (lastDoc = ptemp.getDocument()) == null ) {
+				parsePage(page, doc, mainUrl.get(), currentUrl, detailConf);
 			} else {
 				doc = lastDoc;
-				currentUrl = doc.location();
 				while (true) {
-					if (doc == null || StringUtils.isEmpty(currentUrl))
+					if (doc == null || StringUtils.isEmpty(currentUrl = doc.location()))
 						break;
-					parsePage(page, doc, mainUrl, currentUrl, detailConf);
+//					LOG.info(currentUrl);
+					parsePage(page, doc, mainUrl.get(), currentUrl, detailConf);
 					// 获取上一页
-					doc = pageHelper.loadPrevPage(doc, ajax).getDocument();
-					currentUrl = doc.location();
-					LOG.info(currentUrl);
+					ptemp = fetchPrevPage(-1, doc, ajax.get());
+					if (ptemp == null || ptemp.getStatus().getCode() != ProtocolStatusCodes.SUCCESS)
+						break;
+					doc = ptemp.getDocument();
 				}
 			}
 		}
@@ -184,11 +207,12 @@ public class ForumParser extends Parser {
 	private void parsePage(WebPage page, Document doc, String mainUrl, String currentUrl, ForumDetailConf detailConf) {
 		Elements replyEles = doc.select(detailConf.getReply());
 		for (Element element : replyEles) {
-			Reply reply = new Reply();
-			reply.setMainUrl(mainUrl);
-			reply.setCurrentUrl(currentUrl);
+			RecordInfo reply = new RecordInfo();
+			reply.setOriginal_url(mainUrl);
+			reply.setUrl(currentUrl);
 			String id = save(page, reply, element, detailConf, null); // 保存回复
 
+			if (id == null) continue;
 			// 解析子回复
 			String subReplyDom = detailConf.getSubReply();
 			if (StringUtils.isEmpty(subReplyDom))
@@ -198,9 +222,9 @@ public class ForumParser extends Parser {
 			String parentId = id;
 			if (!CollectionUtils.isEmpty(subReplyEles)) {
 				for (Element ele : subReplyEles) {
-					Reply subReply = new Reply();
-					subReply.setMainUrl(mainUrl);
-					subReply.setCurrentUrl(currentUrl);
+					RecordInfo subReply = new RecordInfo();
+					subReply.setOriginal_url(mainUrl);
+					subReply.setUrl(currentUrl);
 					saveSub(subReply, ele, detailConf, parentId);
 				}
 			}
@@ -210,38 +234,35 @@ public class ForumParser extends Parser {
 	/**
 	 * 保存回复
 	 */
-	private String save(WebPage page, Reply reply, Element element, ForumDetailConf detailConf, String parentId) {
+	private String save(WebPage page, RecordInfo reply, Element element, ForumDetailConf detailConf, String parentId) {
 		String id = UUID.randomUUID().toString();
 		reply.setId(id);
 		if (!CollectionUtils.isEmpty(element.select(detailConf.getReplyAuthor()))) {
-			reply.setAuthorAccount(element.select(detailConf.getReplyAuthor()).first().text());
+			reply.setNickname(element.select(detailConf.getReplyAuthor()).first().text());
 		}
 
 		Elements contentEles = element.select(detailConf.getReplyContent());
 		if (!CollectionUtils.isEmpty(contentEles)) {
 			Element contentEle = contentEles.first();
 			reply.setContent(contentEle.text());
-			reply.setImgUrl(MultimediaExtractor.extractImgUrl(contentEle, rule));
-			reply.setAudioUrl(MultimediaExtractor.extractAudioUrl(contentEle));
-			reply.setVideoUrl(MultimediaExtractor.extractVideoUrl(contentEle));
+			reply.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, rule.get()));
+			reply.setVoice_url(MultimediaExtractor.extractAudioUrl(contentEle));
+			reply.setVideo_url(MultimediaExtractor.extractVideoUrl(contentEle));
+		} else {
+			return null;
 		}
 
-		reply.setAddress(null);
-
-		String dateStr = "";
 		if (!CollectionUtils.isEmpty(element.select(detailConf.getReplyDate()))) {
-			dateStr = element.select(detailConf.getReplyDate()).first().text();
-			reply.setReleasedate(Utils.formatDate(dateStr));
+			String dateField = element.select(detailConf.getReplyDate()).first().text();
+			try {
+	            reply.setTimestamp(Utils.formatDate(dateField).getTime());
+            } catch (java.text.ParseException e) {
+            	LOG.error("Cannot parse date: " + dateField + " in page " + reply.getUrl());
+            }
 		}
 
-		String md5 = Md5Signatrue.generateMd5(reply.getMainUrl(), reply.getAuthorAccount(), reply.getContent(),
-		        reply.getImgUrl(), reply.getAudioUrl(), reply.getVideoUrl());
-		RecordInfo info = null;
-		if (!duplicateInspector.md5Exist(md5)) {
-			reply.setParentId(parentId);
-			reply.setMd5(md5);
-			recordInfos.add(info);
-		}
+		reply.setOriginal_id(parentId);
+		recordInfos.get().add(reply);
 		
 		return id;
 	}
@@ -249,11 +270,11 @@ public class ForumParser extends Parser {
 	/**
 	 * 保存子回复
 	 */
-	private String saveSub(Reply reply, Element element, ForumDetailConf detailConf, String parentId) {
+	private String saveSub(RecordInfo reply, Element element, ForumDetailConf detailConf, String parentId) {
 		String id = UUID.randomUUID().toString();
 		reply.setId(id);
 		if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyAuthor()))) {
-			reply.setAuthorAccount(element.select(detailConf.getSubReplyAuthor()).first().text());
+			reply.setNickname(element.select(detailConf.getSubReplyAuthor()).first().text());
 		}
 		if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyContent()))) {
 			reply.setContent(element.select(detailConf.getSubReplyContent()).first().text());
@@ -263,25 +284,21 @@ public class ForumParser extends Parser {
 		for (Element img : imgs) {
 			imgUrlSb.append(img.attr("abs:src")).append(" ");// 多个url用空格隔开
 		}
-		reply.setImgUrl(imgUrlSb.toString());
-		reply.setAudioUrl(null);
-		reply.setVideoUrl(null);
-		reply.setAddress(null);
+		reply.setPic_url(imgUrlSb.toString());
+		reply.setVoice_url("");
+		reply.setVideo_url("");
 
-		String dateStr = "";
 		if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyDate()))) {
-			dateStr = element.select(detailConf.getSubReplyDate()).first().text();
-			reply.setReleasedate(Utils.formatDate(dateStr));
+			String dateField = element.select(detailConf.getSubReplyDate()).first().text();
+			try {
+	            reply.setTimestamp(Utils.formatDate(dateField).getTime());
+            } catch (java.text.ParseException e) {
+            	LOG.error("Cannot parse date: " + dateField + " in page " + reply.getUrl());
+            }
 		}
 
-		String md5 = Md5Signatrue.generateMd5(reply.getMainUrl(), reply.getAuthorAccount(), reply.getContent(),
-		        reply.getImgUrl(), reply.getAudioUrl(), reply.getVideoUrl());
-		RecordInfo info = null;
-		if (!duplicateInspector.md5Exist(md5)) {
-			reply.setMd5(md5);
-			reply.setParentId(parentId);
-			recordInfos.add(info);
-		}
+		reply.setOriginal_id(parentId);
+		recordInfos.get().add(reply);
 		
 		return id;
 	}

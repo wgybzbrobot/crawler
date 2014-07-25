@@ -26,6 +26,10 @@ import com.zxsoft.crawler.protocol.ProtocolStatusUtils;
 import com.zxsoft.crawler.protocols.http.htmlunit.HtmlUnit;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClient;
 import com.zxsoft.crawler.protocols.http.proxy.ProxyRandom;
+import com.zxsoft.crawler.util.page.NextPageNotFoundException;
+import com.zxsoft.crawler.util.page.PageBarNotFoundException;
+import com.zxsoft.crawler.util.page.PageHelper;
+import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 
 /**
  * @see HtmlUnit
@@ -35,7 +39,7 @@ import com.zxsoft.crawler.protocols.http.proxy.ProxyRandom;
 @Scope("prototype")
 public abstract class HttpBase extends PageHelper {
 
-	public static final int BUFFER_SIZE = 8 * 1024;
+	public static final int BUFFER_SIZE = 1024 * 1024;
 
 	/** Indicates if a proxy is used */
 	protected boolean useProxy = false;
@@ -64,6 +68,7 @@ public abstract class HttpBase extends PageHelper {
 	/** Do we use HTTP/1.1? */
 	protected boolean useHttp11 = false;
 
+	protected URL url;
 	
 	protected int code;
 	protected Metadata headers = new Metadata();
@@ -90,14 +95,18 @@ public abstract class HttpBase extends PageHelper {
 	
 	@Autowired
 	protected ProxyRandom proxyRandom;
+	
+	protected Proxy getProxy() {
+		return proxyRandom.random();
+	}
 
 	/** Get ProtocolOutput of current, prev, next, last page **/
 	public ProtocolOutput getProtocolOutput(String url) {
 		Proxy proxy = proxyRandom.random();
 		try {
-			LOG.info(url);
+//			LOG.info(url);
 			URL u = new URL(url);
-			Response response = getResponse(u, proxy , false); 
+			Response response = getResponse(u , false); 
 			return dealResponse(response);
 		} catch (Throwable e) {
 			LOG.error("Failed with the following error: ", e);
@@ -105,31 +114,39 @@ public abstract class HttpBase extends PageHelper {
 		}
 	}
 	
-	public ProtocolOutput getProtocolOutputOfPrevPage(int pageNum, Document currentDoc) {
+	public ProtocolOutput getProtocolOutputOfPrevPage(int pageNum, Document currentDoc) throws PrevPageNotFoundException, PageBarNotFoundException {
         try {
         	Response response = loadPrevPage(pageNum, currentDoc);
 	        return dealResponse(response); 
-        } catch (IOException e) {
+        } catch(PrevPageNotFoundException e) { 
+        	throw e;
+        } catch(PageBarNotFoundException e) { 
+        	throw e;
+        } catch (Throwable e) {
         	LOG.error("Failed with the following error: ", e);
         	return null;
         }
 	}
 	
-	public ProtocolOutput getProtocolOutputOfNextPage(int pageNum, Document currentDoc) {
+	public ProtocolOutput getProtocolOutputOfNextPage(int pageNum, Document currentDoc) throws PageBarNotFoundException {
 		try {
 			Response response = loadNextPage(pageNum, currentDoc);
 			return dealResponse(response); 
-		} catch (IOException e) {
+		} catch(PageBarNotFoundException e) { 
+        	throw e;
+        } catch (Throwable e) {
 			LOG.error("Failed with the following error: ", e);
 			return null;
 		}
 	}
 
-	public ProtocolOutput getProtocolOutputOfLastPage(Document currentDoc) {
+	public ProtocolOutput getProtocolOutputOfLastPage(Document currentDoc) throws PageBarNotFoundException {
 		try {
 			Response response = loadLastPage(currentDoc);
 			return dealResponse(response); 
-		} catch (IOException e) {
+		} catch(PageBarNotFoundException e) { 
+        	throw e;
+        }  catch (Throwable e) {
 			LOG.error("Failed with the following error: ", e);
 			return null;
 		}
@@ -138,9 +155,14 @@ public abstract class HttpBase extends PageHelper {
 	
 	
 	public ProtocolOutput dealResponse (Response response) throws IOException {
+		if (response == null) {
+			return null;
+		}
 		int code = response.code;
 		byte[] content = response.content;
 		URL u = response.url;
+		if (content == null) // there is a error here 
+			return null;
 		InputStream in = new ByteArrayInputStream(content);
 
 		Document document = Jsoup.parse(in, response.charset, u.toString());
@@ -276,12 +298,12 @@ public abstract class HttpBase extends PageHelper {
 		return content;
 	}
 
-	protected abstract Response getResponse(URL url, Proxy proxy,
+	protected abstract Response getResponse(URL url,
 	        boolean followRedirects) throws ProtocolException, IOException;
 	
 	
-	protected abstract Response loadPrevPage(int pageNum, Document currentDoc) throws IOException;
-	protected abstract Response loadNextPage(int pageNum, Document currentDoc) throws IOException;
-	protected abstract Response loadLastPage(Document currentDoc) throws IOException;
+	protected abstract Response loadPrevPage(int pageNum, Document currentDoc) throws IOException, ProtocolException, PrevPageNotFoundException, PageBarNotFoundException;
+	protected abstract Response loadNextPage(int pageNum, Document currentDoc) throws IOException, ProtocolException, PageBarNotFoundException;
+	protected abstract Response loadLastPage(Document currentDoc) throws IOException, ProtocolException, PageBarNotFoundException;
 
 }

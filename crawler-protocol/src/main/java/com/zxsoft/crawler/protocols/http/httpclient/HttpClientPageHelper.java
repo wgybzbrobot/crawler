@@ -11,9 +11,12 @@ import org.springframework.util.StringUtils;
 
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
-import com.zxsoft.crawler.protocols.http.PageHelper;
 import com.zxsoft.crawler.util.URLNormalizer;
 import com.zxsoft.crawler.util.Utils;
+import com.zxsoft.crawler.util.page.NextPageNotFoundException;
+import com.zxsoft.crawler.util.page.PageBarNotFoundException;
+import com.zxsoft.crawler.util.page.PageHelper;
+import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 
 /**
  * 获取分页信息，包括上一页、下一页、末页
@@ -23,30 +26,23 @@ import com.zxsoft.crawler.util.Utils;
 @Component
 public final class HttpClientPageHelper extends PageHelper {
 
-	public enum PageType {
-		CURRENT_PAGE,
-		PREV_PAGE,
-		NEXT_PAGE,
-		LAST_PAGE
-	}
-	
 	@Autowired
 	private HttpFetcher httpFetcher;
 	
-	private String currentUrl;
-	private String currentText;
+//	private String currentUrl;
+//	private String currentText;
 	
 	private ProtocolOutput load(Element ele) {
 		String url = ele.absUrl("href");
-		currentText = ele.text();
+//		currentText = ele.text();
 			if (StringUtils.isEmpty(url))
 				return null;
 			url = URLNormalizer.normalize(url);
 		return httpFetcher.fetch(url, false);
 	}
 
-	public ProtocolOutput loadNextPage(int pageNum, Document currentDoc)  {
-		currentUrl = currentDoc.location();
+	public ProtocolOutput loadNextPage(int pageNum, Document currentDoc) throws PageBarNotFoundException, NextPageNotFoundException  {
+//		currentUrl = currentDoc.location();
 		Elements elements = currentDoc.select("a:matchesOwn(下一页|下页|下一页>)");
 		if (!CollectionUtils.isEmpty(elements)) {
 			return load(elements.first());
@@ -70,14 +66,16 @@ public final class HttpClientPageHelper extends PageHelper {
 				}
 			}
 		}
-		return null;
+		throw new NextPageNotFoundException();
 	}
 
 	/**
 	 * 加载上一页
+	 * @throws PageBarNotFoundException 
+	 * @throws PrevPageNotFoundException 
 	 */
-	public ProtocolOutput loadPrevPage(int pageNum, Document currentDoc)  {
-		currentUrl = currentDoc.location();
+	public ProtocolOutput loadPrevPage(int pageNum, Document currentDoc) throws PageBarNotFoundException, PrevPageNotFoundException  {
+//		currentUrl = currentDoc.location();
 		Elements elements = currentDoc.select("a:matchesOwn(上一页|上页|<上一页)");
 		if (!CollectionUtils.isEmpty(elements)) {
 			return load(elements.first());
@@ -95,11 +93,11 @@ public final class HttpClientPageHelper extends PageHelper {
 				}
 			}
 		}
-		return null;
+		throw new PrevPageNotFoundException();
 	}
 
-	public ProtocolOutput loadLastPage(Document currentDoc) {
-		currentUrl = currentDoc.location();
+	public ProtocolOutput loadLastPage(Document currentDoc) throws PageBarNotFoundException {
+//		currentUrl = currentDoc.location();
 		Elements lastEles = currentDoc.select("a:matchesOwn(尾页|末页|最后一页)");
 		if (!CollectionUtils.isEmpty(lastEles)) {
 			return load(lastEles.first());
@@ -107,8 +105,6 @@ public final class HttpClientPageHelper extends PageHelper {
 
 		// 1. get all links from page bar
 		Element pagebar = getPageBar(currentDoc);
-		if (pagebar == null)
-			return null;
 		Elements links = pagebar.getElementsByTag("a");
 		if (CollectionUtils.isEmpty(links)) {
 			return null;

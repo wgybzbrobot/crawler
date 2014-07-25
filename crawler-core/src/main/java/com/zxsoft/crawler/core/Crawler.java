@@ -5,12 +5,13 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import com.zxsoft.crawler.CrawlerServer;
+import com.zxsoft.crawler.parse.ParseTool;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.urlbase.UrlbaseFactory;
 import com.zxsoft.crawler.util.CrawlerConfiguration;
@@ -36,7 +37,9 @@ public class Crawler extends Thread {
 		CrawlerServer.start = true;
 		CrawlerServer.startTime = System.currentTimeMillis();
 		
-		org.apache.hadoop.conf.Configuration conf = CrawlerConfiguration.create();
+		ParseTool.init(ctx);
+		
+		Configuration conf = CrawlerConfiguration.create();
 		executor = newFixedThreadPool(conf.getInt("spider.thread.num", 10));
 		while (!executor.isShutdown()) {
 			
@@ -61,6 +64,8 @@ public class Crawler extends Thread {
 		}
 		
 		LOG.info("Crawler exit.");
+		CrawlerServer.start = false;
+		CrawlerServer.stopTime = System.currentTimeMillis();
 	}
 
 	public static ThreadPoolExecutor newFixedThreadPool(int nThreads) {

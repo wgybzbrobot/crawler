@@ -23,10 +23,11 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.zxsoft.crawler.cache.proxy.Proxy;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpBase;
-import com.zxsoft.crawler.protocols.http.PageHelper;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClientPageHelper;
 import com.zxsoft.crawler.protocols.http.proxy.ProxyRandom;
 import com.zxsoft.crawler.util.Utils;
+import com.zxsoft.crawler.util.page.PageBarNotFoundException;
+import com.zxsoft.crawler.util.page.PageHelper;
 
 /**
  * <p>
@@ -63,8 +64,9 @@ public final class HtmlUnitPageHelper extends PageHelper {
 	 * @param pageNum current page number
 	 * @param currentDoc current page document
 	 * @throws IOException
+	 * @throws PageBarNotFoundException 
 	 */
-	public ProtocolOutput loadPrevPage(int pageNum, Document currentDoc) throws IOException {
+	public ProtocolOutput loadPrevPage(int pageNum, Document currentDoc) throws IOException, PageBarNotFoundException {
 		configureClient();
 		String url = currentDoc.location();
 		if (htmlPage == null) {
@@ -116,8 +118,9 @@ public final class HtmlUnitPageHelper extends PageHelper {
 	 * 
 	 * @return page html
 	 * @throws IOException
+	 * @throws PageBarNotFoundException 
 	 */
-	public ProtocolOutput loadNextPage(int pageNum, Document currentDoc) throws IOException {
+	public ProtocolOutput loadNextPage(int pageNum, Document currentDoc) throws IOException, PageBarNotFoundException {
 		configureClient();
 		String url = currentDoc.location();
 		if (htmlPage == null) {
@@ -160,7 +163,7 @@ public final class HtmlUnitPageHelper extends PageHelper {
 		return null;
 	}
 
-	public ProtocolOutput loadLastPage(Document currentDoc) throws IOException {
+	public ProtocolOutput loadLastPage(Document currentDoc) throws IOException, PageBarNotFoundException {
 		configureClient();
 		String url = currentDoc.location();
 		if (htmlPage == null) {
@@ -182,9 +185,9 @@ public final class HtmlUnitPageHelper extends PageHelper {
 		Document document = Jsoup.parse(pageXml, host);
 		System.out.println(document);
 		Elements elements = document.select("a:matchesOwn(尾页|末页|最后一页|最末页)");
-		HtmlAnchor nextaAnchor = null;
+		HtmlAnchor lastAnchor = null;
 		if (!CollectionUtils.isEmpty(elements)) {
-			nextaAnchor = htmlPage.getAnchorByText(elements.first().text());
+			lastAnchor = htmlPage.getAnchorByText(elements.first().text());
 		} else {
 			Element pagebar = getPageBar(document);
 			if (pagebar == null)
@@ -201,13 +204,12 @@ public final class HtmlUnitPageHelper extends PageHelper {
 						el = ele;
 					}
 				}
-				nextaAnchor = htmlPage.getAnchorByText(el.text());
-
+				lastAnchor = htmlPage.getAnchorByText(el.text());
 			}
 		}
 
-		if (nextaAnchor != null) {
-			htmlPage = nextaAnchor.click();
+		if (lastAnchor != null) {
+			htmlPage = lastAnchor.click();
 			pageXml = htmlPage.asXml();
 			document = Jsoup.parse(pageXml, host);
 			System.out.println(document);

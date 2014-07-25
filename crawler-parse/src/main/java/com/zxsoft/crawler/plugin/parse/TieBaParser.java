@@ -1,7 +1,10 @@
 package com.zxsoft.crawler.plugin.parse;
 
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,19 +20,13 @@ import org.springframework.util.StringUtils;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.zxsoft.crawler.dao.ConfDao;
-import com.zxsoft.crawler.duplicate.DuplicateInspector;
-import com.zxsoft.crawler.parse.Category;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.ParseStatus;
 import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
-import com.zxsoft.crawler.protocols.http.httpclient.HttpClientPageHelper;
-import com.zxsoft.crawler.storage.Forum;
+import com.zxsoft.crawler.protocol.ProtocolStatusCodes;
 import com.zxsoft.crawler.storage.ForumDetailConf;
 import com.zxsoft.crawler.storage.RecordInfo;
-import com.zxsoft.crawler.storage.Reply;
-import com.zxsoft.crawler.storage.Seed;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
@@ -40,32 +37,53 @@ import com.zxsoft.crawler.util.Utils;
 public class TieBaParser extends Parser {
 
 	private static Logger LOG = LoggerFactory.getLogger(TieBaParser.class);
-	private String mainUrl;
-	private String rule; // filter regular expression
-	private long fetchTime;
-	private long prevFetchTime;
-	private boolean ajax;
-
+//	private String mainUrl;
+//	private String rule; // filter regular expression
+//	private long prevFetchTime;
+//	private boolean ajax;
+//	private List<RecordInfo> recordInfos  = new LinkedList<RecordInfo>();
+	
+	
+	private ThreadLocal<String> mainUrl = new ThreadLocal<String>();
+	private ThreadLocal<String> rule = new ThreadLocal<String>() { protected String initialValue() { return "";}};
+	private ThreadLocal<Long> prevFetchTime = new ThreadLocal<Long>();
+	private ThreadLocal<Boolean> ajax = new ThreadLocal<Boolean>();
+	private ThreadLocal<List<RecordInfo>> threadLocalRecordInfos = new ThreadLocal<List<RecordInfo>>() {
+		protected List<RecordInfo> initialValue() {
+			return new LinkedList<RecordInfo>();
+		}
+	};
+	private  ForumDetailConf detailConf;
+	
 	public ParseStatus parse(WebPage page) throws Exception {
 		Assert.notNull(page, "Page is null");
 		Document document = page.getDocument();
 		Assert.notNull(document, "Document is null");
-		ajax = page.isAjax();
-		mainUrl = page.getBaseUrl();
-		fetchTime = page.getFetchTime();
-		prevFetchTime = page.getPrevFetchTime();
+//		mainUrl = page.getBaseUrl();
+//		prevFetchTime = page.getPrevFetchTime();
+//		ajax = page.isAjax();
+//		recordInfos = new LinkedList<RecordInfo>();
 		
-		ForumDetailConf detailConf = confDao.getForumDetailConf(Utils.getHost(mainUrl));
+		mainUrl.set(page.getBaseUrl());
+		prevFetchTime.set(page.getPrevFetchTime());
+		ajax.set(page.isAjax());
+		threadLocalRecordInfos.set(new LinkedList<RecordInfo>());
+		
 
-//		if (seed.getType() == Category.DETAIL_PAGE) { // 新的详细页 或 丢失的详细页
-//			fetchContent(page, detailConf);
-//		} else if (seed.getType() == Category.REPLY_PAGE) { // 丢失的回复页
-//			parsePage(page, document, seed.getMainUrl(), seed.getUrl(), detailConf);
-//		} else {
-//			LOG.error("Seed error occur.");
-//		}
+		ForumDetailConf detailConf = confDao.getForumDetailConf(Utils.getHost(mainUrl.get()));
+
+		// if (seed.getType() == Category.DETAIL_PAGE) { // 新的详细页 或 丢失的详细页
+		// fetchContent(page, detailConf);
+		// } else if (seed.getType() == Category.REPLY_PAGE) { // 丢失的回复页
+		// parsePage(page, document, seed.getMainUrl(), seed.getUrl(),
+		// detailConf);
+		// } else {
+		// LOG.error("Seed error occur.");
+		// }
 		fetchContent(page, detailConf);
 
+		int num = indexWriter.write(threadLocalRecordInfos.get());
+		LOG.info(mainUrl.get() + " has " + num + " records.");
 		return null;
 	}
 
@@ -78,9 +96,12 @@ public class TieBaParser extends Parser {
 	 *            详细页配置对象(Object of detail page configuration)
 	 */
 	private void fetchContent(WebPage page, ForumDetailConf detailConf) {
-		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, page.getFetchTime());
+		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl.get(), page.getFetchTime());
 
-		Document document = httpFetcher.fetch(mainUrl).getDocument();
+		ProtocolOutput ptemp = fetch(mainUrl.get(), false);
+		if (ptemp == null || !ptemp.getStatus().isSuccess())
+			return;
+		Document document = ptemp.getDocument();
 		page.setDocument(document);
 		if (document == null)
 			return;
@@ -90,17 +111,19 @@ public class TieBaParser extends Parser {
 		}
 
 		if (!CollectionUtils.isEmpty(document.select(detailConf.getReplyNum()))) {
-			info.setComment_count(Integer.valueOf(document.select(detailConf.getReplyNum()).first().text()));
+			info.setComment_count(Integer.valueOf(document.select(detailConf.getReplyNum()).first()
+			        .text()));
 		}
-		
+
 		// if url + reply number is not changed, then stop fetch.
-		String _md5 = Md5Signatrue.generateMd5(mainUrl, String.valueOf(info.getComment_count()));
+		String _md5 = Md5Signatrue.generateMd5(mainUrl.get(), String.valueOf(info.getComment_count()));
 		if (duplicateInspector.md5Exist(_md5))
 			return;
-		
+
 		if (!StringUtils.isEmpty(detailConf.getReviewNum())
 		        && !CollectionUtils.isEmpty(document.select(detailConf.getReviewNum()))) {
-			info.setRead_count(Integer.valueOf(document.select(detailConf.getReviewNum()).first().text()));
+			info.setRead_count(Integer.valueOf(document.select(detailConf.getReviewNum()).first()
+			        .text()));
 		}
 
 		Elements mainEles = document.select(detailConf.getMaster());
@@ -114,7 +137,7 @@ public class TieBaParser extends Parser {
 			if (!CollectionUtils.isEmpty(contentEles)) {
 				Element contentEle = contentEles.first();
 				info.setContent(contentEle.text());
-				info.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, rule));
+				info.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, rule.get()));
 				info.setVideo_url(MultimediaExtractor.extractVideoUrl(contentEle));
 			}
 			if (!CollectionUtils.isEmpty(mainEle.select("a.voice_player_inner"))) {
@@ -123,12 +146,20 @@ public class TieBaParser extends Parser {
 				String pid = extractPid(json);
 				info.setVoice_url("http://tieba.baidu.com/voice/index?tid=" + tid + "&pid=" + pid);
 			}
-			info.setTimestamp(Utils.extractDate(mainEle.attr("data-field")).getTime());
 			
-			recordInfos.add(info);
+			String dateField = mainEle.attr("data-field");
+            try {
+            	Date dateTemp = Utils.extractDate(dateField);
+	            info.setTimestamp(dateTemp.getTime());
+            } catch (ParseException e) {
+            	LOG.error("Cannot parse date: " + dateField + " in page " + mainUrl.get());
+            }
+
+//			recordInfos.add(info);
+			threadLocalRecordInfos.get().add(info);
 			parseReply(page, detailConf);
 		} else {
-			LOG.warn("主帖信息配置有误:" + mainUrl);
+			LOG.warn("主帖信息配置可能有误:" + mainUrl);
 			return;
 		}
 	}
@@ -139,76 +170,51 @@ public class TieBaParser extends Parser {
 	private void parseReply(WebPage page, ForumDetailConf detailConf) {
 		String newPageUrl = "", currentPageText = "1";
 		Document doc = page.getDocument();
-		String currentUrl = mainUrl;
+		String currentUrl = mainUrl.get();
 
 		if (!detailConf.isFetchorder()) { // 从第一页
+			int pageNum = 1;
 			do {
 				boolean isContinue = parsePage(page, doc, currentUrl, detailConf);
 				if (!isContinue) {
 					break;
 				}
 				// 获取下一页
-//				Element pagebar = PageHelper.getPageBar(doc);
-//				if (pagebar != null) {
-//					Element pg = pageHelper.loadNextPage(pagebar, currentPageText);
-//					if (pg != null) {
-//						currentPageText = pg.text();
-//						newPageUrl = pg.absUrl("href");
-//					}
-//				}
-//				doc = httpFetcher.fetch(newPageUrl).getDocument();
-				doc = pageHelper.loadNextPage(doc, ajax).getDocument();
+				pageNum++;
+				ProtocolOutput ptemp = fetchNextPage(pageNum, doc, ajax.get());
+				if (ptemp == null || !ptemp.getStatus().isSuccess()) {
+					return;
+				}
+				doc = ptemp.getDocument();
 				currentUrl = newPageUrl;
 			} while (!StringUtils.isEmpty(newPageUrl));
 
 		} else { // fetch from last page
 			// jump to last page
-//			String u = "";
-//			Element pg = null;
-//			Element pagebar = PageHelper.getPageBar(doc);
-//			if (pagebar != null) {
-//				pg = PageHelper.getLastPage(pagebar);
-//				if (pg != null) {
-//					currentPageText = pg.text();
-//					u = pg.absUrl("href");
-//				}
-//			}
-			ProtocolOutput ptemp = pageHelper.loadLastPage(doc, ajax); 
-			if (ptemp == null) {
-				LOG.info("++++++++++++++++++++");
+			ProtocolOutput ptemp = fetchLastPage(doc, ajax.get());
+			Document lastDoc = null;
+			if (ptemp == null || (lastDoc = ptemp.getDocument()) == null) {
+				parsePage(page, doc, currentUrl, detailConf);
 				return;
 			}
-				
-			Document lastDoc = ptemp.getDocument();
-			if (lastDoc == null) { // 无分页
-				parsePage(page, doc, currentUrl, detailConf);
-			} else {
-				doc = lastDoc;
-				currentUrl = doc.location();
-				while (true) {
-					if (doc == null || StringUtils.isEmpty(currentUrl))
-						break;
-					boolean isContinue = parsePage(page, doc, currentUrl, detailConf);
-					if (!isContinue) {
-						break;
-					}
-					// 获取上一页
-//					pagebar = PageHelper.getPageBar(doc);
-//					pg = PageHelper.getPrePage(pagebar, currentPageText);
-//					if (pg == null)
-//						break;
-//					currentPageText = pg.text();
-//					newPageUrl = pg.absUrl("href");
-//					doc = httpFetcher.fetch(newPageUrl).getDocument();
-					ProtocolOutput potemp = pageHelper.loadPrevPage(doc, ajax); 
-					if (potemp == null) {
-						LOG.error("Error: parse reply " + currentUrl);
-						break;
-					}
-					doc = potemp.getDocument();
-					currentUrl = doc.location();
-					LOG.info(currentUrl);
+
+			doc = lastDoc;
+			currentUrl = doc.location();
+			while (true) {
+				if (doc == null || StringUtils.isEmpty(currentUrl))
+					break;
+				boolean isContinue = parsePage(page, doc, currentUrl, detailConf);
+				if (!isContinue) {
+					break;
 				}
+				// 获取上一页
+//				LOG.info(doc.location());
+				ProtocolOutput potemp = fetchPrevPage(-1, doc, ajax.get());
+				if (potemp == null) {
+					break;
+				}
+				doc = potemp.getDocument();
+				currentUrl = doc.location();
 			}
 		}
 	}
@@ -225,29 +231,33 @@ public class TieBaParser extends Parser {
 	 * @param detailConf
 	 *            详细页配置对象(Object of detail page configuration)
 	 */
-	private boolean parsePage(WebPage page, Document doc, String currentUrl, ForumDetailConf detailConf) {
+	private boolean parsePage(WebPage page, Document doc, String currentUrl,
+	        ForumDetailConf detailConf) {
 		Elements replyEles = doc.select(detailConf.getReply()); // 所有回复
-		String tid = extractTid(mainUrl);
+		String tid = extractTid(mainUrl.get());
 		Collections.reverse(replyEles);
 		for (Element element : replyEles) {
 			RecordInfo info = new RecordInfo();
-			info.setOriginal_url(mainUrl);
+			info.setOriginal_url(mainUrl.get());
 			info.setUrl(currentUrl);
-			
+
 			String json = element.attr("data-field");
 			String pid = extractPid(json);
 			info = save(info, element, detailConf, tid, pid, page); // 保存回复
 
-			if (info.getTimestamp() != 0 && info.getTimestamp() < prevFetchTime)
+			if (info.getTimestamp() != 0 && info.getTimestamp() < prevFetchTime.get())
 				return false;
 			/*
 			 * 解析子回复
 			 */
-			String surl = "http://tieba.baidu.com/p/comment?tid=" + tid + "&pid=" + pid + "&pn=1&t="
-			        + System.currentTimeMillis();
-			
+			if (getSubCommentCount(json) < 1) {
+				continue;
+			}
+			String surl = "http://tieba.baidu.com/p/comment?tid=" + tid + "&pid=" + pid
+			        + "&pn=1&t=" + System.currentTimeMillis();
+
 			RecordInfo subReply = new RecordInfo();
-			subReply.setOriginal_url(mainUrl);
+			subReply.setOriginal_url(mainUrl.get());
 			subReply.setUrl(currentUrl);
 			subReply.setOriginal_id(info.getId());
 			saveSub(subReply, surl, detailConf, tid);
@@ -258,9 +268,17 @@ public class TieBaParser extends Parser {
 	/**
 	 * 保存回复
 	 */
-	private RecordInfo save(RecordInfo info, Element element, ForumDetailConf detailConf, String tid, String pid, WebPage page) {
-		
-		info.setTimestamp(Utils.extractDate(element.attr("data-field")).getTime());
+	private RecordInfo save(RecordInfo info, Element element, ForumDetailConf detailConf,
+	        String tid, String pid, WebPage page) {
+
+		String dateField = element.attr("data-field");
+        try {
+        	Date dateTemp = Utils.extractDate(dateField);
+            info.setTimestamp(dateTemp.getTime());
+        } catch (ParseException e) {
+        	LOG.error("Cannot parse date: " + dateField + " in page " + info.getUrl());
+        }
+        
 		String id = UUID.randomUUID().toString();
 		info.setId(id);
 		if (!CollectionUtils.isEmpty(element.select(detailConf.getReplyAuthor()))) {
@@ -271,14 +289,15 @@ public class TieBaParser extends Parser {
 		if (!CollectionUtils.isEmpty(contentEles)) {
 			Element contentEle = contentEles.first();
 			info.setContent(contentEle.text());
-			info.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, rule));
+			info.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, rule.get()));
 			info.setVideo_url("");
 		}
 		if (!CollectionUtils.isEmpty(element.select("a.voice_player_inner"))) {
 			info.setVoice_url("http://tieba.baidu.com/voice/index?tid=" + tid + "&pid=" + pid);
 		}
 
-		recordInfos.add(info);
+//		recordInfos.add(info);
+		threadLocalRecordInfos.get().add(info);
 		return info;
 	}
 
@@ -286,9 +305,11 @@ public class TieBaParser extends Parser {
 	 * 解析子回复
 	 */
 	private void saveSub(RecordInfo reply, String surl, ForumDetailConf detailConf, String tid) {
-		ProtocolOutput ptemp = httpFetcher.fetch(surl);
-		if (ptemp.getStatus().getCode() != 200)
+		ProtocolOutput ptemp = fetch(surl, ajax.get());
+		if (ptemp.getStatus().getCode() != ProtocolStatusCodes.SUCCESS){
+			LOG.info("No Sub reply infomation.");
 			return;
+		}
 		Document doc = ptemp.getDocument();
 		if (doc == null) {
 			LOG.info("No Sub reply infomation.");
@@ -305,20 +326,21 @@ public class TieBaParser extends Parser {
 			parseSubPage(reply, doc, detailConf, tid);
 		} else {
 			// jump to last page
-			doc = httpFetcher.fetch(u).getDocument();
+			ptemp = fetch(u, ajax.get());
 			while (true) {
-				if (doc == null)
+				if (ptemp == null || !ptemp.getStatus().isSuccess())
 					break;
+				doc = ptemp.getDocument();
 				parseSubPage(reply, doc, detailConf, tid);
 				if (CollectionUtils.isEmpty(doc.select("p.j_pager.l_pager.pager_theme_2"))) {
-					LOG.error("ERROR ACCUR");
 					break;
 				}
-				newPageUrl = getSubReplyPrePage(doc.select("p.j_pager.l_pager.pager_theme_2").first(), surl);
+				newPageUrl = getSubReplyPrePage(doc.select("p.j_pager.l_pager.pager_theme_2")
+				        .first(), surl);
 				if (newPageUrl == null) {
 					break;
 				}
-				doc = httpFetcher.fetch(newPageUrl).getDocument();
+				ptemp = fetch(newPageUrl, false);
 			}
 		}
 	}
@@ -326,12 +348,13 @@ public class TieBaParser extends Parser {
 	/**
 	 * 保存子回复
 	 */
-	private void parseSubPage(RecordInfo reply, Document doc, ForumDetailConf detailConf, String tid) {
+	private void parseSubPage(RecordInfo _reply, Document doc, ForumDetailConf detailConf, String tid) {
 
 		Elements elements = doc.select("li.lzl_single_post.j_lzl_s_p");
 		if (CollectionUtils.isEmpty(elements))
 			return;
 		for (Element element : elements) {
+			RecordInfo reply = _reply.clone();
 			String id = UUID.randomUUID().toString();
 			reply.setId(id);
 
@@ -351,18 +374,25 @@ public class TieBaParser extends Parser {
 			}
 			reply.setPic_url(imgUrlSb.toString());
 
-			if (!CollectionUtils.isEmpty(element.select("a.voice_player_inner")) && !StringUtils.isEmpty(spid)) {
+			if (!CollectionUtils.isEmpty(element.select("a.voice_player_inner"))
+			        && !StringUtils.isEmpty(spid)) {
 				reply.setVoice_url("http://tieba.baidu.com/voice/index?tid=" + tid + "&pid=" + spid);
 			}
 			reply.setVideo_url("");
 
-			String dateStr = "";
+			
 			if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyDate()))) {
-				dateStr = element.select(detailConf.getSubReplyDate()).first().text();
-				reply.setTimestamp(Utils.formatDate(dateStr).getTime());
+				String dateField = element.select(detailConf.getSubReplyDate()).first().text();
+		        try {
+		        	Date dateTemp = Utils.extractDate(dateField);
+		            reply.setTimestamp(dateTemp.getTime());
+		        } catch (ParseException e) {
+		        	LOG.error("Cannot parse date: " + dateField + " in page " + _reply.getUrl());
+		        }
 			}
 
-			recordInfos.add(reply);
+//			recordInfos.add(reply);
+			threadLocalRecordInfos.get().add(reply);
 		}
 	}
 
@@ -388,7 +418,7 @@ public class TieBaParser extends Parser {
 		}
 		return content.get("post_id").getAsString();
 	}
-
+	
 	private String extractSpid(String json) {
 		JsonParser jsonParser = new JsonParser();
 		JsonObject content = jsonParser.parse(json).getAsJsonObject();
@@ -397,6 +427,16 @@ public class TieBaParser extends Parser {
 			return null;
 		}
 		return content.get("spid").getAsString();
+	}
+	
+	private int getSubCommentCount(String json) {
+		JsonParser jsonParser = new JsonParser();
+		JsonObject content = jsonParser.parse(json).getAsJsonObject().getAsJsonObject("content");
+		if (content == null) {
+			LOG.error("子回复数量抽取失败");
+			return 0;
+		}
+		return content.get("comment_num").getAsInt();
 	}
 
 	/**

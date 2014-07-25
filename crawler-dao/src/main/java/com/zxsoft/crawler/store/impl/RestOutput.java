@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.store.Output;
 
 @Component
+@Scope("prototype")
 //@ConfigurationProperties(prefix="datasource.index")
 public class RestOutput implements Output {
 
@@ -35,12 +37,20 @@ public class RestOutput implements Output {
 //		restTemplate.postForObject(url, request, RecordInfo.class);
     }
 
-	public void write(List<RecordInfo> recordInfos) {
+	public int write(List<RecordInfo> recordInfos) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<List<RecordInfo>> request = new HttpEntity<List<RecordInfo>>(recordInfos, headers);
 				
-		LOG.info("recordinfo size: " + recordInfos.size());
+//		if (recordInfos.size() > 1500) {
+//			for (RecordInfo recordInfo : recordInfos) {
+//		        LOG.info(recordInfo.getUrl() + "\t" + recordInfo.getContent());
+//	        }
+//		}
+		
+		return recordInfos.size();
+		
+		
 //		restTemplate.postForObject(url, request, List.class);
 	    
     }

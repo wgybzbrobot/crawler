@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import com.zxsoft.crawler.parse.ParseUtil;
+import com.zxsoft.crawler.parse.ParserController;
 import com.zxsoft.crawler.parse.ParserNotFoundException;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
@@ -28,7 +28,7 @@ public class CrawlJob implements Runnable {
 	}
 
 	@Autowired
-	private ParseUtil parseUtil;
+	private ParserController parseUtil;
 	
 	public void run() {
 		url = page.getBaseUrl();
@@ -38,11 +38,15 @@ public class CrawlJob implements Runnable {
 		boolean ajax = page.isAjax();
 		HttpFetcher httpFetcher = ctx.getBean(HttpFetcher.class);
 		ProtocolOutput output = httpFetcher.fetch(url, ajax);
+		
+		if (output == null || !output.getStatus().isSuccess()) {
+			return;
+		}
+		
 		Document document = output.getDocument();
-//		System.out.println(document.html());
 		page.setDocument(document);
 		
-		ParseUtil parseUtil = new ParseUtil(ctx, conf);
+		ParserController parseUtil = new ParserController(conf);
 		try {
 			parseUtil.parse(page);
 		} catch (ParserNotFoundException e) {

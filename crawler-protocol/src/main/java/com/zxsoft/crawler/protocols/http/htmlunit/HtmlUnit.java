@@ -29,11 +29,13 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.zxsoft.crawler.cache.proxy.Proxy;
 import com.zxsoft.crawler.metadata.Metadata;
+import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpBase;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
+import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 
 @Component
 @Scope("prototype")
@@ -49,11 +51,10 @@ public class HtmlUnit extends HttpBase {
 	 */
 	private WebClient client = new WebClient();
 	private HtmlPage htmlPage;
-	private URL url;
 
 	private HtmlPage makeRequest(URL url) throws FailingHttpStatusCodeException, IOException {
 		setUp();
-		Proxy proxy = proxyRandom.random();
+		Proxy proxy = getProxy();
 
 		WebRequest request = new WebRequest(url);
 		if (proxy != null) {
@@ -120,8 +121,8 @@ public class HtmlUnit extends HttpBase {
 	}
 
 	@Override
-	protected Response getResponse(URL url, Proxy proxy, boolean followRedirects)
-	        throws com.zxsoft.crawler.net.protocols.ProtocolException, IOException {
+	protected Response getResponse(URL url , boolean followRedirects)
+	        throws ProtocolException, IOException {
 		try {
 			htmlPage = makeRequest(url);
 			processResponse();
@@ -143,7 +144,7 @@ public class HtmlUnit extends HttpBase {
 	}
 
 	@Override
-	protected Response loadPrevPage(int pageNum, Document currentDoc) throws IOException {
+	protected Response loadPrevPage(int pageNum, Document currentDoc) throws IOException, PageBarNotFoundException {
 		setUp();
 		String urlStr = currentDoc.location();
 		// URL url = null;
@@ -187,6 +188,7 @@ public class HtmlUnit extends HttpBase {
 			htmlPage = prevAnchor.click();
 			System.out.println(htmlPage.asXml());
 			processResponse();
+			client.closeAllWindows();
 			return new Response(htmlPage.getUrl(), code, headers, content, headers.get(Response.CONTENT_ENCODING));
 		}
 		client.closeAllWindows();
@@ -194,16 +196,113 @@ public class HtmlUnit extends HttpBase {
 	}
 
 	@Override
-	protected Response loadNextPage(int pageNum, Document currentDoc) {
+	protected Response loadNextPage(int pageNum, Document currentDoc) throws IOException, PageBarNotFoundException {
 		setUp();
-		// TODO Auto-generated method stub
+		String urlStr = currentDoc.location();
+		if (htmlPage == null) {
+			try {
+				url = new URL(urlStr);
+				htmlPage = makeRequest(url);
+			} catch (FailingHttpStatusCodeException | IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		String host = "";
+		try {
+			host = Utils.getHost(urlStr);
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+			return null;
+		}
+		String pageXml = htmlPage.asXml();
+		Document document = Jsoup.parse(pageXml, host);
+		Elements elements = document.select("a:matchesOwn(下一页|下页|下一页>)");
+		HtmlAnchor nextAnchor = null;
+		if (!CollectionUtils.isEmpty(elements)) {
+			nextAnchor = htmlPage.getAnchorByText(elements.first().text());
+		} else { // no "下一页|下页|下一页>"
+			Element pagebar = getPageBar(currentDoc);
+			Elements achors = pagebar.getElementsByTag("a");
+			if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
+				for (int i = 0; i < achors.size(); i++) {
+					if (Utils.isNum(achors.get(i).text())
+					        && Integer.valueOf(achors.get(i).text().trim()) == pageNum + 1) {
+						nextAnchor = htmlPage.getAnchorByText(achors.get(i).text());
+						break;
+					}
+				}
+			}
+		}
+		if (nextAnchor != null) {
+			htmlPage = nextAnchor.click();
+			System.out.println(htmlPage.asXml());
+			processResponse();
+			client.closeAllWindows();
+			return new Response(htmlPage.getUrl(), code, headers, content, headers.get(Response.CONTENT_ENCODING));
+		}
+		client.closeAllWindows();
 		return null;
 	}
 
 	@Override
-	protected Response loadLastPage(Document currentDoc) {
+	protected Response loadLastPage(Document currentDoc) throws IOException, PageBarNotFoundException {
 		setUp();
-		// TODO Auto-generated method stub
+		String urlStr = currentDoc.location();
+		if (htmlPage == null) {
+			try {
+				url = new URL(urlStr);
+				htmlPage = makeRequest(url);
+			} catch (FailingHttpStatusCodeException | IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		String host = "";
+		try {
+			host = Utils.getHost(urlStr);
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+			return null;
+		}
+		String pageXml = htmlPage.asXml();
+		Document document = Jsoup.parse(pageXml, host);
+		System.out.println(document);
+		Elements elements = document.select("a:matchesOwn(尾页|末页|最后一页|最末页)");
+		HtmlAnchor lastAnchor = null;
+		if (!CollectionUtils.isEmpty(elements)) {
+			lastAnchor = htmlPage.getAnchorByText(elements.first().text());
+		} else {
+			Element pagebar = getPageBar(document);
+			if (pagebar == null)
+				return null;
+			Elements links = pagebar.getElementsByTag("a");
+			if (pagebar != null || !CollectionUtils.isEmpty(links)) {
+				Element el = null;
+				int i = 1;
+				for (Element ele : links) {
+					String v = ele.text();
+					// get max num as last page.
+					if (Utils.isNum(v) && Integer.valueOf(v) > i) {
+						i = Integer.valueOf(v);
+						el = ele;
+					}
+				}
+				lastAnchor = htmlPage.getAnchorByText(el.text());
+
+			}
+		}
+
+		if (lastAnchor != null) {
+			htmlPage = lastAnchor.click();
+			pageXml = htmlPage.asXml();
+			document = Jsoup.parse(pageXml, host);
+			System.out.println(document);
+			processResponse();
+			client.closeAllWindows();
+			return new Response(htmlPage.getUrl(), code, headers, content, headers.get(Response.CONTENT_ENCODING));
+		}
+		client.closeAllWindows();
 		return null;
 	}
 

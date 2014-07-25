@@ -11,16 +11,20 @@ public class ParseCallable implements Callable<ParseStatus>{
 	private Parser parser;
 	private WebPage page;
 	
-	
 	public ParseCallable(Parser parser, WebPage page) {
 		super();
 		this.parser = parser;
 		this.page = page;
 	}
 
-
-	public ParseStatus call() throws Exception {
-		return parser.parse(page);
+	public ParseStatus call() {
+		ParseStatus status = null;
+		try {
+			status = parser.parse(page);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return status;
 	}
 
 }

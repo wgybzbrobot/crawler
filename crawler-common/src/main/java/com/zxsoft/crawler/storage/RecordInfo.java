@@ -1,7 +1,11 @@
 package com.zxsoft.crawler.storage;
 
-public class RecordInfo {
+import java.io.Serializable;
 
+public class RecordInfo implements Serializable, Cloneable {
+
+    private static final long serialVersionUID = -3811740582144807331L;
+    
 	private String id;
 	private int platform;
 	private String mid;
@@ -47,7 +51,16 @@ public class RecordInfo {
 	private int province_code;
 	private int city_code;
 	
-	
+    @Override
+	public RecordInfo clone() {
+		try {
+	        return (RecordInfo) super.clone();
+        } catch (CloneNotSupportedException e) {
+	        e.printStackTrace();
+	        return new RecordInfo();
+        }
+	}
+    
 	public RecordInfo(String title, String baseUrl, long fetchTime) {
 	    this.title = title;
 	    this.timestamp = fetchTime;

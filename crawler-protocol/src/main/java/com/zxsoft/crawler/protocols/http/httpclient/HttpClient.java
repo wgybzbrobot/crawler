@@ -1,6 +1,7 @@
 package com.zxsoft.crawler.protocols.http.httpclient;
 
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -61,10 +62,14 @@ import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.util.CharArrayBuffer;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.zxsoft.crawler.cache.proxy.Proxy;
 import com.zxsoft.crawler.dns.DNSCache;
@@ -72,6 +77,11 @@ import com.zxsoft.crawler.metadata.Metadata;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocols.http.HttpBase;
+import com.zxsoft.crawler.util.EncodingDetector;
+import com.zxsoft.crawler.util.Utils;
+import com.zxsoft.crawler.util.page.PageBarNotFoundException;
+import com.zxsoft.crawler.util.page.PageHelper;
+import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 
 @Component
 @Scope("prototype")
@@ -155,7 +165,8 @@ public class HttpClient extends HttpBase {
 			@Override
 			public InetAddress[] resolve(final String host) throws UnknownHostException {
 				if (host.equalsIgnoreCase("myhost")) {
-					return new InetAddress[]{InetAddress.getByAddress(new byte[]{127, 0, 0, 1})};
+					return new InetAddress[] { InetAddress
+					        .getByAddress(new byte[] { 127, 0, 0, 1 }) };
 				} else {
 					return super.resolve(host);
 				}
@@ -221,9 +232,9 @@ public class HttpClient extends HttpBase {
 	}
 
 	@Override
-	protected Response getResponse(URL url, Proxy proxy, boolean followRedirects)
-	        throws ProtocolException, IOException {
-
+	protected Response getResponse(URL url, boolean followRedirects) throws ProtocolException,
+	        IOException {
+		Proxy proxy = proxyRandom.random();
 		int code;
 		Metadata headers = new Metadata();
 		byte[] content = null;
@@ -365,11 +376,11 @@ public class HttpClient extends HttpBase {
 
 		try {
 			HttpGet httpget = new HttpGet(url.toString());
-			
+
 			RequestConfig requestConfig = null;
 			if (useProxy) {
 				requestConfig = RequestConfig.copy(defaultRequestConfig)
-						.setProxy(new HttpHost(proxy.getHost(), proxy.getPort())).build();
+				        .setProxy(new HttpHost(proxy.getHost(), proxy.getPort())).build();
 			} else {
 				requestConfig = RequestConfig.copy(defaultRequestConfig).build();
 			}
@@ -382,7 +393,7 @@ public class HttpClient extends HttpBase {
 			context.setCookieStore(cookieStore);
 			context.setCredentialsProvider(credentialsProvider);
 
-			System.out.println("executing request " + httpget.getURI());
+			// System.out.println("executing request " + httpget.getURI());
 			CloseableHttpResponse httpResponse = null;
 			try {
 				httpResponse = httpclient.execute(httpget, context);
@@ -391,10 +402,11 @@ public class HttpClient extends HttpBase {
 			}
 			try {
 				HttpEntity entity = httpResponse.getEntity();
-				System.out.println(httpResponse.getStatusLine());
-				if (entity != null) {
-					System.out.println("Response content length: " + entity.getContentLength());
-				}
+				/*
+				 * System.out.println(httpResponse.getStatusLine()); if (entity
+				 * != null) { System.out.println("Response content length: " +
+				 * entity.getContentLength()); }
+				 */
 
 				code = httpResponse.getStatusLine().getStatusCode();
 				Header[] heads = httpResponse.getAllHeaders();
@@ -403,19 +415,21 @@ public class HttpClient extends HttpBase {
 				}
 
 				long contentLength = Long.MAX_VALUE;
-				InputStream in = null;
-				in = httpResponse.getEntity().getContent();
+				InputStream in = entity.getContent();
 				byte[] buffer = new byte[HttpBase.BUFFER_SIZE];
 				int bufferFilled = 0;
 				int totalRead = 0;
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				try {
 				while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1
 				        && totalRead + bufferFilled <= contentLength) {
 					totalRead += bufferFilled;
 					out.write(buffer, 0, bufferFilled);
 				}
 				content = out.toByteArray();
-
+				} catch (EOFException e) {
+					e.printStackTrace();
+				}
 				if (content != null) {
 					// check if we have to uncompress it
 					String contentEncoding = headers.get(Response.CONTENT_ENCODING);
@@ -440,24 +454,109 @@ public class HttpClient extends HttpBase {
 				e.printStackTrace();
 			}
 		}
-		return new Response(url, code, headers, content, headers.get(Response.CONTENT_ENCODING));
+		String encode = EncodingDetector.parseCharacterEncoding(headers.get(Response.CONTENT_TYPE));
+		if (!StringUtils.isEmpty(encode))
+			charset = encode;
+		return new Response(url, code, headers, content, charset);
 	}
 
 	@Override
-    protected Response loadPrevPage(int pageNum, Document currentDoc) {
-	    // TODO Auto-generated method stub
-	    return null;
-    }
+	protected Response loadPrevPage(int pageNum, Document currentDoc) throws ProtocolException,
+	        IOException, PrevPageNotFoundException, PageBarNotFoundException {
+		Elements elements = currentDoc.select("a:matchesOwn(上一页|上页|<上一页)");
+		if (!CollectionUtils.isEmpty(elements)) {
+			url = new URL(elements.first().absUrl("href"));
+		} else if (pageNum > 1) {
+			Element pagebar = getPageBar(currentDoc);
+			if (pagebar != null) {
+				Elements achors = pagebar.getElementsByTag("a");
+				if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
+					for (int i = 0; i < achors.size(); i++) {
+						if (Utils.isNum(achors.get(i).text())
+						        && Integer.valueOf(achors.get(i).text().trim()) == pageNum - 1) {
+							url = new URL(achors.get(i).absUrl("href"));
+						}
+					}
+				}
+			}
+		} else {
+			url = PageHelper.calculatePrevPageUrl(currentDoc);
+		}
+		if (url != null) {
+//			LOG.info(currentDoc.location() + " Next Page url: " + url.toString());
+			return getResponse(url, true);
+		}
+
+		throw new PrevPageNotFoundException("Preview Page Not Found");
+	}
 
 	@Override
-    protected Response loadNextPage(int pageNum, Document currentDoc) {
-	    // TODO Auto-generated method stub
-	    return null;
-    }
+	protected Response loadNextPage(int pageNum, Document currentDoc) throws ProtocolException,
+	        IOException, PageBarNotFoundException {
+		Elements elements = currentDoc.select("a:matchesOwn(下一页|下页|下一页>)");
+		if (!CollectionUtils.isEmpty(elements)) {
+			url = new URL(elements.first().absUrl("href"));
+			return getResponse(url, true);
+		} else {
+			/*
+			 * Find the position of current page url from page bar, get next
+			 * achor as the next page url. However, there is a problem. It's not
+			 * very accurate, some url cannot find from page bar, because it
+			 * changed when load it.
+			 */
+			Element pagebar = getPageBar(currentDoc);
+			if (pagebar != null) {
+				Elements achors = pagebar.getElementsByTag("a");
+				if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
+					for (int i = 0; i < achors.size(); i++) {
+						if (Utils.isNum(achors.get(i).text())
+						        && Integer.valueOf(achors.get(i).text().trim()) == pageNum + 1) {
+							url = new URL(achors.get(i).absUrl("href"));
+//							LOG.info(currentDoc.location() + "Prev Page url: " + url.toString());
+							return getResponse(url, true);
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
 
 	@Override
-    protected Response loadLastPage(Document currentDoc) {
-	    // TODO Auto-generated method stub
-	    return null;
-    }
+	protected Response loadLastPage(Document currentDoc) throws ProtocolException, IOException, PageBarNotFoundException {
+		Elements lastEles = currentDoc.select("a:matchesOwn(尾页|末页|最后一页)");
+		if (!CollectionUtils.isEmpty(lastEles)) {
+			url = new URL(lastEles.first().absUrl("href"));
+			return getResponse(url, true);
+		}
+
+		// 1. get all links from page bar
+		Element pagebar = getPageBar(currentDoc);
+		if (pagebar == null)
+			return null;
+		Elements links = pagebar.getElementsByTag("a");
+		if (CollectionUtils.isEmpty(links)) {
+			return null;
+		}
+
+		// 2. get max num or contains something in all links, that is last page
+		int i = 1;
+		Element el = null;
+		for (Element ele : links) {
+			String v = ele.text();
+			if ("18255266882".equals(v)) {
+				System.out.println(ele);
+			}
+			if (Utils.isNum(v) && Integer.valueOf(v) > i) { // get max num
+				i = Integer.valueOf(v);
+				el = ele;
+			}
+		}
+		if (el == null || StringUtils.isEmpty(el.absUrl("href"))) {
+			return null;
+		}
+		url = new URL(el.absUrl("href"));
+//		LOG.info("Last Page url: " + url.toString());
+		return getResponse(url, true);
+	}
 }

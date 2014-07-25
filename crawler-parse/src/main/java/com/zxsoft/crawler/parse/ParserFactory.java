@@ -8,10 +8,13 @@ import java.util.WeakHashMap;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 
+//@Component
 public class ParserFactory {
 
     private static Logger LOG = LoggerFactory.getLogger(ParserFactory.class);
@@ -27,6 +30,7 @@ public class ParserFactory {
         this.conf = conf;
     }
 
+//    @Cacheable("parser")
     public Parser getParserByCategory(String category) throws ParserNotFoundException {
         // return new ForumParser();
 

@@ -1,5 +1,6 @@
 package com.zxsoft.carson.util;
 
+import java.text.ParseException;
 import java.util.Calendar;
 
 import org.junit.Assert;
@@ -10,7 +11,7 @@ import com.zxsoft.crawler.util.Utils;
 public class UtilsTest {
 
     @Test
-    public void testFormatDate() {
+    public void testFormatDate() throws ParseException {
 
             String str0 = "2014-4-16 21:08:48";
 
@@ -36,19 +37,19 @@ public class UtilsTest {
     }
     
     @Test
-    public void testFormatDate1() {
+    public void testFormatDate1() throws ParseException {
         String str = "05-23 13:52";
         System.out.println(Utils.formatDate(str));
     }
     
     @Test
-    public void testFormatDate2() {
+    public void testFormatDate2() throws ParseException {
         String str = "5-23  9:59";
         System.out.println(Utils.formatDate(str));
     }
 
     @Test
-    public void testFormatDate3() {
+    public void testFormatDate3() throws ParseException {
     	String str = "2013-07-27  05:55";
     	String str1 = "2013-7-7  05:55";
     	String str2 = "2014-6-7  09:23";
@@ -58,7 +59,7 @@ public class UtilsTest {
     }
     
     @Test
-    public void testFormatDate4() {
+    public void testFormatDate4() throws ParseException {
     	String str = "12:49";
     	String str1 = "1:1";
     	System.out.println(Utils.formatDate(str));
@@ -66,7 +67,7 @@ public class UtilsTest {
     }
     
     @Test
-    public void testFormatDate5() {
+    public void testFormatDate5() throws ParseException {
     	String str = "5-27";
     	String str1 = "11-2";
     	System.out.println(Utils.formatDate(str));

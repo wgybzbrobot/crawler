@@ -6,12 +6,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.google.gson.JsonObject;
@@ -21,11 +26,14 @@ public class Utils {
 
 	private static Logger LOG = LoggerFactory.getLogger(Utils.class);
 
-	public static int getPositiveNumber (int i, int j) {
-		if (j < 1) j = 1;
-		if (i < 1) return j;
+	public static int getPositiveNumber(int i, int j) {
+		if (j < 1)
+			j = 1;
+		if (i < 1)
+			return j;
 		return i;
 	}
+
 	/**
 	 * 获取域名
 	 */
@@ -39,8 +47,9 @@ public class Utils {
 
 	/**
 	 * 格式化日期
+	 * @throws ParseException 
 	 */
-	public static Date formatDate(String param) {
+	public static Date formatDate(String param) throws ParseException {
 		long time = System.currentTimeMillis();
 		if (StringUtils.isEmpty(param))
 			return null;
@@ -62,7 +71,7 @@ public class Utils {
 		scanner.close();
 		String nt = sb.toString();
 		Date date = null;
-		try {
+//		try {
 			if (param.contains("天前")) {
 				time = time - Integer.valueOf(nt.trim()) * 24 * 60 * 60 * 1000;
 			} else if (param.contains("今天")) {
@@ -114,7 +123,7 @@ public class Utils {
 				param = Calendar.getInstance().get(Calendar.YEAR) + "-" + param;
 				sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 				return sdf.parse(param);
-			} else if (param.trim().matches("\\d{4}-\\d{1,2}-\\d{1,2}\\s+\\d{2}:\\d{2}")) { 
+			} else if (param.trim().matches("\\d{4}-\\d{1,2}-\\d{1,2}\\s+\\d{2}:\\d{2}")) {
 				// 2013-07-27 05:55 2013-7-7 05:55
 				param = param.replaceAll("\\s+", " ");
 				sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -140,26 +149,27 @@ public class Utils {
 				sdf = new SimpleDateFormat("yyyy-MM-dd");
 				return sdf.parse(param);
 			} else {
-				try {
+//				try {
 					date = sdf.parse(nt.trim());
-				} catch (ParseException e) {
-					LOG.error(e.getMessage());
-					return null;
-				}
+//				} catch (ParseException e) {
+//					LOG.error(e.getMessage());
+//					return null;
+//				}
 				return date;
 			}
 			date = new Date(time);
-		} catch (ParseException e) {
-			e.printStackTrace();
-			return null;
-		}
+//		} catch (ParseException e) {
+//			e.printStackTrace();
+//			return null;
+//		}
 		return date;
 	}
 
 	/**
 	 * only for Baidu Tieba
+	 * @throws ParseException 
 	 */
-	public static Date extractDate(String json) {
+	public static Date extractDate(String json) throws ParseException {
 		JsonParser jsonParser = new JsonParser();
 		JsonObject content = jsonParser.parse(json).getAsJsonObject().getAsJsonObject("content");
 		return formatDate(content.get("date").getAsString());
@@ -187,4 +197,22 @@ public class Utils {
 		return false;
 	}
 
+	public static boolean isUrl(String str) {
+		if (StringUtils.isEmpty(str))
+			return false;
+		if (str.matches("^(https|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"))
+			return true;
+		return false;
+	}
+
+	public static List<String> extractUrls(Element element) {
+		Assert.notNull(element);
+		List<String> list = new LinkedList<String>();
+		Elements anchors = element.getElementsByTag("a");
+		for (Element ele : anchors) {
+	        if (isUrl(ele.absUrl("href")))
+	        	list.add(ele.absUrl("href"));
+        }
+		return list;
+	}
 }

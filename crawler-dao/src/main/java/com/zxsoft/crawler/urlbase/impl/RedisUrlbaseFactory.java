@@ -21,6 +21,7 @@ public class RedisUrlbaseFactory extends UrlbaseFactory {
     public WebPage peek() {
 		WebPage page = new WebPage();
 		page.setBaseUrl("http://tieba.baidu.com/f?kw=%B0%F6%B2%BA");
+//		page.setBaseUrl("http://bbs.tianya.cn/list-free-1.shtml");
 		page.setAjax(false);
 		page.setPrevFetchTime(0);
 		

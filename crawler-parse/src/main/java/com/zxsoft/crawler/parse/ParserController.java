@@ -1,8 +1,10 @@
 package com.zxsoft.crawler.parse;
 
-import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -18,26 +20,20 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import com.zxsoft.crawler.dao.ConfDao;
-import com.zxsoft.crawler.plugin.parse.ForumParser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
-import com.zxsoft.crawler.protocols.http.HttpFetcher;
-import com.zxsoft.crawler.protocols.http.httpclient.HttpClientPageHelper;
 import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
 
-public final class ParseUtil {
+/**
+ * Control which parser to parse the page.
+ */
+public final class ParserController extends ParseTool {
 
-	private static Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
-	public static ApplicationContext ctx;
+	private static Logger LOG = LoggerFactory.getLogger(ParserController.class);
 	private Configuration conf;
 	private ThreadPoolExecutor pool = null;
 	private AtomicBoolean continuePage = new AtomicBoolean(true);
@@ -45,18 +41,17 @@ public final class ParseUtil {
 	private String indexUrl;
 	private boolean ajax;
 	
-	private HttpFetcher httpFetcher;
-	private HttpClientPageHelper pageHelper;
-	private ConfDao confDao;
-	
-	public ParseUtil(ApplicationContext context, Configuration conf) {
-		ctx = context;
+	public ParserController(Configuration conf) {
+//		super.setConf(conf);
 		this.conf = conf;
-		httpFetcher = ctx.getBean(HttpFetcher.class);
-		pageHelper = ctx.getBean(HttpClientPageHelper.class);
-		confDao = ctx.getBean(ConfDao.class);
 	}
+	
+	private ThreadLocal<Parser> parserThreadLocal = new ThreadLocal<Parser>();
 
+	public Parser getParser() {
+		return parserThreadLocal.get();
+	}
+	
 	public ParseStatus parse(WebPage page) throws ParserNotFoundException {
 		ParserFactory factory = new ParserFactory();
 		factory.setConf(conf);
@@ -66,14 +61,14 @@ public final class ParseUtil {
 		
 		if (listConf != null) {
 			Parser parser = factory.getParserByCategory(listConf.getCategory());
+			parserThreadLocal.set(parser);
 			int numThreads = Utils.getPositiveNumber(listConf.getNumThreads(), 1);
 			int maxThreads = conf.getInt("spider.parse.thread.max", 10);
 			if (numThreads > maxThreads)
 				numThreads = maxThreads;
-			pool = newFixedThreadPool(numThreads);
+			pool = newFixedThreadPool(6);
 			status = parseListPage(page, parser, listConf);
-			
-		} 
+		}
 		return status;
 	}
 
@@ -102,22 +97,41 @@ public final class ParseUtil {
 			}
 
 			LOG.info("【" + listConf.getComment() + "】thread number in " + pageNum.get() + " page: " + lines.size());
+			
+			List<Callable<ParseStatus>> tasks = new ArrayList<Callable<ParseStatus>>();
+			
+			int i = 0;
 			for (Element line : lines) {
+//				if (i > 5) {
+//					break;
+//				}
+//				i++;
+				
 				Date lastupdate = null;
 				if (!StringUtils.isEmpty(listConf.getUpdatedom())
 				        && !CollectionUtils.isEmpty(line.select(listConf.getUpdatedom()))) {
-					lastupdate = Utils.formatDate(line.select(listConf.getUpdatedom()).first().text());
-					if (lastupdate.before(new Date(page.getPrevFetchTime()))) {
-						continuePage.set(false);
-						break;
-					}
+					try {
+	                    lastupdate = Utils.formatDate(line.select(listConf.getUpdatedom()).first().text());
+	                    if (lastupdate.before(new Date(page.getPrevFetchTime()))) {
+	                    	continuePage.set(false);
+	                    	break;
+	                    }
+                    } catch (ParseException e) {
+                    	LOG.error("Cannot parse date: " + lastupdate + " in page " + indexUrl, e);
+                    }
 				}
 
 				Date releasedate = null; // NOTE:有些列表页面可能没有发布时间
 				if (!StringUtils.isEmpty(listConf.getDatedom())
-				        && !CollectionUtils.isEmpty(line.select(listConf.getDatedom())))
-					releasedate = Utils.formatDate(line.select(listConf.getDatedom()).first().text());
-
+				        && !CollectionUtils.isEmpty(line.select(listConf.getDatedom()))) {
+					try {
+						releasedate = Utils.formatDate(line.select(listConf.getDatedom()).first()
+						        .text());
+					} catch (ParseException e) {
+						LOG.error("Cannot parse date: " + releasedate + " in page " + indexUrl, e);
+					}
+				}
+				
 				if (CollectionUtils.isEmpty(line.select(listConf.getUrldom()))
 				        || StringUtils.isEmpty(line.select(listConf.getUrldom()).first().absUrl("href")))
 					continue;
@@ -126,7 +140,7 @@ public final class ParseUtil {
 				String title = line.select(listConf.getUrldom()).first().text();
 				LOG.info(title + lastupdate);
 				
-				ProtocolOutput otemp = httpFetcher.fetch(curl); 
+				ProtocolOutput otemp = fetch(curl, ajax); 
 				if (otemp == null) continue;
 				Document dtemp = otemp.getDocument();
 				if (dtemp == null) {
@@ -135,8 +149,10 @@ public final class ParseUtil {
 				WebPage wp = new WebPage(title, curl, otemp.getFetchTime(), dtemp);
 				
 				try {
+//					Parser clonedParser = parser.clone();
+//					System.out.println(clonedParser);
 					ParseCallable pc = new ParseCallable(parser, wp);
-					Future<ParseStatus> future = pool.submit(pc);
+					tasks.add(pc);
 				} catch (Exception e) {
 					e.printStackTrace();
 					continue;
@@ -146,13 +162,20 @@ public final class ParseUtil {
 					break;
 				}
 			}
+			
+			try {
+				LOG.info("task size: " + tasks.size());
+	            List<Future<ParseStatus>> result = pool.invokeAll(tasks);
+            } catch (InterruptedException e) {
+	            e.printStackTrace();
+            }
 
-			if (/* page.getSeed().isLose() || */continuePage.get() == false) { // 是丢失帖或符合停止翻页条件
+			if (/* page.getSeed().isLose() || */!continuePage.get()) { // 是丢失帖或符合停止翻页条件
 				break;
 			} else { // 翻页
 				Document oldDoc = document;
-				ProtocolOutput ptemp = pageHelper.loadNextPage(pageNum.get(), document, ajax);
-				if (ptemp.getStatus().getCode() != 200)
+				ProtocolOutput ptemp = fetchNextPage(pageNum.get(), document, ajax);
+				if (!ptemp.getStatus().isSuccess())
 					break;
 				document = ptemp.getDocument();
 				if (document == null || document.html().equals(oldDoc.html())) {
@@ -180,31 +203,29 @@ public final class ParseUtil {
 		return status;
 	}
 
-	private static class ParseCallable implements Callable<ParseStatus> {
-		private Parser parser;
-		private WebPage page;
-
-		public ParseCallable(Parser parser, WebPage page) {
-			this.parser = parser;
-			this.page = page;
-		}
-
-		public ParseStatus call() throws Exception {
-			ParseStatus status = null;
-			try {
-				status = parser.parse(page);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return status;
-		}
-	}
+//	private static class ParseCallable implements Callable<ParseStatus> {
+//		private Parser parser;
+//		private WebPage page;
+//
+//		public ParseCallable(Parser parser, WebPage page) {
+//			this.parser = parser;
+//			this.page = page;
+//		}
+//
+//		public ParseStatus call() throws Exception {
+//			ParseStatus status = null;
+//			try {
+//				status = parser.parse(page);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//			return status;
+//		}
+//	}
 
 	public ThreadPoolExecutor newFixedThreadPool(int nThreads) {
-
-		final ThreadPoolExecutor result = new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS,
-		        new ArrayBlockingQueue<Runnable>(64), new ThreadPoolExecutor.CallerRunsPolicy());
-
+		final ThreadPoolExecutor result = new ThreadPoolExecutor(nThreads, nThreads + 10, 20, TimeUnit.SECONDS,
+		        new ArrayBlockingQueue<Runnable>(20), new ThreadPoolExecutor.CallerRunsPolicy());
 		result.setThreadFactory(new ThreadFactory() {
 			public Thread newThread(Runnable r) {
 				Thread t = new Thread(r);
@@ -217,7 +238,7 @@ public final class ParseUtil {
 				return t;
 			}
 		});
-
 		return result;
 	}
+
 }
