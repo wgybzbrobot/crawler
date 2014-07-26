@@ -1,6 +1,7 @@
 package com.zxsoft.crawler.web.verification;
 
 import java.net.MalformedURLException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -9,27 +10,31 @@ import java.util.Map;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.FieldError;
 
-import com.zxsoft.crawler.web.download.JsoupLoader;
+import com.zxsoft.crawler.parse.ParseTool;
+import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.web.model.NewsDetailConf;
-import com.zxsoft.framework.utils.Utils;
 
 @Service
-public class NewsDetailConfigVerification {
+public class NewsDetailConfigVerification extends ParseTool {
 
-	public Map<String, Object> verify(String testUrl, NewsDetailConf newsDetailConf) {
+	@Autowired
+	private ApplicationContext ctx;
+	
+	public Map<String, Object> verify(String testUrl,boolean ajax, NewsDetailConf newsDetailConf) {
 
 		Map<String, Object> map = new HashMap<String, Object>();
 		List<FieldError> errors = new LinkedList<FieldError>();
 		Map<String, Object> info = new HashMap<String, Object>();
 
 		Document document = null;
-		JsoupLoader loader = new JsoupLoader();
-		document = loader.load(testUrl);
 
 		try {
 			String host = Utils.getHost(testUrl);
@@ -37,10 +42,13 @@ public class NewsDetailConfigVerification {
 			e.printStackTrace();
 		}
 
-		if (document == null) {
+		ProtocolOutput protocolOutput = fetch(testUrl, ajax);
+		
+		if (protocolOutput == null || !protocolOutput.getStatus().isSuccess()) {
 			FieldError error = new FieldError("detailConf.newsDetailConf", "testUrl", "连接" + testUrl + "失败");
 			errors.add(error);
 		} else {
+			document = protocolOutput.getDocument();
 			Elements replyNumEles = document.select(newsDetailConf.getReplyNum());
 			if (CollectionUtils.isEmpty(replyNumEles)) {
 				FieldError error = new FieldError("detailConf.newsDetailConf", "replyNum", "无法从" + newsDetailConf.getReplyNum()
@@ -91,9 +99,14 @@ public class NewsDetailConfigVerification {
 				        + newsDetailConf.getReleaseDate() + "获取发布时间, 请检查是否正确.");
 				errors.add(error);
 			} else {
-				Date date = Utils.formatDate(masterDateEles.first().text());
-				String releasedate = date != null ? date.toString() : "";
-				info.put("发布时间", releasedate);
+                try {
+                	Date date = Utils.formatDate(masterDateEles.first().text());
+	                String releasedate = date != null ? date.toString() : "";
+	                info.put("发布时间", releasedate);
+                } catch (ParseException e) {
+	                info.put("发布时间", "无法获取发布时间, 原因:" + e.getMessage());
+	                e.printStackTrace();
+                }
 			}
 
 			Elements masterContentEles = document.select(newsDetailConf.getContent());

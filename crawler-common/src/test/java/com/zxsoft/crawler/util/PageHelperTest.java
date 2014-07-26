@@ -69,7 +69,7 @@ public class PageHelperTest {
 
 	@Test
 	public void testGetPageBarBaidu() throws IOException, PageBarNotFoundException {
-		Document currentDoc = Jsoup.connect("http://www.baidu.com/s?wd=%E9%BB%91%E5%AD%90%E7%9A%84%E7%AF%AE%E7%90%83&rsv_spt=1&issp=1&rsv_bp=0&ie=utf-8&tn=baiduhome_pg&rsv_sug3=6&rsv_sug4=141&rsv_sug1=8&oq=he&rsv_sug2=0&f=3&rsp=0&inputT=5387").get();
+		Document currentDoc = Jsoup.connect("http://www.baidu.com/s?wd=中国人").get();
 		Element pagebar = PageHelper.getPageBar(currentDoc);
 		Assert.notNull(pagebar);
 		System.out.println(pagebar);

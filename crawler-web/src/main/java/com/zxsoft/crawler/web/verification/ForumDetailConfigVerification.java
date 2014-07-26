@@ -1,7 +1,7 @@
 package com.zxsoft.crawler.web.verification;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,24 +12,29 @@ import java.util.Map;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-import com.zxsoft.crawler.web.download.AjaxLoader;
-import com.zxsoft.crawler.web.download.JsoupLoader;
+import com.zxsoft.crawler.parse.ParseTool;
+import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.util.Utils;
+import com.zxsoft.crawler.util.page.PageBarNotFoundException;
+import com.zxsoft.crawler.util.page.PageHelper;
 import com.zxsoft.crawler.web.model.ForumDetailConf;
 import com.zxsoft.crawler.web.model.Reply;
 import com.zxsoft.crawler.web.model.ThreadInfo;
-import com.zxsoft.framework.utils.PageHelper;
-import com.zxsoft.framework.utils.Utils;
 
 @Service
-public class ForumDetailConfigVerification {
+public class ForumDetailConfigVerification extends ParseTool {
 
+	@Autowired
+	private ApplicationContext ctx;
+	
 	public Map<String, Object> verify(String testUrl, boolean ajax, ForumDetailConf forumDetailConf) {
 
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -37,31 +42,19 @@ public class ForumDetailConfigVerification {
 		Map<String, Object> info = new HashMap<String, Object>();
 		info.put("测试页URL", testUrl);
 		Document document = null;
-		/*if (ajax) {
-			AjaxLoader loader = new AjaxLoader();
-			try {
-	            document = loader.load(testUrl);
-            } catch (FailingHttpStatusCodeException | IOException e) {
-	            e.printStackTrace();
-            }
-		} else {
-			JsoupLoader loader = new JsoupLoader();
-			document = loader.load(testUrl);
-		}*/
-		
-		JsoupLoader loader = new JsoupLoader();
-		document = loader.load(testUrl);
-		
+
 		try {
 	        String host = Utils.getHost(testUrl);
         } catch (MalformedURLException e) {
 	        e.printStackTrace();
         }
-
-		if (document == null) {
+		ProtocolOutput protocolOutput = fetch(testUrl, ajax);
+		
+		if (protocolOutput == null || !protocolOutput.getStatus().isSuccess()) {
 			FieldError error = new FieldError("conf", "forumDetailConf.testUrl", "连接" + testUrl + "失败");
 			errors.add(error);
 		} else {
+			document = protocolOutput.getDocument();
 			Elements replyNumEles = document.select(forumDetailConf.getReplyNum());
 			if (CollectionUtils.isEmpty(replyNumEles)) {
 				FieldError error = new FieldError("conf", "forumDetailConf.replyNum", "无法从" + forumDetailConf.getReplyNum() + "获取回复数, 请检查是否正确.");
@@ -93,7 +86,13 @@ public class ForumDetailConfigVerification {
 				}
 			}
 			
-			Element pagebar = PageHelper.getPageBar(document);
+			Element pagebar = null;
+            try {
+	            pagebar = PageHelper.getPageBar(document);
+            } catch (PageBarNotFoundException e) {
+	            // TODO Auto-generated catch block
+	            e.printStackTrace();
+            }
 			String pagebarText = pagebar == null ? "" : pagebar.html();
 			info.put("分页栏", pagebarText);
 
@@ -116,9 +115,14 @@ public class ForumDetailConfigVerification {
 					FieldError error = new FieldError("conf", "forumDetailConf.masterDate", "无法从" + forumDetailConf.getMasterDate() + "获取发布时间, 请检查是否正确.");
 					errors.add(error);
 				} else {
-					Date date = Utils.formatDate(masterDateEles.first().text());
-					String releasedate = date != null ? date.toString() : "";
-					info.put("发布时间", releasedate);
+                    try {
+                    	Date date = Utils.formatDate(masterDateEles.first().text());
+	                    String releasedate = date != null ? date.toString() : "";
+	                    info.put("发布时间", releasedate);
+                    } catch (ParseException e) {
+                    	info.put("发布时间", "无法获取发布时间, 原因:" + e.getMessage());
+	                    e.printStackTrace();
+                    }
 				}
 				
 				Elements masterContentEles = masterEles.select(forumDetailConf.getMasterContent());
@@ -155,12 +159,16 @@ public class ForumDetailConfigVerification {
 						FieldError error = new FieldError("conf", "forumDetailConf.replyDate", "无法从" + forumDetailConf.getReplyDate() + "获取回复时间, 请检查是否正确.");
 						errors.add(error);
 					} else {
-						if (Utils.formatDate(replyDateEles.first().text()) == null) {
-							reply.setReleaseDate(null);
+						try {
+	                        if (Utils.formatDate(replyDateEles.first().text()) == null) {
+	                        	reply.setReleaseDate(null);
 //							errors.add(new FieldError("forumDetailConf", "replyDate", ""));
-						} else {
-							reply.setReleaseDate(Utils.formatDate(replyDateEles.first().text()).toString());
-						}
+	                        } else {
+	                        	reply.setReleaseDate(Utils.formatDate(replyDateEles.first().text()).toString());
+	                        }
+                        } catch (ParseException e) {
+	                        e.printStackTrace();
+                        }
 					}
 					
 					Elements replyContentEles = replyEle.select(forumDetailConf.getReplyContent());
