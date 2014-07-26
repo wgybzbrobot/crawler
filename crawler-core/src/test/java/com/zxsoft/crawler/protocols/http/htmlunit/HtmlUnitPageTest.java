@@ -54,7 +54,7 @@ public class HtmlUnitPageTest {
 	}
 	
 	@Test
-	public void testLoadPrevPage() throws IOException, PrevPageNotFoundException {
+	public void testLoadPrevPage() throws IOException, PrevPageNotFoundException, PageBarNotFoundException {
 		ProtocolOutput protocolOutput = httpFetcher.fetch("http://roll.news.sina.com.cn/s/channel.php#col=89&spec=&type=&ch=&k=&offset_page=0&offset_num=0&num=60&asc=&page=2", true);
 		Assert.notNull(protocolOutput);
 		Document currentDoc = protocolOutput.getDocument();

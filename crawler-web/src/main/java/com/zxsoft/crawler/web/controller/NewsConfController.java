@@ -1,7 +1,6 @@
 package com.zxsoft.crawler.web.controller;
 
 import java.net.MalformedURLException;
-import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -23,15 +22,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.context.request.WebRequest;
 
-import com.zxsoft.crawler.web.model.ForumConf;
+import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.web.model.ListConf;
 import com.zxsoft.crawler.web.model.NewsConf;
 import com.zxsoft.crawler.web.model.NewsDetailConf;
-import com.zxsoft.crawler.web.model.ThreadInfo;
 import com.zxsoft.crawler.web.service.ConfService;
 import com.zxsoft.crawler.web.verification.ListConfigVerification;
 import com.zxsoft.crawler.web.verification.NewsDetailConfigVerification;
-import com.zxsoft.framework.utils.Utils;
 
 @Controller
 @RequestMapping("/newsConf")
@@ -73,7 +70,7 @@ public class NewsConfController {
 		}
 		Map<String, Object> listRes = listConfigVerification.verify(newsConf.getListConf());
 		String testurl = newsConf.getTestUrl();
-		Map<String, Object> detailRes = newsDetailConfigVerification.verify(testurl,
+		Map<String, Object> detailRes = newsDetailConfigVerification.verify(testurl, false,
 				newsConf.getDetailConf());
 
 		FieldError error = null;

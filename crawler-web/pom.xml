@@ -225,6 +225,16 @@
 			<artifactId>jolokia-core</artifactId>
 			<version>1.2.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.zxsoft.crawler</groupId>
+			<artifactId>crawler-parse</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.zxsoft.crawler</groupId>
+			<artifactId>crawler-protocol</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 	
 	<!-- Enviroment Settings -->

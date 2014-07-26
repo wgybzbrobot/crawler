@@ -10,7 +10,6 @@ import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.mvc.extensions.ajax.AjaxUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
@@ -18,17 +17,16 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.context.request.WebRequest;
 
+import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.web.model.ForumConf;
 import com.zxsoft.crawler.web.model.ForumDetailConf;
 import com.zxsoft.crawler.web.model.ListConf;
 import com.zxsoft.crawler.web.service.ConfService;
 import com.zxsoft.crawler.web.verification.ForumDetailConfigVerification;
 import com.zxsoft.crawler.web.verification.ListConfigVerification;
-import com.zxsoft.framework.utils.Utils;
 
 @Controller
 @RequestMapping("/forumConf")
@@ -39,6 +37,7 @@ public class ForumConfController {
 	private ListConfigVerification listConfigVerification;
 	@Autowired
 	private ForumDetailConfigVerification forumDetailConfigVerification;
+	
 	@Autowired
 	private ConfService confService;
 	
@@ -61,6 +60,14 @@ public class ForumConfController {
 	public void form() {
 	}
 
+	/**
+	 * Test if configuration is correct.
+	 * @param forumConf
+	 * @param result
+	 * @param model
+	 * @param ajaxRequest
+	 * @return
+	 */
 	@RequestMapping(method = RequestMethod.POST)
 	public String test(@Valid ForumConf forumConf, BindingResult result, Model model,
 			@ModelAttribute("ajaxRequest") boolean ajaxRequest) {
@@ -91,6 +98,14 @@ public class ForumConfController {
 		return "/forumConf";
 	}
 	
+	/**
+	 * Save the configuration
+	 * @param forumConf
+	 * @param result
+	 * @param model
+	 * @param ajaxRequest
+	 * @return
+	 */
 	@RequestMapping(value="/save", method = RequestMethod.POST)
 	public String save(@Valid ForumConf forumConf, BindingResult result, Model model,
 			@ModelAttribute("ajaxRequest") boolean ajaxRequest) {
