@@ -13,13 +13,15 @@ public class WebPage implements Serializable {
 	private long prevFetchTime;
 	private int fetchInterval;
 	private int retriesSinceFetch;
-	private long modifiedTime;
-	private long prevModifiedTime;
 	private Document document;
 
 	private String title;
 	private boolean ajax;
-	
+	/**
+	 * 网站类型
+	 * @see Proxy
+	 */
+	private String type;
 	
 	public WebPage () {}
 	
@@ -30,6 +32,13 @@ public class WebPage implements Serializable {
 	    this.document = document;
     }
 	
+	public WebPage(String baseUrl, boolean  ajax, long prevFetchTime) {
+		super();
+		this.baseUrl = baseUrl;
+		this. ajax =  ajax;
+		this.prevFetchTime = prevFetchTime;
+	}
+	
 	public WebPage(String title, String baseUrl, long fetchTime, Document document) {
 		super();
 		this.title = title;
@@ -37,8 +46,15 @@ public class WebPage implements Serializable {
 		this.fetchTime = fetchTime;
 		this.document = document;
 	}
-
 	
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
 	public boolean isAjax() {
 		return ajax;
 	}
@@ -101,22 +117,6 @@ public class WebPage implements Serializable {
 
 	public void setRetriesSinceFetch(int retriesSinceFetch) {
 		this.retriesSinceFetch = retriesSinceFetch;
-	}
-
-	public long getModifiedTime() {
-		return modifiedTime;
-	}
-
-	public void setModifiedTime(long modifiedTime) {
-		this.modifiedTime = modifiedTime;
-	}
-
-	public long getPrevModifiedTime() {
-		return prevModifiedTime;
-	}
-
-	public void setPrevModifiedTime(long prevModifiedTime) {
-		this.prevModifiedTime = prevModifiedTime;
 	}
 
 	public Document getDocument() {

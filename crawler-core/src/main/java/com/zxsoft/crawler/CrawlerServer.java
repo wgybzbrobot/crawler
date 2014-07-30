@@ -27,7 +27,6 @@ public class CrawlerServer {
 		app.setShowBanner(false);
 		ctx = app.run(args);
 		
-		ctx = app.run(args);
 		System.out.println("Starting Crawler ...");
 		Crawler crawler = new Crawler(ctx);
 		crawler.start();

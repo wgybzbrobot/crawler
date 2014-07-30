@@ -20,7 +20,7 @@ public class DbProxyFactory implements ProxyFactory {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
-	public List<Proxy> getProxies() {
+	public List<Proxy> getProxies(String type) {
 		
 		List<Proxy> proxies = jdbcTemplate.query("", new RowMapper<Proxy>() {
 

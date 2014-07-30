@@ -18,7 +18,7 @@ public class ProxyReaderTest extends TestCase  {
 	@Test
 	public void testReadProxies() throws IOException {
 		ProxyFactory factory = new LocalProxyFactory();
-		List<Proxy> list =  factory.getProxies();
+		List<Proxy> list =  factory.getProxies("");
 		Assert.notNull(list);
 	}
 	

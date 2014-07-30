@@ -34,20 +34,33 @@ public class PageHelper {
 			Elements siblingEles = eles.first().siblingElements();
 			Element parentEle = eles.first().parent();
 
-			if (!CollectionUtils.isEmpty(siblingEles)
-			        || !CollectionUtils.isEmpty(siblingEles = parentEle.siblingElements())) {
-				float sum = siblingEles.size() + 1, count = 0;
-				for (Element ele : siblingEles) {
-					if (!CollectionUtils.isEmpty(ele.getElementsByTag("a"))) {
-						count++;
-					}
+			Element element = eles.first();
+			/** test if  element's parent only have one anchor **/
+			int count = 0;
+			while (count++ < 20) { 
+				Element parent = element.parent();
+				if (parent.getElementsByTag("a").size() > 1) {
+					break;
 				}
-				if (Math.round(count / sum) == 1) {
-					return parentEle.parent();
-				} else {
-					return parentEle;
-				}
+				element = parent;
 			}
+			
+			return element.parent();
+			
+//			if (!CollectionUtils.isEmpty(siblingEles)
+//			        || !CollectionUtils.isEmpty(siblingEles = parentEle.siblingElements())) {
+//				float sum = siblingEles.size() + 1, count = 0;
+//				for (Element ele : siblingEles) {
+//					if (!CollectionUtils.isEmpty(ele.getElementsByTag("a"))) {
+//						count++;
+//					}
+//				}
+//				if (Math.round(count / sum) == 1) {
+//					return parentEle.parent();
+//				} else {
+//					return parentEle;
+//				}
+//			}
 		} else { // get pagebar by 1,2,3...
 			eles = document.getElementsByTag("a");
 			if (CollectionUtils.isEmpty(eles))
@@ -71,7 +84,7 @@ public class PageHelper {
 					if (element.nextElementSibling() != null) {
 						siblingTxt = element.nextElementSibling().text();
 						if (Utils.isNum(siblingTxt)
-						        && "a".equals(element.nextElementSibling().tagName())
+						        /*&& "a".equals(element.nextElementSibling().tagName())*/
 						        && Integer.valueOf(eleTxt) + 1 == Integer.valueOf(siblingTxt)) {
 							return element.parent();
 						}

@@ -28,6 +28,7 @@ import com.zxsoft.crawler.protocol.ProtocolStatusCodes;
 import com.zxsoft.crawler.storage.ForumDetailConf;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
+import com.zxsoft.crawler.store.OutputException;
 import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
 
@@ -53,24 +54,31 @@ public class TieBaParser extends Parser {
 			return new LinkedList<RecordInfo>();
 		}
 	};
-	private  ForumDetailConf detailConf;
+	private  ThreadLocal<ForumDetailConf> threadLocalDetailConf = new ThreadLocal<ForumDetailConf>() {
+		protected ForumDetailConf initialValue() {
+			return new ForumDetailConf();
+		}
+	};
 	
 	public ParseStatus parse(WebPage page) throws Exception {
 		Assert.notNull(page, "Page is null");
 		Document document = page.getDocument();
 		Assert.notNull(document, "Document is null");
-//		mainUrl = page.getBaseUrl();
-//		prevFetchTime = page.getPrevFetchTime();
-//		ajax = page.isAjax();
-//		recordInfos = new LinkedList<RecordInfo>();
-		
 		mainUrl.set(page.getBaseUrl());
 		prevFetchTime.set(page.getPrevFetchTime());
 		ajax.set(page.isAjax());
 		threadLocalRecordInfos.set(new LinkedList<RecordInfo>());
-		
+		threadLocalDetailConf.set(confDao.getForumDetailConf(Utils.getHost(mainUrl.get())));
 
-		ForumDetailConf detailConf = confDao.getForumDetailConf(Utils.getHost(mainUrl.get()));
+		ParseStatus status = new ParseStatus(mainUrl.get());
+		status.setStatus(ParseStatus.Status.PARSING);
+		
+		if (threadLocalDetailConf == null || threadLocalDetailConf.get() == null) {
+			LOG.warn("Detail page has no configuration in database." + mainUrl);
+			status.setStatus(ParseStatus.Status.PARSE_FAILURE);
+			status.setMessage("No detail page configuration found in database");
+			return status;
+		}
 
 		// if (seed.getType() == Category.DETAIL_PAGE) { // 新的详细页 或 丢失的详细页
 		// fetchContent(page, detailConf);
@@ -80,11 +88,18 @@ public class TieBaParser extends Parser {
 		// } else {
 		// LOG.error("Seed error occur.");
 		// }
-		fetchContent(page, detailConf);
-
-		int num = indexWriter.write(threadLocalRecordInfos.get());
-		LOG.info(mainUrl.get() + " has " + num + " records.");
-		return null;
+		
+		fetchContent(page);
+		int num = 0;
+		try{
+			num = indexWriter.write(threadLocalRecordInfos.get());
+		  } catch (OutputException e) {
+	      	status.setStatus(ParseStatus.Status.OUTPUT_FAILURE);
+	      	status.setMessage(e.getMessage());
+	      }
+//		LOG.info(mainUrl.get() + " has " + num + " records.");
+		status.setCount(num);
+		return status;
 	}
 
 	/**
@@ -92,10 +107,10 @@ public class TieBaParser extends Parser {
 	 * 
 	 * @param page
 	 *            详细页
-	 * @param detailConf
+	 * @param threadLocalDetailConf
 	 *            详细页配置对象(Object of detail page configuration)
 	 */
-	private void fetchContent(WebPage page, ForumDetailConf detailConf) {
+	private void fetchContent(WebPage page) {
 		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl.get(), page.getFetchTime());
 
 		ProtocolOutput ptemp = fetch(mainUrl.get(), false);
@@ -105,13 +120,13 @@ public class TieBaParser extends Parser {
 		page.setDocument(document);
 		if (document == null)
 			return;
-		if (detailConf == null) {
+		if (threadLocalDetailConf == null) {
 			LOG.warn("Detail page has no configuration in database:" + mainUrl);
 			return;
 		}
 
-		if (!CollectionUtils.isEmpty(document.select(detailConf.getReplyNum()))) {
-			info.setComment_count(Integer.valueOf(document.select(detailConf.getReplyNum()).first()
+		if (!CollectionUtils.isEmpty(document.select(threadLocalDetailConf.get().getReplyNum()))) {
+			info.setComment_count(Integer.valueOf(document.select(threadLocalDetailConf.get().getReplyNum()).first()
 			        .text()));
 		}
 
@@ -120,20 +135,22 @@ public class TieBaParser extends Parser {
 		if (duplicateInspector.md5Exist(_md5))
 			return;
 
-		if (!StringUtils.isEmpty(detailConf.getReviewNum())
-		        && !CollectionUtils.isEmpty(document.select(detailConf.getReviewNum()))) {
-			info.setRead_count(Integer.valueOf(document.select(detailConf.getReviewNum()).first()
+		String reviewNumDom = threadLocalDetailConf.get().getReviewNum();
+		if (!StringUtils.isEmpty(reviewNumDom)
+		        && !CollectionUtils.isEmpty(document.select(reviewNumDom))) {
+			info.setRead_count(Integer.valueOf(document.select(reviewNumDom).first()
 			        .text()));
 		}
 
-		Elements mainEles = document.select(detailConf.getMaster());
+		Elements mainEles = document.select(threadLocalDetailConf.get().getMaster());
 		// 主帖页面, 取得主帖信息
 		if (!CollectionUtils.isEmpty(mainEles)) {
 			Element mainEle = mainEles.first();
-			if (!CollectionUtils.isEmpty(mainEle.select(detailConf.getMasterAuthor()))) {
-				info.setNickname(mainEle.select(detailConf.getMasterAuthor()).first().text());
+			String masterAuthorDom = threadLocalDetailConf.get().getMasterAuthor();
+			if (!StringUtils.isEmpty(masterAuthorDom) && !CollectionUtils.isEmpty(mainEle.select(masterAuthorDom))) {
+				info.setNickname(mainEle.select(masterAuthorDom).first().text());
 			}
-			Elements contentEles = mainEle.select(detailConf.getMasterContent());
+			Elements contentEles = mainEle.select(threadLocalDetailConf.get().getMasterContent());
 			if (!CollectionUtils.isEmpty(contentEles)) {
 				Element contentEle = contentEles.first();
 				info.setContent(contentEle.text());
@@ -157,7 +174,7 @@ public class TieBaParser extends Parser {
 
 //			recordInfos.add(info);
 			threadLocalRecordInfos.get().add(info);
-			parseReply(page, detailConf);
+			parseReply(page);
 		} else {
 			LOG.warn("主帖信息配置可能有误:" + mainUrl);
 			return;
@@ -167,15 +184,15 @@ public class TieBaParser extends Parser {
 	/**
 	 * 解析回复
 	 */
-	private void parseReply(WebPage page, ForumDetailConf detailConf) {
+	private void parseReply(WebPage page) {
 		String newPageUrl = "", currentPageText = "1";
 		Document doc = page.getDocument();
 		String currentUrl = mainUrl.get();
 
-		if (!detailConf.isFetchorder()) { // 从第一页
+		if (!threadLocalDetailConf.get().isFetchorder()) { // 从第一页
 			int pageNum = 1;
 			do {
-				boolean isContinue = parsePage(page, doc, currentUrl, detailConf);
+				boolean isContinue = parsePage(page, doc, currentUrl);
 				if (!isContinue) {
 					break;
 				}
@@ -194,7 +211,7 @@ public class TieBaParser extends Parser {
 			ProtocolOutput ptemp = fetchLastPage(doc, ajax.get());
 			Document lastDoc = null;
 			if (ptemp == null || (lastDoc = ptemp.getDocument()) == null) {
-				parsePage(page, doc, currentUrl, detailConf);
+				parsePage(page, doc, currentUrl);
 				return;
 			}
 
@@ -203,7 +220,7 @@ public class TieBaParser extends Parser {
 			while (true) {
 				if (doc == null || StringUtils.isEmpty(currentUrl))
 					break;
-				boolean isContinue = parsePage(page, doc, currentUrl, detailConf);
+				boolean isContinue = parsePage(page, doc, currentUrl);
 				if (!isContinue) {
 					break;
 				}
@@ -228,12 +245,11 @@ public class TieBaParser extends Parser {
 	 *            <code>currentUrl</code> 的主帖页面URL
 	 * @param currentUrl
 	 *            当前页URL
-	 * @param detailConf
+	 * @param threadLocalDetailConf
 	 *            详细页配置对象(Object of detail page configuration)
 	 */
-	private boolean parsePage(WebPage page, Document doc, String currentUrl,
-	        ForumDetailConf detailConf) {
-		Elements replyEles = doc.select(detailConf.getReply()); // 所有回复
+	private boolean parsePage(WebPage page, Document doc, String currentUrl) {
+		Elements replyEles = doc.select(threadLocalDetailConf.get().getReply()); // 所有回复
 		String tid = extractTid(mainUrl.get());
 		Collections.reverse(replyEles);
 		for (Element element : replyEles) {
@@ -243,7 +259,7 @@ public class TieBaParser extends Parser {
 
 			String json = element.attr("data-field");
 			String pid = extractPid(json);
-			info = save(info, element, detailConf, tid, pid, page); // 保存回复
+			info = save(info, element, tid, pid, page); // 保存回复
 
 			if (info.getTimestamp() != 0 && info.getTimestamp() < prevFetchTime.get())
 				return false;
@@ -260,7 +276,7 @@ public class TieBaParser extends Parser {
 			subReply.setOriginal_url(mainUrl.get());
 			subReply.setUrl(currentUrl);
 			subReply.setOriginal_id(info.getId());
-			saveSub(subReply, surl, detailConf, tid);
+			saveSub(subReply, surl, tid);
 		}
 		return true;
 	}
@@ -268,7 +284,7 @@ public class TieBaParser extends Parser {
 	/**
 	 * 保存回复
 	 */
-	private RecordInfo save(RecordInfo info, Element element, ForumDetailConf detailConf,
+	private RecordInfo save(RecordInfo info, Element element, 
 	        String tid, String pid, WebPage page) {
 
 		String dateField = element.attr("data-field");
@@ -281,11 +297,11 @@ public class TieBaParser extends Parser {
         
 		String id = UUID.randomUUID().toString();
 		info.setId(id);
-		if (!CollectionUtils.isEmpty(element.select(detailConf.getReplyAuthor()))) {
-			info.setNickname(element.select(detailConf.getReplyAuthor()).first().text());
+		if (!CollectionUtils.isEmpty(element.select(threadLocalDetailConf.get().getReplyAuthor()))) {
+			info.setNickname(element.select(threadLocalDetailConf.get().getReplyAuthor()).first().text());
 		}
 
-		Elements contentEles = element.select(detailConf.getReplyContent());
+		Elements contentEles = element.select(threadLocalDetailConf.get().getReplyContent());
 		if (!CollectionUtils.isEmpty(contentEles)) {
 			Element contentEle = contentEles.first();
 			info.setContent(contentEle.text());
@@ -304,7 +320,7 @@ public class TieBaParser extends Parser {
 	/**
 	 * 解析子回复
 	 */
-	private void saveSub(RecordInfo reply, String surl, ForumDetailConf detailConf, String tid) {
+	private void saveSub(RecordInfo reply, String surl, String tid) {
 		ProtocolOutput ptemp = fetch(surl, ajax.get());
 		if (ptemp.getStatus().getCode() != ProtocolStatusCodes.SUCCESS){
 			LOG.info("No Sub reply infomation.");
@@ -323,7 +339,7 @@ public class TieBaParser extends Parser {
 		}
 
 		if (StringUtils.isEmpty(u)) { // 无分页
-			parseSubPage(reply, doc, detailConf, tid);
+			parseSubPage(reply, doc, tid);
 		} else {
 			// jump to last page
 			ptemp = fetch(u, ajax.get());
@@ -331,7 +347,7 @@ public class TieBaParser extends Parser {
 				if (ptemp == null || !ptemp.getStatus().isSuccess())
 					break;
 				doc = ptemp.getDocument();
-				parseSubPage(reply, doc, detailConf, tid);
+				parseSubPage(reply, doc, tid);
 				if (CollectionUtils.isEmpty(doc.select("p.j_pager.l_pager.pager_theme_2"))) {
 					break;
 				}
@@ -348,7 +364,7 @@ public class TieBaParser extends Parser {
 	/**
 	 * 保存子回复
 	 */
-	private void parseSubPage(RecordInfo _reply, Document doc, ForumDetailConf detailConf, String tid) {
+	private void parseSubPage(RecordInfo _reply, Document doc, String tid) {
 
 		Elements elements = doc.select("li.lzl_single_post.j_lzl_s_p");
 		if (CollectionUtils.isEmpty(elements))
@@ -361,13 +377,13 @@ public class TieBaParser extends Parser {
 			String json = element.attr("data-field");
 			String spid = extractSpid(json);
 
-			if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyAuthor()))) {
-				reply.setNickname(element.select(detailConf.getSubReplyAuthor()).first().text());
+			if (!CollectionUtils.isEmpty(element.select(threadLocalDetailConf.get().getSubReplyAuthor()))) {
+				reply.setNickname(element.select(threadLocalDetailConf.get().getSubReplyAuthor()).first().text());
 			}
-			if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyContent()))) {
-				reply.setContent(element.select(detailConf.getSubReplyContent()).first().text());
+			if (!CollectionUtils.isEmpty(element.select(threadLocalDetailConf.get().getSubReplyContent()))) {
+				reply.setContent(element.select(threadLocalDetailConf.get().getSubReplyContent()).first().text());
 			}
-			Elements imgs = element.select(detailConf.getSubReplyContent()).select("img");
+			Elements imgs = element.select(threadLocalDetailConf.get().getSubReplyContent()).select("img");
 			StringBuilder imgUrlSb = new StringBuilder();
 			for (Element img : imgs) {
 				imgUrlSb.append(img.attr("abs:src"));
@@ -381,10 +397,10 @@ public class TieBaParser extends Parser {
 			reply.setVideo_url("");
 
 			
-			if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyDate()))) {
-				String dateField = element.select(detailConf.getSubReplyDate()).first().text();
+			if (!CollectionUtils.isEmpty(element.select(threadLocalDetailConf.get().getSubReplyDate()))) {
+				String dateField = element.select(threadLocalDetailConf.get().getSubReplyDate()).first().text();
 		        try {
-		        	Date dateTemp = Utils.extractDate(dateField);
+		        	Date dateTemp = Utils.formatDate(dateField);
 		            reply.setTimestamp(dateTemp.getTime());
 		        } catch (ParseException e) {
 		        	LOG.error("Cannot parse date: " + dateField + " in page " + _reply.getUrl());

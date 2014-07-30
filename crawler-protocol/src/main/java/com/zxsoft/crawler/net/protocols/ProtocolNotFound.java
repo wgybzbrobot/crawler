@@ -15,25 +15,20 @@
  * limitations under the License.
  */
 
-package com.zxsoft.crawler.protocol;
+package com.zxsoft.crawler.net.protocols;
 
 @SuppressWarnings("serial")
-public class ProtocolException extends Exception {
+public class ProtocolNotFound extends ProtocolException {
+  private String url;
 
-  public ProtocolException() {
-    super();
+  public ProtocolNotFound(String url) {
+    this(url, "protocol not found for url="+url);
   }
 
-  public ProtocolException(String message) {
+  public ProtocolNotFound(String url, String message) {
     super(message);
+    this.url = url;
   }
 
-  public ProtocolException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  public ProtocolException(Throwable cause) {
-    super(cause);
-  }
-
+  public String getUrl() { return url; }
 }

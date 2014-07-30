@@ -31,6 +31,11 @@ public class ConfDao {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
+	@Cacheable(value = "webSiteType", key = "#host")
+	public void getWebSiteType(String host) {
+		
+	}
+	
 	/**
 	 * 获取列表配置信息
 	 * 
@@ -39,7 +44,7 @@ public class ConfDao {
 	 */
 	@Cacheable(value = "listConfCache", key = "#url")
 	public ListConf getListConf(String url) {
-		LOG.info("Getting list config:" + url);
+		LOG.debug("Getting list config:" + url);
 		List<ListConf> list = jdbcTemplate.query("select * from conf_list where url = ?",
 		        new Object[] { url }, new RowMapper<ListConf>() {
 			        public ListConf mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -63,7 +68,7 @@ public class ConfDao {
 	 */
 	@Cacheable(value = "forumDetailConfCache", key = "#host")
 	public ForumDetailConf getForumDetailConf(String host) {
-		LOG.info("Getting forum detail config:" + host);
+		LOG.debug("Getting forum detail config:" + host);
 		List<ForumDetailConf> list = jdbcTemplate.query(
 		        "select * from forumconf_detail where host = ?", new Object[] { host },
 		        new RowMapper<ForumDetailConf>() {
@@ -91,7 +96,7 @@ public class ConfDao {
 	 */
 	@Cacheable(value = "newsDetailConfCache", key = "#host")
 	public NewsDetailConf getNewsDetailConf(String host) {
-		LOG.info("Getting news detail config:" + host);
+		LOG.debug("Getting news detail config:" + host);
 		List<NewsDetailConf> list = jdbcTemplate.query(
 		        "select * from newsconf_detail where host = ?", new Object[] { host },
 		        new RowMapper<NewsDetailConf>() {

@@ -11,10 +11,11 @@ import com.zxsoft.crawler.storage.RecordInfo;
 @Scope("prototype")
 public interface Output {
 
-	void write(RecordInfo info);
+	void write(RecordInfo info) throws OutputException;
 	
 	/**
 	 * @return the number of recordinfo
+	 * @throws OutputException 
 	 */
-	int write(List<RecordInfo> recordInfos);
+	int write(List<RecordInfo> recordInfos) throws OutputException;
 }
