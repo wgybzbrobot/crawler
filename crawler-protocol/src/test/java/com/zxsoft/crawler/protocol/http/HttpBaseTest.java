@@ -71,19 +71,15 @@ import org.apache.http.util.EntityUtils;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 import org.springframework.util.Assert;
-
-import com.zxsoft.crawler.cache.proxy.Proxy;
+import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.protocols.http.HttpBase;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClient;
-import com.zxsoft.crawler.storage.WebPage;
 
 public class HttpBaseTest {
 
 	@Test
-	public void testProxy() {
+	public void testProxy() throws ProtocolException, IOException {
 		HttpBase http = new HttpClient();
-		Proxy proxy = new Proxy("HTTP", "", "", "192.168.31.244", 28080, "");
-		WebPage page = new WebPage();
 		Document document = http.getProtocolOutput("http://news.sohu.com/scroll/").getDocument();
 		Assert.notNull(document);
 		System.out.println(document.html());

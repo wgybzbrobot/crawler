@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.zxsoft.crawler.cache.proxy.Proxy;
 
@@ -43,7 +45,7 @@ public class LocalProxyFactory implements ProxyFactory {
 					continue;
 				
 				String[] ini = line.split(":");
-				if (ini == null || ini.length != 6) continue;
+				if (ini == null || ini.length != 7) continue;
 				if (line.indexOf("#") != -1) {
 					line = line.substring(0, line.indexOf("#"));
 				}
@@ -59,7 +61,8 @@ public class LocalProxyFactory implements ProxyFactory {
 					
 				}
 				String type = ini[5];
-				Proxy proxy = new Proxy(type, username, password, host, port,realm);
+				String targetType = ini[6];
+				Proxy proxy = new Proxy(type,targetType, username, password, host, port,realm);
 				LOG.info("Put proxy in cache: " + proxy);
 				proxies.add(proxy);
 			}
@@ -70,54 +73,18 @@ public class LocalProxyFactory implements ProxyFactory {
 			ioe.printStackTrace();
 		}
 	}
-	
-	@Cacheable(value = { "proxyCache" })
-	public List<Proxy> getProxies() {
+
+	@Cacheable(value = { "proxyCache"}, key="#type" )
+	public List<Proxy> getProxies(String type) {
+		if (StringUtils.isEmpty(type))
+			return proxies;
 		
-//		List<Proxy> proxies = new ArrayList<Proxy>();
-//		BufferedReader reader = null;
-//		try {
-//			Resource resource = new ClassPathResource(PROXY_FILE);
-//			InputStream is = resource.getInputStream();
-//			
-//			reader = new BufferedReader(new InputStreamReader(is));
-//
-//			String line = null;
-//			while ((line = reader.readLine()) != null) {
-//				line = line.trim();
-//				if (line.length() == 0)
-//					continue;
-//				
-//				if (line.startsWith("#"))
-//					continue;
-//				
-//				String[] ini = line.split(":");
-//				if (ini == null || ini.length != 6) continue;
-//				if (line.indexOf("#") != -1) {
-//					line = line.substring(0, line.indexOf("#"));
-//				}
-//				String realm = ini[0];
-//				String username = ini[1];
-//				String password = ini[2];
-//				String host = ini[3];
-//				String portStr = ini[4];
-//				int port = 80;
-//				try {
-//					port = Integer.valueOf(portStr);
-//				} catch (Exception e) {
-//					
-//				}
-//				String type = ini[5];
-//				Proxy proxy = new Proxy(type, username, password, host, port,realm);
-//				LOG.info("Put proxy in cache: " + proxy);
-//				proxies.add(proxy);
-//			}
-//			reader.close();
-//		} catch (FileNotFoundException e1) {
-//			e1.printStackTrace();
-//		} catch (IOException ioe) {
-//			ioe.printStackTrace();
-//		}
-		return proxies;
+		List<Proxy> result = new LinkedList<Proxy>();
+		for (Proxy proxy : proxies) {
+			if (type.equals(proxy.getTargetType())) {
+				result.add(proxy);
+			}
+		}
+		return result;
 	}
 }

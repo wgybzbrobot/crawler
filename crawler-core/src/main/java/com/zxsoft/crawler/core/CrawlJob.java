@@ -12,8 +12,6 @@ import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.WebPage;
 
-//@Component
-//@Scope("prototype")
 public class CrawlJob implements Runnable {
 
 	private static Logger LOG = LoggerFactory.getLogger(CrawlJob.class);

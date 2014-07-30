@@ -31,8 +31,7 @@ public class ParserFactory {
     }
 
 //    @Cacheable("parser")
-    public Parser getParserByCategory(String category) throws ParserNotFoundException {
-        // return new ForumParser();
+    public synchronized Parser getParserByCategory(String category) throws ParserNotFoundException {
 
         if (StringUtils.isEmpty(category)) {
             category = conf.get("parser.type.defualt", DEFAULT_PARSER_TYPE);

@@ -43,9 +43,8 @@ public class Crawler extends Thread {
 		executor = newFixedThreadPool(conf.getInt("spider.thread.num", 10));
 		while (!executor.isShutdown()) {
 			
-			WebPage page = urlbaseRedisFactory.peek();
-			String url = page.getBaseUrl();
-			if (url == null) {
+			WebPage page = urlbaseRedisFactory.poll();
+			if (page == null || page.getBaseUrl() == null) {
 				try {
 	                TimeUnit.SECONDS.sleep(160);
                 } catch (InterruptedException e) {
@@ -56,11 +55,11 @@ public class Crawler extends Thread {
 			CrawlJob crawlJob = new CrawlJob(ctx, page, conf);
 			executor.execute(crawlJob);
 			
-			try {
-                TimeUnit.SECONDS.sleep(160);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//			try {
+//                TimeUnit.SECONDS.sleep(1600);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
 		}
 		
 		LOG.info("Crawler exit.");

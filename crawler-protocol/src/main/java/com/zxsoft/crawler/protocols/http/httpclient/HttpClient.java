@@ -42,6 +42,7 @@ import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -233,10 +234,10 @@ public class HttpClient extends HttpBase {
 	@Override
 	protected Response getResponse(URL url, boolean followRedirects) throws ProtocolException,
 	        IOException {
-		Proxy proxy = proxyRandom.random();
+		Proxy proxy = proxyRandom.random(url.toString());
 		int code;
 		Metadata headers = new Metadata();
-		byte[] content = null;
+		byte[] content = new byte[1024];
 
 		HttpMessageParserFactory<HttpResponse> responseParserFactory = new DefaultHttpResponseParserFactory() {
 

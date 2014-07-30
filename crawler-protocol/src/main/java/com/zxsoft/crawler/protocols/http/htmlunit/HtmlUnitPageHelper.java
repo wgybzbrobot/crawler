@@ -23,6 +23,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.zxsoft.crawler.cache.proxy.Proxy;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpBase;
+import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClientPageHelper;
 import com.zxsoft.crawler.protocols.http.proxy.ProxyRandom;
 import com.zxsoft.crawler.util.Utils;
@@ -43,18 +44,21 @@ public final class HtmlUnitPageHelper extends PageHelper {
 	private HttpBase htmlUnit;
 
 	@Autowired
+	private HttpFetcher httpFetcher;
+	
+	@Autowired
 	private ProxyRandom proxyRandom;
 	
 	private WebClient webClient = new WebClient();
 	private HtmlPage htmlPage;
 
-	public void configureClient() {
+	public void configureClient(String url) {
 		webClient.getOptions().setJavaScriptEnabled(true);
 		webClient.getOptions().setCssEnabled(false);
 		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
 		webClient.getOptions().setTimeout(20000);
 		webClient.getOptions().setThrowExceptionOnScriptError(false);
-		Proxy proxy = proxyRandom.random();
+		Proxy proxy = proxyRandom.random(url);
 		ProxyConfig proxyConfig = new ProxyConfig(proxy.getHost(), proxy.getPort(), "socks".equals(proxy.getType()) ? true : false);
 		webClient.getOptions().setProxyConfig(proxyConfig);
 	}
@@ -67,8 +71,8 @@ public final class HtmlUnitPageHelper extends PageHelper {
 	 * @throws PageBarNotFoundException 
 	 */
 	public ProtocolOutput loadPrevPage(int pageNum, Document currentDoc) throws IOException, PageBarNotFoundException {
-		configureClient();
 		String url = currentDoc.location();
+		configureClient(url);
 		if (htmlPage == null) {
 			try {
 				htmlPage = webClient.getPage(url);
@@ -121,8 +125,8 @@ public final class HtmlUnitPageHelper extends PageHelper {
 	 * @throws PageBarNotFoundException 
 	 */
 	public ProtocolOutput loadNextPage(int pageNum, Document currentDoc) throws IOException, PageBarNotFoundException {
-		configureClient();
 		String url = currentDoc.location();
+		configureClient(url);
 		if (htmlPage == null) {
 			try {
 				htmlPage = webClient.getPage(url);
@@ -154,7 +158,8 @@ public final class HtmlUnitPageHelper extends PageHelper {
 				for (int i = 0; i < achors.size(); i++) {
 					if (Utils.isNum(achors.get(i).text())
 					        && Integer.valueOf(achors.get(i).text().trim()) == pageNum + 1) {
-						return htmlUnit.getProtocolOutput(url);
+						return httpFetcher.fetch(url, true);
+//						return htmlUnit.getProtocolOutput(url);
 					}
 				}
 			}
@@ -164,8 +169,8 @@ public final class HtmlUnitPageHelper extends PageHelper {
 	}
 
 	public ProtocolOutput loadLastPage(Document currentDoc) throws IOException, PageBarNotFoundException {
-		configureClient();
 		String url = currentDoc.location();
+		configureClient(url);
 		if (htmlPage == null) {
 			try {
 				htmlPage = webClient.getPage(url);
@@ -212,7 +217,7 @@ public final class HtmlUnitPageHelper extends PageHelper {
 			htmlPage = lastAnchor.click();
 			pageXml = htmlPage.asXml();
 			document = Jsoup.parse(pageXml, host);
-			System.out.println(document);
+//			System.out.println(document);
 			return new ProtocolOutput(document);
 		}
 		webClient.closeAllWindows();

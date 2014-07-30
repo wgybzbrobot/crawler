@@ -61,7 +61,7 @@ public class PageHelperTest {
 	
 	@Test
 	public void testGetPageBarZhongAn() throws IOException, PageBarNotFoundException {
-		Document currentDoc = Jsoup.connect("http://bbs.anhuinews.com/thread-1102159-4-2.html").get();
+		Document currentDoc = Jsoup.connect("http://bbs.anhuinews.com/thread-464919-2-1.html").get();
 		Element pagebar = PageHelper.getPageBar(currentDoc);
 		Assert.notNull(pagebar);
 		System.out.println(pagebar);
@@ -70,6 +70,14 @@ public class PageHelperTest {
 	@Test
 	public void testGetPageBarBaidu() throws IOException, PageBarNotFoundException {
 		Document currentDoc = Jsoup.connect("http://www.baidu.com/s?wd=中国人").get();
+		Element pagebar = PageHelper.getPageBar(currentDoc);
+		Assert.notNull(pagebar);
+		System.out.println(pagebar);
+	}
+
+	@Test
+	public void testGetPageBarTianYa() throws IOException, PageBarNotFoundException {
+		Document currentDoc = Jsoup.connect("http://bbs.tianya.cn/list-free-1.shtml").get();
 		Element pagebar = PageHelper.getPageBar(currentDoc);
 		Assert.notNull(pagebar);
 		System.out.println(pagebar);

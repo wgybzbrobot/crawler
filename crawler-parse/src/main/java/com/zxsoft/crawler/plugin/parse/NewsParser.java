@@ -20,6 +20,7 @@ import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.storage.NewsDetailConf;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
+import com.zxsoft.crawler.store.OutputException;
 import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
 
@@ -110,7 +111,11 @@ public class NewsParser extends Parser {
             info.setRead_count(Integer.valueOf(reviewNum));
         }
 
-        indexWriter.write(info);
+        try {
+	        indexWriter.write(info);
+        } catch (OutputException e) {
+	        e.printStackTrace();
+        }
         
         return true;
     }

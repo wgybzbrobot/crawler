@@ -17,6 +17,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.gemstone.gemfire.internal.tools.gfsh.app.commands.get;
 import com.zxsoft.crawler.dao.ConfDao;
 import com.zxsoft.crawler.duplicate.DuplicateInspector;
 import com.zxsoft.crawler.parse.Category;
@@ -34,6 +35,7 @@ import com.zxsoft.crawler.storage.Reply;
 import com.zxsoft.crawler.storage.Seed;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.store.Output;
+import com.zxsoft.crawler.store.OutputException;
 import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
@@ -49,11 +51,6 @@ import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 public class ForumParser extends Parser {
 
 	private static Logger LOG = LoggerFactory.getLogger(ForumParser.class);
-//	private String rule; // filter regular expression
-//	private String mainUrl;
-//	private boolean ajax;
-//	private List<RecordInfo> recordInfos = new LinkedList<RecordInfo>();
-	
 	private ThreadLocal<String> mainUrl = new ThreadLocal<String>();
 	private ThreadLocal<String> rule = new ThreadLocal<String>() { protected String initialValue() { return "";}};
 	private ThreadLocal<Long> prevFetchTime = new ThreadLocal<Long>();
@@ -63,31 +60,38 @@ public class ForumParser extends Parser {
 			return new LinkedList<RecordInfo>();
 		}
 	};
+	private  ThreadLocal<ForumDetailConf> detailConf = new ThreadLocal<ForumDetailConf>() {
+		protected ForumDetailConf initialValue() {
+			return new ForumDetailConf();
+		}
+	};
 	
 	@Override
 	public ParseStatus parse(WebPage page) throws Exception {
 		Assert.notNull(page, "Page is null");
 		Document document = page.getDocument();
 		Assert.notNull(document, "Document is null");
-
-//		ajax = page.isAjax();
-//		mainUrl = page.getBaseUrl();
 		
 		mainUrl.set(page.getBaseUrl());
 		prevFetchTime.set(page.getPrevFetchTime());
 		ajax.set(page.isAjax());
 		recordInfos.set(new LinkedList<RecordInfo>());
-		
-		String md5 = Md5Signatrue.generateMd5(mainUrl.get());
-		if (duplicateInspector.md5Exist(md5)) return null;
-		
+		detailConf.set(confDao.getForumDetailConf(Utils.getHost(mainUrl.get())));
 		
 		ParseStatus status = new ParseStatus(mainUrl.get());
-		ForumDetailConf detailConf = confDao.getForumDetailConf(Utils.getHost(mainUrl.get()));
-
-		if (detailConf == null) {
+		status.setStatus(ParseStatus.Status.PARSING);
+		
+		String md5 = Md5Signatrue.generateMd5(mainUrl.get());
+		if (duplicateInspector.md5Exist(md5)) {
+			status.setStatus(ParseStatus.Status.NOT_CHANGE);
+			status.setMessage("This url was fetched and no changed");
+			return status;
+		}
+		
+		if (detailConf == null || detailConf.get() == null) {
 			LOG.warn("Detail page has no configuration in database." + mainUrl);
-			status.setMessage("detail page has no configuration in database.");
+			status.setStatus(ParseStatus.Status.PARSE_FAILURE);
+			status.setMessage("No detail page configuration found in database");
 			return status;
 		}
 
@@ -98,35 +102,48 @@ public class ForumParser extends Parser {
 		} else {
 			LOG.error("Seed error occur.");
 		}*/
-		fetchContent(page, detailConf);
 		
-		int num = indexWriter.write(recordInfos.get());
-		LOG.info(mainUrl.get() + " has " + num + " records.");
+		fetchContent(page);
+		
+		int num = 0;
+        try {
+	        num = indexWriter.write(recordInfos.get());
+        } catch (OutputException e) {
+        	status.setStatus(ParseStatus.Status.OUTPUT_FAILURE);
+        	status.setMessage(e.getMessage());
+        }
+//		LOG.info(mainUrl.get() + " has " + num + " records.");
+		status.setStatus(ParseStatus.Status.SUCCESS);
+		status.setMessage("Fetch " + num + " records from " + mainUrl.get());
+		status.setCount(num);
 		return status;
 	}
 
-	private void fetchContent(WebPage page, ForumDetailConf detailConf) throws ParseException, ConnectException {
+	private void fetchContent(WebPage page) throws ParseException, ConnectException {
 		
 		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl.get(), page.getFetchTime());
 		
 		Document document = page.getDocument();
 		// Elements titleEle = document.select(detailConf.getTitle()); //
-		if (!CollectionUtils.isEmpty(document.select(detailConf.getReplyNum()))) {
-			info.setComment_count(Utils.extractNum(document.select(detailConf.getReplyNum()).first().text()));
+		String replyNumDom = detailConf.get().getReplyNum();
+		if (!StringUtils.isEmpty(replyNumDom) && !CollectionUtils.isEmpty(document.select(replyNumDom))) {
+			info.setComment_count(Utils.extractNum(document.select(replyNumDom).first().text()));
 		}
-		if (!StringUtils.isEmpty(detailConf.getReviewNum())
-		        && !CollectionUtils.isEmpty(document.select(detailConf.getReviewNum()))) {
-			info.setRead_count(Integer.valueOf(Utils.extractNum(document.select(detailConf.getReviewNum()).first().text())));
+		String reviewNumDom = detailConf.get().getReviewNum();
+		if (!StringUtils.isEmpty(reviewNumDom)
+		        && !CollectionUtils.isEmpty(document.select(reviewNumDom))) {
+			info.setRead_count(Integer.valueOf(Utils.extractNum(document.select(reviewNumDom).first().text())));
 		}
-		Elements mainEles = document.select(detailConf.getMaster());
+		
+		Elements mainEles = document.select(detailConf.get().getMaster());
 		// 主帖页面, 取得主帖信息
 		if (!CollectionUtils.isEmpty(mainEles)) {
 			Element mainEle = mainEles.first();
-			if (!StringUtils.isEmpty(detailConf.getMasterAuthor())
-			        && !CollectionUtils.isEmpty(mainEle.select(detailConf.getMasterAuthor())))
-				info.setNickname(mainEle.select(detailConf.getMasterAuthor()).first().text());
+			if (!StringUtils.isEmpty(detailConf.get().getMasterAuthor())
+			        && !CollectionUtils.isEmpty(mainEle.select(detailConf.get().getMasterAuthor())))
+				info.setNickname(mainEle.select(detailConf.get().getMasterAuthor()).first().text());
 
-			Elements contentEles = mainEle.select(detailConf.getMasterContent());
+			Elements contentEles = mainEle.select(detailConf.get().getMasterContent());
 			if (!CollectionUtils.isEmpty(contentEles)) {
 				Element contentEle = contentEles.first();
 				info.setContent(contentEle.text());
@@ -136,9 +153,9 @@ public class ForumParser extends Parser {
 			}
 
 			if (info.getTimestamp() == 0) {
-				if (!StringUtils.isEmpty(detailConf.getMasterDate())
-				        && !CollectionUtils.isEmpty(mainEle.select(detailConf.getMasterDate()))) {
-					String dateField = mainEle.select(detailConf.getMasterDate()).first().text();
+				if (!StringUtils.isEmpty(detailConf.get().getMasterDate())
+				        && !CollectionUtils.isEmpty(mainEle.select(detailConf.get().getMasterDate()))) {
+					String dateField = mainEle.select(detailConf.get().getMasterDate()).first().text();
 					if (!StringUtils.isEmpty(dateField)) {
 						try {
 	                        info.setTimestamp(Utils.formatDate(dateField).getTime());
@@ -151,7 +168,7 @@ public class ForumParser extends Parser {
 
 			recordInfos.get().add(info);
 
-			parseReply(page, detailConf);
+			parseReply(page);
 		} else {
 			LOG.warn("主帖信息配置有误:" + mainUrl);
 			return;
@@ -161,15 +178,15 @@ public class ForumParser extends Parser {
 	/**
 	 * 解析回复
 	 */
-	private void parseReply(WebPage page, ForumDetailConf detailConf) {
+	private void parseReply(WebPage page) {
 		Document doc = page.getDocument();
 		String currentUrl = mainUrl.get();
 		String newPageUrl = "", currentPageText = "";
 		ProtocolOutput ptemp = null;
-		if (!detailConf.isFetchorder()) { // 从第一页
+		if (!detailConf.get().isFetchorder()) { // 从第一页
 			int pageNum = 1;
 			do {
-				parsePage(page, doc, mainUrl.get(), currentUrl, detailConf);
+				parsePage(page, doc, mainUrl.get(), currentUrl);
 				pageNum++;
 				ptemp = fetchNextPage(pageNum, doc, ajax.get());
 				if (ptemp == null || ptemp.getStatus().getCode() != ProtocolStatusCodes.SUCCESS)
@@ -183,14 +200,14 @@ public class ForumParser extends Parser {
 			ptemp = fetchLastPage(doc, ajax.get());
 			Document lastDoc = null;
 			if (ptemp == null || ptemp.getStatus().getCode() != ProtocolStatusCodes.SUCCESS || (lastDoc = ptemp.getDocument()) == null ) {
-				parsePage(page, doc, mainUrl.get(), currentUrl, detailConf);
+				parsePage(page, doc, mainUrl.get(), currentUrl);
 			} else {
 				doc = lastDoc;
 				while (true) {
 					if (doc == null || StringUtils.isEmpty(currentUrl = doc.location()))
 						break;
 //					LOG.info(currentUrl);
-					parsePage(page, doc, mainUrl.get(), currentUrl, detailConf);
+					parsePage(page, doc, mainUrl.get(), currentUrl);
 					// 获取上一页
 					ptemp = fetchPrevPage(-1, doc, ajax.get());
 					if (ptemp == null || ptemp.getStatus().getCode() != ProtocolStatusCodes.SUCCESS)
@@ -204,17 +221,17 @@ public class ForumParser extends Parser {
 	/**
 	 * 解析一页
 	 */
-	private void parsePage(WebPage page, Document doc, String mainUrl, String currentUrl, ForumDetailConf detailConf) {
-		Elements replyEles = doc.select(detailConf.getReply());
+	private void parsePage(WebPage page, Document doc, String mainUrl, String currentUrl) {
+		Elements replyEles = doc.select(detailConf.get().getReply());
 		for (Element element : replyEles) {
 			RecordInfo reply = new RecordInfo();
 			reply.setOriginal_url(mainUrl);
 			reply.setUrl(currentUrl);
-			String id = save(page, reply, element, detailConf, null); // 保存回复
+			String id = save(page, reply, element, null); // 保存回复
 
 			if (id == null) continue;
 			// 解析子回复
-			String subReplyDom = detailConf.getSubReply();
+			String subReplyDom = detailConf.get().getSubReply();
 			if (StringUtils.isEmpty(subReplyDom))
 				continue;
 			Elements subReplyEles = element.select(subReplyDom);
@@ -225,7 +242,7 @@ public class ForumParser extends Parser {
 					RecordInfo subReply = new RecordInfo();
 					subReply.setOriginal_url(mainUrl);
 					subReply.setUrl(currentUrl);
-					saveSub(subReply, ele, detailConf, parentId);
+					saveSub(subReply, ele, parentId);
 				}
 			}
 		}
@@ -234,14 +251,15 @@ public class ForumParser extends Parser {
 	/**
 	 * 保存回复
 	 */
-	private String save(WebPage page, RecordInfo reply, Element element, ForumDetailConf detailConf, String parentId) {
+	private String save(WebPage page, RecordInfo reply, Element element, String parentId) {
 		String id = UUID.randomUUID().toString();
 		reply.setId(id);
-		if (!CollectionUtils.isEmpty(element.select(detailConf.getReplyAuthor()))) {
-			reply.setNickname(element.select(detailConf.getReplyAuthor()).first().text());
+		String replyAuthorDom = detailConf.get().getReplyAuthor();
+		if (!StringUtils.isEmpty(replyAuthorDom) && !CollectionUtils.isEmpty(element.select(replyAuthorDom))) {
+			reply.setNickname(element.select(replyAuthorDom).first().text());
 		}
-
-		Elements contentEles = element.select(detailConf.getReplyContent());
+		
+		Elements contentEles = element.select(detailConf.get().getReplyContent());
 		if (!CollectionUtils.isEmpty(contentEles)) {
 			Element contentEle = contentEles.first();
 			reply.setContent(contentEle.text());
@@ -252,8 +270,9 @@ public class ForumParser extends Parser {
 			return null;
 		}
 
-		if (!CollectionUtils.isEmpty(element.select(detailConf.getReplyDate()))) {
-			String dateField = element.select(detailConf.getReplyDate()).first().text();
+		String replyDateDom = detailConf.get().getReplyDate();
+		if (!StringUtils.isEmpty(replyDateDom) && !CollectionUtils.isEmpty(element.select(replyDateDom))) {
+			String dateField = element.select(replyDateDom).first().text();
 			try {
 	            reply.setTimestamp(Utils.formatDate(dateField).getTime());
             } catch (java.text.ParseException e) {
@@ -270,26 +289,28 @@ public class ForumParser extends Parser {
 	/**
 	 * 保存子回复
 	 */
-	private String saveSub(RecordInfo reply, Element element, ForumDetailConf detailConf, String parentId) {
+	private String saveSub(RecordInfo reply, Element element, String parentId) {
 		String id = UUID.randomUUID().toString();
 		reply.setId(id);
-		if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyAuthor()))) {
-			reply.setNickname(element.select(detailConf.getSubReplyAuthor()).first().text());
+		String subReplyAuthorDom = detailConf.get().getSubReplyAuthor();
+		if (!StringUtils.isEmpty(subReplyAuthorDom) && !CollectionUtils.isEmpty(element.select(subReplyAuthorDom))) {
+			reply.setNickname(element.select(subReplyAuthorDom).first().text());
 		}
-		if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyContent()))) {
-			reply.setContent(element.select(detailConf.getSubReplyContent()).first().text());
+		String subReplyContentDom = detailConf.get().getSubReplyContent();
+		if (!StringUtils.isEmpty(subReplyContentDom) && !CollectionUtils.isEmpty(element.select(subReplyContentDom))) {
+			reply.setContent(element.select(subReplyContentDom).first().text());
+			Elements imgs = element.select(subReplyContentDom).select("img");
+			StringBuilder imgUrlSb = new StringBuilder();
+			for (Element img : imgs) {
+				imgUrlSb.append(img.attr("abs:src"));// 多个url用空格隔开
+			}
+			reply.setPic_url(imgUrlSb.toString());
 		}
-		Elements imgs = element.select(detailConf.getSubReplyContent()).select("img");
-		StringBuilder imgUrlSb = new StringBuilder();
-		for (Element img : imgs) {
-			imgUrlSb.append(img.attr("abs:src")).append(" ");// 多个url用空格隔开
-		}
-		reply.setPic_url(imgUrlSb.toString());
 		reply.setVoice_url("");
 		reply.setVideo_url("");
-
-		if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyDate()))) {
-			String dateField = element.select(detailConf.getSubReplyDate()).first().text();
+		String subReplyDate = detailConf.get().getSubReplyDate();
+		if (!CollectionUtils.isEmpty(element.select(subReplyDate))) {
+			String dateField = element.select(subReplyDate).first().text();
 			try {
 	            reply.setTimestamp(Utils.formatDate(dateField).getTime());
             } catch (java.text.ParseException e) {

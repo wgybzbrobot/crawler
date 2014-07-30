@@ -6,50 +6,51 @@ public class RecordInfo implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -3811740582144807331L;
     
-	private String id;
-	private int platform;
-	private String mid;
-	private String username;
-	private String nickname;
-	private String original_id;
-	private String original_uid;
-	private String original_name;
-	private String original_title;
-	private String original_url;
-	private String url;
-	private String home_url;
-	private String title;
-	private String type;
+	private String id = "";
+	private int platform = 0;
+	private String mid = "";
+	private String username = "";
+	private String nickname = "";
+	private String original_id = "";
+	private String original_uid= "";
+	private String original_name= "";
+	private String original_title= "";
+	private String original_url= "";
+	private String url= "";
+	private String home_url= "";
+	private String title= "";
+	private String type = "";
 	private boolean isharmful;
-	private String content;
-	private int comment_count;
-	private int read_count;
-	private int attitude_count;
-	private int repost_count;
-	private String video_url;
-	private String pic_url;
-	private String voice_url;
-	private long timestamp;
-	private int source_id;
-	private long lasttime;
-	private int server_id;
-	private long identify_id;
-	private String identify_md5;
-	private String keyword;
-	private long first_time;
-	private long update_time;
-	private String ip;
-	private String location;
-	private String geo;
-	private String receive_addr;
-	private String append_addr;
-	private String send_addr;
-	private String source_name;
-	private int source_type;
-	private int country_code;
-	private int location_code;
-	private int province_code;
-	private int city_code;
+	private String content= "";
+	private int comment_count= 0;
+	private int read_count= 0;
+	private int favorite_count;
+	private int attitude_count= 0;
+	private int repost_count= 0;
+	private String video_url= "";
+	private String pic_url= "";
+	private String voice_url= "";
+	private long timestamp= 0;
+	private int source_id= 0;
+	private long lasttime= 0;
+	private int server_id= 0;
+	private long identify_id= 0;
+	private String identify_md5= "";
+	private String keyword= "";
+	private long first_time= 0;
+	private long update_time= 0;
+	private String ip= "";
+	private String location= "";
+	private String geo= "";
+	private String receive_addr= "";
+	private String append_addr= "";
+	private String send_addr= "";
+	private String source_name= "";
+	private int source_type= 0;
+	private int country_code= 0;
+	private int location_code= 0;
+	private int province_code= 0;
+	private int city_code= 0;
 	
     @Override
 	public RecordInfo clone() {
@@ -72,6 +73,15 @@ public class RecordInfo implements Serializable, Cloneable {
 	    // TODO Auto-generated constructor stub
     }
 
+	
+
+	public int getFavorite_count() {
+		return favorite_count;
+	}
+
+	public void setFavorite_count(int favorite_count) {
+		this.favorite_count = favorite_count;
+	}
 
 	public String getId() {
 		return id;

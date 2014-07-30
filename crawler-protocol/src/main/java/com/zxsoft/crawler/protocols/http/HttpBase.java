@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.log4j.LogManager;
 import org.apache.nutch.util.DeflateUtils;
 import org.apache.nutch.util.GZIPUtils;
 import org.jsoup.Jsoup;
@@ -96,22 +97,26 @@ public abstract class HttpBase extends PageHelper {
 	@Autowired
 	protected ProxyRandom proxyRandom;
 	
-	protected Proxy getProxy() {
-		return proxyRandom.random();
+	protected Proxy getProxy(String url) {
+		return proxyRandom.random(url);
 	}
 
-	/** Get ProtocolOutput of current, prev, next, last page **/
-	public ProtocolOutput getProtocolOutput(String url) {
-		Proxy proxy = proxyRandom.random();
-		try {
+	/** Get ProtocolOutput of current, prev, next, last page 
+	 * @throws IOException 
+	 * @throws ProtocolException **/
+	public ProtocolOutput getProtocolOutput(String url) throws ProtocolException, IOException {
+		Proxy proxy = proxyRandom.random(url);
+//		try {
 //			LOG.info(url);
 			URL u = new URL(url);
 			Response response = getResponse(u , false); 
 			return dealResponse(response);
-		} catch (Throwable e) {
-			LOG.error("Failed with the following error: ", e);
-			return null;
-		}
+//		} catch (Throwable e) {
+//			LOG.error("Failed with the following error: ", e);
+//			org.apache.log4j.Logger logger = LogManager.getLogger("ProtocolErrorLog");
+//			logger.error("Failed with the following error: ", e);
+//			return null;
+//		}
 	}
 	
 	public ProtocolOutput getProtocolOutputOfPrevPage(int pageNum, Document currentDoc) throws PrevPageNotFoundException, PageBarNotFoundException {

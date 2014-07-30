@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -38,18 +39,12 @@ public final class ParserController extends ParseTool {
 	private ThreadPoolExecutor pool = null;
 	private AtomicBoolean continuePage = new AtomicBoolean(true);
 	private AtomicInteger pageNum = new AtomicInteger(1);
+	private AtomicInteger sum = new AtomicInteger(0);
 	private String indexUrl;
 	private boolean ajax;
 	
 	public ParserController(Configuration conf) {
-//		super.setConf(conf);
 		this.conf = conf;
-	}
-	
-	private ThreadLocal<Parser> parserThreadLocal = new ThreadLocal<Parser>();
-
-	public Parser getParser() {
-		return parserThreadLocal.get();
 	}
 	
 	public ParseStatus parse(WebPage page) throws ParserNotFoundException {
@@ -57,11 +52,10 @@ public final class ParserController extends ParseTool {
 		factory.setConf(conf);
 		
 		ListConf listConf = confDao.getListConf(page.getBaseUrl());
-		ParseStatus status = null;
+		ParseStatus status = new ParseStatus(page.getBaseUrl());
 		
 		if (listConf != null) {
 			Parser parser = factory.getParserByCategory(listConf.getCategory());
-			parserThreadLocal.set(parser);
 			int numThreads = Utils.getPositiveNumber(listConf.getNumThreads(), 1);
 			int maxThreads = conf.getInt("spider.parse.thread.max", 10);
 			if (numThreads > maxThreads)
@@ -100,13 +94,7 @@ public final class ParserController extends ParseTool {
 			
 			List<Callable<ParseStatus>> tasks = new ArrayList<Callable<ParseStatus>>();
 			
-			int i = 0;
 			for (Element line : lines) {
-//				if (i > 5) {
-//					break;
-//				}
-//				i++;
-				
 				Date lastupdate = null;
 				if (!StringUtils.isEmpty(listConf.getUpdatedom())
 				        && !CollectionUtils.isEmpty(line.select(listConf.getUpdatedom()))) {
@@ -138,7 +126,7 @@ public final class ParserController extends ParseTool {
 
 				String curl = line.select(listConf.getUrldom()).first().absUrl("href");
 				String title = line.select(listConf.getUrldom()).first().text();
-				LOG.info(title + lastupdate);
+				LOG.debug(title + lastupdate);
 				
 				ProtocolOutput otemp = fetch(curl, ajax); 
 				if (otemp == null) continue;
@@ -149,8 +137,6 @@ public final class ParserController extends ParseTool {
 				WebPage wp = new WebPage(title, curl, otemp.getFetchTime(), dtemp);
 				
 				try {
-//					Parser clonedParser = parser.clone();
-//					System.out.println(clonedParser);
 					ParseCallable pc = new ParseCallable(parser, wp);
 					tasks.add(pc);
 				} catch (Exception e) {
@@ -164,8 +150,16 @@ public final class ParserController extends ParseTool {
 			}
 			
 			try {
-				LOG.info("task size: " + tasks.size());
+				LOG.debug("task size: " + tasks.size());
 	            List<Future<ParseStatus>> result = pool.invokeAll(tasks);
+	            for (Future<ParseStatus> future : result) {
+	                try {
+	                    ParseStatus parseStatus = future.get();
+	                    sum.addAndGet(parseStatus.getCount());
+                    } catch (ExecutionException e) {
+	                    e.printStackTrace();
+                    }
+                }
             } catch (InterruptedException e) {
 	            e.printStackTrace();
             }
@@ -179,14 +173,16 @@ public final class ParserController extends ParseTool {
 					break;
 				document = ptemp.getDocument();
 				if (document == null || document.html().equals(oldDoc.html())) {
-					LOG.info("document == null or current page is same to next page，break");
+					LOG.debug("document == null or current page is same to next page，break");
 					break;
 				}
 				pageNum.incrementAndGet();
 			}
 		}
 		// pool.shutdown();
-		LOG.info("【" + listConf.getComment() + "】抓取结束");
+		LOG.info("【" + listConf.getComment() + "】抓取结束, 共抓取数据数量:" + sum.get());
+		status.setStatus(ParseStatus.Status.SUCCESS);
+		status.setCount(sum.get());
 		return status;
 	}
 
@@ -202,26 +198,6 @@ public final class ParserController extends ParseTool {
 		}
 		return status;
 	}
-
-//	private static class ParseCallable implements Callable<ParseStatus> {
-//		private Parser parser;
-//		private WebPage page;
-//
-//		public ParseCallable(Parser parser, WebPage page) {
-//			this.parser = parser;
-//			this.page = page;
-//		}
-//
-//		public ParseStatus call() throws Exception {
-//			ParseStatus status = null;
-//			try {
-//				status = parser.parse(page);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//			return status;
-//		}
-//	}
 
 	public ThreadPoolExecutor newFixedThreadPool(int nThreads) {
 		final ThreadPoolExecutor result = new ThreadPoolExecutor(nThreads, nThreads + 10, 20, TimeUnit.SECONDS,

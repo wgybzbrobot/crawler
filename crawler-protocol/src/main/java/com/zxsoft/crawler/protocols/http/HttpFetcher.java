@@ -1,5 +1,8 @@
 package com.zxsoft.crawler.protocols.http;
 
+import java.io.IOException;
+
+import org.apache.log4j.LogManager;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
@@ -16,7 +20,8 @@ import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 public class HttpFetcher {
 	
 	private static Logger LOG = LoggerFactory.getLogger(HttpFetcher.class);
-
+	private static org.apache.log4j.Logger errorLogger = LogManager.getLogger("ProtocolErrorLog"); 
+	
 	@Autowired
 	private HttpBase htmlUnit;
 
@@ -29,10 +34,19 @@ public class HttpFetcher {
 			return null;
 		}
 		
+		ProtocolOutput protocolOutput = null;
+		try {
 		if (!ajax) {
-			return httpClient.getProtocolOutput(url);
+			protocolOutput = httpClient.getProtocolOutput(url);
 		} else {
-			return htmlUnit.getProtocolOutput(url);
+			protocolOutput = htmlUnit.getProtocolOutput(url);
+		}
+		} catch (ProtocolException e) {
+			errorLogger.error("Fetch " + url + " failed with the following error:", e);
+		} catch (IOException e) {
+			errorLogger.error("Fetch " + url + " failed with the following error:", e);
+		} finally {
+			return protocolOutput;
 		}
 	}
 	
@@ -59,14 +73,7 @@ public class HttpFetcher {
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-
 	public ProtocolOutput fetch(String url) {
-		return httpClient.getProtocolOutput(url);
+		return fetch(url, false);
 	}
 }

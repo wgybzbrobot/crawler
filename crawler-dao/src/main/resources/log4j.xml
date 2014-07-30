@@ -17,7 +17,7 @@
 		<root level="trace">
 			<appender-ref ref="Console" />
 		</root>
-		<logger name="CommonErrorLog" level="error" additivity="true">
+		<logger name="DaoErrorLog" level="error" additivity="true">
 			<appender-ref ref="RollingFile" />
 		</logger>
 	</loggers>

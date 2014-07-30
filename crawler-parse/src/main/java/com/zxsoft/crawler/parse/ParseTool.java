@@ -1,6 +1,5 @@
 package com.zxsoft.crawler.parse;
 
-import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,34 +15,22 @@ import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 
 public abstract class ParseTool {
 	private Logger LOG = LoggerFactory.getLogger(ParseTool.class);
-//	private static Configuration conf;
-//	public void setConf(Configuration configuration) {
-//		conf = configuration;
-//	}
 	
 	public static void init(ApplicationContext ctx) {
 		httpFetcher = ctx.getBean(HttpFetcher.class);
 		indexWriter = ctx.getBean(Output.class);
 		duplicateInspector = ctx.getBean(DuplicateInspector.class);
 		confDao = ctx.getBean(ConfDao.class);
-//		parserFactory = ctx.getBean(ParserFactory.class);
-//		parserFactory.setConf(conf);
 	}
 
 	private static HttpFetcher httpFetcher;
 	protected static Output indexWriter;
 	protected static DuplicateInspector duplicateInspector;
 	protected static ConfDao confDao;
-//	private static ParserFactory parserFactory;
-	
 
 	protected ProtocolOutput fetch(String url, boolean ajax) {
 	    return httpFetcher.fetch(url, ajax);
     }
-	
-//	protected Parser getParserByCategory(String category) throws ParserNotFoundException {
-//		return parserFactory.getParserByCategory(category);
-//	}
 	
 	/**
 	 * 获取上一页
@@ -52,10 +39,10 @@ public abstract class ParseTool {
 		try {
 			return httpFetcher.fetchPrevPage(pageNum, currentDoc, ajax);
 		} catch (PrevPageNotFoundException e) {
-			LOG.warn("Cannot get preview page of " + currentDoc.location()
+			LOG.debug("Cannot get preview page of " + currentDoc.location()
 			        + ", may be it has no preview page.");
 		} catch (PageBarNotFoundException e) {
-			LOG.warn("Cannot get page bar of " + currentDoc.location()
+			LOG.debug("Cannot get page bar of " + currentDoc.location()
 			        + ", may be it has no page bar.");
 		}
 		return null;
@@ -68,7 +55,7 @@ public abstract class ParseTool {
 		try {
 			return httpFetcher.fetchNextPage(pageNum, currentDoc, ajax);
 		} catch (PageBarNotFoundException e) {
-			LOG.warn("Cannot get Next page of " + currentDoc.location() + ", may be it has no next page.");
+			LOG.debug("Cannot get Next page of " + currentDoc.location() + ", may be it has no next page.");
 		}
 		return null;
 	}
@@ -80,7 +67,7 @@ public abstract class ParseTool {
 		try {
 			return httpFetcher.fetchLastPage(currentDoc, ajax);
 		} catch (PageBarNotFoundException e) {
-			LOG.warn("Cannot get last page of " + currentDoc.location() + ", may be it has no last page.");
+			LOG.debug("Cannot get last page of " + currentDoc.location() + ", may be it has no last page.");
 		}
 		return null;
 	}

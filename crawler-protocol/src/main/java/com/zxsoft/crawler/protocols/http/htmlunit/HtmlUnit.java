@@ -54,7 +54,7 @@ public class HtmlUnit extends HttpBase {
 
 	private HtmlPage makeRequest(URL url) throws FailingHttpStatusCodeException, IOException {
 		setUp();
-		Proxy proxy = getProxy();
+		Proxy proxy = getProxy(url.toString());
 
 		WebRequest request = new WebRequest(url);
 		if (proxy != null) {
