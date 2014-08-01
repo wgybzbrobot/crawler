@@ -13,6 +13,13 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+<<<<<<< HEAD
+=======
+import com.gemstone.gemfire.internal.tools.gfsh.app.commands.get;
+import com.zxsoft.crawler.dao.ConfDao;
+import com.zxsoft.crawler.duplicate.DuplicateInspector;
+import com.zxsoft.crawler.parse.Category;
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.ParseStatus;
 import com.zxsoft.crawler.parse.Parser;
@@ -21,6 +28,10 @@ import com.zxsoft.crawler.protocol.ProtocolStatusCodes;
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
+<<<<<<< HEAD
+=======
+import com.zxsoft.crawler.store.Output;
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 import com.zxsoft.crawler.store.OutputException;
 import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
@@ -36,7 +47,10 @@ import com.zxsoft.crawler.util.Utils;
 public class ForumParser extends Parser {
 
 	private static Logger LOG = LoggerFactory.getLogger(ForumParser.class);
+<<<<<<< HEAD
 	
+=======
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 	private ThreadLocal<String> mainUrl = new ThreadLocal<String>();
 	private ThreadLocal<String> rule = new ThreadLocal<String>() { protected String initialValue() { return "";}};
 	private ThreadLocal<Long> prevFetchTime = new ThreadLocal<Long>();
@@ -46,9 +60,15 @@ public class ForumParser extends Parser {
 			return new LinkedList<RecordInfo>();
 		}
 	};
+<<<<<<< HEAD
 	private  ThreadLocal<DetailConf> threadLocalDetailConf = new ThreadLocal<DetailConf>() {
 		protected DetailConf initialValue() {
 			return new DetailConf();
+=======
+	private  ThreadLocal<ForumDetailConf> detailConf = new ThreadLocal<ForumDetailConf>() {
+		protected ForumDetailConf initialValue() {
+			return new ForumDetailConf();
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		}
 	};
 	
@@ -60,8 +80,13 @@ public class ForumParser extends Parser {
 		mainUrl.set(page.getBaseUrl());
 		prevFetchTime.set(page.getPrevFetchTime());
 		ajax.set(page.isAjax());
+<<<<<<< HEAD
 		threadLocalRecordInfos.set(new LinkedList<RecordInfo>());
 		threadLocalDetailConf.set(confDao.getDetailConf(Utils.getHost(mainUrl.get())));
+=======
+		recordInfos.set(new LinkedList<RecordInfo>());
+		detailConf.set(confDao.getForumDetailConf(Utils.getHost(mainUrl.get())));
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		
 		ParseStatus status = new ParseStatus(mainUrl.get());
 		status.setStatus(ParseStatus.Status.PARSING);
@@ -73,7 +98,11 @@ public class ForumParser extends Parser {
 			return status;
 		}
 		
+<<<<<<< HEAD
 		if (threadLocalDetailConf == null || threadLocalDetailConf.get() == null) {
+=======
+		if (detailConf == null || detailConf.get() == null) {
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 			LOG.warn("Detail page has no configuration in database." + mainUrl);
 			status.setStatus(ParseStatus.Status.PARSE_FAILURE);
 			status.setMessage("No detail page configuration found in database");
@@ -92,34 +121,55 @@ public class ForumParser extends Parser {
 		
 		int num = 0;
         try {
+<<<<<<< HEAD
 	        num = indexWriter.write(threadLocalRecordInfos.get());
+=======
+	        num = indexWriter.write(recordInfos.get());
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
         } catch (OutputException e) {
         	status.setStatus(ParseStatus.Status.OUTPUT_FAILURE);
         	status.setMessage(e.getMessage());
         }
+<<<<<<< HEAD
 		LOG.info(mainUrl.get() + " has " + num + " records.");
+=======
+//		LOG.info(mainUrl.get() + " has " + num + " records.");
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		status.setStatus(ParseStatus.Status.SUCCESS);
 		status.setMessage("Fetch " + num + " records from " + mainUrl.get());
 		status.setCount(num);
 		return status;
 	}
 
+<<<<<<< HEAD
 	public void fetchContent(WebPage page) /*throws ParseException, ConnectException*/ {
+=======
+	private void fetchContent(WebPage page) throws ParseException, ConnectException {
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		
 		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl.get(), page.getFetchTime());
 		
 		Document document = page.getDocument();
 		// Elements titleEle = document.select(detailConf.getTitle()); //
+<<<<<<< HEAD
 		String replyNumDom = threadLocalDetailConf.get().getReplyNum();
 		if (!StringUtils.isEmpty(replyNumDom) && !CollectionUtils.isEmpty(document.select(replyNumDom))) {
 			info.setComment_count(Utils.extractNum(document.select(replyNumDom).first().text()));
 		}
 		String reviewNumDom = threadLocalDetailConf.get().getReviewNum();
+=======
+		String replyNumDom = detailConf.get().getReplyNum();
+		if (!StringUtils.isEmpty(replyNumDom) && !CollectionUtils.isEmpty(document.select(replyNumDom))) {
+			info.setComment_count(Utils.extractNum(document.select(replyNumDom).first().text()));
+		}
+		String reviewNumDom = detailConf.get().getReviewNum();
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		if (!StringUtils.isEmpty(reviewNumDom)
 		        && !CollectionUtils.isEmpty(document.select(reviewNumDom))) {
 			info.setRead_count(Integer.valueOf(Utils.extractNum(document.select(reviewNumDom).first().text())));
 		}
 		
+<<<<<<< HEAD
 		Elements mainEles = document.select(threadLocalDetailConf.get().getMaster());
 		// 主帖页面, 取得主帖信息
 		if (!CollectionUtils.isEmpty(mainEles)) {
@@ -130,6 +180,17 @@ public class ForumParser extends Parser {
 				info.setNickname(mainEle.select(authorDom).first().text());
 
 			Elements contentEles = mainEle.select(threadLocalDetailConf.get().getContent());
+=======
+		Elements mainEles = document.select(detailConf.get().getMaster());
+		// 主帖页面, 取得主帖信息
+		if (!CollectionUtils.isEmpty(mainEles)) {
+			Element mainEle = mainEles.first();
+			if (!StringUtils.isEmpty(detailConf.get().getMasterAuthor())
+			        && !CollectionUtils.isEmpty(mainEle.select(detailConf.get().getMasterAuthor())))
+				info.setNickname(mainEle.select(detailConf.get().getMasterAuthor()).first().text());
+
+			Elements contentEles = mainEle.select(detailConf.get().getMasterContent());
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 			if (!CollectionUtils.isEmpty(contentEles)) {
 				Element contentEle = contentEles.first();
 				info.setContent(contentEle.text());
@@ -139,10 +200,16 @@ public class ForumParser extends Parser {
 			}
 
 			if (info.getTimestamp() == 0) {
+<<<<<<< HEAD
 				String dateDom = threadLocalDetailConf.get().getDate();
 				if (!StringUtils.isEmpty(dateDom)
 				        && !CollectionUtils.isEmpty(mainEle.select(dateDom))) {
 					String dateField = mainEle.select(dateDom).first().text();
+=======
+				if (!StringUtils.isEmpty(detailConf.get().getMasterDate())
+				        && !CollectionUtils.isEmpty(mainEle.select(detailConf.get().getMasterDate()))) {
+					String dateField = mainEle.select(detailConf.get().getMasterDate()).first().text();
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 					if (!StringUtils.isEmpty(dateField)) {
 						try {
 	                        info.setTimestamp(Utils.formatDate(dateField).getTime());
@@ -170,7 +237,11 @@ public class ForumParser extends Parser {
 		String currentUrl = mainUrl.get();
 		String newPageUrl = "", currentPageText = "";
 		ProtocolOutput ptemp = null;
+<<<<<<< HEAD
 		if (!threadLocalDetailConf.get().isFetchorder()) { // 从第一页
+=======
+		if (!detailConf.get().isFetchorder()) { // 从第一页
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 			int pageNum = 1;
 			do {
 				parsePage(page, doc, mainUrl.get(), currentUrl);
@@ -193,7 +264,11 @@ public class ForumParser extends Parser {
 				while (true) {
 					if (doc == null || StringUtils.isEmpty(currentUrl = doc.location()))
 						break;
+<<<<<<< HEAD
 					LOG.debug(currentUrl);
+=======
+//					LOG.info(currentUrl);
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 					parsePage(page, doc, mainUrl.get(), currentUrl);
 					// 获取上一页
 					ptemp = fetchPrevPage(-1, doc, ajax.get());
@@ -209,7 +284,11 @@ public class ForumParser extends Parser {
 	 * 解析一页
 	 */
 	private void parsePage(WebPage page, Document doc, String mainUrl, String currentUrl) {
+<<<<<<< HEAD
 		Elements replyEles = doc.select(threadLocalDetailConf.get().getReply());
+=======
+		Elements replyEles = doc.select(detailConf.get().getReply());
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		for (Element element : replyEles) {
 			RecordInfo reply = new RecordInfo();
 			reply.setOriginal_url(mainUrl);
@@ -218,7 +297,11 @@ public class ForumParser extends Parser {
 
 			if (id == null) continue;
 			// 解析子回复
+<<<<<<< HEAD
 			String subReplyDom = threadLocalDetailConf.get().getSubReply();
+=======
+			String subReplyDom = detailConf.get().getSubReply();
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 			if (StringUtils.isEmpty(subReplyDom))
 				continue;
 			Elements subReplyEles = element.select(subReplyDom);
@@ -241,12 +324,20 @@ public class ForumParser extends Parser {
 	private String save(WebPage page, RecordInfo reply, Element element, String parentId) {
 		String id = UUID.randomUUID().toString();
 		reply.setId(id);
+<<<<<<< HEAD
 		String replyAuthorDom = threadLocalDetailConf.get().getReplyAuthor();
+=======
+		String replyAuthorDom = detailConf.get().getReplyAuthor();
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		if (!StringUtils.isEmpty(replyAuthorDom) && !CollectionUtils.isEmpty(element.select(replyAuthorDom))) {
 			reply.setNickname(element.select(replyAuthorDom).first().text());
 		}
 		
+<<<<<<< HEAD
 		Elements contentEles = element.select(threadLocalDetailConf.get().getReplyContent());
+=======
+		Elements contentEles = element.select(detailConf.get().getReplyContent());
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		if (!CollectionUtils.isEmpty(contentEles)) {
 			Element contentEle = contentEles.first();
 			reply.setContent(contentEle.text());
@@ -257,7 +348,11 @@ public class ForumParser extends Parser {
 			return null;
 		}
 
+<<<<<<< HEAD
 		String replyDateDom = threadLocalDetailConf.get().getReplyDate();
+=======
+		String replyDateDom = detailConf.get().getReplyDate();
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		if (!StringUtils.isEmpty(replyDateDom) && !CollectionUtils.isEmpty(element.select(replyDateDom))) {
 			String dateField = element.select(replyDateDom).first().text();
 			try {
@@ -279,11 +374,19 @@ public class ForumParser extends Parser {
 	private String saveSub(RecordInfo reply, Element element, String parentId) {
 		String id = UUID.randomUUID().toString();
 		reply.setId(id);
+<<<<<<< HEAD
 		String subReplyAuthorDom = threadLocalDetailConf.get().getSubReplyAuthor();
 		if (!StringUtils.isEmpty(subReplyAuthorDom) && !CollectionUtils.isEmpty(element.select(subReplyAuthorDom))) {
 			reply.setNickname(element.select(subReplyAuthorDom).first().text());
 		}
 		String subReplyContentDom = threadLocalDetailConf.get().getSubReplyContent();
+=======
+		String subReplyAuthorDom = detailConf.get().getSubReplyAuthor();
+		if (!StringUtils.isEmpty(subReplyAuthorDom) && !CollectionUtils.isEmpty(element.select(subReplyAuthorDom))) {
+			reply.setNickname(element.select(subReplyAuthorDom).first().text());
+		}
+		String subReplyContentDom = detailConf.get().getSubReplyContent();
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		if (!StringUtils.isEmpty(subReplyContentDom) && !CollectionUtils.isEmpty(element.select(subReplyContentDom))) {
 			reply.setContent(element.select(subReplyContentDom).first().text());
 			Elements imgs = element.select(subReplyContentDom).select("img");
@@ -295,7 +398,11 @@ public class ForumParser extends Parser {
 		}
 		reply.setVoice_url("");
 		reply.setVideo_url("");
+<<<<<<< HEAD
 		String subReplyDate = threadLocalDetailConf.get().getSubReplyDate();
+=======
+		String subReplyDate = detailConf.get().getSubReplyDate();
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		if (!CollectionUtils.isEmpty(element.select(subReplyDate))) {
 			String dateField = element.select(subReplyDate).first().text();
 			try {

@@ -191,6 +191,7 @@ public final class ParserController extends ParseTool {
 	/**
 	 * 解析丢失的详细页
 	 */
+<<<<<<< HEAD
 //	public ParseStatus parseDetailPage(WebPage page, Parser parser) {
 //		ParseStatus status = new ParseStatus();
 //		try {
@@ -200,6 +201,17 @@ public final class ParserController extends ParseTool {
 //		}
 //		return status;
 //	}
+=======
+	public ParseStatus parseDetailPage(WebPage page, Parser parser) {
+		ParseStatus status = new ParseStatus();
+		try {
+			status = parser.parse(page);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return status;
+	}
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 
 	public ThreadPoolExecutor newFixedThreadPool(int nThreads) {
 		final ThreadPoolExecutor result = new ThreadPoolExecutor(nThreads, nThreads + 10, 20, TimeUnit.SECONDS,

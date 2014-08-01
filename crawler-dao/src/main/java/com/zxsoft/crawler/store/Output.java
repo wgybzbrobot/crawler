@@ -14,7 +14,11 @@ public interface Output {
 	void write(RecordInfo info) throws OutputException;
 	
 	/**
+<<<<<<< HEAD
 	 * @return number of output size
+=======
+	 * @return the number of recordinfo
+>>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 	 * @throws OutputException 
 	 */
 	int write(List<RecordInfo> recordInfos) throws OutputException;
