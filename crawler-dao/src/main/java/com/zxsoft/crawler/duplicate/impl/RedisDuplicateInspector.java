@@ -18,4 +18,10 @@ public class RedisDuplicateInspector implements DuplicateInspector {
 	    return false;
     }
 
+	@Override
+    public void addMd5(String md5) {
+	    // TODO Auto-generated method stub
+	    
+    }
+
 }

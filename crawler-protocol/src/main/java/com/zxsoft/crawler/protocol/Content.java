@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.zip.InflaterInputStream;
 
 
+
 //Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -37,11 +38,8 @@ import org.apache.hadoop.io.VersionMismatchException;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-//Nutch imports
-import org.apache.nutch.util.MimeUtil;
-import org.apache.nutch.util.NutchConfiguration;
-
 import com.zxsoft.crawler.metadata.Metadata;
+import com.zxsoft.crawler.util.protocol.MimeUtil;
 
 public final class Content implements Writable{
 
@@ -268,43 +266,6 @@ public final class Content implements Writable{
 
     return buffer.toString();
 
-  }
-
-  public static void main(String args[]) throws Exception {
-
-    String usage = "Content (-local | -dfs <namenode:port>) recno batchId";
-
-    if (args.length < 3) {
-      System.out.println("usage:" + usage);
-      return;
-    }
-    
-    GenericOptionsParser optParser =
-      new GenericOptionsParser(NutchConfiguration.create(), args);
-    String[] argv = optParser.getRemainingArgs();
-    Configuration conf = optParser.getConfiguration();
-
-    FileSystem fs = FileSystem.get(conf);
-    try {
-      int recno = Integer.parseInt(argv[0]);
-      String batchId = argv[1];
-
-      Path file = new Path(batchId, DIR_NAME);
-      System.out.println("Reading from file: " + file);
-
-      ArrayFile.Reader contents = new ArrayFile.Reader(fs, file.toString(),
-          conf);
-
-      Content content = new Content();
-      contents.get(recno, content);
-      System.out.println("Retrieved " + recno + " from file " + file);
-
-      System.out.println(content);
-
-      contents.close();
-    } finally {
-      fs.close();
-    }
   }
 
   private String getContentType(String typeName, String url, byte[] data) {

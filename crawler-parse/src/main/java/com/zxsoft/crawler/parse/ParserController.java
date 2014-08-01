@@ -90,7 +90,7 @@ public final class ParserController extends ParseTool {
 				break;
 			}
 
-			LOG.info("【" + listConf.getComment() + "】thread number in " + pageNum.get() + " page: " + lines.size());
+			LOG.debug("【" + listConf.getComment() + "】thread number in " + pageNum.get() + " page: " + lines.size());
 			
 			List<Callable<ParseStatus>> tasks = new ArrayList<Callable<ParseStatus>>();
 			
@@ -169,8 +169,10 @@ public final class ParserController extends ParseTool {
 			} else { // 翻页
 				Document oldDoc = document;
 				ProtocolOutput ptemp = fetchNextPage(pageNum.get(), document, ajax);
-				if (!ptemp.getStatus().isSuccess())
+				if (ptemp ==null || !ptemp.getStatus().isSuccess()) {
+					LOG.debug("No next page, exit.");
 					break;
+				}
 				document = ptemp.getDocument();
 				if (document == null || document.html().equals(oldDoc.html())) {
 					LOG.debug("document == null or current page is same to next page，break");
@@ -189,15 +191,15 @@ public final class ParserController extends ParseTool {
 	/**
 	 * 解析丢失的详细页
 	 */
-	public ParseStatus parseDetailPage(WebPage page, Parser parser) {
-		ParseStatus status = new ParseStatus();
-		try {
-			status = parser.parse(page);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return status;
-	}
+//	public ParseStatus parseDetailPage(WebPage page, Parser parser) {
+//		ParseStatus status = new ParseStatus();
+//		try {
+//			status = parser.parse(page);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return status;
+//	}
 
 	public ThreadPoolExecutor newFixedThreadPool(int nThreads) {
 		final ThreadPoolExecutor result = new ThreadPoolExecutor(nThreads, nThreads + 10, 20, TimeUnit.SECONDS,

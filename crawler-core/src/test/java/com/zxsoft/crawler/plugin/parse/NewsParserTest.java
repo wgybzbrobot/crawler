@@ -12,9 +12,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
 import com.zxsoft.crawler.CrawlerServer;
+import com.zxsoft.crawler.parse.ParseStatus;
 import com.zxsoft.crawler.parse.ParseTool;
-import com.zxsoft.crawler.parse.ParserController;
 import com.zxsoft.crawler.parse.Parser;
+import com.zxsoft.crawler.parse.ParserController;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.WebPage;
@@ -22,7 +23,7 @@ import com.zxsoft.crawler.util.CrawlerConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = CrawlerServer.class)
-public class TieBaParserTest {
+public class NewsParserTest {
 
 	@Autowired
 	private HttpFetcher httpFetcher;
@@ -34,23 +35,11 @@ public class TieBaParserTest {
 	@Before
 	public void setUp() {
 		conf = CrawlerConfiguration.create();
+		ParseTool.init(context);
 	}
 
 	@Test
-	public void testParse() throws Exception {
-		String urlStr = "http://tieba.baidu.com/p/3198033311";
-		ProtocolOutput protocolOutput = httpFetcher.fetch(urlStr);
-		Assert.notNull(protocolOutput);
-		Document document = protocolOutput.getDocument();
-		Assert.notNull(document);
-		WebPage page = new WebPage("title", urlStr, System.currentTimeMillis(), document);
-		page.setAjax(false);
+	public void test() throws Exception {
 		
-		ParseTool.init(context);
-		
-		ParserController parseUtil = new ParserController(conf);
-
-		Parser parser = new TieBaParser();
-		parser.parse(page);
 	}
 }

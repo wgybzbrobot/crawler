@@ -12,6 +12,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
 import com.zxsoft.crawler.CrawlerServer;
+import com.zxsoft.crawler.plugin.parse.NewsParser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.WebPage;
@@ -75,6 +76,24 @@ public class ParserControllerTest {
 		
 		ParserController parserController = new ParserController(conf);
 		parserController.parse(page);
+	}
+	
+	
+	@Test
+	public void testParseSinaNews() throws ParserNotFoundException {
+		String urlStr = "http://roll.news.sina.com.cn/s/channel.php?ch=01#col=89&spec=&type=&ch=01&k=&offset_page=0&offset_num=0&num=60&asc=&page=1";
+		ProtocolOutput protocolOutput = httpFetcher.fetch(urlStr, true);
+		Assert.notNull(protocolOutput);
+		Document document = protocolOutput.getDocument();
+		Assert.notNull(document);
+		System.out.println(document.html());
+		WebPage page = new WebPage("title", urlStr, System.currentTimeMillis(), document);
+		page.setAjax(true);
+		
+		ParserController parserController = new ParserController(conf);
+		ParseStatus status = parserController.parse(page);
+		Assert.isTrue(status.getStatus() == ParseStatus.Status.SUCCESS);
+
 	}
 	
 	

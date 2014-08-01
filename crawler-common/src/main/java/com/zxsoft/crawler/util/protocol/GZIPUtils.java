@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.util;
+package com.zxsoft.crawler.util.protocol;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;

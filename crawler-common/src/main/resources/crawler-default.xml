@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+	<property><!-- 本机器爬虫的线程数 -->
+		<name>spider.thread.num</name>
+		<value>10</value>
+		<description>threads count of current machine</description>
+	</property>
+	<property><!-- 一个URL种子的最大解析线程数 -->
+		<name>spider.parse.thread.max</name>
+		<value>4</value>
+		<description>max thread count per url</description>
+	</property>
+	<property> <!-- 解析器配置文件 -->
+		<name>parse.plugin.file</name>
+		<value>parse-plugins.xml</value>
+		<description>The name of the file that defines the associations
+			between
+			content-types and parsers.
+		</description>
+	</property>
+</configuration>

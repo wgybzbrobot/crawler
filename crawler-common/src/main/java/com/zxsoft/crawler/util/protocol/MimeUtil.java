@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.util;
+package com.zxsoft.crawler.util.protocol;
 
 // JDK imports
 import java.io.File;
@@ -35,8 +35,6 @@ import org.apache.tika.mime.MimeTypesFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
  
-// imported for Javadoc
-//import org.apache.nutch.protocol.ProtocolOutput;
 
 /**
  * @author mattmann
@@ -66,32 +64,6 @@ public final class MimeUtil {
   private static final Logger LOG = LoggerFactory.getLogger(MimeUtil.class.getName());
 
   public MimeUtil(Configuration conf) {
-    tika = new Tika();
-    ObjectCache objectCache = ObjectCache.get(conf);
-    MimeTypes mimeTypez = (MimeTypes) objectCache.getObject(MimeTypes.class
-        .getName());
-    if (mimeTypez == null) {
-      try {
-          String customMimeTypeFile = conf.get("mime.types.file");
-          if (customMimeTypeFile!=null && customMimeTypeFile.equals("")==false){
-              try {
-              mimeTypez = MimeTypesFactory.create(conf
-                      .getConfResourceAsInputStream(customMimeTypeFile));
-              }
-              catch (Exception e){
-                  LOG.error("Can't load mime.types.file : "+customMimeTypeFile+" using Tika's default");
-              }
-          }
-          if (mimeTypez==null)
-              mimeTypez = MimeTypes.getDefaultMimeTypes();
-      } catch (Exception e) {
-        LOG.error("Exception in MimeUtil "+e.getMessage());
-        throw new RuntimeException(e);
-      }
-      objectCache.setObject(MimeTypes.class.getName(), mimeTypez);
-    }
-    
-    this.mimeTypes = mimeTypez;
     this.mimeMagic = conf.getBoolean("mime.type.magic", true);
   }
 

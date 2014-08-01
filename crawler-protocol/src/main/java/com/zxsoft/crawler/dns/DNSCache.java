@@ -27,12 +27,14 @@ public class DNSCache {
 	}
 	
 	public static InetAddress[] parse(String host) {
-		InetAddress[] addrs = null;
-		try {
-			addrs = InetAddress.getAllByName(host);
-        } catch (UnknownHostException e) {
-	        LOG.error(host + " host unkown.", e);
-        }
+		InetAddress[] addrs = cache.get(host);
+		if (addrs == null) {
+			try {
+				addrs = InetAddress.getAllByName(host);
+	        } catch (UnknownHostException e) {
+		        LOG.error(host + " host unkown.", e);
+	        }
+		}
 		return addrs;
 	}
 }

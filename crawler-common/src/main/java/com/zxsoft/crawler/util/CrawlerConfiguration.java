@@ -77,8 +77,7 @@ public class CrawlerConfiguration {
 	 *            Configuration object to which configuration is to be added.
 	 */
 	private static Configuration addCarsonResources(Configuration conf) {
-		conf.addResource("carson-default.xml");
-		conf.addResource("nutch-default.xml");
+		conf.addResource("crawler-default.xml");
 		return conf;
 	}
 }

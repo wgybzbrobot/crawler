@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.ForumDetailConf;
 import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.NewsDetailConf;
@@ -33,9 +34,9 @@ public class ConfDao {
 
 	@Cacheable(value = "webSiteType", key = "#host")
 	public void getWebSiteType(String host) {
-		
+
 	}
-	
+
 	/**
 	 * 获取列表配置信息
 	 * 
@@ -63,6 +64,41 @@ public class ConfDao {
 		return listConf;
 	}
 
+	@Cacheable(value = "detailConfCache", key = "#host")
+	public DetailConf getDetailConf(String host) {
+		LOG.debug("Getting detail configuration:" + host);
+		List<DetailConf> list = jdbcTemplate.query("select * from conf_detail where host = ?",
+		        new Object[] { host }, new RowMapper<DetailConf>() {
+			        public DetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
+				        DetailConf detailConf = new DetailConf();
+				        detailConf.setHost(rs.getString("host"));
+				        detailConf.setReplyNum(rs.getString("replyNum"));
+				        detailConf.setForwardNum(rs.getString("forwardNum"));
+				        detailConf.setReviewNum(rs.getString("reviewNum"));
+				        detailConf.setSources(rs.getString("sources"));
+				        detailConf.setFetchorder(rs.getBoolean("fetchorder"));
+				        detailConf.setMaster(rs.getString("master"));
+				        detailConf.setAuthor(rs.getString("author"));
+				        detailConf.setDate(rs.getString("date"));
+				        detailConf.setContent(rs.getString("content"));
+				        detailConf.setReply(rs.getString("reply"));
+				        detailConf.setReplyAuthor(rs.getString("replyAuthor"));
+				        detailConf.setReplyDate(rs.getString("replyDate"));
+				        detailConf.setReplyContent(rs.getString("replyContent"));
+				        detailConf.setSubReply(rs.getString("subReply"));
+				        detailConf.setSubReplyAuthor(rs.getString("subReplyAuthor"));
+				        detailConf.setSubReplyDate(rs.getString("subReplyDate"));
+				        detailConf.setSubReplyContent(rs.getString("subReplyContent"));
+				        return detailConf;
+			        }
+		        });
+		DetailConf detailConf = null;
+		if (!CollectionUtils.isEmpty(list)) {
+			detailConf = list.get(0);
+		}
+		return detailConf;
+	}
+
 	/**
 	 * 获取论坛详细页配置信息
 	 */
@@ -73,15 +109,15 @@ public class ConfDao {
 		        "select * from forumconf_detail where host = ?", new Object[] { host },
 		        new RowMapper<ForumDetailConf>() {
 			        public ForumDetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
-				        return new ForumDetailConf(rs.getString("host"), /*rs.getString("comment"),*/
-				                rs.getString("replyNum"), rs.getString("forwardNum"), rs
-				                        .getString("reviewNum"), rs.getBoolean("fetchorder"), rs
-				                        .getString("master"), rs.getString("masterAuthor"), rs
-				                        .getString("masterDate"), rs.getString("masterContent"), rs
-				                        .getString("reply"), rs.getString("replyAuthor"), rs
-				                        .getString("replyDate"), rs.getString("replyContent"), rs
-				                        .getString("subReply"), rs.getString("subReplyAuthor"), rs
-				                        .getString("subReplyDate"), rs.getString("subReplyContent"));
+				        return new ForumDetailConf(rs.getString("host"), rs.getString("replyNum"),
+				                rs.getString("forwardNum"), rs.getString("reviewNum"), rs
+				                        .getBoolean("fetchorder"), rs.getString("master"), rs
+				                        .getString("masterAuthor"), rs.getString("masterDate"), rs
+				                        .getString("masterContent"), rs.getString("reply"), rs
+				                        .getString("replyAuthor"), rs.getString("replyDate"), rs
+				                        .getString("replyContent"), rs.getString("subReply"), rs
+				                        .getString("subReplyAuthor"), rs.getString("subReplyDate"),
+				                rs.getString("subReplyContent"));
 			        }
 		        });
 		ForumDetailConf detailConf = null;
@@ -101,9 +137,8 @@ public class ConfDao {
 		        "select * from newsconf_detail where host = ?", new Object[] { host },
 		        new RowMapper<NewsDetailConf>() {
 			        public NewsDetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
-				        return new NewsDetailConf(rs.getString("host"), /*rs.getString("title"),*/ rs
-				                .getString("content"), rs.getString("sources"), rs
-				                .getString("author"), /*rs.getString("releaseDate"),*/ rs
+				        return new NewsDetailConf(rs.getString("host"), rs.getString("content"), rs
+				                .getString("sources"), rs.getString("author"), rs
 				                .getString("replyNum"), rs.getString("forwardNum"), rs
 				                .getString("reviewNum"));
 			        }

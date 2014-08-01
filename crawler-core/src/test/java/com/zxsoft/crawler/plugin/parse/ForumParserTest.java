@@ -12,6 +12,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
 import com.zxsoft.crawler.CrawlerServer;
+import com.zxsoft.crawler.parse.ParseStatus;
 import com.zxsoft.crawler.parse.ParseTool;
 import com.zxsoft.crawler.parse.ParserController;
 import com.zxsoft.crawler.parse.Parser;
@@ -55,7 +56,7 @@ public class ForumParserTest {
 
 	@Test
 	public void testParseTianYa() throws Exception {
-		String urlStr = "http://bbs.tianya.cn/post-free-4502784-1.shtml";
+		String urlStr = "http://bbs.tianya.cn/post-free-3256021-1.shtml";
 		ProtocolOutput protocolOutput = httpFetcher.fetch(urlStr, false);
 		Assert.notNull(protocolOutput);
 		Document document = protocolOutput.getDocument();
@@ -66,6 +67,7 @@ public class ForumParserTest {
 		ParserController parseUtil = new ParserController(conf);
 		
 		Parser parser = new ForumParser();
-		parser.parse(page);
+		ParseStatus status = parser.parse(page);
+		Assert.isTrue(status.getStatus() == ParseStatus.Status.SUCCESS);
 	}
 }

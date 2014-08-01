@@ -25,6 +25,12 @@
 		<persistence strategy="localTempSwap" />
 	</cache>
 
+	<cache name="detailConfCache" maxEntriesLocalHeap="100" maxEntriesLocalDisk="1000" eternal="false"
+		diskSpoolBufferSizeMB="20" timeToIdleSeconds="300" timeToLiveSeconds="600" memoryStoreEvictionPolicy="LFU"
+		transactionalMode="off">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
 	<cache name="forumDetailConfCache" maxEntriesLocalHeap="100" maxEntriesLocalDisk="1000" eternal="false"
 		diskSpoolBufferSizeMB="20" timeToIdleSeconds="300" timeToLiveSeconds="600" memoryStoreEvictionPolicy="LFU"
 		transactionalMode="off">

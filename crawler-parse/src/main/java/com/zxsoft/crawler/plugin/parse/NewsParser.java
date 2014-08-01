@@ -1,6 +1,5 @@
 package com.zxsoft.crawler.plugin.parse;
 
-import java.net.ConnectException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,12 +14,13 @@ import org.springframework.util.StringUtils;
 
 import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.ParseStatus;
+import com.zxsoft.crawler.parse.ParseStatus.Status;
 import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.NewsDetailConf;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
-import com.zxsoft.crawler.store.OutputException;
 import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
 
@@ -28,55 +28,67 @@ public class NewsParser extends Parser {
 
     private static Logger LOG = LoggerFactory.getLogger(NewsParser.class);
  
-//	private String rule; // filter regular expression
-//    private String mainUrl;
-//    private boolean ajax = false;
-    
 	private ThreadLocal<String> mainUrl = new ThreadLocal<String>();
 	private ThreadLocal<String> rule = new ThreadLocal<String>() { protected String initialValue() { return "";}};
 	private ThreadLocal<Long> prevFetchTime = new ThreadLocal<Long>();
 	private ThreadLocal<Boolean> ajax = new ThreadLocal<Boolean>();
-	private ThreadLocal<List<RecordInfo>> recordInfos = new ThreadLocal<List<RecordInfo>>() {
+	private ThreadLocal<List<RecordInfo>> threadLocalRecordInfos = new ThreadLocal<List<RecordInfo>>() {
 		protected List<RecordInfo> initialValue() {
 			return new LinkedList<RecordInfo>();
 		}
 	};
+	private  ThreadLocal<DetailConf> threadLocalDetailConf = new ThreadLocal<DetailConf>() {
+		protected DetailConf initialValue() {
+			return new DetailConf();
+		}
+	};
     
-    
-    
+    @Override
     public ParseStatus parse(WebPage page) throws Exception {
     	Assert.notNull(page, "Page is null");
 		Document document = page.getDocument();
 		Assert.notNull(document, "Document is null");
 		
+		ParseStatus status = new ParseStatus(page.getBaseUrl());
+		
 		mainUrl.set(page.getBaseUrl());
 		ajax.set(page.isAjax());
 		String md5 = Md5Signatrue.generateMd5(mainUrl.get());
-		if (duplicateInspector.md5Exist(md5)) return null;
+		if (duplicateInspector.md5Exist(md5)){
+			status.setStatus(Status.NOT_CHANGE);
+			return status;
+		} else {
+			duplicateInspector.addMd5(md5);
+		}
 		
-		
-        NewsDetailConf detailConf = confDao.getNewsDetailConf(Utils.getHost(mainUrl.get()));
-        if (detailConf == null) {
-            LOG.error("No detail page configuration in database: " + mainUrl);
-            return null;
+		threadLocalDetailConf.set(confDao.getDetailConf(Utils.getHost(mainUrl.get())));
+        if (threadLocalDetailConf == null || threadLocalDetailConf.get() == null) {
+            LOG.error("No detail page configuration in database: " + mainUrl.get());
+            status.setStatus(Status.PARSE_FAILURE);
+            status.setMessage("No detail page configuration in database");
+            return status;
         }
-        fetchContent(page, detailConf);
-        return null;
+        fetchContent(page);
+        int num = indexWriter.write(threadLocalRecordInfos.get());
+        LOG.debug(mainUrl.get() + " has record number: " + num);
+        status.setStatus(Status.SUCCESS);
+		status.setCount(num);
+        return status;
     }
 
-    private boolean fetchContent(WebPage page, NewsDetailConf detailConf) throws ConnectException {
+    public void fetchContent(WebPage page) /*throws ConnectException*/ {
     	RecordInfo info = new RecordInfo(page.getTitle(), page.getBaseUrl(), page.getFetchTime());
     	
     	ProtocolOutput po = fetch(page.getBaseUrl(), ajax.get());
     	if (po == null || !po.getStatus().isSuccess()) {
-    		return false;
+    		return ;
     	}
     	
         Document document = po.getDocument();
         
-        if (document == null) return false;
+        if (document == null) return ;
         
-        Elements contentEles = document.select(detailConf.getContent());
+        Elements contentEles = document.select(threadLocalDetailConf.get().getContent());
         if (!CollectionUtils.isEmpty(contentEles)) {
             Element contentEle = contentEles.first();
             info.setContent(contentEle.text());
@@ -85,39 +97,41 @@ public class NewsParser extends Parser {
             info.setVideo_url(MultimediaExtractor.extractVideoUrl(contentEle));
         }
 
-        if (!StringUtils.isEmpty(detailConf.getAuthor())
-                && !CollectionUtils.isEmpty(document.select(detailConf.getAuthor()))) {
-        	info.setNickname(document.select(detailConf.getAuthor()).first().text());
+        String authorDom = threadLocalDetailConf.get().getAuthor();
+        if (!StringUtils.isEmpty(authorDom)
+                && !CollectionUtils.isEmpty(document.select(authorDom))) {
+        	info.setNickname(document.select(authorDom).first().text());
         }
 
-        if (!StringUtils.isEmpty(detailConf.getSources())
-                && !CollectionUtils.isEmpty(document.select(detailConf.getSources()))) {
-        	info.setSource_name(document.select(detailConf.getSources()).first().text());
+        String sourcesDom = threadLocalDetailConf.get().getSources();
+        if (!StringUtils.isEmpty(sourcesDom)
+                && !CollectionUtils.isEmpty(document.select(sourcesDom))) {
+        	info.setSource_name(document.select(sourcesDom).first().text());
         }
 
-        if (!StringUtils.isEmpty(detailConf.getReplyNum())
-                && !CollectionUtils.isEmpty(document.select(detailConf.getReplyNum()))) {
-            String replyNum = document.select(detailConf.getReplyNum()).first().text();
+        String replyNumDom = threadLocalDetailConf.get().getReplyNum();
+        if (!StringUtils.isEmpty(replyNumDom)
+                && !CollectionUtils.isEmpty(document.select(replyNumDom))) {
+            String replyNum = document.select(replyNumDom).first().text();
             info.setComment_count(Integer.valueOf(replyNum));
         }
-        if (!StringUtils.isEmpty(detailConf.getForwardNum())
-                && !CollectionUtils.isEmpty(document.select(detailConf.getForwardNum()))) {
-            String forwardNum = document.select(detailConf.getForwardNum()).first().text();
+        
+        String forwardNumDom = threadLocalDetailConf.get().getForwardNum();
+        if (!StringUtils.isEmpty(forwardNumDom)
+                && !CollectionUtils.isEmpty(document.select(forwardNumDom))) {
+            String forwardNum = document.select(forwardNumDom).first().text();
             info.setRepost_count(Integer.valueOf(forwardNum));
         }
-        if (!StringUtils.isEmpty(detailConf.getReviewNum())
-                && !CollectionUtils.isEmpty(document.select(detailConf.getReviewNum()))) {
-            String reviewNum = document.select(detailConf.getReviewNum()).first().text();
+        
+        String reviewNumDom = threadLocalDetailConf.get().getReviewNum();
+        if (!StringUtils.isEmpty(reviewNumDom)
+                && !CollectionUtils.isEmpty(document.select(reviewNumDom))) {
+            String reviewNum = document.select(reviewNumDom).first().text();
             info.setRead_count(Integer.valueOf(reviewNum));
         }
-
-        try {
-	        indexWriter.write(info);
-        } catch (OutputException e) {
-	        e.printStackTrace();
-        }
         
-        return true;
+        threadLocalRecordInfos.get().add(info);
+
     }
 
 }

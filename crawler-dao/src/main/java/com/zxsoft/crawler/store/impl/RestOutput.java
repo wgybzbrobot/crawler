@@ -43,14 +43,11 @@ public class RestOutput implements Output {
 
 	public int write(List<RecordInfo> recordInfos) throws OutputException {
 		Assert.notEmpty(recordInfos);
-		
+		int realSize = recordInfos.size();
 		int size = recordInfos.size();
 		int outputSize = 300;
 		while (size > outputSize) {
 			List<RecordInfo> subList = recordInfos.subList(0, outputSize);
-			for (RecordInfo recordInfo : subList) {
-	            System.out.println(recordInfo.getTitle());
-            }
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("num", subList.size());
 			map.put("records", subList);
@@ -66,10 +63,6 @@ public class RestOutput implements Output {
 			size = recordInfos.size();
 		}
 		
-		for (RecordInfo recordInfo : recordInfos) {
-            System.out.println(recordInfo.getTitle());
-        }
-		
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("num", size);
 		map.put("records", recordInfos);
@@ -82,7 +75,7 @@ public class RestOutput implements Output {
 			throw new OutputException("Fail to post data to target address: " + url);
 		}
 			 
-		return size;
+		return realSize;
     }
 	
 }

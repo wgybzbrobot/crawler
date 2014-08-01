@@ -6,4 +6,6 @@ import org.springframework.stereotype.Component;
 public interface DuplicateInspector {
 
 	boolean md5Exist(String md5);
+	
+	void addMd5(String md5);
 }

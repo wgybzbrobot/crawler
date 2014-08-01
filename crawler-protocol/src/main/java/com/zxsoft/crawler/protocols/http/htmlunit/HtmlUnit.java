@@ -7,7 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import org.apache.commons.httpclient.HttpException;
 import org.apache.http.auth.NTCredentials;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,6 +18,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -28,12 +28,9 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.zxsoft.crawler.cache.proxy.Proxy;
-import com.zxsoft.crawler.metadata.Metadata;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
-import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpBase;
-import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 
@@ -70,6 +67,7 @@ public class HtmlUnit extends HttpBase {
 				request.setSocksProxy(false);
 		}
 		HtmlPage htmlPage = client.getPage(request);
+//		System.out.println(htmlPage.asXml());
 		return htmlPage;
 	}
 
@@ -140,6 +138,7 @@ public class HtmlUnit extends HttpBase {
 		client.setAjaxController(new NicelyResynchronizingAjaxController());
 		client.getOptions().setTimeout(50000);
 		client.getOptions().setThrowExceptionOnScriptError(false);
+//		client.getOptions().setPrintContentOnFailingStatusCode(false);
 		client.waitForBackgroundJavaScript(5000);
 	}
 
@@ -186,7 +185,7 @@ public class HtmlUnit extends HttpBase {
 		}
 		if (prevAnchor != null) {
 			htmlPage = prevAnchor.click();
-			System.out.println(htmlPage.asXml());
+//			System.out.println(htmlPage.asXml());
 			processResponse();
 			client.closeAllWindows();
 			return new Response(htmlPage.getUrl(), code, headers, content, headers.get(Response.CONTENT_ENCODING));
@@ -228,7 +227,11 @@ public class HtmlUnit extends HttpBase {
 				for (int i = 0; i < achors.size(); i++) {
 					if (Utils.isNum(achors.get(i).text())
 					        && Integer.valueOf(achors.get(i).text().trim()) == pageNum + 1) {
+						try {
 						nextAnchor = htmlPage.getAnchorByText(achors.get(i).text());
+						} catch (ElementNotFoundException e) {
+							return null;
+						}
 						break;
 					}
 				}
