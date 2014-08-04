@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.zxsoft.crawler.parse.ParseStatus.Status;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.WebPage;
@@ -62,6 +63,10 @@ public final class ParserController extends ParseTool {
 				numThreads = maxThreads;
 			pool = newFixedThreadPool(6);
 			status = parseListPage(page, parser, listConf);
+		} else {
+			LOG.debug("Cannot get list configuration from database.");
+			status.setStatus(Status.PARSE_FAILURE);
+			status.setMessage("嗨,伙计,我是爬虫,我在数据库中没找到列表页配置信息,你确定这个网站有列表页配置信息吗?");
 		}
 		return status;
 	}
@@ -191,7 +196,6 @@ public final class ParserController extends ParseTool {
 	/**
 	 * 解析丢失的详细页
 	 */
-<<<<<<< HEAD
 //	public ParseStatus parseDetailPage(WebPage page, Parser parser) {
 //		ParseStatus status = new ParseStatus();
 //		try {
@@ -201,17 +205,6 @@ public final class ParserController extends ParseTool {
 //		}
 //		return status;
 //	}
-=======
-	public ParseStatus parseDetailPage(WebPage page, Parser parser) {
-		ParseStatus status = new ParseStatus();
-		try {
-			status = parser.parse(page);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return status;
-	}
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 
 	public ThreadPoolExecutor newFixedThreadPool(int nThreads) {
 		final ThreadPoolExecutor result = new ThreadPoolExecutor(nThreads, nThreads + 10, 20, TimeUnit.SECONDS,

@@ -7,11 +7,6 @@ import java.net.URL;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.log4j.LogManager;
-<<<<<<< HEAD
-=======
-import org.apache.nutch.util.DeflateUtils;
-import org.apache.nutch.util.GZIPUtils;
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
@@ -111,23 +106,9 @@ public abstract class HttpBase extends PageHelper {
 	 * @throws ProtocolException **/
 	public ProtocolOutput getProtocolOutput(String url) throws ProtocolException, IOException {
 		Proxy proxy = proxyRandom.random(url);
-<<<<<<< HEAD
 		URL u = new URL(url);
 		Response response = getResponse(u , false); 
 		return dealResponse(response);
-=======
-//		try {
-//			LOG.info(url);
-			URL u = new URL(url);
-			Response response = getResponse(u , false); 
-			return dealResponse(response);
-//		} catch (Throwable e) {
-//			LOG.error("Failed with the following error: ", e);
-//			org.apache.log4j.Logger logger = LogManager.getLogger("ProtocolErrorLog");
-//			logger.error("Failed with the following error: ", e);
-//			return null;
-//		}
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 	}
 	
 	public ProtocolOutput getProtocolOutputOfPrevPage(int pageNum, Document currentDoc) throws PrevPageNotFoundException, PageBarNotFoundException {

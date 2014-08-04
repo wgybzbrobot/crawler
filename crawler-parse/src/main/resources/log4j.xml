@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<<<<<<< HEAD
 <configuration status="debug">
-=======
-<configuration status="error">
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 	<Properties>
 		<Property name="filename">target/test.log</Property>
 	</Properties>
 	<appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-<<<<<<< HEAD
 			<ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY" />
-=======
-			<ThresholdFilter level="trace" onMatch="ACCEPT" onMismatch="DENY" />
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 			<PatternLayout pattern="%d{yyyy.MM.dd HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n" />
 		</Console>
 		<RollingFile name="RollingFile" fileName="logs/error.log" filePattern="errorlogs/$${date:yyyy-MM}/error-%d{MM-dd-yyyy}-%i.log.gz">

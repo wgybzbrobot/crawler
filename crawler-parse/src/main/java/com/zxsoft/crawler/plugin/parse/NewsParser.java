@@ -130,15 +130,6 @@ public class NewsParser extends Parser {
             String reviewNum = document.select(reviewNumDom).first().text();
             info.setRead_count(Integer.valueOf(reviewNum));
         }
-<<<<<<< HEAD
-=======
-
-        try {
-	        indexWriter.write(info);
-        } catch (OutputException e) {
-	        e.printStackTrace();
-        }
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
         
         threadLocalRecordInfos.get().add(info);
 

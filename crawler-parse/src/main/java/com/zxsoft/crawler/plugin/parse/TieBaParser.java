@@ -49,15 +49,9 @@ public class TieBaParser extends Parser {
 			return new LinkedList<RecordInfo>();
 		}
 	};
-<<<<<<< HEAD
 	private  ThreadLocal<DetailConf> threadLocalDetailConf = new ThreadLocal<DetailConf>() {
 		protected DetailConf initialValue() {
 			return new DetailConf();
-=======
-	private  ThreadLocal<ForumDetailConf> detailConf = new ThreadLocal<ForumDetailConf>() {
-		protected ForumDetailConf initialValue() {
-			return new ForumDetailConf();
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		}
 	};
 	
@@ -69,20 +63,12 @@ public class TieBaParser extends Parser {
 		prevFetchTime.set(page.getPrevFetchTime());
 		ajax.set(page.isAjax());
 		threadLocalRecordInfos.set(new LinkedList<RecordInfo>());
-<<<<<<< HEAD
 		threadLocalDetailConf.set(confDao.getDetailConf(Utils.getHost(mainUrl.get())));
-=======
-		detailConf.set(confDao.getForumDetailConf(Utils.getHost(mainUrl.get())));
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 
 		ParseStatus status = new ParseStatus(mainUrl.get());
 		status.setStatus(ParseStatus.Status.PARSING);
 		
-<<<<<<< HEAD
 		if (threadLocalDetailConf == null || threadLocalDetailConf.get() == null) {
-=======
-		if (detailConf == null || detailConf.get() == null) {
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 			LOG.warn("Detail page has no configuration in database." + mainUrl);
 			status.setStatus(ParseStatus.Status.PARSE_FAILURE);
 			status.setMessage("No detail page configuration found in database");
@@ -102,22 +88,15 @@ public class TieBaParser extends Parser {
 		int num = 0;
 		try{
 			num = indexWriter.write(threadLocalRecordInfos.get());
-<<<<<<< HEAD
 //			for (RecordInfo info : threadLocalRecordInfos.get()) {
 //				System.out.println(info.getContent());
 //			}
-=======
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		  } catch (OutputException e) {
 	      	status.setStatus(ParseStatus.Status.OUTPUT_FAILURE);
 	      	status.setMessage(e.getMessage());
 	      }
-<<<<<<< HEAD
 		LOG.info(mainUrl.get() + " has " + num + " records.");
 		status.setStatus(Status.SUCCESS);
-=======
-//		LOG.info(mainUrl.get() + " has " + num + " records.");
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		status.setCount(num);
 		return status;
 	}
@@ -130,11 +109,7 @@ public class TieBaParser extends Parser {
 	 * @param threadLocalDetailConf
 	 *            详细页配置对象(Object of detail page configuration)
 	 */
-<<<<<<< HEAD
 	public void fetchContent(WebPage page) {
-=======
-	private void fetchContent(WebPage page) {
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl.get(), page.getFetchTime());
 		ProtocolOutput ptemp = fetch(mainUrl.get(), ajax.get());
 		if (ptemp == null || !ptemp.getStatus().isSuccess())
@@ -148,13 +123,8 @@ public class TieBaParser extends Parser {
 			return;
 		}
 
-<<<<<<< HEAD
 		if (!CollectionUtils.isEmpty(document.select(threadLocalDetailConf.get().getReplyNum()))) {
 			info.setComment_count(Integer.valueOf(document.select(threadLocalDetailConf.get().getReplyNum()).first()
-=======
-		if (!CollectionUtils.isEmpty(document.select(detailConf.get().getReplyNum()))) {
-			info.setComment_count(Integer.valueOf(document.select(detailConf.get().getReplyNum()).first()
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 			        .text()));
 			// if url + reply number is not changed, then stop fetch.
 			String _md5 = Md5Signatrue.generateMd5(mainUrl.get(), String.valueOf(info.getComment_count()));
@@ -165,18 +135,13 @@ public class TieBaParser extends Parser {
 		}
 
 
-<<<<<<< HEAD
 		String reviewNumDom = threadLocalDetailConf.get().getReviewNum();
-=======
-		String reviewNumDom = detailConf.get().getReviewNum();
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		if (!StringUtils.isEmpty(reviewNumDom)
 		        && !CollectionUtils.isEmpty(document.select(reviewNumDom))) {
 			info.setRead_count(Integer.valueOf(document.select(reviewNumDom).first()
 			        .text()));
 		}
 
-<<<<<<< HEAD
 		Elements mainEles = document.select(threadLocalDetailConf.get().getMaster());
 		// 主帖页面, 取得主帖信息
 		if (!CollectionUtils.isEmpty(mainEles)) {
@@ -186,17 +151,6 @@ public class TieBaParser extends Parser {
 				info.setNickname(mainEle.select(masterAuthorDom).first().text());
 			}
 			Elements contentEles = mainEle.select(threadLocalDetailConf.get().getContent());
-=======
-		Elements mainEles = document.select(detailConf.get().getMaster());
-		// 主帖页面, 取得主帖信息
-		if (!CollectionUtils.isEmpty(mainEles)) {
-			Element mainEle = mainEles.first();
-			String masterAuthorDom = detailConf.get().getMasterAuthor();
-			if (!StringUtils.isEmpty(masterAuthorDom) && !CollectionUtils.isEmpty(mainEle.select(masterAuthorDom))) {
-				info.setNickname(mainEle.select(masterAuthorDom).first().text());
-			}
-			Elements contentEles = mainEle.select(detailConf.get().getMasterContent());
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 			if (!CollectionUtils.isEmpty(contentEles)) {
 				Element contentEle = contentEles.first();
 				info.setContent(contentEle.text());
@@ -234,11 +188,7 @@ public class TieBaParser extends Parser {
 		Document doc = page.getDocument();
 		String currentUrl = mainUrl.get();
 
-<<<<<<< HEAD
 		if (!threadLocalDetailConf.get().isFetchorder()) { // 从第一页
-=======
-		if (!detailConf.get().isFetchorder()) { // 从第一页
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 			int pageNum = 1;
 			do {
 				boolean isContinue = parsePage(page, doc, currentUrl);
@@ -298,11 +248,7 @@ public class TieBaParser extends Parser {
 	 *            详细页配置对象(Object of detail page configuration)
 	 */
 	private boolean parsePage(WebPage page, Document doc, String currentUrl) {
-<<<<<<< HEAD
 		Elements replyEles = doc.select(threadLocalDetailConf.get().getReply()); // 所有回复
-=======
-		Elements replyEles = doc.select(detailConf.get().getReply()); // 所有回复
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		String tid = extractTid(mainUrl.get());
 		Collections.reverse(replyEles);
 		for (Element element : replyEles) {
@@ -350,19 +296,11 @@ public class TieBaParser extends Parser {
         
 		String id = UUID.randomUUID().toString();
 		info.setId(id);
-<<<<<<< HEAD
 		if (!CollectionUtils.isEmpty(element.select(threadLocalDetailConf.get().getReplyAuthor()))) {
 			info.setNickname(element.select(threadLocalDetailConf.get().getReplyAuthor()).first().text());
 		}
 
 		Elements contentEles = element.select(threadLocalDetailConf.get().getReplyContent());
-=======
-		if (!CollectionUtils.isEmpty(element.select(detailConf.get().getReplyAuthor()))) {
-			info.setNickname(element.select(detailConf.get().getReplyAuthor()).first().text());
-		}
-
-		Elements contentEles = element.select(detailConf.get().getReplyContent());
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		if (!CollectionUtils.isEmpty(contentEles)) {
 			Element contentEle = contentEles.first();
 			info.setContent(contentEle.text());
@@ -438,7 +376,6 @@ public class TieBaParser extends Parser {
 			String json = element.attr("data-field");
 			String spid = extractSpid(json);
 
-<<<<<<< HEAD
 			if (!CollectionUtils.isEmpty(element.select(threadLocalDetailConf.get().getSubReplyAuthor()))) {
 				reply.setNickname(element.select(threadLocalDetailConf.get().getSubReplyAuthor()).first().text());
 			}
@@ -446,15 +383,6 @@ public class TieBaParser extends Parser {
 				reply.setContent(element.select(threadLocalDetailConf.get().getSubReplyContent()).first().text());
 			}
 			Elements imgs = element.select(threadLocalDetailConf.get().getSubReplyContent()).select("img");
-=======
-			if (!CollectionUtils.isEmpty(element.select(detailConf.get().getSubReplyAuthor()))) {
-				reply.setNickname(element.select(detailConf.get().getSubReplyAuthor()).first().text());
-			}
-			if (!CollectionUtils.isEmpty(element.select(detailConf.get().getSubReplyContent()))) {
-				reply.setContent(element.select(detailConf.get().getSubReplyContent()).first().text());
-			}
-			Elements imgs = element.select(detailConf.get().getSubReplyContent()).select("img");
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 			StringBuilder imgUrlSb = new StringBuilder();
 			for (Element img : imgs) {
 				imgUrlSb.append(img.attr("abs:src"));
@@ -467,14 +395,8 @@ public class TieBaParser extends Parser {
 			}
 			reply.setVideo_url("");
 
-<<<<<<< HEAD
 			if (!CollectionUtils.isEmpty(element.select(threadLocalDetailConf.get().getSubReplyDate()))) {
 				String dateField = element.select(threadLocalDetailConf.get().getSubReplyDate()).first().text();
-=======
-			
-			if (!CollectionUtils.isEmpty(element.select(detailConf.get().getSubReplyDate()))) {
-				String dateField = element.select(detailConf.get().getSubReplyDate()).first().text();
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 		        try {
 		        	Date dateTemp = Utils.formatDate(dateField);
 		            reply.setTimestamp(dateTemp.getTime());

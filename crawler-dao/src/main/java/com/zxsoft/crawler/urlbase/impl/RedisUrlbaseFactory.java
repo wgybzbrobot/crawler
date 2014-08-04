@@ -24,14 +24,14 @@ public class RedisUrlbaseFactory extends UrlbaseFactory {
     public List<WebPage> getWebPages(int num) {
 		List<WebPage> pages = new LinkedList<WebPage>();
 		WebPage page = new WebPage();
-		page.setBaseUrl("http://tieba.baidu.com/f?kw=%B0%F6%B2%BA");
-		page.setAjax(false);
-		page.setPrevFetchTime(0);
-		page.setType("001");
-		pages.add(page);
+//		page.setBaseUrl("http://tieba.baidu.com/f?kw=%B0%F6%B2%BA");
+//		page.setAjax(false);
+//		page.setPrevFetchTime(0);
+//		page.setType("001");
+//		pages.add(page);
 		
-		page = new WebPage("http://bbs.tianya.cn/list-free-1.shtml", false, 0);
-		page.setType("002");
+		page = new WebPage("http://bbs.anhuinews.com/forum-319-1.htm", false, 0);
+		page.setType("001");
 		pages.add(page);
 		
 	    return pages;

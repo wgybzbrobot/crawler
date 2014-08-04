@@ -34,15 +34,8 @@ public class ConfDao {
 
 	@Cacheable(value = "webSiteType", key = "#host")
 	public void getWebSiteType(String host) {
-<<<<<<< HEAD
-
 	}
 
-=======
-		
-	}
-	
->>>>>>> e50669d800cb412e26486b3fe372c22383cbeaff
 	/**
 	 * 获取列表配置信息
 	 * 
