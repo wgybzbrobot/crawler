@@ -9,8 +9,8 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
+import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.web.model.ForumDetailConf;
-import com.zxsoft.crawler.web.model.ListConf;
 import com.zxsoft.crawler.web.model.NewsDetailConf;
 import com.zxsoft.crawler.web.model.Seed;
 

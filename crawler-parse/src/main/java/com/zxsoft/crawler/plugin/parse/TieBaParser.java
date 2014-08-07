@@ -95,7 +95,7 @@ public class TieBaParser extends Parser {
 	      	status.setStatus(ParseStatus.Status.OUTPUT_FAILURE);
 	      	status.setMessage(e.getMessage());
 	      }
-		LOG.info(mainUrl.get() + " has " + num + " records.");
+		LOG.debug(mainUrl.get() + " has " + num + " records.");
 		status.setStatus(Status.SUCCESS);
 		status.setCount(num);
 		return status;
@@ -322,12 +322,12 @@ public class TieBaParser extends Parser {
 	private void saveSub(RecordInfo reply, String surl, String tid) {
 		ProtocolOutput ptemp = fetch(surl, ajax.get());
 		if (ptemp.getStatus().getCode() != ProtocolStatusCodes.SUCCESS){
-			LOG.info("No Sub reply infomation.");
+			LOG.debug("No Sub reply infomation.");
 			return;
 		}
 		Document doc = ptemp.getDocument();
 		if (doc == null) {
-			LOG.info("No Sub reply infomation.");
+			LOG.debug("No Sub reply infomation.");
 			return;
 		}
 

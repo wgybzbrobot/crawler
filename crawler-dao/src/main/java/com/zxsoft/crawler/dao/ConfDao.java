@@ -49,11 +49,12 @@ public class ConfDao {
 		        new Object[] { url }, new RowMapper<ListConf>() {
 			        public ListConf mapRow(ResultSet rs, int rowNum) throws SQLException {
 				        return new ListConf(rs.getString("comment"), rs.getString("url"), rs
-				                .getString("category"), rs.getInt("fetchinterval"), rs
-				                .getInt("pageNum"), rs.getString("filterurl"), rs
-				                .getString("listdom"), rs.getString("linedom"), rs
-				                .getString("urldom"), rs.getString("datedom"), rs
-				                .getString("updatedom"), rs.getInt("numThreads"));
+				                .getString("category"), rs.getBoolean("ajax"), rs
+				                .getInt("fetchinterval"), /*rs.getInt("pageNum"),*/ rs
+				                .getString("filterurl"), rs.getString("listdom"), rs
+				                .getString("linedom"), rs.getString("urldom"), rs
+				                .getString("datedom"), rs.getString("updatedom"), rs
+				                .getInt("numThreads"));
 			        }
 		        });
 		ListConf listConf = null;

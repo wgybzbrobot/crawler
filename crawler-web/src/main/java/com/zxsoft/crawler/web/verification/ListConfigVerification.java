@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -16,12 +17,13 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+
 import com.zxsoft.crawler.parse.ParseTool;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PageHelper;
-import com.zxsoft.crawler.web.model.ListConf;
 import com.zxsoft.crawler.web.model.ThreadInfo;
 
 @Service
@@ -35,16 +37,22 @@ public class ListConfigVerification extends ParseTool {
 		Map<String, Object> map = new HashMap<String, Object>();
 		List<ThreadInfo> list = new ArrayList<ThreadInfo>();
 		String pageStr = "";
-		ProtocolOutput protocolOutput = fetch(listConf.getUpdatedatedom(), listConf.isAjax());
+		ProtocolOutput protocolOutput = fetch(listConf.getUrl(), listConf.isAjax());
 		ObjectError error = null;
 		Document document = null;
 		if (protocolOutput == null || !protocolOutput.getStatus().isSuccess()) {
-			error = new FieldError("conf", "listConf.url", "连接" + listConf.getUrl() + "失败");
+			error = new FieldError("listConf", "url", "连接" + listConf.getUrl() + "失败");
 		} else {
 			document = protocolOutput.getDocument();
+			
+			if (StringUtils.isEmpty(listConf.getLinedom())) {
+				error = new FieldError("listConf", "listdomerror", "必填");
+				map.put("error", error);
+				return map;
+			}
 			Elements elements = document.select(listConf.getListdom());
 			if (CollectionUtils.isEmpty(elements)) {
-				error = new FieldError("conf", "listConf.listdom", "无法从" + listConf.getListdom()
+				error = new FieldError("listConf", "listdom", "无法从" + listConf.getListdom()
 				        + "获取列表信息, 请检查是否正确.");
 				map.put("error", error);
 				return map;
@@ -53,7 +61,7 @@ public class ListConfigVerification extends ParseTool {
 			Element listElement = elements.first();
 			Elements lineElements = listElement.select(listConf.getLinedom());
 			if (CollectionUtils.isEmpty(lineElements) || lineElements.size() < 3) {
-				error = new FieldError("conf", "listConf.linedom", "无法从" + listConf.getLinedom()
+				error = new FieldError("listConf", "linedomerror", "无法从" + listConf.getLinedom()
 				        + "获取列表行信息, 请检查是否正确.");
 				map.put("error", error);
 				return map;
@@ -66,7 +74,7 @@ public class ListConfigVerification extends ParseTool {
 					if (i < 10) {
 						continue;
 					}
-					error = new FieldError("conf", "listConf.urldom", "无法从" + listConf.getUrldom()
+					error = new FieldError("listConf", "urldom", "无法从" + listConf.getUrldom()
 					        + "获取详细页URL链接, 请检查是否正确.");
 					map.put("error", error);
 					return map;
@@ -79,7 +87,7 @@ public class ListConfigVerification extends ParseTool {
 				if (!StringUtils.isEmpty(listConf.getDatedom())) {
 					Elements dateElements = lineEle.select(listConf.getDatedom());
 					if (CollectionUtils.isEmpty(dateElements)) {
-						error = new FieldError("conf", "listConf.datedom", "无法从"
+						error = new FieldError("listConf", "datedom", "无法从"
 						        + listConf.getDatedom() + "获取发布日期, 请检查是否正确.");
 						map.put("error", error);
 						return map;

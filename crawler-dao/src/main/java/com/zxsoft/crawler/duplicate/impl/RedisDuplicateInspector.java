@@ -8,7 +8,6 @@ import org.springframework.web.client.RestTemplate;
 import com.zxsoft.crawler.duplicate.DuplicateInspector;
 
 @Component
-@PropertySource("classpath:application.properties")
 public class RedisDuplicateInspector implements DuplicateInspector {
 
 	private RestTemplate restTemplate;

@@ -20,15 +20,15 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.zxsoft.crawler.cache.proxy.Proxy;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpBase;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClientPageHelper;
-import com.zxsoft.crawler.protocols.http.proxy.ProxyRandom;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PageHelper;
+import com.zxsoft.proxy.Proxy;
+import com.zxsoft.proxy.ProxyRandom;
 
 /**
  * <p>

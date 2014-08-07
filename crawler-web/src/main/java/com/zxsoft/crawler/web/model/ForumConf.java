@@ -4,6 +4,8 @@ import javax.validation.Valid;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.zxsoft.crawler.storage.ListConf;
+
 public class ForumConf {
 
 	

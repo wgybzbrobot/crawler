@@ -20,13 +20,13 @@ import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.zxsoft.crawler.CrawlerServer;
+import com.zxsoft.crawler.Crawler;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.store.Output;
 import com.zxsoft.crawler.store.OutputException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = CrawlerServer.class)
+@SpringApplicationConfiguration(classes = Crawler.class)
 public class RestOutputTest {
 
 	private String records= "{"

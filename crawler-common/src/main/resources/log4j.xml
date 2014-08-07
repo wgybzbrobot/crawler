@@ -1,24 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration status="info">
-	<Properties>
-		<Property name="filename">target/test.log</Property>
-	</Properties>
-	<appenders>
-		<Console name="Console" target="SYSTEM_OUT">
-			<ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY" />
-			<PatternLayout pattern="%d{yyyy.MM.dd HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n" />
-		</Console>
-		<RollingFile name="RollingFile" fileName="logs/error.log" filePattern="errorlogs/$${date:yyyy-MM}/error-%d{MM-dd-yyyy}-%i.log.gz">
-			<PatternLayout pattern="%d{yyyy.MM.dd HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n" />
-			<SizeBasedTriggeringPolicy size="500 MB" />
-		</RollingFile>
-	</appenders>
-	<loggers>
-		<root level="trace">
-			<appender-ref ref="Console" />
-		</root>
-		<logger name="CommonErrorLog" level="error" additivity="true">
-			<appender-ref ref="RollingFile" />
-		</logger>
-	</loggers>
-</configuration> 
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration>
+	<appender name="console" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{MM-dd HH:mm:ss} %p [%t] (%F:%L): %m%n" />
+		</layout>
+		<!-- 过滤器设置输出的级别 -->
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="levelMin" value="debug" />
+			<param name="levelMax" value="warn" />
+			<param name="AcceptOnMatch" value="true" />
+		</filter>
+	</appender>
+	<!-- 每天一个日志文件 -->
+	<appender name="dailyfile" class="org.apache.log4j.DailyRollingFileAppender">
+		<!-- 发布时需更改到指定目录 -->
+		<param name="File" value="/tmp/crawlerlogs/common.log" />
+		<param name="Append" value="true" />
+		<param name="Encoding" value="UTF-8" />
+		<param name="DatePattern" value="'.'yyyy_MM_dd" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{MM-dd HH:mm:ss} [%p] (%F:%L): %m%n" />
+		</layout>
+	</appender>
+	<logger name="CoreErrorLog" additivity="true">
+		<level value="error" />
+		<appender-ref ref="dailyfile" />
+	</logger>
+	<logger name="net.sourceforge.htmlunit" additivity="false">
+		<level value="error" />
+		<appender-ref ref="console" />
+		<appender-ref ref="dailyfile" />
+	</logger>
+	<logger name="com.zxsoft.crawler" additivity="false">
+		<level value="debug" />
+		<appender-ref ref="console" />
+		<appender-ref ref="dailyfile" />
+	</logger>
+	<root>
+		<level value="off" />
+		<appender-ref ref="console" />
+	</root>
+</log4j:configuration>

@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.zxsoft.crawler.cache.proxy.Proxy;
 import com.zxsoft.crawler.metadata.Metadata;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
@@ -24,13 +23,14 @@ import com.zxsoft.crawler.protocol.ProtocolStatusCodes;
 import com.zxsoft.crawler.protocol.ProtocolStatusUtils;
 import com.zxsoft.crawler.protocols.http.htmlunit.HtmlUnit;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClient;
-import com.zxsoft.crawler.protocols.http.proxy.ProxyRandom;
 import com.zxsoft.crawler.util.page.NextPageNotFoundException;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PageHelper;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 import com.zxsoft.crawler.util.protocol.DeflateUtils;
 import com.zxsoft.crawler.util.protocol.GZIPUtils;
+import com.zxsoft.proxy.Proxy;
+import com.zxsoft.proxy.ProxyRandom;
 
 /**
  * @see HtmlUnit

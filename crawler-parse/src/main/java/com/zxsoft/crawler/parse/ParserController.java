@@ -43,7 +43,7 @@ public final class ParserController extends ParseTool {
 	private AtomicInteger sum = new AtomicInteger(0);
 	private String indexUrl;
 	private boolean ajax;
-	
+	private static int _pageNum = 2;
 	public ParserController(Configuration conf) {
 		this.conf = conf;
 	}
@@ -64,7 +64,7 @@ public final class ParserController extends ParseTool {
 			pool = newFixedThreadPool(6);
 			status = parseListPage(page, parser, listConf);
 		} else {
-			LOG.debug("Cannot get list configuration from database.");
+			LOG.debug("Cannot get list configuration from database:" + page.getBaseUrl());
 			status.setStatus(Status.PARSE_FAILURE);
 			status.setMessage("嗨,伙计,我是爬虫,我在数据库中没找到列表页配置信息,你确定这个网站有列表页配置信息吗?");
 		}
@@ -80,7 +80,7 @@ public final class ParserController extends ParseTool {
 		indexUrl = page.getBaseUrl();
 		ajax = page.isAjax();
 		
-		LOG.info("【" + listConf.getComment() + "】抓取开始");
+		LOG.debug("【" + listConf.getComment() + "】抓取开始");
 		
 		while (true) {
 			Elements list = document.select(listConf.getListdom());
@@ -90,7 +90,7 @@ public final class ParserController extends ParseTool {
 			}
 			Elements lines = list.first().select(listConf.getLinedom());
 
-			if (pageNum.get() > listConf.getPageNum()) {
+			if (pageNum.get() > _pageNum) {
 				continuePage.set(false);
 				break;
 			}
@@ -187,7 +187,7 @@ public final class ParserController extends ParseTool {
 			}
 		}
 		// pool.shutdown();
-		LOG.info("【" + listConf.getComment() + "】抓取结束, 共抓取数据数量:" + sum.get());
+		LOG.debug("【" + listConf.getComment() + "】抓取结束, 共抓取数据数量:" + sum.get());
 		status.setStatus(ParseStatus.Status.SUCCESS);
 		status.setCount(sum.get());
 		return status;

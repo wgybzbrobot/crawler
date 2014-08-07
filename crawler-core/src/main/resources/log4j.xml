@@ -16,7 +16,7 @@
 	<!-- 每天一个日志文件 -->
 	<appender name="dailyfile" class="org.apache.log4j.DailyRollingFileAppender">
 		<!-- 发布时需更改到指定目录 -->
-		<param name="File" value="logs/core.log" />
+		<param name="File" value="/tmp/crawlerlogs/core.log" />
 		<param name="Append" value="true" />
 		<param name="Encoding" value="UTF-8" />
 		<param name="DatePattern" value="'.'yyyy_MM_dd" />

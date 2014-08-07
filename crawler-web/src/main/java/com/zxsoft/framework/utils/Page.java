@@ -3,23 +3,23 @@ package com.zxsoft.framework.utils;
 import java.util.List;
 
 
-public class Page {
+public class Page<E> {
 
-	private List res;
+	private List<E> res;
 	private int count = 0;
 	
-	public List getRes() {
+	public List<E> getRes() {
 		return res;
 	}
 	public Page(){
 		
 	}
-	public Page(int count, List res) {
+	public Page(int count, List<E> res) {
 		super();
 		this.count = count;
 		this.res = res;
 	}
-	public void setRes(List res) {
+	public void setRes(List<E> res) {
 		this.res = res;
 	}
 	public int getCount() {

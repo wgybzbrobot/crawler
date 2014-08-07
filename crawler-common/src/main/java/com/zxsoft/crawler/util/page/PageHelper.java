@@ -3,10 +3,6 @@ package com.zxsoft.crawler.util.page;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -30,11 +26,11 @@ public class PageHelper {
 	public static Element getPageBar(Document document) throws PageBarNotFoundException {
 		Assert.notNull(document);
 		Elements eles = document.select("a:matches(上一页|上页|<上一页|下一页|下页|下一页>|尾页|末页)");
-		if (!CollectionUtils.isEmpty(eles)) {
+		if (!CollectionUtils.isEmpty(eles)) { // bug: if only has '下一页'
 			Elements siblingEles = eles.first().siblingElements();
 			Element parentEle = eles.first().parent();
 
-			Element element = eles.first();
+			Element element = eles.last()/*first()*/;
 			/** test if  element's parent only have one anchor **/
 			int count = 0;
 			while (count++ < 20) { 
@@ -44,7 +40,6 @@ public class PageHelper {
 				}
 				element = parent;
 			}
-			
 			return element.parent();
 			
 //			if (!CollectionUtils.isEmpty(siblingEles)

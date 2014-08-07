@@ -19,6 +19,8 @@
 		<module>crawler-core</module>
 		<module>crawler-protocol</module>
 		<module>crawler-cache</module>
+    <module>crawler-web2</module>
+    <module>crawler-proxy</module>
   </modules>
 	<organization>
 		<name>中新软件有限公司</name>

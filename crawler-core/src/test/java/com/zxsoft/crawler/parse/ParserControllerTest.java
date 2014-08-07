@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
-import com.zxsoft.crawler.CrawlerServer;
+import com.zxsoft.crawler.Crawler;
 import com.zxsoft.crawler.plugin.parse.NewsParser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
@@ -19,7 +19,7 @@ import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.CrawlerConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = CrawlerServer.class)
+@SpringApplicationConfiguration(classes = Crawler.class)
 public class ParserControllerTest {
 
 	@Autowired

@@ -15,7 +15,7 @@ public abstract class UrlbaseFactory {
 	
 	public static BlockingQueue<WebPage> queue = new ArrayBlockingQueue<WebPage>(20);
 	
-	private static boolean flag = true;
+	public static boolean flag = true;
 	/**
 	 * @return url
 	 */

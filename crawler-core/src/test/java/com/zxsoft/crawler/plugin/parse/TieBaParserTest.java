@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
-import com.zxsoft.crawler.CrawlerServer;
+import com.zxsoft.crawler.Crawler;
 import com.zxsoft.crawler.parse.ParseTool;
 import com.zxsoft.crawler.parse.ParserController;
 import com.zxsoft.crawler.parse.Parser;
@@ -21,7 +21,7 @@ import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.CrawlerConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = CrawlerServer.class)
+@SpringApplicationConfiguration(classes = Crawler.class)
 public class TieBaParserTest {
 
 	@Autowired

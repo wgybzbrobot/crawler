@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.jsoup.Connection;
+import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -78,6 +80,16 @@ public class PageHelperTest {
 	@Test
 	public void testGetPageBarTianYa() throws IOException, PageBarNotFoundException {
 		Document currentDoc = Jsoup.connect("http://bbs.tianya.cn/list-free-1.shtml").get();
+		Element pagebar = PageHelper.getPageBar(currentDoc);
+		Assert.notNull(pagebar);
+		System.out.println(pagebar);
+	}
+	@Test
+	public void testGetPageBarShangLin() throws IOException, PageBarNotFoundException {
+		
+		Connection conn = Jsoup.connect("http://bbs.shanglin360.com/forum-24-1.html");
+		conn.userAgent("Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36");
+		Document currentDoc = conn.get();
 		Element pagebar = PageHelper.getPageBar(currentDoc);
 		Assert.notNull(pagebar);
 		System.out.println(pagebar);

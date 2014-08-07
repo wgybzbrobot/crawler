@@ -27,12 +27,12 @@ import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
-import com.zxsoft.crawler.cache.proxy.Proxy;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocols.http.HttpBase;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
+import com.zxsoft.proxy.Proxy;
 
 @Component
 @Scope("prototype")

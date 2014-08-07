@@ -2,6 +2,7 @@ target
 .settings
 .classpath
 .project
+.springBeans
 logs
 bin
 *.class

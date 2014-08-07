@@ -12,16 +12,6 @@
 	
 		<dependency>
 			<groupId>com.zxsoft.crawler</groupId>
-			<artifactId>crawler-common</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.zxsoft.crawler</groupId>
-			<artifactId>crawler-cache</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.zxsoft.crawler</groupId>
 			<artifactId>crawler-dao</artifactId>
 			<version>1.0.0</version>
 		</dependency>
@@ -33,6 +23,22 @@
 		<dependency>
 			<groupId>com.zxsoft.crawler</groupId>
 			<artifactId>crawler-parse</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.zxsoft.crawler</groupId>
+			<artifactId>crawler-common</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.zxsoft.crawler</groupId>
+			<artifactId>crawler-proxy</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.zxsoft.crawler</groupId>
+			<artifactId>crawler-cache</artifactId>
 			<version>1.0.0</version>
 		</dependency>
 	</dependencies>

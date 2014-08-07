@@ -8,9 +8,9 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.springframework.util.Assert;
 
-import com.zxsoft.crawler.cache.proxy.Proxy;
-import com.zxsoft.crawler.protocols.http.proxy.LocalProxyFactory;
-import com.zxsoft.crawler.protocols.http.proxy.ProxyFactory;
+import com.zxsoft.proxy.LocalProxyFactory;
+import com.zxsoft.proxy.Proxy;
+import com.zxsoft.proxy.ProxyFactory;
 
 public class ProxyReaderTest extends TestCase  {
 

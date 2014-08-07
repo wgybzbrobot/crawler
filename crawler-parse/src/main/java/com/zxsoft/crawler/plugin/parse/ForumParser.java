@@ -99,7 +99,7 @@ public class ForumParser extends Parser {
         	status.setStatus(ParseStatus.Status.OUTPUT_FAILURE);
         	status.setMessage(e.getMessage());
         }
-		LOG.info(mainUrl.get() + " has " + num + " records.");
+		LOG.debug(mainUrl.get() + " has " + num + " records.");
 		status.setStatus(ParseStatus.Status.SUCCESS);
 		status.setMessage("Fetch " + num + " records from " + mainUrl.get());
 		status.setCount(num);
