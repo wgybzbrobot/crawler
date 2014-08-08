@@ -9,7 +9,7 @@
 	<artifactId>crawler-core</artifactId>
 
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>com.zxsoft.crawler</groupId>
 			<artifactId>crawler-dao</artifactId>
@@ -42,4 +42,5 @@
 			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
+	
 </project>

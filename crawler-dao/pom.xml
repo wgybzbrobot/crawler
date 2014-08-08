@@ -45,5 +45,10 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<version>1.0.0.RELEASE</version>
 		</dependency>
+		<!-- <dependency>
+		  <groupId>zx.soft</groupId>
+		  <artifactId>redis-client</artifactId>
+		  <version>1.0.0</version>
+		</dependency> -->
 	</dependencies>
 </project>

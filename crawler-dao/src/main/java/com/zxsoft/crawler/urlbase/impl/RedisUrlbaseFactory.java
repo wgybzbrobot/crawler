@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+//import zx.soft.redis.client.standone.impl.RedisStandoneClient;
+
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.urlbase.UrlbaseFactory;
 
@@ -22,6 +24,11 @@ public class RedisUrlbaseFactory extends UrlbaseFactory {
 	
 	@Override
     public List<WebPage> getWebPages(int num) {
+		
+//		RedisStandoneClient client = new RedisStandoneClient("", 6397, "zxsoft");
+		
+		
+		
 		List<WebPage> pages = new LinkedList<WebPage>();
 		WebPage page = new WebPage();
 		page.setBaseUrl("http://tieba.baidu.com/f?kw=%B0%F6%B2%BA");

@@ -10,7 +10,6 @@
 		<groupId>com.zxsoft.crawler</groupId>
 		<artifactId>crawler</artifactId>
 		<version>1.0.0</version>
-		<relativePath>../crawler</relativePath>
 	</parent>
 	<repositories>
 		<repository>
