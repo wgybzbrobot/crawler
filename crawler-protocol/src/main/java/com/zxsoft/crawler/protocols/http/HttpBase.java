@@ -49,7 +49,7 @@ public abstract class HttpBase extends PageHelper {
 	protected int timeout = 10000;
 
 	/** The length limit for downloaded content, in bytes. */
-	protected int maxContent = 1024 * 1024;
+	protected int maxContent = 1024 * 1024 * 3;
 
 	/** The Nutch 'User-Agent' request header */
 	protected String userAgent = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36";

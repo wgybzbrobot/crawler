@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 
 //import zx.soft.redis.client.standone.impl.RedisStandoneClient;
 
+
+import zx.soft.redis.client.standone.impl.RedisStandoneClient;
+
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.urlbase.UrlbaseFactory;
 
@@ -25,7 +28,7 @@ public class RedisUrlbaseFactory extends UrlbaseFactory {
 	@Override
     public List<WebPage> getWebPages(int num) {
 		
-//		RedisStandoneClient client = new RedisStandoneClient("", 6397, "zxsoft");
+		RedisStandoneClient client = new RedisStandoneClient("", 6397, "zxsoft");
 		
 		
 		
