@@ -70,7 +70,8 @@ import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
-import org.springframework.util.Assert;
+import org.thinkingcloud.framework.util.Assert;
+
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.protocols.http.HttpBase;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClient;

@@ -5,14 +5,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.jsoup.Connection;
-import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.junit.Test;
-import org.springframework.util.Assert;
+import org.thinkingcloud.framework.util.Assert;
 
-import com.gemstone.gemfire.internal.tools.gfsh.app.commands.pr;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PageHelper;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;

@@ -1,7 +1,7 @@
 package com.zxsoft.crawler.util;
 
 import org.junit.Test;
-import org.springframework.util.Assert;
+import org.thinkingcloud.framework.util.Assert;
 
 public class EncodingDetectorTest {
 

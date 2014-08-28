@@ -4,36 +4,23 @@ import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.Assert;
+import org.thinkingcloud.framework.util.Assert;
 
-import com.zxsoft.crawler.Crawler;
-import com.zxsoft.crawler.plugin.parse.NewsParser;
+import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.CrawlerConfiguration;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Crawler.class)
 public class ParserControllerTest {
 
-	@Autowired
 	private HttpFetcher httpFetcher;
-	
-	@Autowired
-	public ApplicationContext ctx;
 	
 	private Configuration conf;
 	
 	@Before
 	public void setup() {
 		conf = CrawlerConfiguration.create();
-		ParseTool.init(ctx);
 	}
 	
 	@Test
@@ -46,7 +33,7 @@ public class ParserControllerTest {
 		WebPage page = new WebPage("title", urlStr, System.currentTimeMillis(), document);
 		page.setAjax(false);
 		
-		ParserController parserController = new ParserController(conf);
+		NetworkInspectionParserController parserController = new NetworkInspectionParserController(conf);
 		parserController.parse(page);
 	}
 
@@ -60,7 +47,7 @@ public class ParserControllerTest {
 		WebPage page = new WebPage("title", urlStr, System.currentTimeMillis(), document);
 		page.setAjax(false);
 		
-		ParserController parserController = new ParserController(conf);
+		NetworkInspectionParserController parserController = new NetworkInspectionParserController(conf);
 		parserController.parse(page);
 	}
 	
@@ -74,13 +61,13 @@ public class ParserControllerTest {
 		WebPage page = new WebPage("title", urlStr, System.currentTimeMillis(), document);
 		page.setAjax(false);
 		
-		ParserController parserController = new ParserController(conf);
+		NetworkInspectionParserController parserController = new NetworkInspectionParserController(conf);
 		parserController.parse(page);
 	}
 	
 	
 	@Test
-	public void testParseSinaNews() throws ParserNotFoundException {
+	public void testParseSinaNews() throws ParserNotFoundException, ProtocolException {
 		String urlStr = "http://roll.news.sina.com.cn/s/channel.php?ch=01#col=89&spec=&type=&ch=01&k=&offset_page=0&offset_num=0&num=60&asc=&page=1";
 		ProtocolOutput protocolOutput = httpFetcher.fetch(urlStr, true);
 		Assert.notNull(protocolOutput);
@@ -90,9 +77,9 @@ public class ParserControllerTest {
 		WebPage page = new WebPage("title", urlStr, System.currentTimeMillis(), document);
 		page.setAjax(true);
 		
-		ParserController parserController = new ParserController(conf);
-		ParseStatus status = parserController.parse(page);
-		Assert.isTrue(status.getStatus() == ParseStatus.Status.SUCCESS);
+		NetworkInspectionParserController parserController = new NetworkInspectionParserController(conf);
+		FetchStatus status = parserController.parse(page);
+		Assert.isTrue(status.getStatus() == FetchStatus.Status.SUCCESS);
 
 	}
 	
