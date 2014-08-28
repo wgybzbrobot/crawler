@@ -6,7 +6,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.junit.Test;
-import org.springframework.util.Assert;
+import org.thinkingcloud.framework.util.Assert;
 
 import com.zxsoft.proxy.LocalProxyFactory;
 import com.zxsoft.proxy.Proxy;
