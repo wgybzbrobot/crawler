@@ -9,7 +9,7 @@ import java.net.SocketAddress;
 import java.net.URL;
 
 import org.junit.Test;
-import org.springframework.util.Assert;
+import org.thinkingcloud.framework.util.Assert;
 
 public class SocksProxyTest {
 

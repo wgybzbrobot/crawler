@@ -5,30 +5,22 @@ import java.io.Serializable;
 public class Proxy implements Serializable {
 
 	private static final long serialVersionUID = 518169468536248943L;
-	private String username;
-	private String password;
 	private String host;
 	private int port;
-	private String type;
-	private String realm;
-	/**
-	 * 是否可用
-	 */
-	private boolean isWork;
-	private int error;
+	private String username;
+	private String password;
 	/**
 	 * 用于网站的类型
 	 * 
 	 * @see WebPage.type
 	 */
-	private String targetType;
+	private String type;
 
-	public Proxy() {}
-	
-	public Proxy(String type, String targetType, String username, String password, String host,
-	        int port, String realm) {
+	public Proxy() {
+	}
+
+	public Proxy(String type, String host, int port, String username, String password) {
 		super();
-		this.targetType = targetType;
 		this.username = username;
 		this.password = password;
 		this.host = host;
@@ -36,31 +28,12 @@ public class Proxy implements Serializable {
 		this.type = type;
 	}
 
-	public int getError() {
-		return error;
-	}
-
-	public void setError(int error) {
-		this.error = error;
-	}
-
-	public boolean isWork() {
-		return isWork;
-	}
 	public String getTargetType() {
-		return targetType;
+		return type;
 	}
 
 	public void setTargetType(String targetType) {
-		this.targetType = targetType;
-	}
-
-	public String getRealm() {
-		return realm;
-	}
-
-	public void setRealm(String realm) {
-		this.realm = realm;
+		this.type = targetType;
 	}
 
 	public String getType() {

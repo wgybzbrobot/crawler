@@ -11,28 +11,23 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+import org.thinkingcloud.framework.util.StringUtils;
 
-
-@Component
-public class LocalProxyFactory extends ProxyFactory {
+public class LocalProxyFactory implements ProxyFactory {
 
 	private static Logger LOG = LoggerFactory.getLogger(LocalProxyFactory.class);
 	private static final String PROXY_FILE = "proxy.ini";
-	
-	private static List<Proxy> proxies = new ArrayList<Proxy>();
-	
+
+	private static final List<Proxy> proxies = new ArrayList<Proxy>();
+
 	static {
 		BufferedReader reader = null;
 		try {
 			Resource resource = new ClassPathResource(PROXY_FILE);
 			InputStream is = resource.getInputStream();
-			
+
 			reader = new BufferedReader(new InputStreamReader(is));
 
 			String line = null;
@@ -40,29 +35,28 @@ public class LocalProxyFactory extends ProxyFactory {
 				line = line.trim();
 				if (line.length() == 0)
 					continue;
-				
+
 				if (line.startsWith("#"))
 					continue;
-				
+
 				String[] ini = line.split(":");
-				if (ini == null || ini.length != 7) continue;
+				if (ini == null || ini.length != 3)
+					continue;
 				if (line.indexOf("#") != -1) {
 					line = line.substring(0, line.indexOf("#"));
 				}
-				String realm = ini[0];
-				String username = ini[1];
-				String password = ini[2];
-				String host = ini[3];
-				String portStr = ini[4];
+				String type = ini[0];
+				String host = ini[1];
+				String portStr = ini[2];
+				String username = "";
+				String password = "";
 				int port = 80;
 				try {
 					port = Integer.valueOf(portStr);
 				} catch (Exception e) {
-					
+
 				}
-				String type = ini[5];
-				String targetType = ini[6];
-				Proxy proxy = new Proxy(type,targetType, username, password, host, port,realm);
+				Proxy proxy = new Proxy(type,  host, port, username, password);
 				LOG.debug("Put proxy in cache: " + proxy);
 				proxies.add(proxy);
 			}
@@ -74,13 +68,10 @@ public class LocalProxyFactory extends ProxyFactory {
 		}
 	}
 
-	
-	@Cacheable(value = { "proxyCache"}, key="#type" )
 	public List<Proxy> getProxies(String type) {
-		LOG.debug("Not use cache getting data.");
 		if (StringUtils.isEmpty(type))
 			return proxies;
-		
+
 		List<Proxy> result = new LinkedList<Proxy>();
 		for (Proxy proxy : proxies) {
 			if (type.equals(proxy.getTargetType())) {
