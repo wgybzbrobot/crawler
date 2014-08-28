@@ -3,27 +3,25 @@ package com.zxsoft.crawler.plugin.parse;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import com.gemstone.gemfire.internal.tools.gfsh.app.commands.get;
-import com.zxsoft.crawler.dao.ConfDao;
-import com.zxsoft.crawler.duplicate.DuplicateInspector;
-import com.zxsoft.crawler.parse.Category;
+import org.thinkingcloud.framework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.StringUtils;
+
+import com.zxsoft.crawler.parse.FetchStatus;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
-import com.zxsoft.crawler.parse.ParseStatus;
 import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.protocol.ProtocolStatusCodes;
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
-import com.zxsoft.crawler.store.Output;
 import com.zxsoft.crawler.store.OutputException;
 import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
@@ -41,7 +39,7 @@ public class ForumParser extends Parser {
 	private static Logger LOG = LoggerFactory.getLogger(ForumParser.class);
 	private ThreadLocal<String> mainUrl = new ThreadLocal<String>();
 	private ThreadLocal<String> rule = new ThreadLocal<String>() { protected String initialValue() { return "";}};
-	private ThreadLocal<Long> prevFetchTime = new ThreadLocal<Long>();
+	private ThreadLocal<Long> interval = new ThreadLocal<Long>();
 	private ThreadLocal<Boolean> ajax = new ThreadLocal<Boolean>();
 	private ThreadLocal<List<RecordInfo>> threadLocalRecordInfos = new ThreadLocal<List<RecordInfo>>() {
 		protected List<RecordInfo> initialValue() {
@@ -54,53 +52,47 @@ public class ForumParser extends Parser {
 		}
 	};
 	
-	public ParseStatus parse(WebPage page) throws Exception {
+	public FetchStatus parse(WebPage page) throws Exception {
 		Assert.notNull(page, "Page is null");
 		Document document = page.getDocument();
 		Assert.notNull(document, "Document is null");
 		
 		mainUrl.set(page.getBaseUrl());
-		prevFetchTime.set(page.getPrevFetchTime());
+		interval.set(page.getPrevFetchTime());
 		ajax.set(page.isAjax());
 		threadLocalRecordInfos.set(new LinkedList<RecordInfo>());
 		threadLocalDetailConf.set(confDao.getDetailConf(Utils.getHost(mainUrl.get())));
 		
-		ParseStatus status = new ParseStatus(mainUrl.get());
-		status.setStatus(ParseStatus.Status.PARSING);
+		FetchStatus status = new FetchStatus(mainUrl.get());
+		status.setStatus(FetchStatus.Status.PARSING);
 		
 		String md5 = Md5Signatrue.generateMd5(mainUrl.get());
 		if (duplicateInspector.md5Exist(md5)) {
-			status.setStatus(ParseStatus.Status.NOT_CHANGE);
+			status.setStatus(FetchStatus.Status.NOT_CHANGE);
 			status.setMessage("This url was fetched and no changed");
 			return status;
 		}
 		
 		if (threadLocalDetailConf == null || threadLocalDetailConf.get() == null) {
 			LOG.warn("Detail page has no configuration in database." + mainUrl);
-			status.setStatus(ParseStatus.Status.PARSE_FAILURE);
+			status.setStatus(FetchStatus.Status.PARSE_FAILURE);
 			status.setMessage("No detail page configuration found in database");
 			return status;
 		}
 
-		/*if (seed.getType() == Category.DETAIL_PAGE) { // 新的详细页 或 丢失的详细页
-			fetchContent(page, detailConf);
-		} else if (seed.getType() == Category.REPLY_PAGE) { // 丢失的回复页
-			parsePage(page, document, seed.getMainUrl(), seed.getUrl(), detailConf);
-		} else {
-			LOG.error("Seed error occur.");
-		}*/
-		
 		fetchContent(page);
 		
-		int num = 0;
+		int num = threadLocalRecordInfos.get().size();
         try {
-	        num = indexWriter.write(threadLocalRecordInfos.get());
+	        indexWriter.write(threadLocalRecordInfos.get());
         } catch (OutputException e) {
-        	status.setStatus(ParseStatus.Status.OUTPUT_FAILURE);
+        	status.setStatus(FetchStatus.Status.OUTPUT_FAILURE);
         	status.setMessage(e.getMessage());
+        	status.setCount(num);
+        	return status;
         }
 		LOG.debug(mainUrl.get() + " has " + num + " records.");
-		status.setStatus(ParseStatus.Status.SUCCESS);
+		status.setStatus(FetchStatus.Status.SUCCESS);
 		status.setMessage("Fetch " + num + " records from " + mainUrl.get());
 		status.setCount(num);
 		return status;
@@ -175,10 +167,13 @@ public class ForumParser extends Parser {
 		if (!threadLocalDetailConf.get().isFetchorder()) { // 从第一页
 			int pageNum = 1;
 			do {
-				parsePage(page, doc, mainUrl.get(), currentUrl);
+				boolean isContinue = parsePage(page, doc, mainUrl.get(), currentUrl);
+				if (!isContinue) {
+					break;
+				}
 				pageNum++;
 				ptemp = fetchNextPage(pageNum, doc, ajax.get());
-				if (ptemp == null || ptemp.getStatus().getCode() != ProtocolStatusCodes.SUCCESS)
+				if (ptemp == null || ptemp.getStatus().getCode() != STATUS_CODE.SUCCESS)
 					break;
 				doc = ptemp.getDocument();
 				currentUrl = newPageUrl;
@@ -188,7 +183,7 @@ public class ForumParser extends Parser {
 			// jump to last page
 			ptemp = fetchLastPage(doc, ajax.get());
 			Document lastDoc = null;
-			if (ptemp == null || ptemp.getStatus().getCode() != ProtocolStatusCodes.SUCCESS || (lastDoc = ptemp.getDocument()) == null ) {
+			if (ptemp == null || ptemp.getStatus().getCode() != STATUS_CODE.SUCCESS || (lastDoc = ptemp.getDocument()) == null ) {
 				parsePage(page, doc, mainUrl.get(), currentUrl);
 			} else {
 				doc = lastDoc;
@@ -196,10 +191,13 @@ public class ForumParser extends Parser {
 					if (doc == null || StringUtils.isEmpty(currentUrl = doc.location()))
 						break;
 					LOG.debug(currentUrl);
-					parsePage(page, doc, mainUrl.get(), currentUrl);
+					boolean isContinue = parsePage(page, doc, mainUrl.get(), currentUrl);
+					if (!isContinue) {
+						break;
+					}
 					// 获取上一页
 					ptemp = fetchPrevPage(-1, doc, ajax.get());
-					if (ptemp == null || ptemp.getStatus().getCode() != ProtocolStatusCodes.SUCCESS)
+					if (ptemp == null || ptemp.getStatus().getCode() != STATUS_CODE.SUCCESS)
 						break;
 					doc = ptemp.getDocument();
 				}
@@ -210,7 +208,7 @@ public class ForumParser extends Parser {
 	/**
 	 * 解析一页
 	 */
-	private void parsePage(WebPage page, Document doc, String mainUrl, String currentUrl) {
+	private boolean parsePage(WebPage page, Document doc, String mainUrl, String currentUrl) {
 		Elements replyEles = doc.select(threadLocalDetailConf.get().getReply());
 		for (Element element : replyEles) {
 			RecordInfo reply = new RecordInfo();
@@ -218,6 +216,9 @@ public class ForumParser extends Parser {
 			reply.setUrl(currentUrl);
 			String id = save(page, reply, element, null); // 保存回复
 
+			if (reply.getTimestamp() != 0 && reply.getTimestamp() < System.currentTimeMillis() - interval.get())
+				return false;
+			
 			if (id == null) continue;
 			// 解析子回复
 			String subReplyDom = threadLocalDetailConf.get().getSubReply();
@@ -235,6 +236,7 @@ public class ForumParser extends Parser {
 				}
 			}
 		}
+		return true;
 	}
 
 	/**

@@ -4,6 +4,6 @@ import com.zxsoft.crawler.storage.WebPage;
 
 public abstract class Parser extends ParseTool  {
 	
-	public abstract ParseStatus parse(WebPage page) throws Exception;
+	public abstract FetchStatus parse(WebPage page) throws Exception;
 	
 }

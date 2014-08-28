@@ -38,10 +38,10 @@ public class WebsiteServiceImpl implements WebsiteService {
 		List<ListConf> res = jdbcTemplate.query(resultSql + paramSb.toString() + " limit " + (pageNo -1) + "," + pageSize, new RowMapper<ListConf>() {
 			public ListConf mapRow(ResultSet rs, int rowNum) throws SQLException {
 				return new ListConf(rs.getString("comment"), rs.getString("url"), rs
-				        .getString("category"), rs.getBoolean("ajax"), rs.getInt("fetchinterval"),
+				        .getString("category"), rs.getBoolean("auth"), rs.getBoolean("ajax"), rs.getInt("fetchinterval"),
 				        /*rs.getInt("pageNum"),*/ rs.getString("filterurl"), rs.getString("listdom"),
 				        rs.getString("linedom"), rs.getString("urldom"), rs.getString("datedom"),
-				        rs.getString("updatedom"), rs.getInt("numThreads"));
+				        rs.getString("updatedom"), rs.getInt("numThreads"), rs.getString("synopsis"));
 			}
 		});
 		

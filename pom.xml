@@ -19,10 +19,6 @@
 		<module>crawler-dao</module>
 		<module>crawler-core</module>
 		<module>crawler-protocol</module>
-		<module>crawler-cache</module>
-		<module>crawler-proxy</module>
-		<module>crawler-assemblies</module>
-		<module>crawler-project-dist</module>
 	</modules>
 	<organization>
 		<name>中新软件有限公司</name>

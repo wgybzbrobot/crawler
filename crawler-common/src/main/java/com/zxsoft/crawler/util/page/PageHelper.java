@@ -3,17 +3,19 @@ package com.zxsoft.crawler.util.page;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+
+import org.apache.hadoop.conf.Configured;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.Assert;
+import org.thinkingcloud.framework.util.CollectionUtils;
 
 import com.zxsoft.crawler.util.Utils;
 
-public class PageHelper {
+public class PageHelper/* extends Configured */{
 
 	private static Logger LOG = LoggerFactory.getLogger(PageHelper.class);
 

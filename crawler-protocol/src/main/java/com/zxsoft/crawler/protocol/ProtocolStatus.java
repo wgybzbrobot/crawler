@@ -1,36 +1,53 @@
 package com.zxsoft.crawler.protocol;
 
-import java.net.URL;
-
-import com.zxsoft.crawler.protocol.ProtocolStatusUtils;
-
 public class ProtocolStatus {
-	private URL u;
-	private int code;
+
+	public enum STATUS_CODE {
+		SUCCESS, INVALID_URL, FAILED, GONE, NOTFOUND, RETRY,
+		ROBOTS_DENIED, MOVED, TEMP_MOVED, EXCEPTION, ACCESS_DENIED, NOTMODIFIED
+		
+	}
+
+	private String u;
+	private STATUS_CODE code;
 	private String message;
 
 	public ProtocolStatus() {
 	}
 
-	public ProtocolStatus(URL u, int code) {
-		this.u = u;
+	public ProtocolStatus(STATUS_CODE code) {
 		this.code = code;
 	}
 
-	public URL getU() {
-		return u;
-	}
-
-	public void setU(URL u) {
+	public ProtocolStatus(String u) {
 		this.u = u;
 	}
 
-	public int getCode() {
+	public ProtocolStatus(String u, STATUS_CODE code) {
+		this.u = u;
+		this.code = code;
+	}
+	
+	public ProtocolStatus(String u, STATUS_CODE code, String message) {
+		this.u = u;
+		this.code = code;
+		this.message = message;
+	}
+
+	public STATUS_CODE getCode() {
 		return code;
 	}
 
-	public void setCode(int code) {
+	public void setCode(STATUS_CODE code) {
 		this.code = code;
+	}
+
+	public String getU() {
+		return u;
+	}
+
+	public void setU(String u) {
+		this.u = u;
 	}
 
 	public String getMessage() {
@@ -47,6 +64,6 @@ public class ProtocolStatus {
 	 * @return the {@link ProtocolStatus} value for 200 (success).
 	 */
 	public boolean isSuccess() {
-		return code == ProtocolStatusUtils.SUCCESS;
+		return code == STATUS_CODE.SUCCESS;
 	}
 }

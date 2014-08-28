@@ -7,14 +7,28 @@ import org.jsoup.nodes.Document;
 public class WebPage implements Serializable {
 
 	private static final long serialVersionUID = 6780885020548185632L;
-	private String baseUrl;
+	
+	public enum JOB_TYPE {
+		/** 网络巡检 */
+		NETWORK_INSPECT, 
+		/** 全网搜索 */
+		NETWORK_SEARCH
+	}
+	
+	private String baseUrl;  // used for network inspect
+	
+	private String keyword; // used for network search
+	private String engineId; 
+	
 	private int status;
 	private long fetchTime;
 	private long prevFetchTime;
-	private int fetchInterval;
+	private long interval;
 	private int retriesSinceFetch;
 	private Document document;
 
+	private JOB_TYPE jobType;
+	
 	private String title;
 	private boolean ajax;
 	/**
@@ -24,6 +38,18 @@ public class WebPage implements Serializable {
 	private String type;
 	
 	public WebPage () {}
+	
+	public WebPage (String baseUrl, boolean ajax) {
+		super();
+		this.baseUrl = baseUrl;
+		this.ajax =  ajax;
+	}
+	
+	public WebPage (String keyword, String engineId, String urlType) {
+		this.keyword = keyword;
+		this.engineId = engineId;
+		this.type = urlType;
+	}
 	
 	public WebPage(String baseUrl, long fetchTime, Document document) {
 	    super();
@@ -38,6 +64,12 @@ public class WebPage implements Serializable {
 		this. ajax =  ajax;
 		this.prevFetchTime = prevFetchTime;
 	}
+	public WebPage(String baseUrl, String  urlType, long interval) {
+		super();
+		this.baseUrl = baseUrl;
+		this.type = urlType;
+		this.interval = interval;
+	}
 	
 	public WebPage(String title, String baseUrl, long fetchTime, Document document) {
 		super();
@@ -47,6 +79,31 @@ public class WebPage implements Serializable {
 		this.document = document;
 	}
 	
+	
+	public String getEngineId() {
+		return engineId;
+	}
+
+	public void setEngineId(String engineId) {
+		this.engineId = engineId;
+	}
+
+	public String getKeyword() {
+		return keyword;
+	}
+
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
+	}
+
+	public JOB_TYPE getJobType() {
+		return jobType;
+	}
+
+	public void setJobType(JOB_TYPE jobType) {
+		this.jobType = jobType;
+	}
+
 	public String getType() {
 		return type;
 	}
@@ -103,12 +160,12 @@ public class WebPage implements Serializable {
 		this.prevFetchTime = prevFetchTime;
 	}
 
-	public int getFetchInterval() {
-		return fetchInterval;
+	public long getInterval() {
+		return interval;
 	}
 
-	public void setFetchInterval(int fetchInterval) {
-		this.fetchInterval = fetchInterval;
+	public void setInterval(long interval) {
+		this.interval = interval;
 	}
 
 	public int getRetriesSinceFetch() {

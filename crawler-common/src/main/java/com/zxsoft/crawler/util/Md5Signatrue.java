@@ -5,7 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Hex;
-import org.springframework.util.StringUtils;
+import org.thinkingcloud.framework.util.StringUtils;
 
 public class Md5Signatrue {
 

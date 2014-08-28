@@ -8,7 +8,7 @@ import org.apache.hadoop.conf.Configuration;
 
 public class CrawlerConfiguration {
 
-	public static final String UUID_KEY = "carson.conf.uuid";
+	public static final String UUID_KEY = "crawler.conf.uuid";
 
 	private CrawlerConfiguration() {
 	} // singleton
@@ -43,7 +43,7 @@ public class CrawlerConfiguration {
 	public static Configuration create() {
 		Configuration conf = new Configuration();
 		setUUID(conf);
-		addCarsonResources(conf);
+		addCrawlerResources(conf);
 		return conf;
 	}
 
@@ -62,7 +62,7 @@ public class CrawlerConfiguration {
 		Configuration conf = new Configuration();
 		setUUID(conf);
 		if (addNutchResources) {
-			addCarsonResources(conf);
+			addCrawlerResources(conf);
 		}
 		for (Entry<Object, Object> e : nutchProperties.entrySet()) {
 			conf.set(e.getKey().toString(), e.getValue().toString());
@@ -76,7 +76,7 @@ public class CrawlerConfiguration {
 	 * @param conf
 	 *            Configuration object to which configuration is to be added.
 	 */
-	private static Configuration addCarsonResources(Configuration conf) {
+	private static Configuration addCrawlerResources(Configuration conf) {
 		conf.addResource("crawler-default.xml");
 		return conf;
 	}

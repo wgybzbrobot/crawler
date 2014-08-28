@@ -10,8 +10,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+import org.thinkingcloud.framework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.StringUtils;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;

@@ -1,6 +1,16 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
+	<property>
+		<name>data.output.address</name>
+		<value>http://192.168.32.11:8900/sentiment/index</value>
+		<description></description>
+	</property>
+	<property>
+		<name>http.proxy.use</name>
+		<value>false</value>
+		<description>whether to use proxy visiting website</description>
+	</property>
 	<property><!-- 本机器爬虫的线程数 -->
 		<name>spider.thread.num</name>
 		<value>10</value>
@@ -11,6 +21,36 @@
 		<value>4</value>
 		<description>max thread count per url</description>
 	</property>
+	<property>
+		<name>http.timeout</name>
+		<value>5000</value>
+		<description></description>
+	</property>
+	<property>
+		<name>http.maxContent</name>
+		<value>1048576</value>
+		<description>web page max content</description>
+	</property>
+	<property>
+		<name>http.useHttp11</name>
+		<value>true</value>
+		<description>if http client order http v1.1</description>
+	</property>
+	<property>
+		<name>http.accept.language</name>
+		<value>en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4,zh-TW;q=0.2</value>
+		<description></description>
+	</property>
+	<property>
+		<name>http.accept</name>
+		<value>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</value>
+		<description></description>
+	</property>
+	<property>
+		<name>http.userAgent</name>
+		<value>Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36</value>
+		<description>crawler user agent</description>
+	</property>
 	<property> <!-- 解析器配置文件 -->
 		<name>parse.plugin.file</name>
 		<value>parse-plugins.xml</value>
@@ -19,4 +59,5 @@
 			content-types and parsers.
 		</description>
 	</property>
+	
 </configuration>

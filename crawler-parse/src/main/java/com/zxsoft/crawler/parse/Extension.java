@@ -1,5 +1,7 @@
 package com.zxsoft.crawler.parse;
 
+import com.zxsoft.crawler.plugin.PluginRuntimeException;
+
 
 public class Extension {
 

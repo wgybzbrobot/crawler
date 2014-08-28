@@ -33,7 +33,6 @@ public class ListConfigVerification extends ParseTool {
 	private ApplicationContext ctx;
 
 	public Map<String, Object> verify(ListConf listConf) {
-		super.init(ctx);
 		Map<String, Object> map = new HashMap<String, Object>();
 		List<ThreadInfo> list = new ArrayList<ThreadInfo>();
 		String pageStr = "";

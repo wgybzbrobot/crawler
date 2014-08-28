@@ -1,80 +1,33 @@
 package com.zxsoft.crawler.protocols.http.httpclient;
 
 import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
-import java.nio.charset.CodingErrorAction;
-import java.util.Arrays;
+import java.util.ArrayList;
 
-import javax.net.ssl.SSLContext;
-
-import org.apache.http.Consts;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.NTCredentials;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.AuthSchemes;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.config.ConnectionConfig;
-import org.apache.http.config.MessageConstraints;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.DnsResolver;
-import org.apache.http.conn.HttpConnectionFactory;
-import org.apache.http.conn.ManagedHttpClientConnection;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
-import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.DefaultHttpResponseParser;
-import org.apache.http.impl.conn.DefaultHttpResponseParserFactory;
-import org.apache.http.impl.conn.ManagedHttpClientConnectionFactory;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.impl.conn.SystemDefaultDnsResolver;
-import org.apache.http.impl.io.DefaultHttpRequestWriterFactory;
-import org.apache.http.io.HttpMessageParser;
-import org.apache.http.io.HttpMessageParserFactory;
-import org.apache.http.io.HttpMessageWriterFactory;
-import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicLineParser;
-import org.apache.http.message.LineParser;
-import org.apache.http.util.CharArrayBuffer;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
+import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+import org.thinkingcloud.framework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.NetUtils;
+import org.thinkingcloud.framework.util.StringUtils;
 
-import com.zxsoft.crawler.dns.DNSCache;
 import com.zxsoft.crawler.metadata.Metadata;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
@@ -86,246 +39,202 @@ import com.zxsoft.crawler.util.page.PageHelper;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 import com.zxsoft.proxy.Proxy;
 
-@Component
-@Scope("prototype")
 public class HttpClient extends HttpBase {
 
 	public static final Logger LOG = LoggerFactory.getLogger(HttpClient.class);
-	private CloseableHttpClient client;
+	
+	private org.apache.commons.httpclient.HttpClient client = new org.apache.commons.httpclient.HttpClient(connectionManager);
 
+	public HttpClient() {}
+	
+	public HttpClient(Configuration conf) {
+		setConf(conf);
+    }
+	
 	@Override
-	protected Response getResponse(URL url, boolean followRedirects) throws ProtocolException,
+	public Response getResponse(URL url, boolean followRedirects) throws ProtocolException,
 	        IOException {
-		Proxy proxy = proxyRandom.random(url.toString());
-		int code;
+		
+		int code = -1;
 		Metadata headers = new Metadata();
 		byte[] content = new byte[1024];
-
-		HttpMessageParserFactory<HttpResponse> responseParserFactory = new DefaultHttpResponseParserFactory() {
-
-			@Override
-			public HttpMessageParser<HttpResponse> create(SessionInputBuffer buffer,
-			        MessageConstraints constraints) {
-				LineParser lineParser = new BasicLineParser() {
-
-					@Override
-					public Header parseHeader(final CharArrayBuffer buffer) {
-						try {
-							return super.parseHeader(buffer);
-						} catch (ParseException ex) {
-							return new BasicHeader(buffer.toString(), null);
-						}
-					}
-
-				};
-				return new DefaultHttpResponseParser(buffer, lineParser,
-				        DefaultHttpResponseFactory.INSTANCE, constraints) {
-
-					@Override
-					protected boolean reject(final CharArrayBuffer line, int count) {
-						// try to ignore all garbage preceding a status line
-						// infinitely
-						return false;
-					}
-
-				};
-			}
-
-		};
-		HttpMessageWriterFactory<HttpRequest> requestWriterFactory = new DefaultHttpRequestWriterFactory();
-
-		/*
-		 * Use a custom connection factory to customize the process of
-		 * initialization of outgoing HTTP connections. Beside standard
-		 * connection configuration parameters HTTP connection factory can
-		 * define message parser / writer routines to be employed by individual
-		 * connections.
-		 */
-		HttpConnectionFactory<HttpRoute, ManagedHttpClientConnection> connFactory = new ManagedHttpClientConnectionFactory(
-		        requestWriterFactory, responseParserFactory);
-
-		/*
-		 * Client HTTP connection objects when fully initialized can be bound to
-		 * an arbitrary network socket. The process of network socket
-		 * initialization, its connection to a remote address and binding to a
-		 * local one is controlled by a connection socket factory. SSL context
-		 * for secure connections can be created either based on system or
-		 * application specific properties.
-		 */
-		SSLContext sslcontext = SSLContexts.createSystemDefault();
-		// Use custom hostname verifier to customize SSL hostname
-		// verification.
-		X509HostnameVerifier hostnameVerifier = new BrowserCompatHostnameVerifier();
-
-		// Create a registry of custom connection socket factories for
-		// supported
-		// protocol schemes.
-		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder
-		        .<ConnectionSocketFactory> create()
-		        .register("http", PlainConnectionSocketFactory.INSTANCE)
-		        .register("https", new SSLConnectionSocketFactory(sslcontext, hostnameVerifier))
-		        .build();
-
-		// Use custom DNS resolver to override the system DNS resolution.
-		DnsResolver dnsResolver = new SystemDefaultDnsResolver() {
-
-			@Override
-			public InetAddress[] resolve(final String host) throws UnknownHostException {
-				InetAddress[] addrs = DNSCache.get(host);
-				if (addrs == null) {
-					addrs = super.resolve(host);
-					DNSCache.put(host, addrs);
-				}
-				return addrs;
-			}
-
-		};
-
-		// Create a connection manager with custom configuration.
-		PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(
-		        socketFactoryRegistry, connFactory, dnsResolver);
-
-		// Create socket configuration
-		SocketConfig socketConfig = SocketConfig.custom().setTcpNoDelay(true).build();
-		// Configure the connection manager to use socket configuration
-		// either
-		// by default or for a specific host.
-		connManager.setDefaultSocketConfig(socketConfig);
-		// connManager.setSocketConfig(new HttpHost("somehost", 80),
-		// socketConfig);
-
-		// Create message constraints
-		MessageConstraints messageConstraints = MessageConstraints.custom().setMaxHeaderCount(200)
-		        .setMaxLineLength(2000).build();
-		// Create connection configuration
-		ConnectionConfig connectionConfig = ConnectionConfig.custom()
-		        .setMalformedInputAction(CodingErrorAction.IGNORE)
-		        .setUnmappableInputAction(CodingErrorAction.IGNORE).setCharset(Consts.UTF_8)
-		        .setMessageConstraints(messageConstraints).build();
-		// Configure the connection manager to use connection configuration
-		// either
-		// by default or for a specific host.
-		connManager.setDefaultConnectionConfig(connectionConfig);
-		// connManager.setConnectionConfig(new HttpHost("somehost", 80),
-		// ConnectionConfig.DEFAULT);
-
-		/*
-		 * Configure total max or per route limits for persistent connections
-		 * that can be kept in the pool or leased by the connection manager.
-		 */
-		connManager.setMaxTotal(100);
-		connManager.setDefaultMaxPerRoute(10);
-		// connManager.setMaxPerRoute(new HttpRoute(new HttpHost("somehost",
-		// 80)), 20);
-
-		// Use custom cookie store if necessary.
-		CookieStore cookieStore = new BasicCookieStore();
-		// Use custom credentials provider if necessary.
-		CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-		// Create global request configuration
-		RequestConfig defaultRequestConfig = RequestConfig.custom()
-		        .setCookieSpec(CookieSpecs.BEST_MATCH).setExpectContinueEnabled(true)
-		        .setStaleConnectionCheckEnabled(true)
-		        .setTargetPreferredAuthSchemes(Arrays.asList(AuthSchemes.NTLM, AuthSchemes.DIGEST))
-		        .setProxyPreferredAuthSchemes(Arrays.asList(AuthSchemes.BASIC)).build();
-
 		
-		// Create an HttpClient with the given custom dependencies and
-		// configuration.
-		CloseableHttpClient httpclient = HttpClients.custom().setConnectionManager(connManager)
-				.setUserAgent("Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36")
-		        .setDefaultCookieStore(cookieStore)
-		        .setDefaultCredentialsProvider(credentialsProvider)
-		        .setDefaultRequestConfig(defaultRequestConfig).build();
+		ProtocolSocketFactory factory = new SSLProtocolSocketFactory();
+		Protocol https = new Protocol("https", factory, 443);
+		Protocol.registerProtocol("https", https);
 
-	
+		HttpConnectionManagerParams params = connectionManager.getParams();
+		params.setConnectionTimeout(timeout);
+		params.setSoTimeout(timeout);
+		params.setSendBufferSize(BUFFER_SIZE);
+		params.setReceiveBufferSize(BUFFER_SIZE);
+		params.setMaxTotalConnections(maxThreadsTotal);
+
+		params.setDefaultMaxConnectionsPerHost(maxThreadsTotal);
+
+		client.getParams().setConnectionManagerTimeout(timeout);
+
+		HostConfiguration hostConf = client.getHostConfiguration();
+		ArrayList<Header> reqHeaders = new ArrayList<Header>();
+		reqHeaders.add(new Header("User-Agent", userAgent));
+		reqHeaders.add(new Header("Accept-Language", acceptLanguage));
+		reqHeaders.add(new Header("Accept-Charset", acceptCharset));
+		reqHeaders.add(new Header("Accept", accept));
+		reqHeaders.add(new Header("Connection", "keep-alive"));
 		
+		String cookie = com.zxsoft.crawler.protocols.http.CookieStore.get(NetUtils.getHost(url));
+		if (!StringUtils.isEmpty(cookie)) {
+			reqHeaders.add(new Header("Cookie", cookie));
+		}
+		hostConf.getParams().setParameter("http.default-headers", reqHeaders);
+
+		// HTTP proxy server details
+		if (useProxy) {
+//			Proxy proxy = proxyRandom.random(url.toString());
+			Proxy proxy = getProxy(url.toString());
+			if (proxy != null) {
+				hostConf.setProxy(proxy.getHost(), proxy.getPort());
+			}
+			/*if (proxy.getUsername().length() > 0) {
+				AuthScope proxyAuthScope = getAuthScope(proxy.getHost(),
+						proxy.getPort(),proxy.getRealm());
+				NTCredentials proxyCredentials = new NTCredentials(
+				        this.proxyUsername, this.proxyPassword, Http.agentHost,
+				        this.proxyRealm);
+				client.getState().setProxyCredentials(proxyAuthScope,
+				        proxyCredentials);
+			}*/
+		}
+		
+		GetMethod get = new GetMethod(url.toString());
+		HttpMethodParams methodParams = get.getParams();
+		methodParams.makeLenient();
+		methodParams.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+		methodParams.setParameter("http.protocol.cookie-policy",CookiePolicy.BROWSER_COMPATIBILITY);
+		methodParams.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
 		try {
-			HttpGet httpget = new HttpGet(url.toString());
-
-			RequestConfig requestConfig = null;
-			if (useProxy) {
-				requestConfig = RequestConfig.copy(defaultRequestConfig)
-				        .setProxy(new HttpHost(proxy.getHost(), proxy.getPort())).build();
-			} else {
-				requestConfig = RequestConfig.copy(defaultRequestConfig).build();
-			}
-			httpget.setConfig(requestConfig);
-
-			// Execution context can be customized locally.
-			HttpClientContext context = HttpClientContext.create();
-			// Contextual attributes set the local context level will take
-			// precedence over those set at the client level.
-			context.setCookieStore(cookieStore);
-			context.setCredentialsProvider(credentialsProvider);
-
-			// System.out.println("executing request " + httpget.getURI());
-			CloseableHttpResponse httpResponse = null;
+			code = client.executeMethod(get);
+			
+			get.getRequestHeaders();
+			
+			Header[] heads = get.getResponseHeaders();
+			for (int i = 0; i < heads.length; i++) 
+				headers.set(heads[i].getName(), heads[i].getValue());
+			
+			String contentType = headers.get(Response.CONTENT_TYPE);
+			charset = EncodingDetector.parseCharacterEncoding(contentType);
+			long contentLength = Long.MAX_VALUE;
+			InputStream in = get.getResponseBodyAsStream();
+			byte[] buffer = new byte[1024 * 1024];
+			int bufferFilled = 0;
+			int totalRead = 0;
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			try {
-				httpResponse = httpclient.execute(httpget, context);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			try {
-				HttpEntity entity = httpResponse.getEntity();
-				/*
-				 * System.out.println(httpResponse.getStatusLine()); if (entity
-				 * != null) { System.out.println("Response content length: " +
-				 * entity.getContentLength()); }
-				 */
-
-				code = httpResponse.getStatusLine().getStatusCode();
-				Header[] heads = httpResponse.getAllHeaders();
-				for (int i = 0; i < heads.length; i++) {
-					headers.set(heads[i].getName(), heads[i].getValue());
-				}
-
-				long contentLength = Long.MAX_VALUE;
-				InputStream in = entity.getContent();
-				byte[] buffer = new byte[HttpBase.BUFFER_SIZE];
-				int bufferFilled = 0;
-				int totalRead = 0;
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				try {
 				while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1
-				        && totalRead + bufferFilled <= contentLength) {
+						&& totalRead + bufferFilled <= contentLength) {
 					totalRead += bufferFilled;
 					out.write(buffer, 0, bufferFilled);
 				}
 				content = out.toByteArray();
-				} catch (EOFException e) {
-					e.printStackTrace();
-				}
-				if (content != null) {
-					// check if we have to uncompress it
-					String contentEncoding = headers.get(Response.CONTENT_ENCODING);
-					if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
-						content = processGzipEncoded(content, url);
-					} else if ("deflate".equals(contentEncoding)) {
-						content = processDeflateEncoded(content, url);
-					}
-				}
+			} catch (Exception e) {
+				if (code == 200) {
 
+				}
 			} finally {
-				try {
-					httpResponse.close();
-				} catch (IOException e) {
-					e.printStackTrace();
+				if (in != null) {
+					in.close();
+				}
+				get.abort();
+			}
+
+			if (content != null) {
+				// check if we have to uncompress it
+				String contentEncoding = headers
+						.get(Response.CONTENT_ENCODING);
+				if ("gzip".equals(contentEncoding)
+						|| "x-gzip".equals(contentEncoding)) {
+					content = processGzipEncoded(content, url);
+				} else if ("deflate".equals(contentEncoding)) {
+					content = processDeflateEncoded(content, url);
 				}
 			}
 		} finally {
-			try {
-				httpclient.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			get.releaseConnection();
 		}
-		String encode = EncodingDetector.parseCharacterEncoding(headers.get(Response.CONTENT_TYPE));
-		if (!StringUtils.isEmpty(encode))
-			charset = encode;
+		
 		return new Response(url, code, headers, content, charset);
 	}
 
+	private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
+	private int maxThreadsTotal = 10;
+
+	@Override
+	public Response postForResponse(URL url, NameValuePair[] data) throws IOException {
+		PostMethod post = new PostMethod(url.toString());
+		post.setRequestBody(data);
+		HttpMethodParams params = post.getParams();
+		params.makeLenient();
+		params.setContentCharset("UTF-8");
+		params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+		params.setParameter("http.protocol.cookie-policy",CookiePolicy.BROWSER_COMPATIBILITY);
+		params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
+		
+		try {
+			code = client.executeMethod(post);
+//			post.getResponseBodyAsString();
+			Header[] cookies = post.getResponseHeaders("Set-Cookie");
+			StringBuilder sb = new StringBuilder();
+			for (Header cookie: cookies) {
+	            sb.append(cookie.getValue());
+            }
+//			com.zxsoft.crawler.protocols.http.CookieStore.put(NetUtils.getHost(url), sb.toString());
+			
+			headers.set("Cookie", sb.toString());
+			
+			Header[] heads = post.getRequestHeaders();
+			for (int i = 0; i < heads.length; i++)
+				headers.set(heads[i].getName(), heads[i].getValue());
+			
+			long contentLength = Long.MAX_VALUE;
+			InputStream in = post.getResponseBodyAsStream();
+			byte[] buffer = new byte[1024 * 1024];
+			int bufferFilled = 0;
+			int totalRead = 0;
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			try {
+				while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1
+						&& totalRead + bufferFilled <= contentLength) {
+					totalRead += bufferFilled;
+					out.write(buffer, 0, bufferFilled);
+				}
+				content = out.toByteArray();
+			} catch (Exception e) {
+				if (code == 200) {
+
+				}
+			} finally {
+				if (in != null) {
+					in.close();
+				}
+				post.abort();
+			}
+			if (content != null) {
+				// check if we have to uncompress it
+				String contentEncoding = headers
+						.get(Response.CONTENT_ENCODING);
+				if ("gzip".equals(contentEncoding)
+						|| "x-gzip".equals(contentEncoding)) {
+					content = processGzipEncoded(content, url);
+				} else if ("deflate".equals(contentEncoding)) {
+					content = processDeflateEncoded(content, url);
+				}
+			}
+		} finally {
+			post.releaseConnection();
+		}
+		return new Response(url, code, headers, content, charset);
+	}
+	
 	@Override
 	protected Response loadPrevPage(int pageNum, Document currentDoc) throws ProtocolException,
 	        IOException, PrevPageNotFoundException, PageBarNotFoundException {
@@ -379,7 +288,7 @@ public class HttpClient extends HttpBase {
 						        && Integer.valueOf(achors.get(i).text().trim()) == pageNum + 1) {
 							url = new URL(achors.get(i).absUrl("href"));
 //							LOG.info(currentDoc.location() + "Prev Page url: " + url.toString());
-							return getResponse(url, true);
+							return getResponse(url,true);
 						}
 					}
 				}
@@ -393,7 +302,7 @@ public class HttpClient extends HttpBase {
 		Elements lastEles = currentDoc.select("a:matchesOwn(尾页|末页|最后一页)");
 		if (!CollectionUtils.isEmpty(lastEles)) {
 			url = new URL(lastEles.first().absUrl("href"));
-			return getResponse(url, true);
+			return getResponse(url,true);
 		}
 
 		// 1. get all links from page bar

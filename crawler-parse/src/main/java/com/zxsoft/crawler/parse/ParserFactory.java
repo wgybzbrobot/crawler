@@ -8,10 +8,11 @@ import java.util.WeakHashMap;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+import org.thinkingcloud.framework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.StringUtils;
+
+import com.zxsoft.crawler.plugin.ParsePluginsReader;
+import com.zxsoft.crawler.plugin.PluginRuntimeException;
 
 
 //@Component

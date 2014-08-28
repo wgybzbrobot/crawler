@@ -7,21 +7,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.http.auth.NTCredentials;
-import org.apache.http.client.CredentialsProvider;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.CollectionUtils;
 
-import com.gargoylesoftware.htmlunit.DefaultCredentialsProvider;
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
@@ -38,12 +33,14 @@ import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.proxy.Proxy;
 
-@Component
-@Scope("prototype")
 public class HtmlUnit extends HttpBase {
 
 	public static final Logger LOG = LoggerFactory.getLogger(HtmlUnit.class);
 
+	public HtmlUnit(Configuration conf) {
+		setConf(conf);
+	}
+	
 	/**
 	 * <p>
 	 * Ajax download page.
@@ -53,25 +50,46 @@ public class HtmlUnit extends HttpBase {
 	private WebClient client = new WebClient();
 	private HtmlPage htmlPage;
 
+	private void setUp() {
+		client.getOptions().setJavaScriptEnabled(true);
+		client.getOptions().setCssEnabled(false);
+		client.getOptions().setRedirectEnabled(true);
+		client.setAjaxController(new NicelyResynchronizingAjaxController());
+		client.getOptions().setTimeout(50000);
+		client.getOptions().setThrowExceptionOnScriptError(false);
+		client.getOptions().setPrintContentOnFailingStatusCode(false);
+		client.waitForBackgroundJavaScript(5000);
+//		client.getCookieManager().setCookiesEnabled(true);//开启cookie管理
+	}
+	/**
+	 * Configure request body and send request.
+	 */
 	private HtmlPage makeRequest(URL url) throws FailingHttpStatusCodeException, IOException {
 		setUp();
-		Proxy proxy = getProxy(url.toString());
 
 		WebRequest request = new WebRequest(url);
-		if (proxy != null) {
-			request.setProxyHost(proxy.getHost());
-			request.setProxyPort(proxy.getPort());
-
-			NTCredentials proxyCredentials = new NTCredentials(proxy.getUsername(),
-			        proxy.getPassword(), proxy.getHost(), "http");
-			request.setCredentials(proxyCredentials);
-			if ("SOCKS".equalsIgnoreCase(proxy.getType()))
-				request.setSocksProxy(true);
-			else
-				request.setSocksProxy(false);
+		request.setAdditionalHeader("User-Agent", userAgent);
+		request.setAdditionalHeader("Accept-Language", acceptLanguage);
+		request.setAdditionalHeader("Accept-Charset", acceptCharset);
+		request.setAdditionalHeader("Accept", accept);
+		request.setAdditionalHeader("Connection", "keep-alive");
+		
+		if (useProxy ) {
+			Proxy proxy = getProxy(url.toString());
+			if (proxy != null) {
+				request.setProxyHost(proxy.getHost());
+				request.setProxyPort(proxy.getPort());
+	
+				NTCredentials proxyCredentials = new NTCredentials(proxy.getUsername(),
+				        proxy.getPassword(), proxy.getHost(), "http");
+				request.setCredentials(proxyCredentials);
+				if ("SOCKS".equalsIgnoreCase(proxy.getType()))
+					request.setSocksProxy(true);
+				else
+					request.setSocksProxy(false);
+			}
 		}
 		HtmlPage htmlPage = client.getPage(request);
-//		System.out.println(htmlPage.asXml());
 		return htmlPage;
 	}
 
@@ -122,8 +140,12 @@ public class HtmlUnit extends HttpBase {
 		}
 	}
 
+	/**
+	 * 加载当前页
+	 * @param url 当前页url地址
+	 */
 	@Override
-	protected Response getResponse(URL url , boolean followRedirects)
+	public Response getResponse(URL url , boolean followRedirects)
 	        throws ProtocolException, IOException {
 		try {
 			htmlPage = makeRequest(url);
@@ -132,21 +154,12 @@ public class HtmlUnit extends HttpBase {
 			// get.releaseConnection();
 			client.closeAllWindows();
 		}
-		return new Response(url, code, headers, content, headers.get(Response.CONTENT_ENCODING));
+		return new Response(url, code, headers, content, charset);
 	}
 
-	private void setUp() {
-		client.getOptions().setJavaScriptEnabled(true);
-		client.getOptions().setCssEnabled(false);
-		client.getOptions().setRedirectEnabled(true);
-		client.setAjaxController(new NicelyResynchronizingAjaxController());
-		client.getOptions().setTimeout(50000);
-		client.getOptions().setThrowExceptionOnScriptError(false);
-//		client.getOptions().setPrintContentOnFailingStatusCode(false);
-		client.waitForBackgroundJavaScript(5000);
-		
-	}
-
+	/**
+	 * 加载上一页
+	 */
 	@Override
 	protected Response loadPrevPage(int pageNum, Document currentDoc) throws IOException, PageBarNotFoundException {
 		setUp();
@@ -170,7 +183,6 @@ public class HtmlUnit extends HttpBase {
 		}
 		String pageXml = htmlPage.asXml();
 		Document document = Jsoup.parse(pageXml, host);
-//		System.out.println(document.html());
 		Elements elements = document.select("a:matchesOwn(上一页|上页|<上一页)");
 		HtmlAnchor prevAnchor = null;
 		if (!CollectionUtils.isEmpty(elements)) {
@@ -190,7 +202,6 @@ public class HtmlUnit extends HttpBase {
 		}
 		if (prevAnchor != null) {
 			htmlPage = prevAnchor.click();
-//			System.out.println(htmlPage.asXml());
 			processResponse();
 			client.closeAllWindows();
 			return new Response(htmlPage.getUrl(), code, headers, content, headers.get(Response.CONTENT_ENCODING));
@@ -199,6 +210,9 @@ public class HtmlUnit extends HttpBase {
 		return null;
 	}
 
+	/**
+	 * 加载下一页
+	 */
 	@Override
 	protected Response loadNextPage(int pageNum, Document currentDoc) throws IOException, PageBarNotFoundException {
 		setUp();
@@ -244,7 +258,6 @@ public class HtmlUnit extends HttpBase {
 		}
 		if (nextAnchor != null) {
 			htmlPage = nextAnchor.click();
-			System.out.println(htmlPage.asXml());
 			processResponse();
 			client.closeAllWindows();
 			return new Response(htmlPage.getUrl(), code, headers, content, headers.get(Response.CONTENT_ENCODING));
@@ -253,6 +266,9 @@ public class HtmlUnit extends HttpBase {
 		return null;
 	}
 
+	/**
+	 * 加载最后一页
+	 */
 	@Override
 	protected Response loadLastPage(Document currentDoc) throws IOException, PageBarNotFoundException {
 		setUp();
@@ -275,7 +291,6 @@ public class HtmlUnit extends HttpBase {
 		}
 		String pageXml = htmlPage.asXml();
 		Document document = Jsoup.parse(pageXml, host);
-		System.out.println(document);
 		Elements elements = document.select("a:matchesOwn(尾页|末页|最后一页|最末页)");
 		HtmlAnchor lastAnchor = null;
 		if (!CollectionUtils.isEmpty(elements)) {
@@ -305,7 +320,6 @@ public class HtmlUnit extends HttpBase {
 			htmlPage = lastAnchor.click();
 			pageXml = htmlPage.asXml();
 			document = Jsoup.parse(pageXml, host);
-			System.out.println(document);
 			processResponse();
 			client.closeAllWindows();
 			return new Response(htmlPage.getUrl(), code, headers, content, headers.get(Response.CONTENT_ENCODING));
@@ -313,5 +327,16 @@ public class HtmlUnit extends HttpBase {
 		client.closeAllWindows();
 		return null;
 	}
+
+	/**
+	 * 用POST方法请求
+	 */
+	@Override
+    public Response postForResponse(URL url,
+            org.apache.commons.httpclient.NameValuePair[] data)
+            throws IOException {
+	    // TODO Auto-generated method stub
+	    return null;
+    }
 
 }

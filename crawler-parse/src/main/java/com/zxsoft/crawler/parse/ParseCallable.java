@@ -6,7 +6,7 @@ import com.zxsoft.crawler.storage.WebPage;
 
 
 
-public class ParseCallable implements Callable<ParseStatus>{
+public class ParseCallable implements Callable<FetchStatus>{
 
 	private Parser parser;
 	private WebPage page;
@@ -17,8 +17,8 @@ public class ParseCallable implements Callable<ParseStatus>{
 		this.page = page;
 	}
 
-	public ParseStatus call() {
-		ParseStatus status = null;
+	public FetchStatus call() {
+		FetchStatus status = null;
 		try {
 			status = parser.parse(page);
 		} catch (Exception e) {

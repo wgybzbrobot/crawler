@@ -14,17 +14,18 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+import org.thinkingcloud.framework.util.Assert;
+import org.thinkingcloud.framework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.StringUtils;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.zxsoft.crawler.parse.FetchStatus;
+import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
-import com.zxsoft.crawler.parse.ParseStatus;
-import com.zxsoft.crawler.parse.ParseStatus.Status;
 import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.protocol.ProtocolStatusCodes;
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.RecordInfo;
@@ -42,7 +43,7 @@ public class TieBaParser extends Parser {
 	
 	private ThreadLocal<String> mainUrl = new ThreadLocal<String>();
 	private ThreadLocal<String> rule = new ThreadLocal<String>() { protected String initialValue() { return "";}};
-	private ThreadLocal<Long> prevFetchTime = new ThreadLocal<Long>();
+	private ThreadLocal<Long> interval = new ThreadLocal<Long>();
 	private ThreadLocal<Boolean> ajax = new ThreadLocal<Boolean>();
 	private ThreadLocal<List<RecordInfo>> threadLocalRecordInfos = new ThreadLocal<List<RecordInfo>>() {
 		protected List<RecordInfo> initialValue() {
@@ -55,49 +56,40 @@ public class TieBaParser extends Parser {
 		}
 	};
 	
-	public ParseStatus parse(WebPage page) throws Exception {
+	public FetchStatus parse(WebPage page) throws Exception {
 		Assert.notNull(page, "Page is null");
 		Document document = page.getDocument();
 		Assert.notNull(document, "Document is null");
 		mainUrl.set(page.getBaseUrl());
-		prevFetchTime.set(page.getPrevFetchTime());
+		interval.set(page.getInterval());
 		ajax.set(page.isAjax());
 		threadLocalRecordInfos.set(new LinkedList<RecordInfo>());
 		threadLocalDetailConf.set(confDao.getDetailConf(Utils.getHost(mainUrl.get())));
 
-		ParseStatus status = new ParseStatus(mainUrl.get());
-		status.setStatus(ParseStatus.Status.PARSING);
+		FetchStatus status = new FetchStatus(mainUrl.get());
+		status.setStatus(FetchStatus.Status.PARSING);
 		
 		if (threadLocalDetailConf == null || threadLocalDetailConf.get() == null) {
 			LOG.warn("Detail page has no configuration in database." + mainUrl);
-			status.setStatus(ParseStatus.Status.PARSE_FAILURE);
+			status.setStatus(FetchStatus.Status.PARSE_FAILURE);
 			status.setMessage("No detail page configuration found in database");
 			return status;
 		}
 
-		// if (seed.getType() == Category.DETAIL_PAGE) { // 新的详细页 或 丢失的详细页
-		// fetchContent(page, detailConf);
-		// } else if (seed.getType() == Category.REPLY_PAGE) { // 丢失的回复页
-		// parsePage(page, document, seed.getMainUrl(), seed.getUrl(),
-		// detailConf);
-		// } else {
-		// LOG.error("Seed error occur.");
-		// }
-		
 		fetchContent(page);
-		int num = 0;
-		try{
-			num = indexWriter.write(threadLocalRecordInfos.get());
-//			for (RecordInfo info : threadLocalRecordInfos.get()) {
-//				System.out.println(info.getContent());
-//			}
-		  } catch (OutputException e) {
-	      	status.setStatus(ParseStatus.Status.OUTPUT_FAILURE);
-	      	status.setMessage(e.getMessage());
-	      }
+		int num = threadLocalRecordInfos.get().size();
+		try {
+			indexWriter.write(threadLocalRecordInfos.get());
+		} catch (OutputException e) {
+			status.setStatus(FetchStatus.Status.OUTPUT_FAILURE);
+			status.setMessage(e.getMessage());
+			status.setCount(num);
+			return status;
+		}
 		LOG.debug(mainUrl.get() + " has " + num + " records.");
 		status.setStatus(Status.SUCCESS);
 		status.setCount(num);
+		status.setMessage("");
 		return status;
 	}
 
@@ -175,7 +167,7 @@ public class TieBaParser extends Parser {
 			threadLocalRecordInfos.get().add(info);
 			parseReply(page);
 		} else {
-			LOG.warn("主帖信息配置可能有误:" + mainUrl);
+			LOG.warn("主帖信息配置可能有误:" + mainUrl.get());
 			return;
 		}
 	}
@@ -199,7 +191,7 @@ public class TieBaParser extends Parser {
 				pageNum++;
 				ProtocolOutput ptemp = fetchNextPage(pageNum, doc, ajax.get());
 				if (ptemp == null || !ptemp.getStatus().isSuccess()) {
-					return;
+					break;
 				}
 				doc = ptemp.getDocument();
 				currentUrl = newPageUrl;
@@ -226,7 +218,7 @@ public class TieBaParser extends Parser {
 				// 获取上一页
 //				LOG.info(doc.location());
 				ProtocolOutput potemp = fetchPrevPage(-1, doc, ajax.get());
-				if (potemp == null) {
+				if (potemp == null || !potemp.getStatus().isSuccess()) {
 					break;
 				}
 				doc = potemp.getDocument();
@@ -259,8 +251,8 @@ public class TieBaParser extends Parser {
 			String json = element.attr("data-field");
 			String pid = extractPid(json);
 			info = save(info, element, tid, pid, page); // 保存回复
-
-			if (info.getTimestamp() != 0 && info.getTimestamp() < prevFetchTime.get())
+			
+			if (info.getTimestamp() != 0 && info.getTimestamp() < System.currentTimeMillis() - interval.get())
 				return false;
 			/*
 			 * 解析子回复
@@ -321,7 +313,7 @@ public class TieBaParser extends Parser {
 	 */
 	private void saveSub(RecordInfo reply, String surl, String tid) {
 		ProtocolOutput ptemp = fetch(surl, ajax.get());
-		if (ptemp.getStatus().getCode() != ProtocolStatusCodes.SUCCESS){
+		if (ptemp.getStatus().getCode() != STATUS_CODE.SUCCESS){
 			LOG.debug("No Sub reply infomation.");
 			return;
 		}

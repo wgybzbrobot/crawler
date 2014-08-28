@@ -2,12 +2,6 @@ package com.zxsoft.crawler.storage;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
-
-import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.gemfire.mapping.Region;
 
 /**
  * 所有"列表页"配置
@@ -16,40 +10,34 @@ import org.springframework.data.gemfire.mapping.Region;
 public class ListConf implements Serializable{
 
     private static final long serialVersionUID = 3603496298063039907L;
-    @NotEmpty
     private String comment;
-    @NotEmpty
-	@Pattern(regexp="^(https|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")
     private String url;		// 种子url地址
     private String category;	// 类型：news, forum, ...
+    private boolean auth; // 是否需要登录认证
     private boolean ajax;	// 是否ajax请求
-    @Min(0)
     private int fetchinterval;
-//    @Min(1)
-//    private int pageNum;  // 翻页数
     private String filterurl;
-    @NotEmpty
     private String listdom;
-    @NotEmpty
     private String linedom; // 列表页面中一行的DOM
-    @NotEmpty
     private String urldom; // 一行信息的url DOM
     private String datedom; // 发布时间DOM
     private String updatedom; // 论坛类最近更新时间DOM
     private int numThreads;
 	
+    private String synopsisdom; //简介
+    
     public ListConf() {}
     
-	public ListConf(String comment, String url, String category, boolean ajax, int fetchinterval, /*int pageNum,*/
+	public ListConf(String comment, String url, String category, boolean auth, boolean ajax, int fetchinterval, /*int pageNum,*/
             String filterurl, String listdom, String linedom, String urldom, String datedom,
-            String updatedom, int numThreads) {
+            String updatedom, int numThreads, String synopsisdom) {
 	    super();
 	    this.comment = comment;
 	    this.url = url;
 	    this.category = category;
+	    this.auth = auth;
 	    this.ajax = ajax;
 	    this.fetchinterval = fetchinterval;
-//	    this.pageNum = pageNum;
 	    this.filterurl = filterurl;
 	    this.listdom = listdom;
 	    this.linedom = linedom;
@@ -57,8 +45,25 @@ public class ListConf implements Serializable{
 	    this.datedom = datedom;
 	    this.updatedom = updatedom;
 	    this.numThreads = numThreads;
+	    this.synopsisdom = synopsisdom;
     }
 	
+	public boolean isAuth() {
+		return auth;
+	}
+
+	public void setAuth(boolean auth) {
+		this.auth = auth;
+	}
+
+	public String getSynopsisdom() {
+		return synopsisdom;
+	}
+
+	public void setSynopsisdom(String synopsisdom) {
+		this.synopsisdom = synopsisdom;
+	}
+
 	public boolean isAjax() {
 		return ajax;
 	}

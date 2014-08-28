@@ -16,8 +16,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
+import org.thinkingcloud.framework.util.Assert;
+import org.thinkingcloud.framework.util.StringUtils;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

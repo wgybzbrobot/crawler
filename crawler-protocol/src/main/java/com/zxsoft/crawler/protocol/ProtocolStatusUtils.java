@@ -2,19 +2,21 @@ package com.zxsoft.crawler.protocol;
 
 import java.net.URL;
 
+import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
+
 
 public class ProtocolStatusUtils implements ProtocolStatusCodes {
-  public static final ProtocolStatus STATUS_SUCCESS = makeStatus(SUCCESS);
-  public static final ProtocolStatus STATUS_FAILED = makeStatus(FAILED);
-  public static final ProtocolStatus STATUS_GONE = makeStatus(GONE);
-  public static final ProtocolStatus STATUS_NOTFOUND = makeStatus(NOTFOUND);
-  public static final ProtocolStatus STATUS_RETRY = makeStatus(RETRY);
-  public static final ProtocolStatus STATUS_ROBOTS_DENIED = makeStatus(ROBOTS_DENIED);
-  public static final ProtocolStatus STATUS_REDIR_EXCEEDED = makeStatus(REDIR_EXCEEDED);
-  public static final ProtocolStatus STATUS_NOTFETCHING = makeStatus(NOTFETCHING);
-  public static final ProtocolStatus STATUS_NOTMODIFIED = makeStatus(NOTMODIFIED);
-  public static final ProtocolStatus STATUS_WOULDBLOCK = makeStatus(WOULDBLOCK);
-  public static final ProtocolStatus STATUS_BLOCKED = makeStatus(BLOCKED);
+//  public static final ProtocolStatus STATUS_SUCCESS = makeStatus(SUCCESS);
+//  public static final ProtocolStatus STATUS_FAILED = makeStatus(FAILED);
+//  public static final ProtocolStatus STATUS_GONE = makeStatus(GONE);
+//  public static final ProtocolStatus STATUS_NOTFOUND = makeStatus(NOTFOUND);
+//  public static final ProtocolStatus STATUS_RETRY = makeStatus(RETRY);
+//  public static final ProtocolStatus STATUS_ROBOTS_DENIED = makeStatus(ROBOTS_DENIED);
+//  public static final ProtocolStatus STATUS_REDIR_EXCEEDED = makeStatus(REDIR_EXCEEDED);
+//  public static final ProtocolStatus STATUS_NOTFETCHING = makeStatus(NOTFETCHING);
+//  public static final ProtocolStatus STATUS_NOTMODIFIED = makeStatus(NOTMODIFIED);
+//  public static final ProtocolStatus STATUS_WOULDBLOCK = makeStatus(WOULDBLOCK);
+//  public static final ProtocolStatus STATUS_BLOCKED = makeStatus(BLOCKED);
 
   public static String getName(int code) {
     if (code == SUCCESS)
@@ -52,19 +54,19 @@ public class ProtocolStatusUtils implements ProtocolStatusCodes {
     return "UNKNOWN_CODE_" + code;
   }
 
-  public static ProtocolStatus makeStatus(int code) {
+  public static ProtocolStatus makeStatus(STATUS_CODE code) {
 	  ProtocolStatus pstatus = new ProtocolStatus();
 	  pstatus.setCode(code);
 	  return pstatus;
   }
-  public static ProtocolStatus makeStatus(int code, URL u) {
+  public static ProtocolStatus makeStatus(STATUS_CODE code, String u) {
     ProtocolStatus pstatus = new ProtocolStatus();
     pstatus.setU(u);
     pstatus.setCode(code);
     return pstatus;
   }
   
-  public static ProtocolStatus makeStatus(int code, String message) {
+  public static ProtocolStatus makeStatus(STATUS_CODE code, String u, String message) {
 	  ProtocolStatus pstatus = new ProtocolStatus();
 	  pstatus.setMessage(message);
 	  pstatus.setCode(code);

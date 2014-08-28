@@ -19,6 +19,8 @@ package com.zxsoft.crawler.protocol;
 
 import org.jsoup.nodes.Document;
 
+import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
+
 /**
  * Simple aggregate to pass from protocol plugins both content and protocol
  * status.
@@ -37,11 +39,20 @@ public class ProtocolOutput {
 
 	public ProtocolOutput(Document document) {
 		this.document = document;
-		this.status = ProtocolStatusUtils.STATUS_SUCCESS;
+		this.status = ProtocolStatusUtils.makeStatus(STATUS_CODE.SUCCESS);
+		this.fetchtime = System.currentTimeMillis();
+	}
+	
+	public ProtocolOutput() {
 		this.fetchtime = System.currentTimeMillis();
 	}
 
-	public long getFetchTime() {
+	public ProtocolOutput(ProtocolStatus status) {
+		this.fetchtime = System.currentTimeMillis();
+		this.status = status;
+	}
+	
+	public long getFetchtime() {
 		return fetchtime;
 	}
 	public Document getDocument() {
