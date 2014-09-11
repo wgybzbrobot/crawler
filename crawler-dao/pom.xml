@@ -9,7 +9,7 @@
 	<artifactId>crawler-dao</artifactId>
 	<name>crawler-dao</name>
 	<properties>
-		<spring.version>4.0.3.RELEASE</spring.version>
+		<spring.version>3.2.10.RELEASE</spring.version>
 	</properties>
 	<dependencies>
 	<dependency>
@@ -27,6 +27,11 @@
 		    <artifactId>mysql-connector-java</artifactId>
 		    <version>3.0.10</version>
 		</dependency>
+		<!-- <dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.30</version>
+		</dependency> -->
 		<dependency>
 		    <groupId>c3p0</groupId>
 		    <artifactId>c3p0</artifactId>

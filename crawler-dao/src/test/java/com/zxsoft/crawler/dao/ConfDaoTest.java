@@ -13,5 +13,6 @@ public class ConfDaoTest {
 		ListConf listConf = confDao.getListConf("http://bbs.tianya.cn/list-free-1.shtml");
 		Assert.notNull(listConf);
 		Assert.isTrue("forum".equals(listConf.getCategory()));
+		System.out.println(listConf.getComment());
 	}
 }

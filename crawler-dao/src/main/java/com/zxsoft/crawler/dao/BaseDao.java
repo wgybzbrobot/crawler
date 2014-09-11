@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public abstract class BaseDao {
 
 	protected static final String TABLE_CONF_LIST = "conf_list";
+	protected static final String TABLE_CONF_DETAIL = "conf_detail";
 	protected static final String TABLE_SEARCH_ENGINE = "search_engine";
 	protected static final String TABLE_ACCOUNT = "account";
 	protected static final String TABLE_PROXY = "proxy";

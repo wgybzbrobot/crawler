@@ -6,15 +6,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.cache.annotation.Cacheable;
-//import com.googlecode.ehcache.annotations.Cacheable;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.thinkingcloud.framework.cache.ObjectCache;
 import org.thinkingcloud.framework.util.CollectionUtils;
@@ -22,7 +13,6 @@ import org.thinkingcloud.framework.util.CollectionUtils;
 import com.zxsoft.crawler.storage.Account;
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.ListConf;
-import com.zxsoft.crawler.storage.SearchEngine;
 
 public class ConfDao extends BaseDao {
 
@@ -173,17 +163,23 @@ public class ConfDao extends BaseDao {
 		return list;
 	}
 
-	public DetailConf getDetailConf(String host) {
+	
+	/**
+	 * @param listUrl 列表页的url
+	 * @param host 详细页的Host
+	 */
+	public DetailConf getDetailConf(String listUrl, String host) {
 		ObjectCache objectCache = ObjectCache.get("DetailConf");
 
 		if (objectCache.getObject(host) != null) {
 			return (DetailConf) objectCache.getObject(host);
 		} else {
 			LOG.debug("Getting detail configuration:" + host);
-			List<DetailConf> list = jdbcTemplate.query("select * from conf_detail where host = ?",
-			        new Object[] { host }, new RowMapper<DetailConf>() {
+			List<DetailConf> list = jdbcTemplate.query("select * from conf_detail where listurl = ? and host = ?",
+			        new Object[] { listUrl, host }, new RowMapper<DetailConf>() {
 				        public DetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
 					        DetailConf detailConf = new DetailConf();
+					        detailConf.setListUrl(rs.getString("listurl"));
 					        detailConf.setHost(rs.getString("host"));
 					        detailConf.setReplyNum(rs.getString("replyNum"));
 					        detailConf.setForwardNum(rs.getString("forwardNum"));
