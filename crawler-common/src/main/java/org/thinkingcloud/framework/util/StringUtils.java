@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -16,6 +18,16 @@ import java.util.regex.Pattern;
 
 public class StringUtils {
 
+//	private static final String FOLDER_SEPARATOR = "/";
+
+	private static final String WINDOWS_FOLDER_SEPARATOR = "\\";
+
+	private static final String TOP_PATH = "..";
+
+	private static final String CURRENT_PATH = ".";
+
+//	private static final char EXTENSION_SEPARATOR = '.';
+	
 	public static boolean isNum(String str) {
 		if (!isEmpty(str)) {
 			if (str.matches("\\d+"))
@@ -757,5 +769,81 @@ public class StringUtils {
 		}
 	}
 	
+	public static String cleanPath(String path) {
+		if (path == null) {
+			return null;
+		}
+		String pathToUse = replace(path, WINDOWS_FOLDER_SEPARATOR, FOLDER_SEPARATOR);
+
+		// Strip prefix from path to analyze, to not treat it as part of the
+		// first path element. This is necessary to correctly parse paths like
+		// "file:core/../core/io/Resource.class", where the ".." should just
+		// strip the first "core" directory while keeping the "file:" prefix.
+		int prefixIndex = pathToUse.indexOf(":");
+		String prefix = "";
+		if (prefixIndex != -1) {
+			prefix = pathToUse.substring(0, prefixIndex + 1);
+			if (prefix.contains("/")) {
+				prefix = "";
+			}
+			else {
+				pathToUse = pathToUse.substring(prefixIndex + 1);
+			}
+		}
+		if (pathToUse.startsWith(FOLDER_SEPARATOR)) {
+			prefix = prefix + FOLDER_SEPARATOR;
+			pathToUse = pathToUse.substring(1);
+		}
+
+		String[] pathArray = delimitedListToStringArray(pathToUse, FOLDER_SEPARATOR);
+		List<String> pathElements = new LinkedList<String>();
+		int tops = 0;
+
+		for (int i = pathArray.length - 1; i >= 0; i--) {
+			String element = pathArray[i];
+			if (CURRENT_PATH.equals(element)) {
+				// Points to current directory - drop it.
+			}
+			else if (TOP_PATH.equals(element)) {
+				// Registering top path found.
+				tops++;
+			}
+			else {
+				if (tops > 0) {
+					// Merging path element with element corresponding to top path.
+					tops--;
+				}
+				else {
+					// Normal path element found.
+					pathElements.add(0, element);
+				}
+			}
+		}
+
+		// Remaining top paths need to be retained.
+		for (int i = 0; i < tops; i++) {
+			pathElements.add(0, TOP_PATH);
+		}
+
+		return prefix + collectionToDelimitedString(pathElements, FOLDER_SEPARATOR);
+	}	
 	
+	public static String collectionToDelimitedString(Collection<?> coll, String delim) {
+		return collectionToDelimitedString(coll, delim, "", "");
+	}
+	
+	public static String collectionToDelimitedString(Collection<?> coll, String delim, String prefix, String suffix) {
+		if (CollectionUtils.isEmpty(coll)) {
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		Iterator<?> it = coll.iterator();
+		while (it.hasNext()) {
+			sb.append(prefix).append(it.next()).append(suffix);
+			if (it.hasNext()) {
+				sb.append(delim);
+			}
+		}
+		return sb.toString();
+	}
 }

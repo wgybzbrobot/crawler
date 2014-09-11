@@ -21,11 +21,11 @@
 
 	<dependencies>
 
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.apache.avro</groupId>
 			<artifactId>avro</artifactId>
 			<version>1.7.6</version>
-		</dependency>
+		</dependency> -->
 		
 
 		<dependency>
@@ -34,44 +34,15 @@
 			<version>17.0</version>
 		</dependency>
 		<!-- <dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<version>4.0.4.RELEASE</version>
-		</dependency> -->
-<!-- 		<dependency>
-			<groupId>org.mybatis</groupId>
-			<artifactId>mybatis-spring</artifactId>
-			<version>1.2.2</version>
-		</dependency> -->
-<!-- 		<dependency>
-			<groupId>org.mybatis</groupId>
-			<artifactId>mybatis</artifactId>
-			<version>3.2.7</version>
-		</dependency> -->
-
-
-		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 			<version>1.4</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>javax.inject</groupId>
 			<artifactId>javax.inject</artifactId>
 			<version>1</version>
 		</dependency>
-		
-		<!-- <dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-redis</artifactId>
-			<version>1.2.1.RELEASE</version>
-		</dependency> -->
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.30</version>
-		</dependency>
-
 		<!-- jedis -->
 		<dependency>
 			<groupId>redis.clients</groupId>

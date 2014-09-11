@@ -64,7 +64,7 @@ public class TieBaParser extends Parser {
 		interval.set(page.getInterval());
 		ajax.set(page.isAjax());
 		threadLocalRecordInfos.set(new LinkedList<RecordInfo>());
-		threadLocalDetailConf.set(confDao.getDetailConf(Utils.getHost(mainUrl.get())));
+		threadLocalDetailConf.set(confDao.getDetailConf(page.getListUrl(), Utils.getHost(mainUrl.get())));
 
 		FetchStatus status = new FetchStatus(mainUrl.get());
 		status.setStatus(FetchStatus.Status.PARSING);

@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.thinkingcloud.framework.util.Assert;
 
 import com.zxsoft.crawler.parse.FetchStatus;
-import com.zxsoft.crawler.parse.NetworkInspectionParserController;
+import com.zxsoft.crawler.parse.NetworkInspectParserController;
 import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
@@ -35,7 +35,7 @@ public class ForumParserTest {
 		WebPage page = new WebPage("title", urlStr, System.currentTimeMillis(), document);
 		page.setAjax(false);
 		
-		NetworkInspectionParserController parseUtil = new NetworkInspectionParserController(conf);
+		NetworkInspectParserController parseUtil = new NetworkInspectParserController(conf);
 
 		Parser parser = new ForumParser();
 		parser.parse(page);
@@ -51,7 +51,7 @@ public class ForumParserTest {
 		WebPage page = new WebPage("title", urlStr, System.currentTimeMillis(), document);
 		page.setAjax(false);
 		
-		NetworkInspectionParserController parseUtil = new NetworkInspectionParserController(conf);
+		NetworkInspectParserController parseUtil = new NetworkInspectParserController(conf);
 		
 		Parser parser = new ForumParser();
 		FetchStatus status = parser.parse(page);

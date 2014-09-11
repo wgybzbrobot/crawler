@@ -17,15 +17,31 @@
 		<module>crawler-web</module>
 		<module>crawler-parse</module>
 		<module>crawler-dao</module>
-		<module>crawler-core</module>
+		<module>crawler-slave</module>
 		<module>crawler-protocol</module>
+		<module>crawler-master</module>
 	</modules>
 	<organization>
 		<name>中新软件有限公司</name>
 		<url>http://www.zxfirewall.com</url>
 	</organization>
 
+	<!-- Enviroment Settings -->
 	<repositories>
+		<repository>
+			<id>maven-restlet</id>
+			<name>Public online Restlet repository</name>
+			<url>http://maven.restlet.org</url>
+		</repository>
+		<!-- For developing against latest Spring milestones -->
+		<repository>
+			<id>org.springframework.maven.milestone</id>
+			<name>Spring Maven Milestone Repository</name>
+			<url>http://maven.springframework.org/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
 		<repository>
 			<id>zxsoft-public</id>
 			<name>Nexus Release Repository</name>

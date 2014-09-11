@@ -3,7 +3,7 @@ package com.zxsoft.crawler.parse;
 public class FetchStatus {
 	
 	public enum Status {
-		PROTOCOL_FAILURE, PARSING, SUCCESS, OUTPUT_FAILURE, PARSE_FAILURE, NOT_CHANGE
+		PROTOCOL_FAILURE, PARSING, SUCCESS, OUTPUT_FAILURE, PARSE_FAILURE, NOT_CHANGE, CONF_ERROR
 	}
 	
 	private String url;

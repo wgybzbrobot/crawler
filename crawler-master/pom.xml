@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.zxsoft.crawler</groupId>
+		<artifactId>crawler</artifactId>
+		<version>1.0.0</version>
+	</parent>
+	<groupId>com.zxsoft.crawler</groupId>
+	<artifactId>crawler-master</artifactId>
+	<version>1.0.0</version>
+	<name>crawler-master</name>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<restlet.version>2.0.5</restlet.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.restlet.jee</groupId>
+			<artifactId>org.restlet</artifactId>
+			<version>${restlet.version}</version>
+		</dependency>
+		<dependency>
+	        <groupId>org.restlet.jee</groupId>
+	        <artifactId>org.restlet.ext.jackson</artifactId>
+	        <version>${restlet.version}</version>
+	    </dependency>
+		<dependency>
+			<groupId>com.zxsoft.crawler</groupId>
+			<artifactId>crawler-common</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+	</dependencies>
+</project>

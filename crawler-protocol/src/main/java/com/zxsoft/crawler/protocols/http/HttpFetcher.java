@@ -63,11 +63,12 @@ public class HttpFetcher {
 			protocolOutput = httpClient.getProtocolOutput(url);
 		}
 		} catch (ProtocolException e) {
-			errorLogger.error("Fetch " + url + " failed with the following error:", e);
+			String msg = "Fetch " + url + " failed with the following error:" + e.getMessage();
+			protocolOutput.setStatus(new ProtocolStatus(url, STATUS_CODE.FAILED, msg));
 		} catch (IOException e) {
 			String msg = "Fetch " + url + " failed with the following error:" + e.getMessage();
 			protocolOutput.setStatus(new ProtocolStatus(url, STATUS_CODE.FAILED, msg));
-			errorLogger.error(msg);
+			LOG.error(msg);
 		} finally {
 			return protocolOutput;
 		}

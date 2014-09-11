@@ -122,7 +122,7 @@ public class HttpClient extends HttpBase {
 				headers.set(heads[i].getName(), heads[i].getValue());
 			
 			String contentType = headers.get(Response.CONTENT_TYPE);
-			charset = EncodingDetector.parseCharacterEncoding(contentType);
+			charset = EncodingDetector.parseCharacterEncoding(contentType, get.getResponseBody());
 			long contentLength = Long.MAX_VALUE;
 			InputStream in = get.getResponseBodyAsStream();
 			byte[] buffer = new byte[1024 * 1024];

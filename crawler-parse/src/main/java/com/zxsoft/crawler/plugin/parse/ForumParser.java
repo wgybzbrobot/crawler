@@ -61,7 +61,7 @@ public class ForumParser extends Parser {
 		interval.set(page.getPrevFetchTime());
 		ajax.set(page.isAjax());
 		threadLocalRecordInfos.set(new LinkedList<RecordInfo>());
-		threadLocalDetailConf.set(confDao.getDetailConf(Utils.getHost(mainUrl.get())));
+		threadLocalDetailConf.set(confDao.getDetailConf(page.getListUrl(), Utils.getHost(mainUrl.get())));
 		
 		FetchStatus status = new FetchStatus(mainUrl.get());
 		status.setStatus(FetchStatus.Status.PARSING);

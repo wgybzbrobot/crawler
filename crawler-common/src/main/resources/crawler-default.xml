@@ -11,6 +11,11 @@
 		<value>false</value>
 		<description>whether to use proxy visiting website</description>
 	</property>
+	<property>
+		<name>fetch.interval</name>
+		<value>36000000</value>
+		<description>fetch interval, out of inteval will not be fetched</description>
+	</property>
 	<property><!-- 本机器爬虫的线程数 -->
 		<name>spider.thread.num</name>
 		<value>10</value>

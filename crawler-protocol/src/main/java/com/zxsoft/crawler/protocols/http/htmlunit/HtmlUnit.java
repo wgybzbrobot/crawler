@@ -16,7 +16,9 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.NetUtils;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
@@ -47,19 +49,22 @@ public class HtmlUnit extends HttpBase {
 	 * <p>
 	 * Note: Each thread has its own <code>AjaxLoader</code> object
 	 */
-	private WebClient client = new WebClient();
+	private WebClient client = new WebClient(BrowserVersion.FIREFOX_24);
 	private HtmlPage htmlPage;
 
 	private void setUp() {
+//		client = new WebClient(BrowserVersion.FIREFOX_24);
 		client.getOptions().setJavaScriptEnabled(true);
 		client.getOptions().setCssEnabled(false);
 		client.getOptions().setRedirectEnabled(true);
 		client.setAjaxController(new NicelyResynchronizingAjaxController());
-		client.getOptions().setTimeout(50000);
+//		client.getOptions().setTimeout(50000);
 		client.getOptions().setThrowExceptionOnScriptError(false);
 		client.getOptions().setPrintContentOnFailingStatusCode(false);
 		client.waitForBackgroundJavaScript(5000);
+		client.waitForBackgroundJavaScriptStartingBefore(2000);
 //		client.getCookieManager().setCookiesEnabled(true);//开启cookie管理
+		
 	}
 	/**
 	 * Configure request body and send request.
@@ -89,10 +94,12 @@ public class HtmlUnit extends HttpBase {
 					request.setSocksProxy(false);
 			}
 		}
-		HtmlPage htmlPage = client.getPage(request);
+		htmlPage = client.getPage(request);
+//		LOG.debug(htmlPage.asText());
 		return htmlPage;
 	}
 
+	
 	private void processResponse() throws IOException {
 		WebResponse response = htmlPage.getWebResponse();
 		charset = response.getContentCharset();
@@ -103,41 +110,42 @@ public class HtmlUnit extends HttpBase {
 			headers.set(pair.getName(), pair.getValue());
 		}
 
+		content = htmlPage.asXml().getBytes(charset);
 		// Limit download size
-		long contentLength = Long.MAX_VALUE;
-		InputStream in = response.getContentAsStream();
-		try {
-			byte[] buffer = new byte[HttpBase.BUFFER_SIZE];
-			int bufferFilled = 0;
-			int totalRead = 0;
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1
-			        && totalRead + bufferFilled <= contentLength) {
-				totalRead += bufferFilled;
-				out.write(buffer, 0, bufferFilled);
-			}
-			content = out.toByteArray();
-		} catch (Exception e) {
-			if (code == 200)
-				throw new IOException(e.toString());
-		} finally {
-			if (in != null) {
-				in.close();
-			}
-			// request.close();
-		}
-
-		// Extract gzip, x-gzip and deflate content
-		if (content != null) {
-			// check if we have to uncompress it
-			String contentEncoding = headers.get(Response.CONTENT_ENCODING);
-			if (contentEncoding != null && HtmlUnit.LOG.isTraceEnabled())
-				if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
-					content = processGzipEncoded(content, url);
-				} else if ("deflate".equals(contentEncoding)) {
-					content = processDeflateEncoded(content, url);
-				}
-		}
+//		long contentLength = Long.MAX_VALUE;
+//		InputStream in = response.getContentAsStream();
+//		try {
+//			byte[] buffer = new byte[HttpBase.BUFFER_SIZE];
+//			int bufferFilled = 0;
+//			int totalRead = 0;
+//			ByteArrayOutputStream out = new ByteArrayOutputStream();
+//			while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1
+//			        && totalRead + bufferFilled <= contentLength) {
+//				totalRead += bufferFilled;
+//				out.write(buffer, 0, bufferFilled);
+//			}
+//			content = out.toByteArray();
+//		} catch (Exception e) {
+//			if (code == 200)
+//				throw new IOException(e.toString());
+//		} finally {
+//			if (in != null) {
+//				in.close();
+//			}
+//			// request.close();
+//		}
+//		
+//		// Extract gzip, x-gzip and deflate content
+//		if (content != null) {
+//			// check if we have to uncompress it
+//			String contentEncoding = headers.get(Response.CONTENT_ENCODING);
+//			if (contentEncoding != null && HtmlUnit.LOG.isTraceEnabled())
+//				if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
+//					content = processGzipEncoded(content, url);
+//				} else if ("deflate".equals(contentEncoding)) {
+//					content = processDeflateEncoded(content, url);
+//				}
+//		}
 	}
 
 	/**
@@ -149,11 +157,15 @@ public class HtmlUnit extends HttpBase {
 	        throws ProtocolException, IOException {
 		try {
 			htmlPage = makeRequest(url);
+//			LOG.debug(htmlPage.asText());
 			processResponse();
 		} finally {
 			// get.releaseConnection();
 			client.closeAllWindows();
 		}
+		
+//		LOG.debug(new String(content, charset));
+		
 		return new Response(url, code, headers, content, charset);
 	}
 
@@ -217,7 +229,7 @@ public class HtmlUnit extends HttpBase {
 	protected Response loadNextPage(int pageNum, Document currentDoc) throws IOException, PageBarNotFoundException {
 		setUp();
 		String urlStr = currentDoc.location();
-		if (htmlPage == null) {
+//		if (htmlPage == null || !urlStr.equals(htmlPage.getUrl().toExternalForm())) {
 			try {
 				url = new URL(urlStr);
 				htmlPage = makeRequest(url);
@@ -225,7 +237,8 @@ public class HtmlUnit extends HttpBase {
 				e.printStackTrace();
 				return null;
 			}
-		}
+//		}
+		
 		String host = "";
 		try {
 			host = Utils.getHost(urlStr);
@@ -237,7 +250,9 @@ public class HtmlUnit extends HttpBase {
 		Document document = Jsoup.parse(pageXml, host);
 		Elements elements = document.select("a:matchesOwn(下一页|下页|下一页>)");
 		HtmlAnchor nextAnchor = null;
+		String newUrl = "";
 		if (!CollectionUtils.isEmpty(elements)) {
+			newUrl = NetUtils.absUrl(url.toExternalForm(), elements.first().attr("href"));
 			nextAnchor = htmlPage.getAnchorByText(elements.first().text());
 		} else { // no "下一页|下页|下一页>"
 			Element pagebar = getPageBar(currentDoc);
@@ -251,16 +266,26 @@ public class HtmlUnit extends HttpBase {
 						} catch (ElementNotFoundException e) {
 							return null;
 						}
+						newUrl = NetUtils.absUrl(url.toExternalForm(),  achors.get(i).attr("href"));
 						break;
 					}
 				}
 			}
 		}
 		if (nextAnchor != null) {
-			htmlPage = nextAnchor.click();
+			if (NetUtils.isUrl(newUrl)) {
+				htmlPage = makeRequest(new URL(newUrl));
+			} else {
+				htmlPage = nextAnchor.click();
+//				nextUrl = htmlPage.getUrl().toExternalForm();
+				// do not work ! url is the same as preview.
+				newUrl = htmlPage.executeJavaScript("document.location").getJavaScriptResult().toString();
+			}
+			
 			processResponse();
 			client.closeAllWindows();
-			return new Response(htmlPage.getUrl(), code, headers, content, headers.get(Response.CONTENT_ENCODING));
+//			System.out.println(htmlPage.asXml());
+			return new Response(new URL(newUrl), code, headers, content, headers.get(Response.CONTENT_ENCODING));
 		}
 		client.closeAllWindows();
 		return null;
@@ -339,4 +364,21 @@ public class HtmlUnit extends HttpBase {
 	    return null;
     }
 
+	public static void main(String[] args) throws FailingHttpStatusCodeException, IOException {
+		WebClient webClient = new WebClient(BrowserVersion.FIREFOX_24);
+		webClient.getOptions().setJavaScriptEnabled(true);
+		webClient.getOptions().setThrowExceptionOnScriptError(false);
+		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+		webClient.getOptions().setRedirectEnabled(true);
+		webClient.waitForBackgroundJavaScript(5000);
+		webClient.waitForBackgroundJavaScriptStartingBefore(1000);
+
+		String u = "http://news.163.com/latest/";
+//		u = "http://roll.news.sina.com.cn/s/";
+		WebRequest request = new WebRequest(new URL(u));
+		HtmlPage page = webClient.getPage(request);
+//		webClient.getAjaxController().processSynchron(page, request, false);
+		System.out.println(page.asXml());
+	}
 }

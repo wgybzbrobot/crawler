@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class DetailConf implements Serializable {
 
     private static final long serialVersionUID = -7536047593216572652L;
-
+    private String listUrl;
     private String host;
 	private String replyNum;
 	private String reviewNum;
@@ -33,6 +33,53 @@ public class DetailConf implements Serializable {
 	private String subReplyAuthor;
 	private String subReplyDate;
 	private String subReplyContent;
+
+	
+	
+	public DetailConf(String listUrl, String host, String replyNum, String reviewNum, String forwardNum,
+            String sources, boolean fetchorder, String master, String author, String date,
+            String content, String reply, String replyAuthor, String replyDate,
+            String replyContent, String subReply, String subReplyAuthor, String subReplyDate,
+            String subReplyContent) {
+	    super();
+	    this.listUrl = listUrl;
+	    this.host = host;
+	    this.replyNum = replyNum;
+	    this.reviewNum = reviewNum;
+	    this.forwardNum = forwardNum;
+	    this.sources = sources;
+	    this.fetchorder = fetchorder;
+	    this.master = master;
+	    this.author = author;
+	    this.date = date;
+	    this.content = content;
+	    this.reply = reply;
+	    this.replyAuthor = replyAuthor;
+	    this.replyDate = replyDate;
+	    this.replyContent = replyContent;
+	    this.subReply = subReply;
+	    this.subReplyAuthor = subReplyAuthor;
+	    this.subReplyDate = subReplyDate;
+	    this.subReplyContent = subReplyContent;
+    }
+	
+	private String testUrl;
+	
+	public String getListUrl() {
+		return listUrl;
+	}
+
+	public void setListUrl(String listUrl) {
+		this.listUrl = listUrl;
+	}
+
+	public String getTestUrl() {
+		return testUrl;
+	}
+
+	public void setTestUrl(String testUrl) {
+		this.testUrl = testUrl;
+	}
 
 	public DetailConf() {}
 

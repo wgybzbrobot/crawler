@@ -63,8 +63,16 @@ public final class NetworkSearchParserController extends ParseTool {
 		
 		FetchStatus status = new FetchStatus(indexUrl);
 		
+		String listDom = listConf.getListdom();
+		if (StringUtils.isEmpty(listDom)) {
+			LOG.error("列表DOM没有配置,无法获取列表信息" + indexUrl);
+			status.setUrl(indexUrl);
+			status.setStatus(Status.CONF_ERROR);
+			status.setMessage("列表DOM没有配置,无法获取列表信息");
+			return status;
+		}
+		
 		if (listConf.isAuth()) { // need login
-			
 		}
 		
 		boolean ajax = listConf.isAjax();
@@ -87,10 +95,13 @@ public final class NetworkSearchParserController extends ParseTool {
 		String ip = new DNSCache().getAsString(new URL(indexUrl));
 		
 		while (true) {
-			Elements list = document.select(listConf.getListdom());
+			Elements list = document.select(listDom);
 			if (CollectionUtils.isEmpty(list)) {
-				LOG.warn("main dom set error:" + indexUrl);
-				return null;
+				LOG.error("列表DOM设置错误,无法获取列表信息" + indexUrl);
+				status.setUrl(indexUrl);
+				status.setStatus(Status.CONF_ERROR);
+				status.setMessage("列表DOM设置错误,无法获取列表信息");
+				return status;
 			}
 			Elements lines = list.first().select(listConf.getLinedom());
 

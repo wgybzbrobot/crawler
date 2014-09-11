@@ -23,15 +23,15 @@ public class HtmlUnitTest {
 	private static Logger LOG = LoggerFactory.getLogger(HtmlUnitTest.class);
 	
 	@BeforeClass
-	public void setup() {
+	public static void setup() {
 		Configuration conf = CrawlerConfiguration.create();
 		 htmlUnit = new HtmlUnit(conf);
 		 httpFetcher = new HttpFetcher(conf);
 	}
 	
-	HttpBase htmlUnit;
+	static HttpBase htmlUnit;
 	
-	HttpFetcher httpFetcher;
+	static HttpFetcher httpFetcher;
 	
 	@Test
 	public void testLoadCurrentPage() throws ProtocolException, IOException {
@@ -59,15 +59,27 @@ public class HtmlUnitTest {
 	
 	@Test
 	public void testLoadNextPage() throws IOException, PageBarNotFoundException {
-		ProtocolOutput protocolOutput = httpFetcher.fetch("http://roll.news.sina.com.cn/s/channel.php", true);
-		Assert.notNull(protocolOutput);
+		String url = "http://roll.sohu.com/index.shtml";
+		url = "http://roll.news.sina.com.cn/s/channel.php";
+//		url = "http://www.sogou.com/web?query=%E5%90%B8%E6%AF%92&repp=1&page=1&&ie=utf8";
+//		url = "http://news.163.com/latest/";
+
+		ProtocolOutput protocolOutput = httpFetcher.fetch(url, true);
 		Document currentDoc = protocolOutput.getDocument();
-		Assert.notNull(currentDoc);
+		LOG.debug("1:" + currentDoc.location());
+//		LOG.debug(currentDoc.html());
+		
+		LOG.debug("=================================");
 		protocolOutput = htmlUnit.getProtocolOutputOfNextPage(1, currentDoc);
-		Assert.notNull(protocolOutput);
 		currentDoc = protocolOutput.getDocument();
-		Assert.notNull(currentDoc);
-		System.out.println(currentDoc.html());
+		LOG.debug("2:" + currentDoc.location());
+//		LOG.debug(currentDoc.html());
+		
+		LOG.debug("=================================");
+		protocolOutput = htmlUnit.getProtocolOutputOfNextPage(2, currentDoc);
+		currentDoc = protocolOutput.getDocument();
+		LOG.debug("3:" + currentDoc.location());
+		LOG.debug(currentDoc.html());
 	}
 	
 	@Test

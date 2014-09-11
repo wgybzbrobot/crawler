@@ -69,7 +69,7 @@ public class SinaWeiboLogin implements Login {
 		        new NameValuePair("returntype", "META") };
 		Response response = httpClient.postForResponse(new URL(loginUrl), data);
 		String contentType = response.getHeader(Response.CONTENT_TYPE);
-		String charset = EncodingDetector.parseCharacterEncoding(contentType);
+		String charset = EncodingDetector.parseCharacterEncoding(contentType, response.content);
 		String html = new String(response.content, charset);
 //		LOG.info(html);
  		String ajaxUrlRegex = "location\\.replace\\([\" | \'](.*)[\" | \']\\)";
@@ -83,7 +83,7 @@ public class SinaWeiboLogin implements Login {
 			ajaxUrl = ajaxUrl.substring(18, ajaxUrl.length() - 2);
 			Response newResponse = httpClient.getResponse(new URL(ajaxUrl), true);
 			contentType = response.getHeader(Response.CONTENT_TYPE);
-			charset = EncodingDetector.parseCharacterEncoding(contentType);
+			charset = EncodingDetector.parseCharacterEncoding(contentType, newResponse.content);
 			String content = new String(newResponse.content, charset);
 			String regexp = "\\{(.*)\\}";
 			pattern = Pattern.compile(regexp);
@@ -142,7 +142,7 @@ public class SinaWeiboLogin implements Login {
 			return;
 		InputStream in = new ByteArrayInputStream(content);
 		String contentType = response.getHeader(Response.CONTENT_TYPE);
-		String charset = EncodingDetector.parseCharacterEncoding(contentType);
+		String charset = EncodingDetector.parseCharacterEncoding(contentType, content);
 
 		String body = new String(content, charset);
 

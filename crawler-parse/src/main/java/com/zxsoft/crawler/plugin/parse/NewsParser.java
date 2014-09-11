@@ -66,9 +66,9 @@ public class NewsParser extends Parser {
 			duplicateInspector.addMd5(md5);
 		}
 
-		threadLocalDetailConf.set(confDao.getDetailConf(Utils.getHost(mainUrl.get())));
+		threadLocalDetailConf.set(confDao.getDetailConf(page.getListUrl(), Utils.getHost(mainUrl.get())));
 		if (threadLocalDetailConf == null || threadLocalDetailConf.get() == null) {
-			LOG.error("No detail page configuration in database: " + mainUrl.get());
+			LOG.error("列表页[" + page.getListUrl() + "]没有详细页["  + mainUrl.get() + "]配置:");
 			status.setStatus(Status.PARSE_FAILURE);
 			status.setMessage("No detail page configuration in database");
 			return status;
