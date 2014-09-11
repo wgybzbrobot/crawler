@@ -37,13 +37,13 @@
 	 <form id="detailQueryForm">
 		<table >
 			<tr>
-			<td><span>网站名称:</span><input id="comment" name="comment" style="line-height:16px;border:1px solid #ccc"></td>
+			<td><span>Host:</span><input id="host" name="host" style="line-height:16px;border:1px solid #ccc"></td>
 			<td><a href="#" onclick="searchDetailConf();" class="linkbutton">查询</a></td>
 			</tr>
 		</table>
 	</form>
 	</td><td>
-	<a href="#" onclick="addDetailConf" class="linkbutton" id="addDetailConf">添加详细页配置</a>
+	<a href="#" onclick="addDetailConf();" class="linkbutton" id="addDetailConf">添加详细页配置</a>
 	</tr>
 	</table>
 </div>
@@ -52,6 +52,9 @@
 <div id="detailTable"></div>
 <div id="listConfDialog" class="easyui-dialog" >
 </div>
+<div id="detailConfDialog" class="easyui-dialog" >
+</div>
+
 <script type="text/javascript">
 	$(function() {
     	
@@ -70,15 +73,16 @@
 			toolbar: '#listToolbar',
 			columns : [[ 
 	            {field : 'comment', title : '名称', width : 100}, 
-	            {field : 'url', title : 'URL', width : 500, formatter:function(value, rowDate, rowIndex) {
+	            {field : 'url', title : 'URL', width : 300, formatter:function(value, rowDate, rowIndex) {
 	            	return '<a target="_blank" href="' + value + '">' + value + '</a>';
 	            } }, 
 				{field : 'category', title : '类别', width : 100, formatter:function(value, rowDate, rowIndex) {
 					if (value == 'forum')return '论坛';
 					if (value == 'news')return '新闻资讯';
 					if (value == 'tieba')return '百度贴吧';
+					if (value == 'search') return '搜索';
 				}}, 
-				{field : 'fetchinterval', title : '抓取时间间隔', width : 50}, 
+				{field : 'fetchinterval', title : '抓取时间间隔', width : 70}, 
 				{field : 'numThreads', title : '线程数', width : 50}
 	        ]]
 		});
@@ -89,17 +93,22 @@
 			nowrap : false,
 			border : true,
 			collapsible : true,  
-			url : 'websiteInfo/list',
+			url : 'websiteInfo/detail',
 			singleSelect : true,//是否单选  
 			pagination : true,//分页控件  
 			rownumbers : true,//行号  
 			toolbar: '#detailToolbar',
 			columns : [[ 
-	            {field : 'comment', title : '名称', width : 100}, 
-	            {field : 'url', title : '网站地址', width : 500 }, 
-				{field : 'category', title : '类别', width : 100}, 
-				{field : 'fetchinterval', title : '抓取时间间隔', width : 50}, 
-				{field : 'numThreads', title : '线程数', width : 50}
+	            {field : 'listUrl', title : '列表页URL', width : 300}, 
+	            {field : 'host', title : 'Host', width : 200}, 
+				{field : 'fetchorder', title : '抓取顺序', width : 70, formatter:function(value, rowDate, rowIndex){
+					if (value == true) return '最后一页';
+					return '第一页';
+				}},
+	            {field : 'replyNum', title : '回复数DOM', width : 180 }, 
+				{field : 'reviewNum', title : '阅览数DOM', width : 180}, 
+				{field : 'forwardNum', title : '转发数DOM', width : 150}, 
+				{field : 'sources', title : '来源DOM', width : 150} 
 	        ]]
 		});
 	});
@@ -113,20 +122,28 @@
 		$('#listTable').datagrid('reload'); //设置好查询参数 reload 一下就可以了
 	}
 	function searchDetailConf() {
-		var params = $('#listTable').datagrid('options').queryParams; //先取得 datagrid 的查询参数
-		var fields =$('#listQueryForm').serializeArray(); //自动序列化表单元素为JSON对象
+		var params = $('#detailTable').datagrid('options').queryParams; //先取得 datagrid 的查询参数
+		var fields =$('#detailQueryForm').serializeArray(); //自动序列化表单元素为JSON对象
 		$.each( fields, function(i, field){
 			params[field.name] = field.value; //设置查询参数
 			console.log(field.name + ':' + field.value);
 		}); 
-		$('#listTable').datagrid('reload'); //设置好查询参数 reload 一下就可以了
+		$('#detailTable').datagrid('reload'); //设置好查询参数 reload 一下就可以了
 	}
 	function addListConf() {
 		$('#listConfDialog').dialog({
 			title:'添加列表页配置',
   			href:'websiteInfo/addListConf',
-  			width:700,
-  			height:540
+  			width:1220,
+  			height:620
+		});
+	}
+	function addDetailConf() {
+		$('#detailConfDialog').dialog({
+			title:'添加详细页配置',
+  			href:'websiteInfo/addDetailConf',
+  			width:1220,
+  			height:620
 		});
 	}
 </script>

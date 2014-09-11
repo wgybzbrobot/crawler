@@ -9,52 +9,26 @@
 			<param name="ConversionPattern" value="%d{HH:mm:ss} [%t] %c{1} - %m%n" />
 		</layout>
 	</appender>
-	
-	<logger name="org.springframework.samples">
+	<appender name="dailyfile" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="/tmp/crawlerlogs/web.log" />
+		<param name="Append" value="true" />
+		<param name="Encoding" value="UTF-8" />
+		<param name="DatePattern" value="'.'yyyy_MM_dd" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{MM-dd HH:mm:ss} [%p] (%F:%L): %m%n" />
+		</layout>
+	</appender>
+	<logger name="org.springframework">
 		<level value="debug" />
 	</logger>
-	
-	<logger name="org.springframework.core">
-		<level value="info" />
-	</logger>
-	
-	<logger name="org.springframework.beans">
-		<level value="info" />
-	</logger>
-	
-	<logger name="org.springframework.context">
-		<level value="info" />
-	</logger>
-
-	<logger name="org.springframework.http">
-		<level value="debug" />
-	</logger>
-
-	<logger name="org.springframework.web">
-		<level value="debug" />
-	</logger>
-	<logger name="com.ibatis">
-		<level value="debug" />
-	</logger>
-	<logger name="com.ibatis.common.jdbc.SimpleDataSource">
-		<level value="debug" />
-	</logger>
-	<logger name="com.ibatis.ScriptRunnter">
-		<level value="debug" />
-	</logger>
-	<logger name="java.sql.Connection">
-		<level value="debug" />
-	</logger>
-	<logger name="java.sql.Statement">
-		<level value="debug" />
-	</logger>
-	<logger name="java.sql.PreparedStatement">
+	<logger name="java.sql">
 		<level value="debug" />
 	</logger>
 
 	<root>
-		<priority value="warn" />
+		<priority value="info" />
 		<appender-ref ref="console" />
+		<appender-ref ref="dailyfile" />
 	</root>
 	
 </log4j:configuration>

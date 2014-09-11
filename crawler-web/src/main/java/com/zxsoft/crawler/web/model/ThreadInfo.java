@@ -9,13 +9,13 @@ public class ThreadInfo {
 
 	private String url;
 	private String title;
-	private Date releasedate;
+	private Date update;
 	public ThreadInfo() {}
-	public ThreadInfo(String url, String title, Date releasedate) {
+	public ThreadInfo(String url, String title, Date update) {
 	    super();
 	    this.url = url;
 	    this.title = title;
-	    this.releasedate = releasedate;
+	    this.update = update;
     }
 	public String getUrl() {
 		return url;
@@ -29,11 +29,11 @@ public class ThreadInfo {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public Date getReleasedate() {
-		return releasedate;
+	public Date getupdate() {
+		return update;
 	}
-	public void setReleasedate(Date releasedate) {
-		this.releasedate = releasedate;
+	public void setupdate(Date update) {
+		this.update = update;
 	}
 	
 	

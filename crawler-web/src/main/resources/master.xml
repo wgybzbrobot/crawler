@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+	<property>
+		<name>crawler.master.url</name>
+		<value>http://192.168.4.137:9999</value>
+		<description>crawler master url</description>
+	</property>
+
+</configuration>

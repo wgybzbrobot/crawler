@@ -1,14 +1,9 @@
 package com.zxsoft.crawler.web.service;
 
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
-
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.framework.utils.Page;
 
-@Service
 public interface WebsiteService {
 
 	/**
@@ -17,12 +12,17 @@ public interface WebsiteService {
 	 * @param params parameters of search
 	 */
 	Page<ListConf> getListConfs(final int pageNo, final int pageSize, ListConf param);
+	Page<DetailConf> getDetailConfs(final int pageNo, final int pageSize, DetailConf param);
 	
 	/**
-	 * Non-Instant Search
-	 * Add website's list-page configuration and detail-page configuration information.
+	 * Add website's list-page configuration 
 	 */
-	void add(ListConf listConf, DetailConf detailConf);
-	
-	
+	void add(ListConf listConf);
+	/**
+	 * add website's detail-page configuration information.
+	 */
+	void add(DetailConf detailConf);
+
+	boolean listConfExist(String url);
+	boolean detailConfExist(String listUrl, String host);
 }

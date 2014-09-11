@@ -14,7 +14,8 @@
 </head>
 <body>
 </c:if>		
-<div id="formsContent">
+<div>
+	<div id="formsContent">
 	<form:form id="form" method="post" modelAttribute="listConf" cssClass="cleanform" onkeydown="if(event.keyCode==13){return false;}">
 		<table class="maintable">
 			<tr>
@@ -28,7 +29,7 @@
 							</tr>
 							<tr>
 								<td><form:label path="url">网站地址<span class="red">*</span> <form:errors path="url" cssClass="error" /></form:label></td>
-								<td><form:input path="url" /></td>
+								<td><form:input path="url" id="url" /></td>
 								<td><label class="error" id="urlerror"></label></td>
 							</tr>
 							<tr>
@@ -37,6 +38,7 @@
 									<form:select path="category">
 										<form:option value="forum">论坛</form:option>
 										<form:option value="news">新闻资讯</form:option>
+										<form:option value="search">搜索</form:option>
 										<form:option value="tieba">百度贴吧</form:option>
 									</form:select>
 								</td>
@@ -51,8 +53,16 @@
 								<td></td>
 							</tr>
 							<tr>
+								<td>是否需要登录</td>
+								<td><fieldset class="radio" style="border:1px solid #ccc;" >
+									<label><form:radiobutton path="auth" value="false" /> 否</label> <label><form:radiobutton
+											path="auth" value="true" />是</label>
+								</fieldset></td>
+								<td></td>
+							</tr>
+							<tr>
 								<td><form:label path="numThreads">线程数<span class="red">*</span></form:label></td>
-								<td><form:input path="numThreads" /></td>
+								<td><form:input path="numThreads" value="1"/></td>
 								<td></td>
 							</tr>
 							<tr>
@@ -65,79 +75,118 @@
 								<td><form:input path="filterurl" /></td>
 							</tr>
 							<tr>
-								<td><form:label path="listdom">列表页的DOM结构<span class="red">*</span><form:errors path="listdom" cssClass="error" /></form:label></td>
+								<td><form:label path="listdom">列表页DOM<span class="red">*</span><form:errors path="listdom" cssClass="error" /></form:label></td>
 								<td><form:input path="listdom" /></td>
 								<td><label class="error" id="listdomerror"></label></td>
 							</tr>
 							<tr>
-								<td><form:label path="linedom">列表行的DOM结构<span class="red">*</span><form:errors path="linedom" cssClass="error" /></form:label></td>
+								<td><form:label path="linedom">列表行DOM<span class="red">*</span><form:errors path="linedom" cssClass="error" /></form:label></td>
 								<td><form:input path="linedom" /></td>
 								<td><label class="error" id="linedomerror"></label></td>
 							</tr>
 							<tr>
-								<td><form:label path="urldom">详细页URL的DOM结构<span class="red">*</span><form:errors path="urldom" cssClass="error" /></form:label></td>
+								<td><form:label path="urldom">详细页URL DOM<span class="red">*</span><form:errors path="urldom" cssClass="error" /></form:label></td>
 								<td><form:input path="urldom" /></td>
 								<td><label class="error" id="urldomerror"></label></td>
 							</tr>
 							<tr>
-								<td><form:label path="datedom">发布日期的DOM结构</form:label></td>
+								<td><form:label path="datedom">发布日期DOM</form:label></td>
 								<td><form:input path="datedom" /></td>
-								<td></td>
+								<td><label class="error" id="datedomerror"></label></td>
 							</tr>
 							<tr>
-								<td><form:label path="updatedom">最近更新时间的DOM结构</form:label></td>
+								<td><form:label path="updatedom">更新时间DOM</form:label></td>
 								<td><form:input path="updatedom" /></td>
-								<td></td>
+								<td><label class="error" id="updatedomerror"></label></td>
+							</tr>
+							<tr>
+								<td><form:label path="synopsisdom">简介DOM</form:label></td>
+								<td><form:input path="synopsisdom" /></td>
+								<td><label class="error" id="synopsisdomerror"></label></td>
 							</tr>
 							<tr>
 								<td align="right"><a href="#" class="linkbutton" id="test">验证</a></td>
 								<td align="left"><a href="#" class="linkbutton" id="save">保存</a></td>
-								<td></td>
+								<td><div id="saveMessage" style="color:#ff0000; text-align:center; font-size:13px; font-family: Verdana, Helvetica, Arial, sans-serif;"></div></td>
 							</tr>
 						</table>
-				</fieldset>
-			</td>
-		</tr>
-	</table>
-</form:form>
-<div id="message"></div>
+					</fieldset>
+				</td>
+			</tr>
+		</table>
+	</form:form>
+	</div>
+	<div id="message"></div>
+	<div style="text-align:center;">
+		<div id="loading" ></div>
+	</div>
+</div>
 <script type="text/javascript">
 	$(function() {
-		$("#save").click(function() {
-			$.post('websiteInfo/addListConf', $('#form').serialize(), function(data) {
-				
-				if (data.error != undefined) {
-					console.log (data.error.field);
-					$('#' + data.error.field).text(data.error.defaultMessage);
-					return;
+		$('#url').blur(function() {
+			var url = $('#url').val();
+			if (url != '') {
+				$.get('websiteInfo/listConfExist',{url: url}, function(data) {
+					console.log(data);
+					if (data == true) {
+						$('#urlerror').text('已存在');
+					} else {
+						$('#urlerror').text('');
+					}
+				});
+			}
+		});
+		
+		$("#test").click(function() {
+			$('#loading').show();
+			$("label.error").text('');
+			$.post('websiteInfo/testListConf', $('#form').serialize(), function(data) {
+				$('#loading').hide();
+				if (data.errors != undefined) {
+					console.log (data.errors);
+					$.each(data.errors, function(key, val) {
+						$('#' + key).text(val);
+					});
 				}
-				console.log('success');		
-				
-				var html = '<strong>配置结果:</strong><br />分页栏:' + data.pagebar;
+				var html = '<strong>配置结果:</strong><p>分页栏:' + data.pagebar + '</p>';
 				html += '<table><tr><td>编号</td><td>详细页</td><td>更新时间</td></tr>';
 				$.each(data.list, function(i, item){
 					html += '<tr>';
 					html += '<td class="link">' + (i+1) + '</td>';
 					html += '<td><a class="link" target="_blank" href="' + item.url + '">' + item.title + '</a></td>';
-					html += '<td>' + item.releasedate + '</td>';
+					html += '<td>' + (item.update == null ? '' : new Date(item.update).toLocaleString()) + '</td>';
 					html += '</tr>';
 				});
 				html += '</table>';
-				
-				$("#message").append(html);
+				$("#message").html(html);
 			});
-		}); 
-		$("#test").click(function() {
-			$.post('websiteInfo/testListConf', $('#form').serialize(), function(html) {
-				console.log('success');		
+		});
+		$("#save").click(function() {
+			$('#loading').show();
+			$.post('websiteInfo/addListConf', $('#form').serialize(), function(data) {
+				$('#loading').hide();
+				if (data.errors != undefined) {
+					console.log (data.errors);
+					$.each(data.errors, function(key, val) {
+						$('#' + key).text(val);
+					});
+				}
 				
-				/* $("#formsContent").replaceWith(html);
-				$('html, body').animate({scrollTop : $("#message").offset().top}, 500); */
+				var html = '<strong>配置结果:</strong><br /><p>分页栏:' + data.pagebar + '</p>';
+				html += '<table><tr><td>编号</td><td>详细页</td><td>更新时间</td></tr>';
+				$.each(data.list, function(i, item){
+					html += '<tr>';
+					html += '<td class="link">' + (i+1) + '</td>';
+					html += '<td><a class="link" target="_blank" href="' + item.url + '">' + item.title + '</a></td>';
+					html += '<td>' + (item.update == null ? '' : new Date(item.update).toLocaleString()) + '</td>';
+					html += '</tr>';
+				});
+				html += '</table>';
+				$("#message").html(html);
 			});
 		}); 
 	});
 </script>
-</div>
 	
 <c:if test="${!ajaxRequest}">
 </body>

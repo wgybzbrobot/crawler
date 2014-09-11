@@ -2,8 +2,6 @@ package com.zxsoft.crawler.web.controller.proxy;
 
 import java.util.List;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.mvc.extensions.ajax.AjaxUtils;
@@ -69,7 +67,7 @@ public class ProxyInfoController {
 
 	@ResponseBody
 	@RequestMapping(value = "addProxy", method = RequestMethod.POST)
-	public String addProxy(@Valid ListConf listConf, BindingResult result, Model model,
+	public String addProxy(ListConf listConf, BindingResult result, Model model,
 	        @ModelAttribute("ajaxRequest") boolean ajaxRequest) {
 		model.addAttribute("listConf", listConf);
 //		if (result.hasErrors()) {

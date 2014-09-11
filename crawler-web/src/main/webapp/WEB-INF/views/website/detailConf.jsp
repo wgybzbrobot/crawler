@@ -12,6 +12,8 @@
 <title>详细页配置</title>
 <link href="<c:url value="/resources/form.css" />" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="<c:url value="/resources/jquery/1.6/jquery.js" />"></script>
+<script type="text/javascript" src="<c:url value="/resources/jquery/1.6/jquery.validate.js" />"></script>
+<%-- <script type="text/javascript" src="<c:url value="/resources/jquery/1.6/localization.js" />"></script> --%>
 </head>
 <body>
 </c:if>
@@ -19,100 +21,127 @@
 	<form:form id="form" method="post" modelAttribute="detailConf" cssClass="cleanform" onkeydown="if(event.keyCode==13){return false;}">
 		<table class="maintalbe">
 			<tr>
-				<td valign="top">
+				<td colspan="2" valign="top">
 				<fieldset>
 					<table class="conftable">
 						<tr>
-							<td><form:label path="testUrl">测试页URL<span class="red">*</span> <form:errors path="testUrl" cssClass="error" /></form:label></td>
-							<td><form:input path="testUrl" /></td>
+							<td><form:label path="testUrl">测试页URL地址<span class="red">*</span> <form:errors path="testUrl" cssClass="error" /></form:label></td>
+							<td><form:input path="testUrl" class="required" /></td>
+							<td><label class="error" id="testUrlerror"></label></td>
 						</tr>
 						<tr>
-							<td><form:label path="detailConf.replyNum">回复数的节点DOM<span class="red">*</span> <form:errors path="detailConf.replyNum" cssClass="error" /></form:label></td>
-							<td><form:input path="detailConf.replyNum" /></td>
+							<td><form:label path="listUrl">列表页URL<span class="red">*</span> <form:errors path="listUrl" cssClass="error" /></form:label></td>
+							<td><form:input path="listUrl" class="required"/></td>
+							<td><label class="error" id="listUrlerror"></label></td>
 						</tr>
 						<tr>
-							<td><form:label path="detailConf.reviewNum">浏览数的节点DOM <form:errors path="detailConf.reviewNum" cssClass="error" /></form:label></td>
-							<td><form:input path="detailConf.reviewNum" /></td>
+							<td><form:label path="host">Host<span class="red">*</span> <form:errors path="host" cssClass="error" /></form:label></td>
+							<td><form:input path="host" class="required"/></td>
+							<td><label class="error" id="hosterror"></label></td>
 						</tr>
 						<tr>
-							<td><form:label path="detailConf.forwardNum">转发数的节点DOM <form:errors path="detailConf.forwardNum" cssClass="error" /></form:label></td>
-							<td><form:input path="detailConf.forwardNum" /></td>
+							<td><form:label path="replyNum">回复数DOM<span class="red">*</span> <form:errors path="replyNum" cssClass="error" /></form:label></td>
+							<td><form:input path="replyNum" class="required" /></td>
+							<td><label class="error" id="replyNumerror"></label></td>
 						</tr>
 						<tr>
-							<td><form:label path="detailConf.sources">来源DOM<span class="red">*</span><form:errors path="detailConf.sources" cssClass="error" /></form:label></td>
-							<td><form:input path="detailConf.sources" /></td>
+							<td><form:label path="reviewNum">浏览数DOM <form:errors path="reviewNum" cssClass="error" /></form:label></td>
+							<td><form:input path="reviewNum" /></td>
+							<td><label class="error" id="reviewNumerror"></label></td>
+						</tr>
+						<tr>
+							<td><form:label path="forwardNum">转发数DOM <form:errors path="forwardNum" cssClass="error" /></form:label></td>
+							<td><form:input path="forwardNum" /></td>
+							<td><label class="error" id="forwardNumerror"></label></td>
+						</tr>
+						<tr>
+							<td><form:label path="sources">来源DOM<form:errors path="sources" cssClass="error" /></form:label></td>
+							<td><form:input path="sources" /></td>
+							<td><label class="error" id="sourceserror"></label></td>
 						</tr>
 						<tr>
 							<td>抓取顺序</td>
 							<td>
 								<fieldset class="radio">
-								<label><form:radiobutton path="detailConf.fetchorder" value="true" /> 从最后一页开始</label> <label><form:radiobutton
-										path="detailConf.fetchorder" value="false" />从第一页开始</label>
+								<label><form:radiobutton path="fetchorder" value="false" /> 从第一页开始</label> <label><form:radiobutton
+										path="fetchorder" value="true" />从最后一页开始</label>
 								</fieldset>
 							</td>
 						</tr>
 					</table>
-					<fieldset>
+					<fieldset style="border: 1px solid #e3e3de">
 						<legend>主帖</legend>
 						<table class="conftable">
 							<tr>
-								<td><form:label path="detailConf.master">主帖DOM<span class="red">*</span><form:errors path="detailConf.master" cssClass="error" /></form:label></td>
-								<td><form:input path="detailConf.master" /></td>
+								<td><form:label path="master">主帖DOM<span class="red">*</span><form:errors path="master" cssClass="error" /></form:label></td>
+								<td><form:input path="master" class="required" /></td>
+								<td><label class="error" id="mastererror"></label></td>
 							</tr>
 							<tr>
-								<td><form:label path="detailConf.masterAuthor">楼主DOM<span class="red">*</span><form:errors path="detailConf.masterAuthor" cssClass="error" /></form:label></td>
-								<td><form:input path="detailConf.masterAuthor" /></td>
+								<td><form:label path="author">楼主DOM<span class="red">*</span><form:errors path="author" cssClass="error" /></form:label></td>
+								<td><form:input path="author" class="required" /></td>
+								<td><label class="error" id="authorerror"></label></td>
 							</tr>
 							<tr>
-								<td><form:label path="detailConf.masterDate">主帖发布时间DOM<form:errors path="detailConf.masterDate" cssClass="error" /></form:label></td>
-								<td><form:input path="detailConf.masterDate" /></td>
+								<td><form:label path="date">发布时间DOM<form:errors path="date" cssClass="error" /></form:label></td>
+								<td><form:input path="date" /></td>
+								<td><label class="error" id="dateerror"></label></td>
 							</tr>
 							<tr>
-								<td><form:label path="detailConf.masterContent">主帖内容DOM<span class="red">*</span><form:errors path="detailConf.masterContent" cssClass="error" /></form:label></td>
-								<td><form:input path="detailConf.masterContent" /></td>
+								<td><form:label path="content">内容DOM<span class="red">*</span><form:errors path="content" cssClass="error" /></form:label></td>
+								<td><form:input path="content" class="required" /></td>
+								<td><label class="error" id="contenterror"></label></td>
 							</tr>
 						</table>
 					</fieldset>
 		
-					<fieldset>
+					<fieldset style="border: 1px solid #e3e3de">
 						<legend>回复</legend>
 						<table class="conftable">
 							<tr>
-								<td><form:label path="detailConf.reply">回复DOM<span class="red">*</span><form:errors path="detailConf.reply" cssClass="error" /></form:label></td>
-								<td><form:input path="detailConf.reply" /></td>
+								<td><form:label path="reply">回复DOM<form:errors path="reply" cssClass="error" /></form:label></td>
+								<td><form:input path="reply" /></td>
+								<td><label class="error" id="replyerror"></label></td>
 							</tr>
 							<tr>
-								<td><form:label path="detailConf.replyAuthor">回复作者DOM<span class="red">*</span><form:errors path="detailConf.replyAuthor" cssClass="error" /></form:label></td>
-								<td><form:input path="detailConf.replyAuthor" /></td>
+								<td><form:label path="replyAuthor">作者DOM<form:errors path="replyAuthor" cssClass="error" /></form:label></td>
+								<td><form:input path="replyAuthor" /></td>
+								<td><label class="error" id="replyAuthorerror"></label></td>
 							</tr>
 							<tr>
-								<td><form:label path="detailConf.replyDate">回复时间DOM<span class="red">*</span><form:errors path="detailConf.replyDate" cssClass="error" /></form:label></td>
-								<td><form:input path="detailConf.replyDate" /></td>
+								<td><form:label path="replyDate">发布时间DOM<form:errors path="replyDate" cssClass="error" /></form:label></td>
+								<td><form:input path="replyDate" /></td>
+								<td><label class="error" id="replyDateerror"></label></td>
 							</tr>
 							<tr>
-								<td><form:label path="detailConf.replyContent">回复内容DOM<span class="red">*</span><form:errors path="detailConf.replyContent" cssClass="error" /></form:label></td>
-								<td><form:input path="detailConf.replyContent" /></td>
+								<td><form:label path="replyContent">内容DOM<form:errors path="replyContent" cssClass="error" /></form:label></td>
+								<td><form:input path="replyContent" /></td>
+								<td><label class="error" id="replyContenterror"></label></td>
 							</tr>
 						</table>
 					</fieldset>
-					<fieldset>
+					<fieldset style="border: 1px solid #e3e3de">
 						<legend>子回复</legend>
 						<table class="conftable">
 							<tr>
-								<td><form:label path="detailConf.subReply">子回复DOM</form:label></td>
-								<td><form:input path="detailConf.subReply" /></td>
+								<td><form:label path="subReply">子回复DOM</form:label></td>
+								<td><form:input path="subReply" /></td>
+								<td><label class="error" id="subReplyerror"></label></td>
 							</tr>
 							<tr>
-								<td><form:label path="detailConf.subReplyAuthor">子回复作者DOM</form:label></td>
-								<td><form:input path="detailConf.subReplyAuthor" /></td>
+								<td><form:label path="subReplyAuthor">作者DOM</form:label></td>
+								<td><form:input path="subReplyAuthor" /></td>
+								<td><label class="error" id="subReplyAuthorerror"></label></td>
 							</tr>
 							<tr>
-								<td><form:label path="detailConf.subReplyDate">子回复日期DOM</form:label></td>
-								<td><form:input path="detailConf.subReplyDate" /></td>
+								<td><form:label path="subReplyDate">发布时间DOM</form:label></td>
+								<td><form:input path="subReplyDate" /></td>
+								<td><label class="error" id="subReplyDateerror"></label></td>
 							</tr>
 							<tr>
-							 	<td><form:label path="detailConf.subReplyContent">子回复内容DOM</form:label></td>
-							 	<td><form:input path="detailConf.subReplyContent" /></td>
+							 	<td><form:label path="subReplyContent">内容DOM</form:label></td>
+							 	<td><form:input path="subReplyContent" /></td>
+							 	<td><label class="error" id="subReplyContenterror"></label></td>
 							 </tr>
 						</table>
 					</fieldset>
@@ -120,79 +149,118 @@
 				</td>
 			</tr>
 			<tr>
-				<td align="right"><input id="test" class="btn" type="submit" name="action" value="验证" /></td>
-				<td align="left"><input id="save" class="btn" type="submit" name="action" value="保存" /></td>
+				<td align="right"><a href="#" class="linkbutton" id="test">验证</a></td>
+				<td align="left"><a href="#" class="linkbutton" id="save">保存</a></td>
+				<td><div id="saveMessage" style="color:#ff0000; text-align:center; font-size:13px; font-family: Verdana, Helvetica, Arial, sans-serif;"></div></td>
 			</tr>
 		</table>
 	</form:form>
 </div>
-<div id="message">
-	<c:choose>
-		<c:when test="${not empty listRes.list}">
-		<div class="dialog-box">
-			<h5>列表页配置结果：</h5>
-			<table>
-				<c:forEach items="${listRes.list }" var="conf" varStatus="status">
-					<tr>
-						<td class="link">${status.index + 1 }</td>
-						<td><a class="link" href="${conf.url }" target="_Blank">${conf.title }</a></td>
-						<td>${conf.releasedate }</td>
-					</tr>
-				</c:forEach>
-			</table>
-			<strong>分页栏：</strong>${listRes.pagebar}
-		</div>
-		</c:when>
-		<c:otherwise><h5>没有列表页配置结果</h5></c:otherwise>
-	</c:choose>
-	<c:choose>
-		<c:when test="${not empty detailRes.info}">
-		<div class="dialog-box">
-			<h5>详细页配置结果：</h5>
-			<c:forEach items="${detailRes.info }" var="conf" varStatus="status">
-				<strong>${conf.key }:</strong> ${conf.value } <br />
-			</c:forEach>
-		</div>
-		</c:when>
-		<c:otherwise><h5>没有详细页配置结果</h5></c:otherwise>
-	</c:choose>
-</div>
-<div id="saveMessage"></div>
+
+<div id="message"></div>
 		
 <script type="text/javascript">
-	$(document).ready(function() {
-		/* $('#message').hide(); */
-		$("#test").click(function(event) {
-			$("#form").submit(function() {
-				$.post($(this).attr("action"), $(this).serialize(), function(html) {
-					$("#formsContent").replaceWith(html);
-					
-					$('#message').show();
-					$(document).one("click", function () {//对document绑定一个影藏Div方法 
-					    $("#message").hide(); 
-				    });
-				    event.stopPropagation();//点击Button阻止事件冒泡到document 
-				    
-					/* $('html, body').animate({scrollTop : $("#message").offset().top}, 500); */
+	$(function() {
+		$('#host').blur(function() {
+			$.get('websiteInfo/detailConfExist', function(data) {
+				console.log(data);
+				if (date == true) {
+					$('#hosterror').text('Host已存在');
+				} else {
+					$('#hosterror').text('');
+				}
+			});
+		});
+		
+		$("#test").click(function(e) {
+			e.preventDefault();
+			
+			$('label.error').text('');
+			$('#saveMessage').html('');
+			var requiredFields = $('input.required');
+			console.log(requiredFields);
+			if (requiredFields.length != 0) {
+				var i = 0;
+				$.each(requiredFields, function(i, field){
+					var cur = $(this);
+					if ($.trim(cur.val()) == '') {
+						i += 1;
+						cur.parent().next().find('label.error').text('必填');
+					}
 				});
-				return false;
+				if (i > 0) {
+					$('#saveMessage').html('配置有误');
+					return;
+				}
+			}
+			
+			$.post('websiteInfo/testDetailConf', $('#form').serialize(), function(data) {
+				$("label[id$='error']").text('');
+				if (data.errors != undefined && data.errors.length != 0) {
+					$.each(data.errors, function(i, val) {
+						$('#' + val.field).text(val.msg);
+					});
+				}
+				var html = '<div class="conftable"><strong text>配置结果:</strong><br />';
+				html += '<div>';
+				if (data.info != undefined){
+					$.each(data.info, function(i, val) {
+						html += '<p><strong>' + i + ':</strong>' + val + '</p>';
+					});
+				}
+				html += '</div></div>';
+				
+				$('#message').html(html);
 			});
 		}); 
 		$("#message").click(function (event) { 
 		    event.stopPropagation();//在Div区域内的点击事件阻止冒泡到document 
 		}); 
-		$('#save').click(function(event){
-			$("#form").submit(function() {
-				$.post('forumConf/save', $(this).serialize(), function(html) {
-					$("#formsContent").replaceWith(html);
-					alert('保存成功');
+		$('#save').click(function(e){
+			e.preventDefault();
+			$('label.error').text('');
+			$('#saveMessage').html('');
+			var requiredFields = $('input.required');
+			if (requiredFields.length != 0) {
+				var i = 0;
+				$.each(requiredFields, function(i, field){
+					var cur = $(this);
+					if ($.trim(cur.val()) == '') {
+						i += 1;
+						cur.parent().next().find('label.error').text('必填');
+					}
 				});
-				return false;
+				if (i > 0) {
+					$('#saveMessage').html('配置有误');
+					return;
+				}
+			}
+			$.post('websiteInfo/saveDetailConf', $('#form').serialize(), function(data) {
+				if (data.msg == 'success') {
+					$('#saveMessage').html('保存成功');
+				} else {
+					$('#saveMessage').html('配置有误,保存失败');
+				}
+				$("label[id$='error']").text('');
+				if (data.errors != undefined && data.errors.length != 0) {
+					$.each(data.errors, function(i, val) {
+					$('#' + val.field).text(val.msg);
+					});
+				}
+				var html = '<div class="conftable"><strong text>配置结果:</strong><br />';
+				html += '<div>';
+				if (data.info != undefined){
+					$.each(data.info, function(i, val) {
+						html += '<p><strong>' + i + ':</strong>' + val + '</p>';
+					});
+				}
+				html += '</div></div>';
+				
+				$('#message').html(html);
 			});
 		});
 	});
 </script>
-</div>
 	
 <c:if test="${!ajaxRequest}">
 </body>

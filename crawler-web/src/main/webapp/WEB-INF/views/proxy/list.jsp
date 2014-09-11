@@ -27,7 +27,7 @@
 		</table>
 	</form>
 	</td><td align="right" style="text-align: right; right:0;">
-	<a href="#" onclick="addListConf();" class="linkbutton" id="addListConf">添加代理</a>
+	<a href="#" onclick="" class="linkbutton" id="addListConf">添加代理</a>
 	</tr>
 	</table>
 </div>

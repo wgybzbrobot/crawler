@@ -38,7 +38,7 @@ h5 {
 
 #header {
 	background: #ffffff;
-	height: 95px;
+	height: 90px;
 	width: 1000px;
 	color: #666666;
 }
@@ -177,6 +177,7 @@ table.conftable {
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 	font-size: 10px;
 	font-weight: bold;
+	width: 100%;
 }
 
 table.conftable td {
@@ -202,7 +203,7 @@ table.maintable td {
 	width: 1000px;
 	position: relative;
 	min-height: 100%;
-	height: auto !important;
+	/* height: auto !important; */
 	height: 100%;
-	margin: 0 auto -75px;
+	margin: 0 auto;
 }

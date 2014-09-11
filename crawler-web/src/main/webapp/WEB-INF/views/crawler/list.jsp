@@ -9,77 +9,130 @@
 	<html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>爬虫信息</title>
+<title>爬虫监控</title>
 <link href="<c:url	 value="/resources/form.css" />" rel="stylesheet" type="text/css" />
-<script type="text/javascript" src="<c:url value="/resources/jquery/1.6/jquery.js" />"></script>
 </head>
 <body>
 </c:if>
-<div id="listToolbar">
-	<table>
-	 <tr><td>
-	 <form id="listQueryForm">
-		<table >
-			<tr>
-			<td><span>代理类别:</span><input id="comment" name="comment" style="line-height:16px;border:1px solid #ccc"></td>
-			<td><a href="#" onclick="searchListConf();" class="linkbutton" >查询</a></td>
-			</tr>
-		</table>
-	</form>
-	</td><td align="right" style="text-align: right; right:0;">
-	<a href="#" onclick="addListConf();" class="linkbutton" id="addListConf">添加代理</a>
-	</tr>
-	</table>
+<div>
+	<div style="margin:5px 0 15px 0;">
+		<a href="#" class="linkbutton" id="refresh" onclick="return loadSlaves();">刷新</a>
+		<a href="#" class="linkbutton" id="addInspectJobBtn" onclick="return addInspectJob();">添加网络巡检任务</a>
+		<a href="#" class="linkbutton" id="addSearchJobBtn" onclick="return addSearchJob();">添加全网搜索任务</a>
+	</div>
+	<div id="addInspectJobDialog" style="display:none;">
+		<form id="addInspectJobForm" method="post" style="width:80%; margin:0 auto;">
+	    	<table class="maintable">
+	    		<tr>
+	    			<td>URL</td>
+	    			<td><input type="text" name="url" id="fetchurl" /></td>
+	    			<td><label id="fetchurlerror"></label></td>
+	    		</tr>
+	    		<%-- <tr>
+	    			<td>网站类型(对应代理类型)</td>
+	    			<td><select><option>国内</option><option>国外</option></select></td>
+	    		</tr> --%>
+	    		<tr><td colspan="3" align="center"><a href="#" class="linkbutton" id="submitInspectJob">添加</a>
+	    		</td></tr>
+	    	</table>
+    	</form>
+	</div>
+	
+	<div id="addSearchJobDialog" style="display:none;">
+		<form id="addSearchJobForm" method="post" style="width:80%; margin:0 auto;">
+			<div>
+		    	<table class="maintable">
+		    		<tr>
+		    			<td>关键词</td>
+		    			<td><input type="text" name="keyword" /></td>
+		    			<td><label id="keyworderror"></label></td>
+		    		</tr>
+		    		<tr>
+		    			<td>搜索引擎</td>
+		    			<td>
+		    			<span>百度<input name="engineId" value="baidu" type="checkbox">
+		    			搜狗<input name="engineId" value="sougou" type="checkbox"></span>
+		    			</td>
+		    			<td></td>
+		    		</tr>
+		    		<%-- <tr>
+		    			<td>网站类型(对应代理类型)</td>
+		    			<td><select><option>国内</option><option>国外</option></select></td>
+		    		</tr> --%>
+		    		<tr><td colspan="3" align="right"><a href="#" class="linkbutton" id="submitSearchJob">添加</a></td></tr>
+		    	</table>
+	    	</div>
+    	</form>
+	</div>
+	<div style="text-align:center;">
+		<div id="loading" ></div>
+		<div id="slaves">
+		</div>
+	</div>
 </div>
-<div id="listTable" ></div>
-<br />
-<div id="listConfDialog" class="easyui-dialog" ></div>
 <script type="text/javascript">
-	$(function() {
-    	
-		$('#listTable').datagrid({
-			title : '代理信息',
-			height : 300,
-			nowrap : false,
-			fitColumns: true,
-			collapsible : false,//是否可折叠的  
-			url : 'proxyInfo/list',
-			sortName: 'comment',  
-			sortOrder: 'desc',  
-			singleSelect : true,//是否单选  
-			pagination : true,//分页控件  
-			rownumbers : true,//行号  
-			toolbar: '#listToolbar',
-			columns : [[ 
-	            {field : 'host', title : 'IP地址', width : 100}, 
-	            {field : 'port', title : '端口', width : 100}, 
-				{field : 'proxy_id', title : '类型', width : 100}, 
-				{field : 'protocol', title : '协议', width : 50}, 
-				{field : 'status', title : '状态', width : 50},
-				{field : 'error', title : '出错次数', width : 50}
-	        ]]
+function addInspectJob() {
+	$('#addInspectJobDialog').show();
+	$('#addInspectJobDialog').dialog({
+	    title: '添加网络巡检任务',
+	    width: 400,
+	    height: 200,
+	    closed: false
+	});
+}
+
+function addSearchJob() {
+	$('#addSearchJobDialog').show();
+	$('#addSearchJobDialog').dialog({
+	    title: '添加全网搜索任务',
+	    width: 400,
+	    height: 200,
+	    closed: false
+	});
+}
+$(function() {
+	console.log('test');
+	$("#submitInspectJob").click(function(e) {
+		$('#addInspectJobForm').form('submit', {
+			url: 'slaves/addInspectJob',
+			onSubmit: function() {
+				var url = $('#fetchurl').val();
+				var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;;
+				if (regexp.test(url)) {
+					console.log('url is valid');
+					$('#fetchurlerror').text('');
+					return true;
+				} else {
+					console.log('url is invalid');
+					$('#fetchurlerror').text('不符合URL规范');
+					return false;
+				}
+			}, 
+			success: function (data) {
+				alert('添加成功');
+				$('#addInspectJobDialog').dialog('close');
+			}
 		});
 	});
-	function searchListConf() {
-		var params = $('#listTable').datagrid('options').queryParams; //先取得 datagrid 的查询参数
-		var fields =$('#listQueryForm').serializeArray(); //自动序列化表单元素为JSON对象
-		$.each( fields, function(i, field){
-			params[field.name] = field.value; //设置查询参数
-			console.log(field.name + ':' + field.value);
-		}); 
-		$('#listTable').datagrid('reload'); //设置好查询参数 reload 一下就可以了
-	}
-	function searchDetailConf() {
-		var params = $('#listTable').datagrid('options').queryParams; //先取得 datagrid 的查询参数
-		var fields =$('#listQueryForm').serializeArray(); //自动序列化表单元素为JSON对象
-		$.each( fields, function(i, field){
-			params[field.name] = field.value; //设置查询参数
-			console.log(field.name + ':' + field.value);
-		}); 
-		$('#listTable').datagrid('reload'); //设置好查询参数 reload 一下就可以了
-	}
+	$("#submitSearchJob").click(function(e) {
+		$('#addSearchJobForm').form('submit', {
+			url: 'slaves/addSearchJob',
+			onSubmit: function() {
+				var keyword = $('#keyword').val();
+				if (keyword == '') {
+					$('#keyworderror').text('必填');
+					return false;
+				}
+				return true;
+			}, 
+			success: function (data) {
+				alert('添加成功');
+				$('#addSearchJobDialog').dialog('close');
+			}
+		});
+	});
+});
 </script>
-
 <c:if test="${!ajaxRequest}">
 	</body>
 	</html>

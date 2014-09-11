@@ -20,6 +20,8 @@ public class WebPage implements Serializable {
 	private String keyword; // used for network search
 	private String engineId; 
 	
+	private String listUrl; // 列表页URL
+	
 	private int status;
 	private long fetchTime;
 	private long prevFetchTime;
@@ -80,6 +82,14 @@ public class WebPage implements Serializable {
 	}
 	
 	
+	public String getListUrl() {
+		return listUrl;
+	}
+
+	public void setListUrl(String listUrl) {
+		this.listUrl = listUrl;
+	}
+
 	public String getEngineId() {
 		return engineId;
 	}
