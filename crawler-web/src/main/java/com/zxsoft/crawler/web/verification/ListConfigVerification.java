@@ -80,16 +80,20 @@ public class ListConfigVerification extends ParseTool {
 						} else {
 							int i = 0;
 							int updateErrorCount = 0;
+							int urlErrorCount = 0;
 							for (Element lineEle : lineElements) {
 								i++;
 								if (CollectionUtils.isEmpty(lineEle.select(listConf.getUrldom()))) {
 									if (i < 10) {
 										continue;
 									}
-									errors.put("urldomerror", "获取详细页URL失败");
+									urlErrorCount++;
 								}
 
 								Element urlEle = lineEle.select(listConf.getUrldom()).first();
+								if (urlEle == null) {
+									continue;
+								}
 								String url = urlEle.absUrl("href");
 								String title = urlEle.text();
 								Date update = null;
@@ -111,6 +115,9 @@ public class ListConfigVerification extends ParseTool {
 							}
 							if (updateErrorCount > 10) {
 								errors.put("updatedomerror", "获取更新时间失败");
+							}
+							if (urlErrorCount > 10) {
+								errors.put("urldomerror", "获取详细页URL失败");
 							}
 						}
 					}

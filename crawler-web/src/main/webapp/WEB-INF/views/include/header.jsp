@@ -41,56 +41,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					});
 			});
 			$('#website_info').click();
-			$('#crawler_info').click(function() {
+			/* $('#crawler_info').click(function() {
 				console.log('Loading crawler status...');
 				loadSlaves();
-			});
+			}); */
 		});
 		
-		function loadSlaves() {
-			$('#loading').show();
-			$('#slaves').html('');
-			$.ajax({
-				type: 'GET',
-				url: 'slaves/list',
-				dataType: 'json',
-				success: function(data) {
-					$('#loading').hide();
-					console.log('load success');
-					if (data.code == '2000') {
-						
-						$('#slaves').datagrid({
-							title : '爬虫信息',
-							height : 500,
-							nowrap : false,
-							fitColumns: true,
-							collapsible : false,//是否可折叠的  
-							data : data.slaves,
-							sortName: 'slaveId',  
-							sortOrder: 'desc',  
-							singleSelect : true,//是否单选  
-							rownumbers : true,//行号  
-							columns : [[ 
-					            {field : 'slaveId', title : '编号', width : 30}, 
-					            {field : 'runningNum', title : '正在运行任务个数', width : 30}, 
-								{field : 'historyNum', title : '完成任务个数', width : 20},
-								{field : 'state', title : '状态', width : 20}, 
-								{field : 'code', title : '状态返回码', width : 20}, 
-								{field : 'msg', title : '说明'}
-					        ]]
-						});
-						
-					} else {
-						$('#slaves').html(data.msg);
-					}
-				},
-				error: function(xhr, status, error) {
-					$('#loading').hide();
-					$('#slaves').html('failure');
-					console.log('failure');
-				}
-			});
-		};
+	
 	</script>
 </body>
 </html>

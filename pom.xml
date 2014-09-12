@@ -34,14 +34,14 @@
 			<url>http://maven.restlet.org</url>
 		</repository>
 		<!-- For developing against latest Spring milestones -->
-		<repository>
+		<!-- <repository>
 			<id>org.springframework.maven.milestone</id>
 			<name>Spring Maven Milestone Repository</name>
 			<url>http://maven.springframework.org/milestone</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
-		</repository>
+		</repository> -->
 		<repository>
 			<id>zxsoft-public</id>
 			<name>Nexus Release Repository</name>
