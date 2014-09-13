@@ -19,9 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.StringUtils;
 
-import sun.misc.BASE64Encoder;
-
 import com.google.gson.Gson;
+import com.sun.jersey.core.util.Base64;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocols.http.HttpBase;
@@ -105,7 +104,8 @@ public class SinaWeiboLogin implements Login {
 
 	public String getUsername(String username) {
 		// username = username.replaceAll("@", "");
-		return new BASE64Encoder().encode(username.getBytes());
+		return new String(Base64.encode(username.getBytes()));
+//		return new BASE64Encoder().encode(username.getBytes());
 	}
 
 	public String getPassword(String passwd, String pubkey, long servertime,
