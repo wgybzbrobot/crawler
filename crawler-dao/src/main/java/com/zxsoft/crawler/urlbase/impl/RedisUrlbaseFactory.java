@@ -3,7 +3,7 @@ package com.zxsoft.crawler.urlbase.impl;
 import java.util.LinkedList;
 import java.util.List;
 
-import zx.soft.redis.client.shard.impl.RedisShardClient;
+//import zx.soft.redis.client.shard.impl.RedisShardClient;
 
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.storage.WebPage.JOB_TYPE;
