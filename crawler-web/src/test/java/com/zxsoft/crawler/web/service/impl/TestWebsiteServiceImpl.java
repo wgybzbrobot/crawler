@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.ListConf;
+import com.zxsoft.crawler.web.service.website.impl.WebsiteServiceImpl;
 
 public class TestWebsiteServiceImpl {
 

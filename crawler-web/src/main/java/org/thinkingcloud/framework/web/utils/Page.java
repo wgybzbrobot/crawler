@@ -1,4 +1,4 @@
-package com.zxsoft.framework.utils;
+package org.thinkingcloud.framework.web.utils;
 
 import java.util.List;
 

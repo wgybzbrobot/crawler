@@ -36,11 +36,18 @@ h5 {
 	color: #49635a;
 }
 
-#header {
-	background: #ffffff;
-	height: 90px;
-	width: 1000px;
-	color: #666666;
+header {
+	/* background: #ffffff;
+	
+	width: 100%;
+	color: #666666; */
+	height: 60px;
+	position: fixed;
+width: 100%;
+top: 0;
+left: 0;
+background: #203854;
+z-index: 100;
 }
 
 #logo {
@@ -60,12 +67,12 @@ h5 {
 }
 
 #navigation {
-	text-align: right;
+/* 	text-align: right; */
 	list-style: none;
 	width: 475px;
 	height: 40px;
 	top: 40px;
-	right: 10px;
+	/* right: 10px; */
 	margin: 0 2px;
 	padding: 5px 0;
 	position: absolute;

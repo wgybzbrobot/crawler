@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
+import org.thinkingcloud.framework.web.utils.Page;
 
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.ListConf;
-import com.zxsoft.crawler.web.service.WebsiteService;
-import com.zxsoft.crawler.web.service.impl.WebsiteServiceImpl;
+import com.zxsoft.crawler.web.service.website.WebsiteService;
+import com.zxsoft.crawler.web.service.website.impl.WebsiteServiceImpl;
 import com.zxsoft.crawler.web.verification.ListConfigVerification;
-import com.zxsoft.framework.utils.Page;
 
 @Controller
 @RequestMapping("/websiteInfo")
-public class WebsiteListConfController {
+public class ListConfController {
 
 	@ModelAttribute
 	public void ajaxAttribute(WebRequest request, Model model) {

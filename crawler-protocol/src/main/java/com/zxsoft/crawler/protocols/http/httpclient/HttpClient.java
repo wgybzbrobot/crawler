@@ -93,7 +93,7 @@ public class HttpClient extends HttpBase {
 //			Proxy proxy = proxyRandom.random(url.toString());
 			Proxy proxy = getProxy(url.toString());
 			if (proxy != null) {
-				hostConf.setProxy(proxy.getHost(), proxy.getPort());
+				hostConf.setProxy(proxy.getIp(), proxy.getPort());
 			}
 			/*if (proxy.getUsername().length() > 0) {
 				AuthScope proxyAuthScope = getAuthScope(proxy.getHost(),

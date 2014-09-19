@@ -82,11 +82,11 @@ public class HtmlUnit extends HttpBase {
 		if (useProxy ) {
 			Proxy proxy = getProxy(url.toString());
 			if (proxy != null) {
-				request.setProxyHost(proxy.getHost());
+				request.setProxyHost(proxy.getIp());
 				request.setProxyPort(proxy.getPort());
 	
 				NTCredentials proxyCredentials = new NTCredentials(proxy.getUsername(),
-				        proxy.getPassword(), proxy.getHost(), "http");
+				        proxy.getPassword(), proxy.getIp(), "http");
 				request.setCredentials(proxyCredentials);
 				if ("SOCKS".equalsIgnoreCase(proxy.getType()))
 					request.setSocksProxy(true);
@@ -248,7 +248,7 @@ public class HtmlUnit extends HttpBase {
 		}
 		String pageXml = htmlPage.asXml();
 		Document document = Jsoup.parse(pageXml, host);
-		Elements elements = document.select("a:matchesOwn(下一页|下页|下一页>)");
+		Elements elements = document.select("a:matchesOwn(下一页|下页|加载更多)");
 		HtmlAnchor nextAnchor = null;
 		String newUrl = "";
 		if (!CollectionUtils.isEmpty(elements)) {

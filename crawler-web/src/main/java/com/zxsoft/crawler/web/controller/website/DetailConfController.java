@@ -18,16 +18,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
 import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
+import org.thinkingcloud.framework.web.utils.Page;
 
 import com.zxsoft.crawler.storage.DetailConf;
-import com.zxsoft.crawler.web.service.WebsiteService;
-import com.zxsoft.crawler.web.service.impl.WebsiteServiceImpl;
+import com.zxsoft.crawler.web.service.website.WebsiteService;
+import com.zxsoft.crawler.web.service.website.impl.WebsiteServiceImpl;
 import com.zxsoft.crawler.web.verification.DetailConfigVerification;
-import com.zxsoft.framework.utils.Page;
 
 @Controller
 @RequestMapping("/websiteInfo")
-public class WebsiteDetailConfController {
+public class DetailConfController {
 	
 	private WebsiteService websiteService = new WebsiteServiceImpl();
 

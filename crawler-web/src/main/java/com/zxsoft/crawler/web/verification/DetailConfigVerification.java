@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hadoop.conf.Configuration;
+//import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -31,8 +31,8 @@ public class DetailConfigVerification extends ParseTool {
 	private static Logger LOG = LoggerFactory.getLogger(DetailConfigVerification.class);
 	
 	public DetailConfigVerification() {
-		Configuration conf = CrawlerConfiguration.create();
-		setConf(conf);
+//		Configuration conf = CrawlerConfiguration.create();
+//		setConf(conf);
 	}
 	
 	public Map<String, Object> verify(DetailConf detailConf) {
