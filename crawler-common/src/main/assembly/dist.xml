@@ -15,7 +15,7 @@
 				<include>*</include>
 			</includes>
 			<outputDirectory>/conf</outputDirectory>
-			<filtered>true</filtered>
+			<!-- <filtered>true</filtered> -->
 		</fileSet>
 		<fileSet>
 			<directory>src/main/bin</directory>
@@ -29,6 +29,9 @@
 	<dependencySets>
 		<dependencySet>
 			<outputDirectory>/lib</outputDirectory>
+			<excludes>
+				<exclude>junit:junit</exclude>
+			</excludes>
 		</dependencySet>
 	</dependencySets>
 </assembly>
