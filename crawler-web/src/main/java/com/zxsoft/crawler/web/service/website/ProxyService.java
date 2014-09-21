@@ -1,4 +1,4 @@
-package com.zxsoft.crawler.web.service;
+package com.zxsoft.crawler.web.service.website;
 
 import java.util.List;
 

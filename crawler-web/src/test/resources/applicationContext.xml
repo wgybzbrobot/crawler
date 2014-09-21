@@ -21,6 +21,9 @@
 	</bean>
 	<!-- 自动扫描所有注解该路径 -->
 	<context:component-scan base-package="com.zxsoft" />
+	<!-- <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" /> </context:component-scan> -->
+	<!-- <context:component-scan base-package="com.zxsoft.crawler.web, org.springframework.samples.mvc, org.springframework.mvc.extensions" 
+		/> -->
 
 	<context:property-placeholder location="classpath:/config.properties" />
 	<!-- 自动扫描所有注解该路径 -->
@@ -31,9 +34,9 @@
 
 	<bean id="jdbcDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://192.168.4.137:3306/crawler?useUnicode=true&amp;characterEncoding=UTF-8" />
-		<property name="username" value="zxsoft" />
-		<property name="password" value="" />
+		<property name="url" value="${mysql.url}" />
+		<property name="username" value="${mysql.username}" />
+		<property name="password" value="${mysql.password}" />
 	</bean>
 	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
 		<property name="dataSource" ref="jdbcDataSource" />
@@ -64,11 +67,12 @@
 		</property>
 		<property name="hibernateProperties">
 			<props>
-				<prop key="hibernate.dialect"> org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</prop>
 				<prop key="hibernate.show_sql">true</prop>
 			</props>
 		</property>
 	</bean>
+
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
 	<tx:advice id="txAdvice" transaction-manager="transactionManager">
@@ -83,10 +87,10 @@
 		</tx:attributes>
 	</tx:advice>
 
-	<!-- <aop:config proxy-target-class="true">
+	<aop:config proxy-target-class="true">
 		<aop:pointcut id="serviceManager" expression="execution(* com.supwisdom.*.service.impl.*.*(..))" />
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceManager" />
-	</aop:config> -->
+	</aop:config>
 
 
 	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">

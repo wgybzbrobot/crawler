@@ -5,25 +5,6 @@
 <html>
 <head>
 <style type="text/css">
-body ul {
-	list-style-type: square;
-}
-
-* {
-	padding: 0;
-	margin: 0;
-}
-
-ul {
-	display: block;
-	list-style-type: disc;
-	-webkit-margin-before: 1em;
-	-webkit-margin-after: 1em;
-	-webkit-margin-start: 0px;
-	-webkit-margin-end: 0px;
-	-webkit-padding-start: 40px;
-}
-
 div.clear {
 	clear: both;
 	visibility: hidden;

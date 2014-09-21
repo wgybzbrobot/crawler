@@ -1,22 +1,11 @@
 <%@ page language="java" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ page session="false"%>
-<%
-String path = request.getContextPath();
-String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path;
-%>
-<html>
 <meta http-equiv="Content-Type" content="text/html charset=utf-8">
-<link href="<c:url value="/resources/css/header.css" />" rel="stylesheet" type="text/css" />
-<link href="<c:url value="/resources/jquery-easyui/themes/default/easyui.css" />" rel="stylesheet" type="text/css" />
-<link href="<c:url value="/resources/jquery-easyui/themes/icon.css" />" rel="stylesheet" type="text/css" />
-<%-- <link href="<c:url value="/resources/jquery-easyui/demo/demo.css" />" rel="stylesheet" type="text/css" /> --%>
-<script type="text/javascript" src="<c:url value="/resources/jquery-easyui/jquery.min.js" />"></script>
-<script type="text/javascript" src="<c:url value="/resources/jquery-easyui/jquery.easyui.min.js" />"></script>
-<script type="text/javascript" src="<c:url value="/resources/jquery-easyui/locale/easyui-lang-zh_CN.js" />"></script>
+<html>
+<head>
 </head>
 <body>
-	<div id="header">
+	<header>
 		<div id="logo">
 				舆情网络爬虫
 		</div>
@@ -29,7 +18,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<li><a id="proxy_info" href="proxyInfo">代理信息</a></li>
 			</ul>
 		</div>
-	</div>
+	</header>
+	<div style="margin-top: 120px;"></div>
 	<script type="text/javascript">
 		$(function() {
 			$("#navigation a").click(function(e) {

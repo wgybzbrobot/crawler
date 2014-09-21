@@ -1,11 +1,19 @@
-package com.zxsoft.crawler.web.service;
+package com.zxsoft.crawler.web.service.website;
 
+import org.springframework.stereotype.Service;
+import org.thinkingcloud.framework.web.utils.Page;
+
+import com.zxsoft.crawler.entity.Website;
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.ListConf;
-import com.zxsoft.framework.utils.Page;
 
+@Service
 public interface WebsiteService {
 
+	Page<Website> getWebsite(final Website website, int pageNo, int pageSize);
+	void addWebsite(Website website);
+	
+	
 	/**
 	 * @param pageNo 
 	 * @param pageSize
