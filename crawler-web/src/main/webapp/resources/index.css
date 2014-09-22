@@ -148,3 +148,9 @@ a:active,a:hover {
 	height: 50%;
 	padding-top: 7%;
 }
+
+#content {
+	width: 911px;
+	min-height: 50%;
+	padding-bottom: 36px;
+}

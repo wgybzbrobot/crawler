@@ -33,4 +33,6 @@ public interface WebsiteService {
 
 	boolean listConfExist(String url);
 	boolean detailConfExist(String listUrl, String host);
+	void save(Website website);
+	Website getWebsite(String site);
 }

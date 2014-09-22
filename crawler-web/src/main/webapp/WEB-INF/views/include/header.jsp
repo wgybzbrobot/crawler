@@ -11,17 +11,17 @@
 		</div>
 		<div id="navigation">
 			<ul>
-				<li><a id="website_info" href="websiteInfo">网站信息</a></li>
+				<li><a id="website_info" href="website">网站配置</a></li>
 				<li>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</li>
-				<li><a id="crawler_info" href="slaves">爬虫信息</a></li>
+				<li><a id="crawler_info" href="slaves">爬虫监控</a></li>
 				<li>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</li>
-				<li><a id="proxy_info" href="proxyInfo">代理信息</a></li>
+				<li><a id="proxy_info" href="proxyInfo">代理配置</a></li>
 			</ul>
 		</div>
 	</header>
 	<div style="margin-top: 120px;"></div>
 	<script type="text/javascript">
-		$(function() {
+		/* $(function() {
 			$("#navigation a").click(function(e) {
 					$("div#navcolumn  a").parent().removeClass('highlight');
 					$(this).parent().addClass('highlight');
@@ -31,11 +31,7 @@
 					});
 			});
 			$('#website_info').click();
-			/* $('#crawler_info').click(function() {
-				console.log('Loading crawler status...');
-				loadSlaves();
-			}); */
-		});
+		}); */
 		
 	
 	</script>

@@ -84,7 +84,7 @@ public class SectionController {
 		
 		sectionService.saveOrUpdate(section);
 		
-		return "保存成功";
+		return "success";
 	}
 
 }

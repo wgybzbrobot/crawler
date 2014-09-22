@@ -194,6 +194,16 @@ public class WebsiteServiceImpl extends BaseDao implements WebsiteService {
 		 String base64 = new String(Base64.encodeBase64("http://www.baidu.com/s?wd=%s".getBytes()));
 		 System.out.println(base64);
     }
+
+	@Override
+    public void save(Website website) {
+	    websiteDaoImpl.addWebsite(website);
+    }
+
+	@Override
+    public Website getWebsite(String site) {
+	    return websiteDaoImpl.getWebsite(site);
+    }
 	
 	
 	

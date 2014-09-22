@@ -26,9 +26,6 @@ import com.zxsoft.crawler.web.dao.website.WebsiteDao;
 @Service
 public class WebsiteDaoImpl extends BaseDao implements WebsiteDao {
 
-	
-	
-	
 	@Override
 	public ListConf getListConf(String url) {
 		String sql = "SELECT * FROM " + TABLE_CONF_LIST + " WHERE url = ? ";
@@ -113,6 +110,11 @@ public class WebsiteDaoImpl extends BaseDao implements WebsiteDao {
 	@Override
     public void addWebsites(List<Website> websites) {
 		hibernateTemplate.saveOrUpdateAll(websites);
+    }
+
+	@Override
+    public Website getWebsite(String site) {
+		return hibernateTemplate.get(Website.class, site);
     }
 
 }

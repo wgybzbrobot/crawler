@@ -21,6 +21,19 @@
 		<filter-name>Character Encoding Filter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+	<filter>
+		<filter-name>openSessionInViewFilter</filter-name>
+		<filter-class>org.springframework.orm.hibernate3.support.OpenSessionInViewFilter</filter-class>
+		<init-param>
+			<param-name>singleSession</param-name>
+			<param-value>false</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>openSessionInViewFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
@@ -41,9 +54,5 @@
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
-	<!-- <jsp-config>
-		<jsp-property-group>
-			<el-ignored>false</el-ignored>
-		</jsp-property-group>
-	</jsp-config> -->
+	<!-- <jsp-config> <jsp-property-group> <el-ignored>false</el-ignored> </jsp-property-group> </jsp-config> -->
 </web-app>

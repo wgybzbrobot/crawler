@@ -26,4 +26,5 @@ public interface WebsiteDao {
 	
 	ListConf getListConf(String url);
 	DetailConf getDetailConf(String listUrl, String host);
+	Website getWebsite(String site);
 }
