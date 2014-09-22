@@ -1,6 +1,6 @@
 package com.zxsoft.crawler.entity;
 
-// Generated 2014-9-15 17:18:54 by Hibernate Tools 3.4.0.CR1
+// Generated 2014-9-19 17:19:57 by Hibernate Tools 3.4.0.CR1
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;

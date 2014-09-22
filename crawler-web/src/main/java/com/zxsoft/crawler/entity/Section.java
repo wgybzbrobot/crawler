@@ -1,6 +1,6 @@
 package com.zxsoft.crawler.entity;
 
-// Generated 2014-9-15 17:18:54 by Hibernate Tools 3.4.0.CR1
+// Generated 2014-9-19 17:19:57 by Hibernate Tools 3.4.0.CR1
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,7 +8,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -18,26 +17,43 @@ import javax.persistence.Table;
 @Table(name = "section", catalog = "crawler")
 public class Section implements java.io.Serializable {
 
+	/**
+	 * 
+	 */
+    private static final long serialVersionUID = -7399722190855313390L;
 	private String url;
+	private Website website;
+	private Account account;
 	private String category;
 	private String comment;
 	private String urlbase64;
-	private Website website;
-	private ConfList confList;
+	private String status;
 
 	public Section() {
 	}
 
-	public Section(String url, String urlbase64) {
+	public Section(String url, String category, String comment, String urlbase64) {
 		this.url = url;
+		this.category = category;
+		this.comment = comment;
 		this.urlbase64 = urlbase64;
 	}
 
-	public Section(String url, Website website, ConfList confList) {
+	public Section(String url, Website website, Account account, String category, String comment,
+	        String urlbase64, String status) {
 		this.url = url;
 		this.website = website;
-		this.confList = confList;
+		this.account = account;
+		this.category = category;
+		this.comment = comment;
+		this.urlbase64 = urlbase64;
+		this.status = status;
 	}
+
+	public Section(String url, String urlbase64) {
+	    this.url = url;
+	    this.urlbase64 = urlbase64;
+    }
 
 	@Id
 	@Column(name = "url", unique = true, nullable = false, length = 150)
@@ -47,33 +63,6 @@ public class Section implements java.io.Serializable {
 
 	public void setUrl(String url) {
 		this.url = url;
-	}
-
-	@Column(name="category", nullable = false, length = 45)
-	public String getCategory() {
-		return category;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
-	@Column(name="comment", nullable = false, length = 45)
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-
-	@Column(name="urlbase64", nullable = false, length=150)
-	public String getUrlbase64() {
-		return urlbase64;
-	}
-
-	public void setUrlbase64(String urlbase64) {
-		this.urlbase64 = urlbase64;
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -86,13 +75,50 @@ public class Section implements java.io.Serializable {
 		this.website = website;
 	}
 
-	@OneToOne(fetch = FetchType.LAZY, mappedBy = "section")
-	public ConfList getConfList() {
-		return this.confList;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "creator")
+	public Account getAccount() {
+		return this.account;
 	}
 
-	public void setConfList(ConfList confList) {
-		this.confList = confList;
+	public void setAccount(Account account) {
+		this.account = account;
+	}
+
+	@Column(name = "category", nullable = false, length = 45)
+	public String getCategory() {
+		return this.category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	@Column(name = "comment", nullable = false, length = 45)
+	public String getComment() {
+		return this.comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	@Column(name = "urlbase64", nullable = false, length = 150)
+	public String getUrlbase64() {
+		return this.urlbase64;
+	}
+
+	public void setUrlbase64(String urlbase64) {
+		this.urlbase64 = urlbase64;
+	}
+
+	@Column(name = "status", length = 45)
+	public String getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 }

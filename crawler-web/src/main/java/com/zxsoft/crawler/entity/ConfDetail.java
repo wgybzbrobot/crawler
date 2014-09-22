@@ -1,15 +1,12 @@
 package com.zxsoft.crawler.entity;
 
-// Generated 2014-9-15 17:18:54 by Hibernate Tools 3.4.0.CR1
+// Generated 2014-9-19 17:19:57 by Hibernate Tools 3.4.0.CR1
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -17,19 +14,14 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "conf_detail", catalog = "crawler")
-public class ConfDetail implements java.io.Serializable, Comparable<ConfDetail> {
+public class ConfDetail implements java.io.Serializable {
 
-	/**
-	 * 
-	 */
-    private static final long serialVersionUID = 3856228659173523699L;
 	private ConfDetailId id;
-	private ConfList confList;
 	private String replyNum;
 	private String reviewNum;
 	private String forwardNum;
 	private String sources;
-	private Byte fetchOrder;
+	private Boolean fetchOrder;
 	private String master;
 	private String author;
 	private String date;
@@ -46,18 +38,16 @@ public class ConfDetail implements java.io.Serializable, Comparable<ConfDetail> 
 	public ConfDetail() {
 	}
 
-	public ConfDetail(ConfDetailId id, ConfList confList) {
+	public ConfDetail(ConfDetailId id) {
 		this.id = id;
-		this.confList = confList;
 	}
 
-	public ConfDetail(ConfDetailId id, ConfList confList, String replyNum, String reviewNum,
-	        String forwardNum, String sources, Byte fetchOrder, String master, String author,
-	        String date, String content, String reply, String replyAuthor, String replyDate,
+	public ConfDetail(ConfDetailId id, String replyNum, String reviewNum, String forwardNum,
+	        String sources, Boolean fetchOrder, String master, String author, String date,
+	        String content, String reply, String replyAuthor, String replyDate,
 	        String replyContent, String subReply, String subReplyAuthor, String subReplyDate,
 	        String subReplyContent) {
 		this.id = id;
-		this.confList = confList;
 		this.replyNum = replyNum;
 		this.reviewNum = reviewNum;
 		this.forwardNum = forwardNum;
@@ -87,16 +77,6 @@ public class ConfDetail implements java.io.Serializable, Comparable<ConfDetail> 
 
 	public void setId(ConfDetailId id) {
 		this.id = id;
-	}
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "listurl", nullable = false, insertable = false, updatable = false)
-	public ConfList getConfList() {
-		return this.confList;
-	}
-
-	public void setConfList(ConfList confList) {
-		this.confList = confList;
 	}
 
 	@Column(name = "replyNum", length = 200)
@@ -136,11 +116,11 @@ public class ConfDetail implements java.io.Serializable, Comparable<ConfDetail> 
 	}
 
 	@Column(name = "fetchOrder")
-	public Byte getFetchOrder() {
+	public Boolean getFetchOrder() {
 		return this.fetchOrder;
 	}
 
-	public void setFetchOrder(Byte fetchOrder) {
+	public void setFetchOrder(Boolean fetchOrder) {
 		this.fetchOrder = fetchOrder;
 	}
 
@@ -251,12 +231,5 @@ public class ConfDetail implements java.io.Serializable, Comparable<ConfDetail> 
 	public void setSubReplyContent(String subReplyContent) {
 		this.subReplyContent = subReplyContent;
 	}
-
-	@Override
-    public int compareTo(ConfDetail o) {
-	    
-		
-	    return 0;
-    }
 
 }

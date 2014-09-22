@@ -52,7 +52,7 @@
 	<div>
 		<a class="anchorbtn" href="javascript:history.go(-1);">返回</a>
 		<h2><a href="${site }" target="_blank">${comment}</a></h2>
-		<input id="addSectionBtn" type="button" value="添加" class="inputbtn" />
+		<input id="addSectionBtn" type="button" value="添加版块" class="inputbtn" />
 	</div>
 	<div class="form-wrapper" style="display: none;">
 		<a class="form-wrapper-close" href="javascript:;"></a>

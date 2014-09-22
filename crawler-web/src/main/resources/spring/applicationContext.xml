@@ -60,6 +60,7 @@
 				<value>com.zxsoft.crawler.entity.Section</value>
 				<value>com.zxsoft.crawler.entity.SiteType</value>
 				<value>com.zxsoft.crawler.entity.Website</value>
+				<value>com.zxsoft.crawler.entity.Account</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">

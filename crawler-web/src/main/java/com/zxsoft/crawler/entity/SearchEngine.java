@@ -1,6 +1,6 @@
 package com.zxsoft.crawler.entity;
 
-// Generated 2014-9-15 17:18:54 by Hibernate Tools 3.4.0.CR1
+// Generated 2014-9-19 17:19:57 by Hibernate Tools 3.4.0.CR1
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +14,10 @@ import javax.persistence.Table;
 @Table(name = "search_engine", catalog = "crawler")
 public class SearchEngine implements java.io.Serializable {
 
+	/**
+	 * 
+	 */
+    private static final long serialVersionUID = 610993177567328192L;
 	private String id;
 	private String url;
 

@@ -1,6 +1,6 @@
 package com.zxsoft.crawler.entity;
 
-// Generated 2014-9-15 17:18:54 by Hibernate Tools 3.4.0.CR1
+// Generated 2014-9-19 17:19:57 by Hibernate Tools 3.4.0.CR1
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,8 +18,10 @@ import javax.persistence.Table;
 @Table(name = "site_type", catalog = "crawler")
 public class SiteType implements java.io.Serializable {
 
+	/**
+	 * 
+	 */
     private static final long serialVersionUID = 9139932773606914700L;
-    
 	private String type;
 	private String comment;
 	private Set<Proxy> proxies = new HashSet<Proxy>(0);

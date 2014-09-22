@@ -1,10 +1,9 @@
 package com.zxsoft.crawler.entity;
 
-// Generated 2014-9-15 17:18:54 by Hibernate Tools 3.4.0.CR1
+// Generated 2014-9-19 17:19:57 by Hibernate Tools 3.4.0.CR1
 
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,6 +20,10 @@ import javax.persistence.Table;
 @Table(name = "website", catalog = "crawler")
 public class Website implements java.io.Serializable {
 
+	/**
+	 * 
+	 */
+    private static final long serialVersionUID = -5354652608097154552L;
 	private String site;
 	private SiteType siteType;
 	private String username;
@@ -33,17 +36,22 @@ public class Website implements java.io.Serializable {
 	public Website() {
 	}
 
-	public Website(String site, String comment, SiteType siteType) {
+	public Website(String site, SiteType siteType, String comment, String sitebase64) {
 		this.site = site;
-		this.comment = comment;
 		this.siteType = siteType;
+		this.comment = comment;
+		this.sitebase64 = sitebase64;
 	}
 
-	public Website(String site, SiteType siteType, String username, String password, Set<Section> sections) {
+	public Website(String site, SiteType siteType, String username, String password,
+	        String comment, String sitebase64, String region, Set<Section> sections) {
 		this.site = site;
 		this.siteType = siteType;
 		this.username = username;
 		this.password = password;
+		this.comment = comment;
+		this.sitebase64 = sitebase64;
+		this.region = region;
 		this.sections = sections;
 	}
 
@@ -84,34 +92,34 @@ public class Website implements java.io.Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
-	@Column(name = "comment", length = 100, nullable = false)
+
+	@Column(name = "comment", nullable = false, length = 100)
 	public String getComment() {
-		return comment;
+		return this.comment;
 	}
 
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
 
-	@Column(name="sitebase64", length= 150, nullable = false)
+	@Column(name = "sitebase64", nullable = false, length = 150)
 	public String getSitebase64() {
-		return sitebase64;
+		return this.sitebase64;
 	}
 
 	public void setSitebase64(String sitebase64) {
 		this.sitebase64 = sitebase64;
 	}
-	
+
 	@Column(name = "region", length = 45)
 	public String getRegion() {
-		return region;
+		return this.region;
 	}
 
 	public void setRegion(String region) {
 		this.region = region;
 	}
-	
+
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "website")
 	public Set<Section> getSections() {
 		return this.sections;

@@ -2,6 +2,7 @@ package com.zxsoft.crawler.web.dao.impl;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -47,7 +48,8 @@ public class TestWebsiteDaoImpl {
 	@Test
 	public void testSaveWebsite() {
 		SiteType siteType = new SiteType("001");
-		Website website = new Website("http://www.tencent.com", "Tencent", siteType);
+		String base64 = Base64.encodeBase64String("http://www.tencent.com".getBytes());
+		Website website = new Website("http://www.tencent.com", siteType,"Tencent",  base64);
 		websiteDaoImpl.addWebsite(website);
 	}
 	
