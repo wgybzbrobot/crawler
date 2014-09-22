@@ -33,7 +33,7 @@ public class ConfigDaoImpl implements ConfigDao {
 		Map<String, String> params = new HashMap<String, String>();
 		
 		if (!StringUtils.isEmpty(url)) {
-			sb.append(" and a.confList.url =:url ");
+			sb.append(" and a.id.listurl =:url ");
 			params.put("url", url);
 		}
 		

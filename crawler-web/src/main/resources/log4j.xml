@@ -19,10 +19,10 @@
 		</layout>
 	</appender>
 	<logger name="org.springframework">
-		<level value="debug" />
+		<level value="info" />
 	</logger>
 	<logger name="java.sql">
-		<level value="debug" />
+		<level value="info" />
 	</logger>
 
 	<root>
