@@ -16,6 +16,10 @@ import javax.persistence.Table;
 @Table(name = "conf_detail", catalog = "crawler")
 public class ConfDetail implements java.io.Serializable {
 
+	/**
+	 * 
+	 */
+    private static final long serialVersionUID = -3292435843388726675L;
 	private ConfDetailId id;
 	private String replyNum;
 	private String reviewNum;
@@ -34,6 +38,16 @@ public class ConfDetail implements java.io.Serializable {
 	private String subReplyAuthor;
 	private String subReplyDate;
 	private String subReplyContent;
+
+	/*private String testUrl;
+	
+	public String getTestUrl() {
+		return testUrl;
+	}
+
+	public void setTestUrl(String testUrl) {
+		this.testUrl = testUrl;
+	}*/
 
 	public ConfDetail() {
 	}

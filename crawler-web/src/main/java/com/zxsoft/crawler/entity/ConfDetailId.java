@@ -31,7 +31,7 @@ public class ConfDetailId implements java.io.Serializable {
 		this.listurl = listurl;
 	}
 
-	@Column(name = "host", nullable = false, length = 150)
+	@Column(name = "host", nullable = false, length = 200)
 	public String getHost() {
 		return this.host;
 	}

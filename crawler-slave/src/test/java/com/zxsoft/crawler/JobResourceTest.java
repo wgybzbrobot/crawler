@@ -30,7 +30,7 @@ public class JobResourceTest {
 		args.put(Params.URL_TYPE, "001");
 		args.put(Params.Interval,100 * 200 * 60 * 1000);
 
-		args.put(Params.URL, "http://tieba.baidu.com/f?kw=%B0%F6%B2%BA");
+		args.put(Params.URL, "http://tieba.baidu.com/f?ie=utf-8&kw=%E8%9A%8C%E5%9F%A0");
 		map.put(Params.ARGS, args);
 		client.put(map);
 
@@ -63,8 +63,8 @@ public class JobResourceTest {
 		Map<String, Object> args = new HashMap<String, Object>();
 		args.put(Params.KEYWORD, "吸毒");
 		args.put(Params.URL_TYPE, "002");
-//		args.put(Params.ENGINE_ID, "baidu");
-		args.put(Params.ENGINE_ID, "sougou");
+//		args.put(Params.ENGINE_URL, "sougou");
+		args.put(Params.ENGINE_URL, "http://www.baidu.com/s?wd=%s");
 		args.put(Params.Interval, 0L);
 
 		map.put(Params.ARGS, args);
@@ -100,7 +100,7 @@ public class JobResourceTest {
 		Map<String, Object> args = new HashMap<String, Object>();
 		args.put(Params.KEYWORD, "吸毒");
 		args.put(Params.URL_TYPE, "002");
-		args.put(Params.ENGINE_ID, "baidu");
+		args.put(Params.ENGINE_URL, "baidu");
 		args.put(Params.Interval, 0L);
 
 		map.put(Params.ARGS, args);

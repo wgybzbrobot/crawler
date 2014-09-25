@@ -9,9 +9,15 @@ import com.zxsoft.crawler.entity.Section;
 public interface SectionDao {
 
 	/**
+	 * 获取版块
+	 */
+	Section getSection(String id);
+
+	/**
 	 * 查找版块
 	 */
 	Page<Section> getSections(Section section, int pageNo, int pageSize);
+	
 	void saveOrUpdate(Section section);
 	
 }

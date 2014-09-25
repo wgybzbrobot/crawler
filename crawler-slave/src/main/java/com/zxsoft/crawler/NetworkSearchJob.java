@@ -38,9 +38,9 @@ public class NetworkSearchJob extends CrawlTool /*implements CrawlJob*/ {
 		
 		String keyword = (String) args.get(Params.KEYWORD);
 		String urlType = (String) args.get(Params.URL_TYPE);
-		String engineId = (String) args.get(Params.ENGINE_ID);
+		String engineUrl = (String) args.get(Params.ENGINE_URL);
 		
-		WebPage page = new WebPage(keyword, engineId, urlType);
+		WebPage page = new WebPage(keyword, engineUrl, urlType);
 		
 		Configuration conf = getConf();
 		NetworkSearchParserController parserController = new NetworkSearchParserController(conf);

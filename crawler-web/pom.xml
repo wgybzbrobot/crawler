@@ -27,13 +27,25 @@
 			<artifactId>crawler-common</artifactId>
 			<version>1.0.0</version>
 			<exclusions>
-				<exclusion>
+				<!-- <exclusion>
 					<groupId>org.apache.hadoop</groupId>
 					<artifactId>hadoop-core</artifactId>
-				</exclusion>
+				</exclusion> -->
 				<exclusion>
 					<groupId>org.mortbay.jetty</groupId>
 					<artifactId>jetty</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>tomcat</groupId>
+					<artifactId>jasper-runtime</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>tomcat</groupId>
+					<artifactId>jasper-compiler</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.mortbay.jetty</groupId>
+					<artifactId>jetty-util</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>org.mortbay.jetty</groupId>
@@ -46,6 +58,14 @@
 				<exclusion>
 					<groupId>com.sun.jersey</groupId>
 					<artifactId>jersey-project</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jersey</groupId>
+					<artifactId>jersey-json</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jersey</groupId>
+					<artifactId>jersey-server</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

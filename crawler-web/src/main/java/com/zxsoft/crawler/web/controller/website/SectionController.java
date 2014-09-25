@@ -21,9 +21,11 @@ import org.springframework.web.context.request.WebRequest;
 import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.zxsoft.crawler.entity.Category;
 import com.zxsoft.crawler.entity.Section;
 import com.zxsoft.crawler.entity.Website;
 import com.zxsoft.crawler.web.service.website.SectionService;
+import com.zxsoft.crawler.web.service.website.WebsiteService;
 
 @Controller
 @RequestMapping("/section")
@@ -36,54 +38,34 @@ public class SectionController {
 
 	@Autowired
 	private SectionService sectionService;
+	
+	@Autowired
+	private WebsiteService websiteService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String index(
-	        @RequestParam(value = "sitebase64", required = false) String sitebase64,
-	        @RequestParam(value = "comment", required = false, defaultValue = "没有名称") String comment,
+	        @RequestParam(value = "websiteId", required = false) String websiteId,
 	        Model model) {
-		model.addAttribute("comment", comment);
-		model.addAttribute("sitebase64", sitebase64);
-
-		String site = new String(Base64.decodeBase64(sitebase64.getBytes()));
-		model.addAttribute("site", site);
+		Website website = websiteService.getWebsite(websiteId);
+		model.addAttribute("website", website);
 
 		Section section = new Section();
-		Website website = new Website();
-		website.setSite(site);
 		section.setWebsite(website);
-
-		Page<Section> page = sectionService.getSections(section, 1, 20);
+		Page<Section> page = sectionService.getSections(section, 1, Page.DEFAULT_PAGE_SIZE);
 		model.addAttribute("page", page);
-
+		
 		return "section";
 	}
 
+	/**
+	 * 添加或修改版块
+	 */
 	@ResponseBody
-	@RequestMapping(value="add", method = RequestMethod.POST)
-	public String save(
-			@RequestParam(value = "site", required = false) String site,
-	        @RequestParam(value = "url", required = false) String url,
-	        @RequestParam(value = "comment", required = false) String comment,
-	        @RequestParam(value = "category", required = false) String category,
-	        Model model) {
-		
-		Assert.hasLength(site);
-		Assert.hasLength(url);
-		Assert.hasLength(comment);
-		Assert.hasLength(category);
-		
-		Website website = new Website();
-		website.setSite(site);
-		
-		String urlbase64 = Base64.encodeBase64String(url.getBytes());
-		Section section = new Section(url, urlbase64);
-		section.setWebsite(website);
-		section.setComment(comment);
-		section.setCategory(category);
-		
+	@RequestMapping(value = "add", method = RequestMethod.POST)
+	public String addOrUpdate(Section section, Model model) {
+		/*String urlbase64 = Base64.encodeBase64String(section.getUrl().getBytes());
+		section.setUrlbase64(urlbase64);*/
 		sectionService.saveOrUpdate(section);
-		
 		return "success";
 	}
 

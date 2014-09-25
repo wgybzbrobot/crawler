@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.zxsoft.crawler.entity.ConfDetail;
+import com.zxsoft.crawler.entity.ConfDetailId;
 import com.zxsoft.crawler.entity.ConfList;
 
 
@@ -20,4 +21,12 @@ public interface ConfigDao {
 	 * @param url 版块url
 	 */
 	List<ConfDetail> getConfDetails(String url);
+	
+	ConfList getListConf(String url);
+	void addListConf(ConfList listConf);
+	
+	ConfDetail getDetailConf(String listUrl, String host);
+	void addDetailConf(ConfDetail detailConf);
+
+	void deleteConfDetail(ConfDetailId id);
 }

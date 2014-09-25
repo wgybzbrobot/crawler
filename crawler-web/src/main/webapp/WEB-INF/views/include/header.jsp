@@ -16,6 +16,8 @@
 				<li><a id="crawler_info" href="slaves">爬虫监控</a></li>
 				<li>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</li>
 				<li><a id="proxy_info" href="proxyInfo">代理配置</a></li>
+				<li>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</li>
+				<li><a id="help" href="help">帮助</a></li>
 			</ul>
 		</div>
 	</header>

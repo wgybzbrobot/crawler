@@ -19,6 +19,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.jsoup.select.Selector.SelectorParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.CollectionUtils;
@@ -176,10 +177,10 @@ public final class NetworkInspectParserController extends ParseTool {
 	            for (Future<FetchStatus> future : result) {
 	                try {
 	                    FetchStatus parseStatus = future.get();
-	                    if (parseStatus.getStatus() != Status.SUCCESS) {
+//	                    if (parseStatus.getStatus() != Status.SUCCESS) {
 	                    	status.setStatus(parseStatus.getStatus());
-	                    }
-	                    LOG.debug(parseStatus.getUrl() + ":" + parseStatus.getCount() + ":" + parseStatus.getMessage());
+//	                    }
+	                    LOG.debug(parseStatus.getUrl() + ":数量(" + parseStatus.getCount() + "):消息 (" + parseStatus.getMessage() + ")");
 	                    sum.addAndGet(parseStatus.getCount());
                     } catch (ExecutionException e) {
 	                    e.printStackTrace();

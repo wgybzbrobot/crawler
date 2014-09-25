@@ -8,10 +8,12 @@ import com.zxsoft.crawler.entity.Section;
 @Service
 public interface SectionService {
 
+	Section getSection(String sectionId);
 	/**
 	 * 查找版块
 	 */
 	Page<Section> getSections(Section section, int pageNo, int pageSize);
 	
 	void saveOrUpdate(Section section);
+
 }

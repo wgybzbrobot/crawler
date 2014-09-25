@@ -46,7 +46,7 @@ public class ConfDao extends BaseDao {
 	/**
 	 * @return 搜索引擎url
 	 */
-	public String getSearchEngine(String id) {
+/*	public String getSearchEngine(String id) {
 		ObjectCache objectCache = ObjectCache.get("SearchEngine");
 		if (objectCache.getObject(id) != null) {
 			return (String) objectCache.getObject(id);
@@ -67,7 +67,7 @@ public class ConfDao extends BaseDao {
 			objectCache.setObject(id, list.get(0));
 			return list.get(0);
 		}
-	}
+	}*/
 
 	/**
 	 * 获取列表配置信息
@@ -175,7 +175,7 @@ public class ConfDao extends BaseDao {
 			return (DetailConf) objectCache.getObject(host);
 		} else {
 			LOG.debug("Getting detail configuration:" + host);
-			List<DetailConf> list = jdbcTemplate.query("select * from conf_detail where listurl = ? and host = ?",
+			List<DetailConf> list = jdbcTemplate.query("select * from conf_detail where listurl = ? and host like ?",
 			        new Object[] { listUrl, host }, new RowMapper<DetailConf>() {
 				        public DetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
 					        DetailConf detailConf = new DetailConf();

@@ -1,9 +1,11 @@
 package com.zxsoft.crawler.web.service.crawler.impl;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -26,14 +28,14 @@ public class TestJobServiceImpl {
 	@Test
 	public void testAddSearchJob() {
 		String keyword = "吸毒";
-		List<String> engineIds = new LinkedList<String>();
-		engineIds.add("baidu");
-		engineIds.add("sougou");
+		Set<String> engineUrls = new HashSet<String>();
+		engineUrls.add("http://www.baidu.com/s?wd=%s");
+		engineUrls.add("http://www.sogou.com/web?query=%s");
 		
-		for (String engineId : engineIds) {
+		for (String engineId : engineUrls) {
 			Map<String, Object> args = new HashMap<String, Object>();
 			args.put(Params.KEYWORD, keyword);
-			args.put(Params.ENGINE_ID, engineId);
+			args.put(Params.ENGINE_URL, engineId);
 			jobService.addSearchJob(args);
 		}
 		

@@ -49,10 +49,12 @@ public final class NetworkSearchParserController extends ParseTool {
 		String keyword = page.getKeyword();
 		Assert.notNull(keyword);
 		
-		String engineUrl = confDao.getSearchEngine(page.getEngineId());
+		/*String engineUrl = confDao.getSearchEngine(page.getEngineId());
 		if (StringUtils.isEmpty(engineUrl)) {
 			throw new NullPointerException("Cannot get Engine from id:" + page.getEngineId());
-		}
+		}*/
+		String engineUrl = page.getBaseUrl();
+		
 		String indexUrl = String.format(engineUrl, URLEncoder.encode(keyword, "UTF-8"));
 		
 		ListConf listConf = confDao.getListConf(engineUrl);

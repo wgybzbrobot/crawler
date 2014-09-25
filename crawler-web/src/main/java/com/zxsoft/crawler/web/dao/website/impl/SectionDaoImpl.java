@@ -20,7 +20,11 @@ public class SectionDaoImpl implements SectionDao {
 	@Autowired
 	private HibernateTemplate hibernateTemplate;
 	
-	
+	@Override
+    public Section getSection(String id) {
+	    return hibernateTemplate.get(Section.class, id);
+    }
+
 	@Override
 	public Page<Section> getSections(Section section, int pageNo, int pageSize) {
 		if (pageNo <= 0) pageNo = 1;
@@ -34,12 +38,12 @@ public class SectionDaoImpl implements SectionDao {
 				params.put("url", "%" + section.getUrl().trim() + "%");
 			}
 			if (!StringUtils.isEmpty(section.getCategory())) {
-				sb.append(" and a.category =:category ");
-				params.put("category", section.getCategory());
+				sb.append(" and a.category.comment =:category ");
+				params.put("category", section.getCategory().getComment());
 			}
 			if (section.getWebsite() != null) {
-				sb.append(" and a.website.site =:site");
-				params.put("site", section.getWebsite().getSite());
+				sb.append(" and a.website.id =:id");
+				params.put("id", section.getWebsite().getId());
 			}
 		}
 		
@@ -55,5 +59,6 @@ public class SectionDaoImpl implements SectionDao {
     public void saveOrUpdate(Section section) {
 	    hibernateTemplate.saveOrUpdate(section);
     }
+
 
 }

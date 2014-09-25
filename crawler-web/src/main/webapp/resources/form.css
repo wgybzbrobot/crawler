@@ -218,11 +218,17 @@ table.maintable td {
 	margin: 10px;
 }
 #message {
-	width: 585px;
-	float: right;
-	margin-top: 34px;
-	border-left: 1px solid #e3e3e3;
-	padding-left: 17px;
+	display: none;
+	width: 654px;
+	height: 400px;
+	left: 50%;
+	top: 50%;
+	margin-left: -206px;
+	margin-top: -227px;
+	box-shadow: 0 1px 3px #DEDEDE;
+	background-color: #FFF;
+	position: fixed;
+	z-index: 100;
 }
 #message a {
 	font-family:Verdana, Helvetica, Arial, sans-serif;

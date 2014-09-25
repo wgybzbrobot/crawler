@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-//import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
 
+import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.parse.ParseTool;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
-import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.util.CrawlerConfiguration;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
@@ -31,20 +31,20 @@ public class DetailConfigVerification extends ParseTool {
 	private static Logger LOG = LoggerFactory.getLogger(DetailConfigVerification.class);
 	
 	public DetailConfigVerification() {
-//		Configuration conf = CrawlerConfiguration.create();
-//		setConf(conf);
+		Configuration conf = CrawlerConfiguration.create();
+		setConf(conf);
 	}
 	
-	public Map<String, Object> verify(DetailConf detailConf) {
+	public Map<String, Object> verify(ConfDetail detailConf, String testUrl) {
 		Map<String, Object> info = new LinkedHashMap<String, Object>();
-		info.put("测试页URL", detailConf.getTestUrl());
+//		info.put("测试页URL", detailConf.getTestUrl());
 		List<Map<String, String>> errors = new LinkedList<Map<String, String>>();
-		ProtocolOutput protocolOutput = fetch(detailConf.getTestUrl(), false);
+		ProtocolOutput protocolOutput = fetch(testUrl, false);
 		Document document = null;
 		if (protocolOutput == null || !protocolOutput.getStatus().isSuccess()) {
 			Map<String, String> error = new HashMap<String, String>();
-			error.put("field", "urlerror");
-			error.put("msg", "连接" + detailConf.getTestUrl() + "失败");
+			error.put("field", "url");
+			error.put("msg", "连接失败");
 			errors.add(error);
 		} else {
 			document = protocolOutput.getDocument();
@@ -52,8 +52,8 @@ public class DetailConfigVerification extends ParseTool {
 				Elements replyNumEles = document.select(detailConf.getReplyNum());
 				if (CollectionUtils.isEmpty(replyNumEles)) {
 					Map<String, String> error = new HashMap<String, String>();
-					error.put("field", "replyerror");
-					error.put("msg", "无法从" + detailConf.getReplyNum() + "获取回复数");
+					error.put("field", "replyNum");
+					error.put("msg", "获取回复数失败");
 					errors.add(error);
 				} else {
 					String replyNum = String.valueOf(Utils.extractNum(replyNumEles.first().text()));
@@ -65,8 +65,8 @@ public class DetailConfigVerification extends ParseTool {
 				Elements reviewNumEles = document.select(detailConf.getReviewNum());
 				if (CollectionUtils.isEmpty(reviewNumEles)) {
 					Map<String, String> error = new HashMap<String, String>();
-					error.put("field", "reviewNumerror");
-					error.put("msg", "无法从" + detailConf.getReviewNum() + "获取浏览数");
+					error.put("field", "reviewNum");
+					error.put("msg", "获取浏览数失败");
 					errors.add(error);
 				} else {
 					String replyNum = String.valueOf(Utils.extractNum(reviewNumEles.first().text()));
@@ -78,8 +78,8 @@ public class DetailConfigVerification extends ParseTool {
 				Elements forwardNumEles = document.select(detailConf.getForwardNum());
 				if (CollectionUtils.isEmpty(forwardNumEles)) {
 					Map<String, String> error = new HashMap<String, String>();
-					error.put("field", "forwardNumerror");
-					error.put("msg", "无法从" + detailConf.getForwardNum() + "获取转帖数");
+					error.put("field", "forwardNum");
+					error.put("msg", "获取转帖数失败");
 					errors.add(error);
 				} else {
 					String replyNum = String.valueOf(Utils.extractNum(forwardNumEles.first().text()));
@@ -102,16 +102,16 @@ public class DetailConfigVerification extends ParseTool {
 			Elements masterEles = document.select(detailConf.getMaster());
 			if (CollectionUtils.isEmpty(masterEles)) {
 				Map<String, String> error = new HashMap<String, String>();
-				error.put("field", "mastererror");
-				error.put("msg", "无法从" + detailConf.getMaster() + "获取主帖信息");
+				error.put("field", "master");
+				error.put("msg", "获取主帖信息失败");
 				errors.add(error);
 			} else {
 				if (!StringUtils.isEmpty(detailConf.getAuthor())) {
 					Elements masterAuthorEles = masterEles.select(detailConf.getAuthor());
 					if (CollectionUtils.isEmpty(masterAuthorEles)) {
 						Map<String, String> error = new HashMap<String, String>();
-						error.put("field", "authorerror");
-						error.put("msg", "无法从" + detailConf.getAuthor() + "获取楼主");
+						error.put("field", "author");
+						error.put("msg", "获取楼主失败");
 						errors.add(error);
 					} else {
 						String masterAuthor = masterAuthorEles.first().text();
@@ -122,8 +122,8 @@ public class DetailConfigVerification extends ParseTool {
 					Elements masterDateEles = masterEles.select(detailConf.getDate());
 					if (CollectionUtils.isEmpty(masterDateEles)) {		
 						Map<String, String> error = new HashMap<String, String>();
-						error.put("field", "dateerror");
-						error.put("msg", "无法从" + detailConf.getDate() + "获取发布时间");
+						error.put("field", "date");
+						error.put("msg", "获取发布时间失败");
 						errors.add(error);
 					} else {
 	                    try {
@@ -138,15 +138,15 @@ public class DetailConfigVerification extends ParseTool {
 				
 				if (StringUtils.isEmpty(detailConf.getContent())) {
 					Map<String, String> error = new HashMap<String, String>();
-					error.put("field", "contenterror");
+					error.put("field", "content");
 					error.put("msg", "不能为空");
 					errors.add(error);
 				} else {
 					Elements masterContentEles = masterEles.select(detailConf.getContent());
 					if (CollectionUtils.isEmpty(masterContentEles)) {
 						Map<String, String> error = new HashMap<String, String>();
-						error.put("field", "contenterror");
-						error.put("msg", "无法从" + detailConf.getContent() + "获取主帖内容");
+						error.put("field", "content");
+						error.put("msg", "获取主帖内容失败");
 						errors.add(error);
 					} else {
 						String masterContent = masterContentEles.first().text();
@@ -162,8 +162,8 @@ public class DetailConfigVerification extends ParseTool {
 				Elements replyEles = document.select(detailConf.getReply());
 				if (CollectionUtils.isEmpty(replyEles)) {
 					Map<String, String> error = new HashMap<String, String>();
-					error.put("field", "replyerror");
-					error.put("msg", "无法从" + detailConf.getReply() + "获取回复信息");
+					error.put("field", "reply");
+					error.put("msg", "获取回复信息失败");
 					errors.add(error);
 				} else {
 					info.put("当前页回复数(可能包含主帖)", replyEles.size());
@@ -206,19 +206,19 @@ public class DetailConfigVerification extends ParseTool {
 					if (count1 > 10) {
 						Map<String, String> error = new HashMap<String, String>();
 						error.put("field", "replyAuthorerror");
-						error.put("msg", "无法从" + detailConf.getReplyAuthor() + "获取回复人");
+						error.put("msg", "获取回复人失败");
 						errors.add(error);
 					}
 					if (count2 > 10) {
 						Map<String, String> error = new HashMap<String, String>();
-						error.put("field", "replyDateerror");
+						error.put("field", "replyDate");
 						error.put("msg", "无法从" + detailConf.getReplyDate() + "获取回复时间");
 						errors.add(error);
 					}
 					if (count3 > 10) {
 						Map<String, String> error = new HashMap<String, String>();
-						error.put("field", "replyContenterror");
-						error.put("msg", "无法从" + detailConf.getReplyContent() + "获取回复内容");
+						error.put("field", "replyContent");
+						error.put("msg", "获取回复内容失败");
 						errors.add(error);
 					}
 //					info.put("回复", replies);

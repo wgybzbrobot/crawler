@@ -25,6 +25,6 @@ public interface Params {
   public static final String URL_TYPE = "urlType";
   public static final String Interval = "interval";
   /** 搜索引擎 */
-  public static final String ENGINE_ID = "engineId"; 
+  public static final String ENGINE_URL = "engineUrl"; 
   
 }

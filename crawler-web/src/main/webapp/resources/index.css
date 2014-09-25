@@ -1,3 +1,8 @@
+
+#body {
+	width: 980px;
+	margin: 0 auto;
+}
 ul,ol {
 	list-style: none;
 }
@@ -150,7 +155,24 @@ a:active,a:hover {
 }
 
 #content {
-	width: 911px;
+	width: 80%;
+	min-width: 988px;
 	min-height: 50%;
 	padding-bottom: 36px;
+}
+.conf-panel {
+	margin: 5px 0;
+	padding: 5px 0;
+}
+.confdiv  div {
+	padding: 4px 0;
+}
+
+/* .confdiv input[type=text] {
+	width: 290px;
+} */
+
+.saveMsg {
+	padding: 5px;
+	font-size: 12px; 
 }

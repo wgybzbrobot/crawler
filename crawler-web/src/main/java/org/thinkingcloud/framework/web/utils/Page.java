@@ -5,6 +5,8 @@ import java.util.List;
 
 public class Page<E> {
 
+	public static final int DEFAULT_PAGE_SIZE = 15;
+	
 	private List<E> res;
 	private int count = 0;
 	

@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.thinkingcloud.framework.util.Assert;
 
 import com.zxsoft.crawler.entity.ConfDetail;
+import com.zxsoft.crawler.entity.ConfDetailId;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)

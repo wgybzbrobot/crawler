@@ -14,7 +14,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ReflectionUtils;
 
 import com.zxsoft.crawler.ConfResource;
-import com.zxsoft.crawler.CrawlJob;
 import com.zxsoft.crawler.CrawlTool;
 import com.zxsoft.crawler.SlaveApp;
 import com.zxsoft.crawler.JobManager;

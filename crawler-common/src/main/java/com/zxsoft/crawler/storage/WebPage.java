@@ -15,10 +15,8 @@ public class WebPage implements Serializable {
 		NETWORK_SEARCH
 	}
 	
-	private String baseUrl;  // used for network inspect
-	
-	private String keyword; // used for network search
-	private String engineId; 
+	private String baseUrl; 
+	private String keyword; 
 	
 	private String listUrl; // 列表页URL
 	
@@ -47,9 +45,9 @@ public class WebPage implements Serializable {
 		this.ajax =  ajax;
 	}
 	
-	public WebPage (String keyword, String engineId, String urlType) {
+	public WebPage (String keyword, String baseUrl, String urlType) {
 		this.keyword = keyword;
-		this.engineId = engineId;
+		this.baseUrl = baseUrl;
 		this.type = urlType;
 	}
 	
@@ -88,14 +86,6 @@ public class WebPage implements Serializable {
 
 	public void setListUrl(String listUrl) {
 		this.listUrl = listUrl;
-	}
-
-	public String getEngineId() {
-		return engineId;
-	}
-
-	public void setEngineId(String engineId) {
-		this.engineId = engineId;
 	}
 
 	public String getKeyword() {

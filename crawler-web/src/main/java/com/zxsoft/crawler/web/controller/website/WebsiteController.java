@@ -35,7 +35,6 @@ public class WebsiteController {
 	@RequestMapping(method = RequestMethod.GET)
 	public String index(@ModelAttribute("website") Website website, Model model) {
 		Page<Website> page = websiteServiceImpl.getWebsite(website, 1, 20);
-		List<Website> list = page.getRes();
 		model.addAttribute("page", page);
 		return "index";
 	}
@@ -69,8 +68,7 @@ public class WebsiteController {
 	        @RequestParam(value = "username", required = false) String username,
 	        @RequestParam(value = "password", required = false) String password, Model model) {
 		SiteType siteType = new SiteType(type);
-		String sitebase64 = Base64.encodeBase64String(site.getBytes());
-		Website website = new Website(site, siteType, comment, sitebase64);
+		Website website = new Website(site, siteType, comment);
 		website.setUsername(username);
 		website.setPassword(password);
 		website.setRegion(region);

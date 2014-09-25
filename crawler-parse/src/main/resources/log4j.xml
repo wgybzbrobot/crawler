@@ -42,7 +42,7 @@
 		<appender-ref ref="dailyfile" />
 	</logger>
 	<logger name="com.zxsoft.crawler" additivity="false">
-		<level value="error" />
+		<level value="info" />
 		<appender-ref ref="console" />
 		<appender-ref ref="dailyfile" />
 	</logger>

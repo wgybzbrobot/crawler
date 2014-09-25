@@ -81,7 +81,7 @@ public class SlaveController {
 		for (String engineId : engineIds) {
 			Map<String, Object> args = new HashMap<String, Object>();
 			args.put(Params.KEYWORD, keyword);
-			args.put(Params.ENGINE_ID, engineId);
+			args.put(Params.ENGINE_URL, engineId);
 			jobService.addSearchJob(args);
         }
 		return null;

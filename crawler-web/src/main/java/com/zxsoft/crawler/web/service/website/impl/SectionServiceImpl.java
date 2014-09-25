@@ -15,6 +15,11 @@ public class SectionServiceImpl implements SectionService {
 	private SectionDao sectionDaoImpl;
 	
 	@Override
+    public Section getSection(String sectionId) {
+		return sectionDaoImpl.getSection(sectionId);
+    }
+	
+	@Override
 	public Page<Section> getSections(Section section, int pageNo, int pageSize) {
 		return sectionDaoImpl.getSections(section, pageNo, pageSize);
 	}
@@ -23,5 +28,7 @@ public class SectionServiceImpl implements SectionService {
     public void saveOrUpdate(Section section) {
 	    sectionDaoImpl.saveOrUpdate(section);
     }
+
+
 
 }

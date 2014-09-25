@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
 
+import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.parse.ParseTool;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
-import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.util.CrawlerConfiguration;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
@@ -30,11 +30,11 @@ public class ListConfigVerification extends ParseTool {
 	private static Logger LOG = LoggerFactory.getLogger(ListConfigVerification.class);
 	
 	public ListConfigVerification() {
-//		Configuration conf = CrawlerConfiguration.create();
-//		setConf(conf);
+		Configuration conf = CrawlerConfiguration.create();
+		setConf(conf);
 	}
 
-	public Map<String, Object> verify(ListConf listConf) {
+	public Map<String, Object> verify(ConfList listConf) {
 
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, String> errors = new HashMap<String, String>();
@@ -47,7 +47,7 @@ public class ListConfigVerification extends ParseTool {
 
 		List<ThreadInfo> list = new ArrayList<ThreadInfo>();
 		String pageStr = "";
-		ProtocolOutput protocolOutput = fetch(listConf.getUrl(), listConf.isAjax());
+		ProtocolOutput protocolOutput = fetch(listConf.getUrl(), listConf.getAjax());
 		Document document = null;
 
 		if (protocolOutput == null || !protocolOutput.getStatus().isSuccess()) {

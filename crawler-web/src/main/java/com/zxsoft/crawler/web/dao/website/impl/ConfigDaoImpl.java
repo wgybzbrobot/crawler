@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.bcel.generic.NEW;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -12,6 +13,7 @@ import org.thinkingcloud.framework.util.StringUtils;
 import org.thinkingcloud.framework.web.utils.HibernateCallbackUtil;
 
 import com.zxsoft.crawler.entity.ConfDetail;
+import com.zxsoft.crawler.entity.ConfDetailId;
 import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.web.dao.website.ConfigDao;
 
@@ -44,4 +46,32 @@ public class ConfigDaoImpl implements ConfigDao {
 		return confDetails;
 	}
 
+	@Override
+    public void addListConf(ConfList listConf) {
+	    hibernateTemplate.saveOrUpdate(listConf);
+    }
+
+	@Override
+    public void addDetailConf(ConfDetail detailConf) {
+		hibernateTemplate.saveOrUpdate(detailConf);
+    }
+	
+	@Override
+	public ConfList getListConf(String url) {
+		return hibernateTemplate.get(ConfList.class ,url);
+	}
+
+	@Override
+	public ConfDetail getDetailConf(String listUrl, String host) {
+		ConfDetailId id = new ConfDetailId(listUrl, host);
+		return hibernateTemplate.get(ConfDetail.class, id);
+	}
+
+	@Override
+	public void deleteConfDetail(ConfDetailId id) {
+		ConfDetail confDetail = hibernateTemplate.get(ConfDetail.class, id);
+		hibernateTemplate.delete(confDetail);
+	}
+	
+	
 }

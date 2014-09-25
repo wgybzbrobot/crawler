@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.jsoup.select.Selector.SelectorParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -18,7 +19,6 @@ import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
-import com.zxsoft.crawler.protocol.ProtocolStatusCodes;
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
@@ -98,7 +98,7 @@ public class ForumParser extends Parser {
 		return status;
 	}
 
-	public void fetchContent(WebPage page) /*throws ParseException, ConnectException*/ {
+	public void fetchContent(WebPage page) throws SelectorParseException /*throws ParseException, ConnectException*/ {
 		
 		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl.get(), page.getFetchTime());
 		
@@ -159,7 +159,7 @@ public class ForumParser extends Parser {
 	/**
 	 * 解析回复
 	 */
-	private void parseReply(WebPage page) {
+	private void parseReply(WebPage page)  throws SelectorParseException  {
 		Document doc = page.getDocument();
 		String currentUrl = mainUrl.get();
 		String newPageUrl = "", currentPageText = "";
@@ -208,7 +208,7 @@ public class ForumParser extends Parser {
 	/**
 	 * 解析一页
 	 */
-	private boolean parsePage(WebPage page, Document doc, String mainUrl, String currentUrl) {
+	private boolean parsePage(WebPage page, Document doc, String mainUrl, String currentUrl)  throws SelectorParseException  {
 		Elements replyEles = doc.select(threadLocalDetailConf.get().getReply());
 		for (Element element : replyEles) {
 			RecordInfo reply = new RecordInfo();
@@ -242,7 +242,7 @@ public class ForumParser extends Parser {
 	/**
 	 * 保存回复
 	 */
-	private String save(WebPage page, RecordInfo reply, Element element, String parentId) {
+	private String save(WebPage page, RecordInfo reply, Element element, String parentId)  throws SelectorParseException  {
 		String id = UUID.randomUUID().toString();
 		reply.setId(id);
 		String replyAuthorDom = threadLocalDetailConf.get().getReplyAuthor();
@@ -280,7 +280,7 @@ public class ForumParser extends Parser {
 	/**
 	 * 保存子回复
 	 */
-	private String saveSub(RecordInfo reply, Element element, String parentId) {
+	private String saveSub(RecordInfo reply, Element element, String parentId)  throws SelectorParseException  {
 		String id = UUID.randomUUID().toString();
 		reply.setId(id);
 		String subReplyAuthorDom = threadLocalDetailConf.get().getSubReplyAuthor();
