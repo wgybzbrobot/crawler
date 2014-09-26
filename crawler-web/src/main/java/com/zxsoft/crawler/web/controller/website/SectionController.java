@@ -1,6 +1,7 @@
 package com.zxsoft.crawler.web.controller.website;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ import org.thinkingcloud.framework.web.utils.Page;
 import com.zxsoft.crawler.entity.Category;
 import com.zxsoft.crawler.entity.Section;
 import com.zxsoft.crawler.entity.Website;
+import com.zxsoft.crawler.web.service.website.DictService;
 import com.zxsoft.crawler.web.service.website.SectionService;
 import com.zxsoft.crawler.web.service.website.WebsiteService;
 
@@ -41,6 +43,9 @@ public class SectionController {
 	
 	@Autowired
 	private WebsiteService websiteService;
+	
+	@Autowired
+	private DictService dictService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String index(
@@ -48,6 +53,9 @@ public class SectionController {
 	        Model model) {
 		Website website = websiteService.getWebsite(websiteId);
 		model.addAttribute("website", website);
+		
+		List<Category> categories = dictService.getCategories();
+		model.addAttribute("categories", categories);
 
 		Section section = new Section();
 		section.setWebsite(website);
@@ -63,10 +71,25 @@ public class SectionController {
 	@ResponseBody
 	@RequestMapping(value = "add", method = RequestMethod.POST)
 	public String addOrUpdate(Section section, Model model) {
-		/*String urlbase64 = Base64.encodeBase64String(section.getUrl().getBytes());
-		section.setUrlbase64(urlbase64);*/
 		sectionService.saveOrUpdate(section);
 		return "success";
+	}
+	
+	/**
+	 * 获取某个网站的详细信息
+	 */
+	@ResponseBody
+	@RequestMapping(value = "moreinfo/{id}", method = RequestMethod.GET)
+	public Map<String, Object> moreinfo(@PathVariable(value="id") String id, Model model) {
+		Section section = sectionService.getSection(id);
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("id", section.getId());
+		map.put("url", section.getUrl());
+		map.put("comment", section.getComment());
+		map.put("category.id", section.getCategory().getId());
+		
+		return map;
 	}
 
 }

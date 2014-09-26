@@ -24,9 +24,8 @@
 			function(e) {
 				$('div.form-wrapper-title').text('编辑网站');
 				$('div.form-wrapper').show();
-				$('#websiteForm').form('load',
-						'website/moreinfo/' + $(this).attr('id'));
-			});
+				$('#websiteForm').form('load', 'website/moreinfo/' + $(this).attr('id'));
+		});
 	});
 	function doSearch(value) {
 		console.log('search ' + value);

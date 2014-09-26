@@ -10,13 +10,24 @@
 <link href="<c:url value="/resources/index.css" />" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
 	$(function() {
-		$('.addSectionBtn').click(function() {
-			$('#sectionForm').form('clear');
+		
+		$('.addNewSectionBtn').click(function() {
+			$('#sectionForm input[type!=hidden]').val('');
+			$('#sectionForm input[name=id]').val('');
 			$('div.form-wrapper').show();
 		});
 		$('a.form-wrapper-close').click(function() {
 			$('#savemessage').text('');
 			$('div.form-wrapper').hide();
+		});
+		$('a.moreinfo').click(
+			function(e) {
+				$('div.form-wrapper-title').text('版块详细信息');
+				$('div.form-wrapper').show();
+				$('#sectionForm').form('load', 'section/moreinfo/' + $(this).attr('id'));
+		});
+		$('li.section-li').hover(function() {
+			$(this).find('.editmore span').toggle();
 		});
 	});
 
@@ -24,7 +35,6 @@
 		$('#sectionForm').form('submit', {
 			url : 'section/add',
 			onSubmit : function(param) {
-				console.log('validate');
 				return $(this).form('enableValidation').form('validate');
 			},
 			success : function(data) {
@@ -56,19 +66,19 @@
 		<div style="padding:4px 0 4px 22px ;">
 			<a class="linkbutton" href="javascript:history.go(-1);">返回</a>
 			<h2>
-				<a href="${site }" target="_blank">${comment}</a>
+				<a href="${website.site }" target="_blank">${website.comment}</a>
 			</h2>
-			<a class="addSectionBtn linkbutton" href="javascript:void(0);">添加版块</a>
+			<a class="addNewSectionBtn linkbutton" href="javascript:void(0);">添加版块</a>
 		</div>
 
 		<div class="form-wrapper" style="display: none;">
 			<a class="form-wrapper-close" href="javascript:;"></a>
 			<div class="form-wrapper-title">添加版块</div>
 			<div class="form-wrapper-center">
-				<form id="sectionForm" method="post" action="section/add" data-options="novalidate:true">
+				<form id="sectionForm" method="post" action="section/add" >
 					<div>
-					<label></label>
-						<input type="hidden" name="website.id" value="${website.id}" />
+						<input type="hidden"  name="website.id" value="${website.id}" />
+						<input type="hidden"  name="id" />
 					</div>
 					<div>
 						<label class="form-label" for="url">版块地址</label> <input class="easyui-validatebox form-input" type="text"
@@ -81,12 +91,15 @@
 					<div>
 						<label class="form-label" for="category">版块类别</label> 
 						<select class="easyui-validatebox form-input" name="category.id" data-options="required:true">
-							<option value="forum">论坛</option>
+							<c:forEach items="${categories }" var="category">
+								<option value="${category.id }">${category.comment }</option>
+							</c:forEach>
+							<!-- <option value="forum">论坛</option>
 							<option value="news">咨询</option>
-							<option value="search">搜索</option>
-							<c:if test="${fn:contains(website.site, 'baidu.com')}">
+							<option value="search">搜索</option> -->
+							<%-- <c:if test="${fn:contains(website.site, 'baidu.com')}">
 								<option value="tieba">百度贴吧</option>
-							</c:if>
+							</c:if> --%>
 						</select>
 					</div>
 					<div>
@@ -101,7 +114,7 @@
 		<c:choose>
 			<c:when test="${page.count == 0}">
 				<div class="none-data">
-					此网站没有版块，点击<a href="javascript:void(0)" class="addSectionBtn">添加</a>
+					此网站没有版块，点击<a href="javascript:void(0)" class="addNewSectionBtn">添加</a>
 				</div>
 			</c:when>
 			<c:otherwise>
@@ -111,10 +124,18 @@
 				<div id="content">
 					<ul>
 						<c:forEach items="${page.res}" var="section">
-							<li class="section-li"><h3>
-									<span>[${section.category.comment}]</span><span><a
-										href="config?sectionId=${section.id}">${section.comment}</a></span>
-								</h3> <a class="url" href="${section.url}">${section.url}</a></li>
+							<li class="section-li">
+								<h3>
+									<span><a href="config?sectionId=${section.id}">${section.comment}</a></span>
+									</h3>
+									<span>[${section.category.comment}]</span>
+									<div class="editmore">
+										<span><a id="${section.id }" class="moreinfo" href="javascript:void(0);" title="修改版块信息">[编辑]</a></span>
+										<span><a href="javascript:void(0);" class="addSectionBtn" title="创建相同规则的版块">[创建版块]</a></span>
+									</div>
+								 <br>
+								<a class="url" target="_blank" href="${section.url}">${section.url}</a>
+							</li>
 						</c:forEach>
 					</ul>
 					<c:if test="${page.count > 15}">

@@ -64,18 +64,18 @@ public class ListConfigVerification extends ParseTool {
 
 			if (StringUtils.isEmpty(listConf.getListdom())) {
 				errors.put("listdomerror", "必填");
-			} else {
+			} else {//document.select("form#moderate  table:gt(1)");
 				Elements elements = document.select(listConf.getListdom());
 				if (CollectionUtils.isEmpty(elements)) {
-					errors.put("listdomerror", "获取列表失败");
+					errors.put("listdom", "获取列表失败");
 				} else {
 					Element listElement = elements.first();
 					if (StringUtils.isEmpty(listConf.getLinedom())) {
-						errors.put("linedomerror", "必填");
+						errors.put("linedom", "必填");
 					} else {
 						Elements lineElements = listElement.select(listConf.getLinedom());
 						if (CollectionUtils.isEmpty(lineElements) || lineElements.size() < 3) {
-							errors.put("linedomerror", "获取列表行失败");
+							errors.put("linedom", "获取列表行失败");
 							LOG.info(listElement.html());
 						} else {
 							int i = 0;
@@ -114,10 +114,10 @@ public class ListConfigVerification extends ParseTool {
 								list.add(info);
 							}
 							if (updateErrorCount > 10) {
-								errors.put("updatedomerror", "获取更新时间失败");
+								errors.put("updatedom", "获取更新时间失败");
 							}
 							if (urlErrorCount > 10) {
-								errors.put("urldomerror", "获取详细页URL失败");
+								errors.put("urldom", "获取详细页URL失败");
 							}
 						}
 					}

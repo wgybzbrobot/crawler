@@ -77,8 +77,10 @@ public class ConfigController {
 		Map<String, Object> listRes = listConfigVerification.verify(listConf);
 		if (((Map<String, String>) listRes.get("errors")).size() == 0) { // save
 			configService.add(listConf);
+			listRes.put("msg", "success");
+		} else {
+			listRes.put("msg", "failure");
 		}
-		listRes.put("msg", "success");
 		return listRes;
 	}
 
@@ -117,13 +119,15 @@ public class ConfigController {
 		Map<String, Object> map = detailConfigVerification.verify(detailConf, testUrl);
 		List<FieldError> errors = (List<FieldError>) map.get("errors");
 
-		if (CollectionUtils.isEmpty(errors)) { // save
+		/*if (CollectionUtils.isEmpty(errors)) { 
 			configService.add(detailConf, oldHost);
 			map.put("msg", "success");
 		} else {
 			map.put("msg", "failure");
-		}
-
+		}*/
+		configService.add(detailConf, oldHost);
+		map.put("msg", "success");
+		
 		return map;
 	}
 

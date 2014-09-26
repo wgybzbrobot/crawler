@@ -46,11 +46,13 @@
 			$('#loading').show();
 			$.post('config/testListConf', $('#conflist').serialize(), function(data) {
 				$('#loading').hide();
-				data = $.parseJSON(data);
+				$('#conflist').find('label').css('border', 'none');
+				$('#conflist').find('label').attr('title', '');
 				if (data.errors != undefined) {
 					console.log (data.errors);
 					$.each(data.errors, function(key, val) {
-						$('#' + key).text(val);
+						$('#conflist').find('label[for=' + key + ']').css('border', '1px solid #ff0000');
+						$('#conflist').find('label[for=' + key + ']').attr('title', val);
 					});
 				}
 				var html = '<strong>配置结果:</strong><p>分页栏:' + data.pagebar + '</p>';
@@ -65,6 +67,11 @@
 				html += '</table>';
 				$("#message div.form-wrapper-center").html(html);
 				$('#message').show();  
+			}).fail(function () {
+				$('#loading').hide();
+				$.messager.show({title:'验证结果', msg:'验证失败', timeout:5000,
+	                showType:'show', style:{ right:'',top:document.body.scrollTop+document.documentElement.scrollTop, bottom:''}
+	            });
 			});
 		});
 		
@@ -129,7 +136,8 @@
 				},
 				success : function(data) {
 					data = $.parseJSON(data);
-					$('#confdetail' + index).find("label[id$='error']").text('');
+					$('#confdetail' + index).find('label').css('border', 'none');
+					$('#confdetail' + index).find('label').attr('title', '');
 					if (data.errors != undefined && data.errors.length != 0) {
 						$.each(data.errors, function(i, val) {
 							$('#confdetail' + index).find('label[for=' + val.field + ']').css('border', '1px solid #ff0000');
@@ -208,7 +216,7 @@
 	<div id="body">
 		<div>
 			<a class="linkbutton" href="javascript:history.go(-1);">返回</a>
-			<h2>${section.comment }</h2>
+			<h2><a href="${section.url }" target="_blank">${section.comment }</a></h2>
 			<c:if test="${!empty confList }">
 				<a id="addSectionBtn" class="linkbutton" href="javascript:void(0);">以此规则添加版块</a>
 			</c:if>
@@ -252,6 +260,7 @@
 									<div>
 										 <input type="hidden" name="comment" id="comment" value="${section.comment }"  />
 									 	<input type="hidden" name="url" id="url" value="${section.url }" />
+									 	<input type="hidden" name="category" value="${section.category.id }" />
 									</div>
 									<div>
 										<label class="form-label" for="auth">是否需要登录</label>
@@ -414,8 +423,9 @@
 								</form>
 							</div>
 							<div style="text-align: center; padding: 5px">
-								<a href="javascript:void(0)" class="easyui-linkbutton" onclick="validateConfDetail()">验证</a> <a
-									href="javascript:void(0)" class="easyui-linkbutton" onclick="saveConfDetail()">保存</a>
+								<a href="javascript:void(0)" class="easyui-linkbutton" onclick="validateConfDetail()">验证</a> 
+								<a href="javascript:void(0)" class="easyui-linkbutton" onclick="saveConfDetail()">保存</a>
+								<!-- <a href="javascript:void(0)" class="easyui-linkbutton" onclick="saveConfDetail()">强制保存</a> -->
 							</div>
 						</div>
 					</div>

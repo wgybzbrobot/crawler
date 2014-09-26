@@ -1,8 +1,8 @@
-
 #body {
 	width: 980px;
 	margin: 0 auto;
 }
+
 ul,ol {
 	list-style: none;
 }
@@ -49,6 +49,11 @@ li {
 	padding-right: 20px;
 	font: 400 18px/45px "微软雅黑";
 	color: #369;
+}
+
+.section-li {
+	margin: 6px 0;
+	padding: 6px 0;
 }
 
 .section-li a.url {
@@ -124,8 +129,16 @@ li {
 	border: none;
 }
 
-h2 {
+h2,h3 {
 	display: inline;
+}
+
+.editmore {
+	display: inline;
+}
+
+.editmore span {
+	display: none;
 }
 
 .anchorbtn,.inputbtn {
@@ -160,10 +173,12 @@ a:active,a:hover {
 	min-height: 50%;
 	padding-bottom: 36px;
 }
+
 .conf-panel {
 	margin: 5px 0;
 	padding: 5px 0;
 }
+
 .confdiv  div {
 	padding: 4px 0;
 }
@@ -171,8 +186,7 @@ a:active,a:hover {
 /* .confdiv input[type=text] {
 	width: 290px;
 } */
-
 .saveMsg {
 	padding: 5px;
-	font-size: 12px; 
+	font-size: 12px;
 }

@@ -29,15 +29,15 @@ import com.zxsoft.crawler.util.page.PageHelper;
 public class DetailConfigVerification extends ParseTool {
 
 	private static Logger LOG = LoggerFactory.getLogger(DetailConfigVerification.class);
-	
+
 	public DetailConfigVerification() {
 		Configuration conf = CrawlerConfiguration.create();
 		setConf(conf);
 	}
-	
+
 	public Map<String, Object> verify(ConfDetail detailConf, String testUrl) {
 		Map<String, Object> info = new LinkedHashMap<String, Object>();
-//		info.put("测试页URL", detailConf.getTestUrl());
+		// info.put("测试页URL", detailConf.getTestUrl());
 		List<Map<String, String>> errors = new LinkedList<Map<String, String>>();
 		ProtocolOutput protocolOutput = fetch(testUrl, false);
 		Document document = null;
@@ -60,7 +60,7 @@ public class DetailConfigVerification extends ParseTool {
 					info.put("回复数", replyNum);
 				}
 			}
-			
+
 			if (!StringUtils.isEmpty(detailConf.getReviewNum())) {
 				Elements reviewNumEles = document.select(detailConf.getReviewNum());
 				if (CollectionUtils.isEmpty(reviewNumEles)) {
@@ -69,11 +69,12 @@ public class DetailConfigVerification extends ParseTool {
 					error.put("msg", "获取浏览数失败");
 					errors.add(error);
 				} else {
-					String replyNum = String.valueOf(Utils.extractNum(reviewNumEles.first().text()));
+					String replyNum = String
+					        .valueOf(Utils.extractNum(reviewNumEles.first().text()));
 					info.put("浏览数", replyNum);
 				}
 			}
-			
+
 			if (!StringUtils.isEmpty(detailConf.getForwardNum())) {
 				Elements forwardNumEles = document.select(detailConf.getForwardNum());
 				if (CollectionUtils.isEmpty(forwardNumEles)) {
@@ -82,79 +83,82 @@ public class DetailConfigVerification extends ParseTool {
 					error.put("msg", "获取转帖数失败");
 					errors.add(error);
 				} else {
-					String replyNum = String.valueOf(Utils.extractNum(forwardNumEles.first().text()));
+					String replyNum = String.valueOf(Utils
+					        .extractNum(forwardNumEles.first().text()));
 					info.put("转帖数", replyNum);
 				}
 			}
-			
+
 			Element pagebar = null;
-            try {
-	            pagebar = PageHelper.getPageBar(document);
-            } catch (PageBarNotFoundException e) {
-	            LOG.warn(e.getMessage());
-            }
+			try {
+				pagebar = PageHelper.getPageBar(document);
+			} catch (PageBarNotFoundException e) {
+				LOG.warn(e.getMessage());
+			}
 			String pagebarText = pagebar == null ? "" : pagebar.html();
 			info.put("分页栏", pagebarText);
-			
+
 			/*
 			 * 主贴
 			 */
-			Elements masterEles = document.select(detailConf.getMaster());
-			if (CollectionUtils.isEmpty(masterEles)) {
-				Map<String, String> error = new HashMap<String, String>();
-				error.put("field", "master");
-				error.put("msg", "获取主帖信息失败");
-				errors.add(error);
-			} else {
-				if (!StringUtils.isEmpty(detailConf.getAuthor())) {
-					Elements masterAuthorEles = masterEles.select(detailConf.getAuthor());
-					if (CollectionUtils.isEmpty(masterAuthorEles)) {
-						Map<String, String> error = new HashMap<String, String>();
-						error.put("field", "author");
-						error.put("msg", "获取楼主失败");
-						errors.add(error);
-					} else {
-						String masterAuthor = masterAuthorEles.first().text();
-						info.put("楼主", masterAuthor);
-					}
-				}
-				if (!StringUtils.isEmpty(detailConf.getDate())) {
-					Elements masterDateEles = masterEles.select(detailConf.getDate());
-					if (CollectionUtils.isEmpty(masterDateEles)) {		
-						Map<String, String> error = new HashMap<String, String>();
-						error.put("field", "date");
-						error.put("msg", "获取发布时间失败");
-						errors.add(error);
-					} else {
-	                    try {
-	                    	Date date = Utils.formatDate(masterDateEles.first().text());
-		                    String releasedate = date != null ? date.toLocaleString() : "";
-		                    info.put("发布时间", releasedate);
-	                    } catch (ParseException e) {
-	                    	info.put("发布时间", "无法获取发布时间, 原因:" + e.getMessage());
-	                    }
-					}
-				}
-				
-				if (StringUtils.isEmpty(detailConf.getContent())) {
+			if (!StringUtils.hasLength(detailConf.getMaster())) {
+				Elements masterEles = document.select(detailConf.getMaster());
+				if (CollectionUtils.isEmpty(masterEles)) {
 					Map<String, String> error = new HashMap<String, String>();
-					error.put("field", "content");
-					error.put("msg", "不能为空");
+					error.put("field", "master");
+					error.put("msg", "获取主帖信息失败");
 					errors.add(error);
 				} else {
-					Elements masterContentEles = masterEles.select(detailConf.getContent());
-					if (CollectionUtils.isEmpty(masterContentEles)) {
+					if (!StringUtils.isEmpty(detailConf.getAuthor())) {
+						Elements masterAuthorEles = masterEles.select(detailConf.getAuthor());
+						if (CollectionUtils.isEmpty(masterAuthorEles)) {
+							Map<String, String> error = new HashMap<String, String>();
+							error.put("field", "author");
+							error.put("msg", "获取楼主失败");
+							errors.add(error);
+						} else {
+							String masterAuthor = masterAuthorEles.first().text();
+							info.put("楼主", masterAuthor);
+						}
+					}
+					if (!StringUtils.isEmpty(detailConf.getDate())) {
+						Elements masterDateEles = masterEles.select(detailConf.getDate());
+						if (CollectionUtils.isEmpty(masterDateEles)) {
+							Map<String, String> error = new HashMap<String, String>();
+							error.put("field", "date");
+							error.put("msg", "获取发布时间失败");
+							errors.add(error);
+						} else {
+							try {
+								Date date = Utils.formatDate(masterDateEles.first().text());
+								String releasedate = date != null ? date.toLocaleString() : "";
+								info.put("发布时间", releasedate);
+							} catch (ParseException e) {
+								info.put("发布时间", "无法获取发布时间, 原因:" + e.getMessage());
+							}
+						}
+					}
+
+					if (StringUtils.isEmpty(detailConf.getContent())) {
 						Map<String, String> error = new HashMap<String, String>();
 						error.put("field", "content");
-						error.put("msg", "获取主帖内容失败");
+						error.put("msg", "不能为空");
 						errors.add(error);
 					} else {
-						String masterContent = masterContentEles.first().text();
-						info.put("主帖内容", masterContent);
+						Elements masterContentEles = masterEles.select(detailConf.getContent());
+						if (CollectionUtils.isEmpty(masterContentEles)) {
+							Map<String, String> error = new HashMap<String, String>();
+							error.put("field", "content");
+							error.put("msg", "获取主帖内容失败");
+							errors.add(error);
+						} else {
+							String masterContent = masterContentEles.first().text();
+							info.put("主帖内容", masterContent);
+						}
 					}
 				}
 			}
-			
+
 			/*
 			 * 回复
 			 */
@@ -167,42 +171,44 @@ public class DetailConfigVerification extends ParseTool {
 					errors.add(error);
 				} else {
 					info.put("当前页回复数(可能包含主帖)", replyEles.size());
-					List<Map<String, String>> replies = new ArrayList<Map<String,String>>();
+					List<Map<String, String>> replies = new ArrayList<Map<String, String>>();
 					int count1 = 0, count2 = 0, count3 = 0;
-					for (int i = 1; i <  replyEles.size(); i++) {
+					for (int i = 1; i < replyEles.size(); i++) {
 						Element replyEle = replyEles.get(i);
 						Map<String, String> reply = new HashMap<String, String>();
 						Elements replyAuthorEles = replyEle.select(detailConf.getReplyAuthor());
 						if (CollectionUtils.isEmpty(replyAuthorEles)) {
-							count1 ++;
+							count1++;
 						} else {
 							reply.put("replyAuthor", replyAuthorEles.first().text());
 						}
-						
+
 						Elements replyDateEles = replyEle.select(detailConf.getReplyDate());
 						if (CollectionUtils.isEmpty(replyDateEles)) {
 							count2++;
 						} else {
 							try {
-		                        if (Utils.formatDate(replyDateEles.first().text()) == null) {
-		                        	reply.put("replyDate", "");
-		                        } else {
-		                        	reply.put("replyDate", Utils.formatDate(replyDateEles.first().text()).toString());
-		                        }
-	                        } catch (ParseException e) {
-		                        e.printStackTrace();
-	                        }
+								if (Utils.formatDate(replyDateEles.first().text()) == null) {
+									reply.put("replyDate", "");
+								} else {
+									reply.put("replyDate",
+									        Utils.formatDate(replyDateEles.first().text())
+									                .toString());
+								}
+							} catch (ParseException e) {
+								e.printStackTrace();
+							}
 						}
-						
+
 						Elements replyContentEles = replyEle.select(detailConf.getReplyContent());
 						if (CollectionUtils.isEmpty(replyContentEles)) {
 							count3++;
 						} else {
-							reply.put("replyContent",replyContentEles.first().text());
+							reply.put("replyContent", replyContentEles.first().text());
 						}
 						replies.add(reply);
 					}
-					
+
 					if (count1 > 10) {
 						Map<String, String> error = new HashMap<String, String>();
 						error.put("field", "replyAuthorerror");
@@ -221,11 +227,11 @@ public class DetailConfigVerification extends ParseTool {
 						error.put("msg", "获取回复内容失败");
 						errors.add(error);
 					}
-//					info.put("回复", replies);
+					// info.put("回复", replies);
 				}
 			}
 		}
-		
+
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("errors", errors);
 		map.put("info", info);

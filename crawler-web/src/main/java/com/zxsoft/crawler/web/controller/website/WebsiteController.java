@@ -81,11 +81,9 @@ public class WebsiteController {
 	 * 获取某个网站的详细信息
 	 */
 	@ResponseBody
-	@RequestMapping(value = "moreinfo/{sitebase64}", method = RequestMethod.GET)
-	public Map<String, Object> moreinfo(@PathVariable(value="sitebase64") String sitebase64, Model model) {
-		Assert.hasLength(sitebase64, "参数<网站地址>不能为空");
-		String site = new String(Base64.decodeBase64(sitebase64.getBytes()));
-		Website website = websiteServiceImpl.getWebsite(site);
+	@RequestMapping(value = "moreinfo/{id}", method = RequestMethod.GET)
+	public Map<String, Object> moreinfo(@PathVariable(value="id") String id, Model model) {
+		Website website = websiteServiceImpl.getWebsite(id);
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("site", website.getSite());

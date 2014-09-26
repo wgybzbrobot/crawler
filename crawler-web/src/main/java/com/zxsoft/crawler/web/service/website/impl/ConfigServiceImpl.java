@@ -74,7 +74,7 @@ public class ConfigServiceImpl implements ConfigService {
 		/**
 		 * 检测键值host是否变化, 如果有则删除
 		 */
-		if (!detailConf.getId().getHost().equals(oldHost)) {
+		if (!detailConf.getId().getHost().trim().equals(oldHost.trim())) {
 			ConfDetailId id = new ConfDetailId(detailConf.getId().getListurl(), oldHost);
 			configDaoImpl.deleteConfDetail(id);
 		}

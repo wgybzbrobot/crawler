@@ -74,7 +74,7 @@ public class ConfList implements java.io.Serializable {
 		this.comment = comment;
 	}
 
-	@Column(name = "category", length = 45)
+	@Column(name = "category", nullable = false, length = 45)
 	public String getCategory() {
 		return this.category;
 	}
