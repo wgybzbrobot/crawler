@@ -340,7 +340,7 @@
 						<div class="easyui-panel conf-panel" title="详细页配置">
 							<div style="padding: 10px 60px 20px 60px">
 
-								<form id="confdetail" method="post">
+								<form id="confdetail1" method="post">
 									<div class="confdiv" style="float: left; text-align: right;">
 										<div><input name="id.listurl" type="hidden" value="${confList.url }" /></div>
 										<div>
@@ -423,8 +423,8 @@
 								</form>
 							</div>
 							<div style="text-align: center; padding: 5px">
-								<a href="javascript:void(0)" class="easyui-linkbutton" onclick="validateConfDetail()">验证</a> 
-								<a href="javascript:void(0)" class="easyui-linkbutton" onclick="saveConfDetail()">保存</a>
+								<a href="javascript:void(0)" class="easyui-linkbutton" id="testConfDetail1">验证</a> 
+								<a href="javascript:void(0)" class="easyui-linkbutton" id="addConfDetail1">保存</a>
 								<!-- <a href="javascript:void(0)" class="easyui-linkbutton" onclick="saveConfDetail()">强制保存</a> -->
 							</div>
 						</div>
