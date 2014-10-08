@@ -12,19 +12,42 @@
 	$(function() {
 		
 		$('.addNewSectionBtn').click(function() {
-			$('#sectionForm input[type!=hidden]').val('');
+			$('#sectionForm input[type!=hidden][type!=button]').val('');
 			$('#sectionForm input[name=id]').val('');
+			$('#sectionForm input[name=copy]').val('');
 			$('div.form-wrapper').show();
 		});
 		$('a.form-wrapper-close').click(function() {
 			$('#savemessage').text('');
 			$('div.form-wrapper').hide();
 		});
+		/* 编辑 */
 		$('a.moreinfo').click(
 			function(e) {
 				$('div.form-wrapper-title').text('版块详细信息');
 				$('div.form-wrapper').show();
 				$('#sectionForm').form('load', 'section/moreinfo/' + $(this).attr('id'));
+		});
+		/* 创建 */
+		$('a.addSectionBtn').click(function(e) {
+				$('div.form-wrapper-title').text($(this).attr('title'));
+				$('#sectionForm input[name=id]').val($(this).attr('idx'));
+				$('#sectionForm input[name=copy]').val('true');
+				$('div.form-wrapper').show();
+		});
+		/* 删除 */
+		$('a.deleteSectionBtn').click(function(e) {
+			var id = $(this).attr('idx');
+			$.messager.confirm('', '确定删除版块吗?', function(r){
+                if (r){
+                	$.ajax({
+            			type : 'GET',
+            			url : 'section/delete/' + id,
+            			dataType : 'json'
+            		});
+					location.reload();
+                }
+            });
 		});
 		$('li.section-li').hover(function() {
 			$(this).find('.editmore span').toggle();
@@ -38,9 +61,14 @@
 				return $(this).form('enableValidation').form('validate');
 			},
 			success : function(data) {
-				if (data == 'success')
-					$('#savemessage').text('保存成功');
-				location.reload();
+				if (data == 'success') {
+					$('#savemessage').text('保存成功, 3秒后自动刷新页面');
+					setTimeout(function() {
+						location.reload();
+					}, 3000);
+				} else if (data == 'NoConfList'){
+					$('#savemessage').text('列表页没有配置，不能复制规则');
+				}
 			}
 		});
 	}
@@ -52,7 +80,15 @@
 			url : 'section/list',
 			dataType : 'json',
 			success : function(data) {
-
+				console.log('sc');
+				if ('success' == data) {
+					setTimeout(function() {
+						location.reload();
+					}, 3000);
+					$.messager.show({title:'', msg:'删除成功, 3秒后页面自动刷新', timeout:5000,
+		                showType:'show', style:{ right:'',top:document.body.scrollTop+document.documentElement.scrollTop, bottom:''}
+		            });
+				}
 			},
 			error : function(xhr, status, error) {
 			}
@@ -72,13 +108,14 @@
 		</div>
 
 		<div class="form-wrapper" style="display: none;">
-			<a class="form-wrapper-close" href="javascript:;"></a>
+			<a class="form-wrapper-close" href="javascript:void(0);"></a>
 			<div class="form-wrapper-title">添加版块</div>
 			<div class="form-wrapper-center">
 				<form id="sectionForm" method="post" action="section/add" >
 					<div>
 						<input type="hidden"  name="website.id" value="${website.id}" />
 						<input type="hidden"  name="id" />
+						<input type="hidden" name="copy" />
 					</div>
 					<div>
 						<label class="form-label" for="url">版块地址</label> <input class="easyui-validatebox form-input" type="text"
@@ -94,9 +131,6 @@
 							<c:forEach items="${categories }" var="category">
 								<option value="${category.id }">${category.comment }</option>
 							</c:forEach>
-							<!-- <option value="forum">论坛</option>
-							<option value="news">咨询</option>
-							<option value="search">搜索</option> -->
 							<%-- <c:if test="${fn:contains(website.site, 'baidu.com')}">
 								<option value="tieba">百度贴吧</option>
 							</c:if> --%>
@@ -131,7 +165,8 @@
 									<span>[${section.category.comment}]</span>
 									<div class="editmore">
 										<span><a id="${section.id }" class="moreinfo" href="javascript:void(0);" title="修改版块信息">[编辑]</a></span>
-										<span><a href="javascript:void(0);" class="addSectionBtn" title="创建相同规则的版块">[创建版块]</a></span>
+										<span><a href="javascript:void(0);" idx="${section.id }" class="addSectionBtn" title="创建与【${section.comment}】相同规则的版块">[创建版块]</a></span>
+										<span><a href="javascript:void(0);" idx="${section.id }" class="deleteSectionBtn" title="删除此版块">[删除]</a></span>
 									</div>
 								 <br>
 								<a class="url" target="_blank" href="${section.url}">${section.url}</a>

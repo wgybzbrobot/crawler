@@ -15,5 +15,7 @@ public interface SectionService {
 	Page<Section> getSections(Section section, int pageNo, int pageSize);
 	
 	void saveOrUpdate(Section section);
+	
+	void delete(String id);
 
 }

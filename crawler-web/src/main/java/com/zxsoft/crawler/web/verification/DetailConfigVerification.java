@@ -57,7 +57,7 @@ public class DetailConfigVerification extends ParseTool {
 					errors.add(error);
 				} else {
 					String replyNum = String.valueOf(Utils.extractNum(replyNumEles.first().text()));
-					info.put("回复数", replyNum);
+					info.put("replyNum", replyNum);
 				}
 			}
 
@@ -69,9 +69,9 @@ public class DetailConfigVerification extends ParseTool {
 					error.put("msg", "获取浏览数失败");
 					errors.add(error);
 				} else {
-					String replyNum = String
+					String reviewNum = String
 					        .valueOf(Utils.extractNum(reviewNumEles.first().text()));
-					info.put("浏览数", replyNum);
+					info.put("reviewNum", reviewNum);
 				}
 			}
 
@@ -83,9 +83,9 @@ public class DetailConfigVerification extends ParseTool {
 					error.put("msg", "获取转帖数失败");
 					errors.add(error);
 				} else {
-					String replyNum = String.valueOf(Utils
+					String forwardNum = String.valueOf(Utils
 					        .extractNum(forwardNumEles.first().text()));
-					info.put("转帖数", replyNum);
+					info.put("forwardNum", forwardNum);
 				}
 			}
 
@@ -96,12 +96,12 @@ public class DetailConfigVerification extends ParseTool {
 				LOG.warn(e.getMessage());
 			}
 			String pagebarText = pagebar == null ? "" : pagebar.html();
-			info.put("分页栏", pagebarText);
+			info.put("pagebar", pagebarText);
 
 			/*
 			 * 主贴
 			 */
-			if (!StringUtils.hasLength(detailConf.getMaster())) {
+			if (StringUtils.hasLength(detailConf.getMaster())) {
 				Elements masterEles = document.select(detailConf.getMaster());
 				if (CollectionUtils.isEmpty(masterEles)) {
 					Map<String, String> error = new HashMap<String, String>();
@@ -118,7 +118,7 @@ public class DetailConfigVerification extends ParseTool {
 							errors.add(error);
 						} else {
 							String masterAuthor = masterAuthorEles.first().text();
-							info.put("楼主", masterAuthor);
+							info.put("author", masterAuthor);
 						}
 					}
 					if (!StringUtils.isEmpty(detailConf.getDate())) {
@@ -132,9 +132,9 @@ public class DetailConfigVerification extends ParseTool {
 							try {
 								Date date = Utils.formatDate(masterDateEles.first().text());
 								String releasedate = date != null ? date.toLocaleString() : "";
-								info.put("发布时间", releasedate);
+								info.put("releasedate", releasedate);
 							} catch (ParseException e) {
-								info.put("发布时间", "无法获取发布时间, 原因:" + e.getMessage());
+								info.put("releasedate", "无法获取发布时间, 原因:" + e.getMessage());
 							}
 						}
 					}
@@ -153,7 +153,7 @@ public class DetailConfigVerification extends ParseTool {
 							errors.add(error);
 						} else {
 							String masterContent = masterContentEles.first().text();
-							info.put("主帖内容", masterContent);
+							info.put("masterContent", masterContent);
 						}
 					}
 				}
@@ -170,7 +170,7 @@ public class DetailConfigVerification extends ParseTool {
 					error.put("msg", "获取回复信息失败");
 					errors.add(error);
 				} else {
-					info.put("当前页回复数(可能包含主帖)", replyEles.size());
+					info.put("curReplyNum", replyEles.size());
 					List<Map<String, String>> replies = new ArrayList<Map<String, String>>();
 					int count1 = 0, count2 = 0, count3 = 0;
 					for (int i = 1; i < replyEles.size(); i++) {

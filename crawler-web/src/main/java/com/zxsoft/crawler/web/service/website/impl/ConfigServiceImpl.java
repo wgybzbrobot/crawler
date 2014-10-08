@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thinkingcloud.framework.util.StringUtils;
 
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.entity.ConfDetailId;
@@ -20,7 +21,7 @@ import com.zxsoft.crawler.web.service.website.ConfigService;
 public class ConfigServiceImpl implements ConfigService {
 
 	@Autowired
-	private ConfigDao configDaoImpl;
+	private ConfigDao configDao;
 	
 	@Autowired
 	private SectionDao sectionDao;
@@ -31,8 +32,8 @@ public class ConfigServiceImpl implements ConfigService {
 		Section section = sectionDao.getSection(sectionId);
 		String url = section.getUrl();
 		
-		ConfList confList = configDaoImpl.getConfList(url);
-		List<ConfDetail> confDetails = configDaoImpl.getConfDetails(url);
+		ConfList confList = configDao.getConfList(url);
+		List<ConfDetail> confDetails = configDao.getConfDetails(url);
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("confList", confList);
@@ -49,7 +50,7 @@ public class ConfigServiceImpl implements ConfigService {
 			url = url.substring(0, url.lastIndexOf("/"));
 		}
 		listConf.setUrl(url);
-		configDaoImpl.addListConf(listConf);
+		configDao.addListConf(listConf);
 		
 	}
 
@@ -69,15 +70,19 @@ public class ConfigServiceImpl implements ConfigService {
 		host = sb.toString();
 		detailConf.getId().setHost(host);
 		
-		configDaoImpl.addDetailConf(detailConf);
+		configDao.addDetailConf(detailConf);
 
 		/**
 		 * 检测键值host是否变化, 如果有则删除
 		 */
-		if (!detailConf.getId().getHost().trim().equals(oldHost.trim())) {
+		if (!StringUtils.isEmpty(oldHost) && !detailConf.getId().getHost().trim().equals(oldHost.trim())) {
 			ConfDetailId id = new ConfDetailId(detailConf.getId().getListurl(), oldHost);
-			configDaoImpl.deleteConfDetail(id);
+			configDao.deleteConfDetail(id);
 		}
-		
 	}
+
+	@Override
+    public void add(List<ConfDetail> confDetails) {
+	    configDao.addDetailConfs(confDetails);
+    }
 }

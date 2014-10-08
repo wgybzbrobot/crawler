@@ -147,9 +147,18 @@
 					var html = '<div class="conftable">';
 					html += '<div>';
 					if (data.info != undefined){
-						$.each(data.info, function(i, val) {
+						/* $.each(data.info, function(i, val) {
+							val = $.parseHTML(val);
 							html += '<p><strong>' + i + ':</strong>' + val + '</p>';
-						});
+						}); */
+						html += '<p><strong>回复数:</strong>' + data.info.replyNum + '</p>';
+						html += '<p><strong>浏览数:</strong>' + data.info.reviewNum + '</p>';
+						html += '<p><strong>转发数:</strong>' + data.info.forwardNum + '</p>';
+						html += '<p><strong>分页栏:</strong>' + $.parseHTML(data.info.pagebar)[0].data + '</p>';
+						html += '<p><strong>作者:</strong>' + data.info.author + '</p>';
+						html += '<p><strong>发布时间:</strong>' + data.info.releasedate + '</p>';
+						html += '<p><strong>主内容:</strong>' + data.info.masterContent + '</p>';
+						html += '<p><strong>当前页回复数(可能包含主帖):</strong>' + data.info.curReplyNum + '</p>';
 					}
 					html += '</div></div>';
 					
@@ -158,7 +167,7 @@
 				}
 			});
 		}); 
-		$("a[id^='saveConfDetail']").click(function(e){
+		$("a[id^='saveConfDetail']").click(function(e) {
 			e.preventDefault();
 			var index = $(this).attr('id').split('saveConfDetail')[1];
 			
@@ -182,27 +191,13 @@
 					}
 					if (data.msg == 'success') {
 						$.messager.show({
-			                title:'保存结果',
-			                msg:'保存成功',
-			                timeout:4000,
-			                showType:'show',
-			                style:{
-			                    right:'',
-			                    top:document.body.scrollTop+document.documentElement.scrollTop,
-			                    bottom:''
-			                }
+			                title:'保存结果',  msg:'保存成功', timeout:4000, showType:'show',
+			                style:{ right:'',top:document.body.scrollTop+document.documentElement.scrollTop,bottom:''}
 			            });
 					} else {
 						$.messager.show({
-			                title:'保存失败',
-			                msg:'配置有误,保存失败',
-			                timeout:4000,
-			                showType:'show',
-			                style:{
-			                    right:'',
-			                    top:document.body.scrollTop+document.documentElement.scrollTop,
-			                    bottom:''
-			                }
+			                title:'保存失败', msg:'配置有误,保存失败', timeout:4000, showType:'show',
+			                style:{ right:'', top:document.body.scrollTop+document.documentElement.scrollTop, bottom:''}
 			            });
 					}
 				}
@@ -350,7 +345,7 @@
 										</div>
 										<div>
 											<label class="form-label" for="host">域名<span class="red">*</span>
-											</label> <input name="host" class="easyui-textbox " style="height: 60px;" data-options="required:true, multiline:true" />
+											</label> <input name="id.host" class="easyui-textbox " style="height: 60px;" data-options="required:true, multiline:true" />
 										</div>
 										<div>
 											<label class="form-label" for="replyNum">回复数DOM</label>
@@ -424,7 +419,7 @@
 							</div>
 							<div style="text-align: center; padding: 5px">
 								<a href="javascript:void(0)" class="easyui-linkbutton" id="testConfDetail1">验证</a> 
-								<a href="javascript:void(0)" class="easyui-linkbutton" id="addConfDetail1">保存</a>
+								<a href="javascript:void(0)" class="easyui-linkbutton" id="saveConfDetail1">保存</a>
 								<!-- <a href="javascript:void(0)" class="easyui-linkbutton" onclick="saveConfDetail()">强制保存</a> -->
 							</div>
 						</div>

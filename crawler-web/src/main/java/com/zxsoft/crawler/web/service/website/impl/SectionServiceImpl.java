@@ -12,21 +12,27 @@ import com.zxsoft.crawler.web.service.website.SectionService;
 public class SectionServiceImpl implements SectionService {
 
 	@Autowired
-	private SectionDao sectionDaoImpl;
+	private SectionDao sectionDao;
 	
 	@Override
     public Section getSection(String sectionId) {
-		return sectionDaoImpl.getSection(sectionId);
+		return sectionDao.getSection(sectionId);
     }
 	
 	@Override
 	public Page<Section> getSections(Section section, int pageNo, int pageSize) {
-		return sectionDaoImpl.getSections(section, pageNo, pageSize);
+		return sectionDao.getSections(section, pageNo, pageSize);
 	}
 
 	@Override
     public void saveOrUpdate(Section section) {
-	    sectionDaoImpl.saveOrUpdate(section);
+	    sectionDao.saveOrUpdate(section);
+    }
+
+	@Override
+    public void delete(String id) {
+	    sectionDao.delete(id);
+	    
     }
 
 

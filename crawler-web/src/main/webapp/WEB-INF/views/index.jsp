@@ -58,6 +58,7 @@
 			<div class="form-wrapper-center">
 				<form id="websiteForm" method="post" action="website/add" data-options="novalidate:true">
 					<div>
+					<input type="hidden" name="id">
 						<label class="form-label" for="site">首页地址</label> <input class="easyui-validatebox form-input" type="text"
 							name="site" data-options="required:true, validType:'url'" />
 					</div>

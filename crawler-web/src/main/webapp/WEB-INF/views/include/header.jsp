@@ -22,20 +22,5 @@
 		</div>
 	</header>
 	<div style="margin-top: 120px;"></div>
-	<script type="text/javascript">
-		/* $(function() {
-			$("#navigation a").click(function(e) {
-					$("div#navcolumn  a").parent().removeClass('highlight');
-					$(this).parent().addClass('highlight');
-					e.preventDefault();
-					$.get($(this).attr("href"), function(html) {
-						$("#contentBox").replaceWith("<div id='contentBox'>" + html + "</div>");
-					});
-			});
-			$('#website_info').click();
-		}); */
-		
-	
-	</script>
 </body>
 </html>

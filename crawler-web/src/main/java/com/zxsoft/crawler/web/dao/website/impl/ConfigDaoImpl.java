@@ -57,6 +57,11 @@ public class ConfigDaoImpl implements ConfigDao {
     }
 	
 	@Override
+	public void addDetailConfs(List<ConfDetail> detailConfs) {
+		hibernateTemplate.saveOrUpdateAll(detailConfs);
+	}
+	
+	@Override
 	public ConfList getListConf(String url) {
 		return hibernateTemplate.get(ConfList.class ,url);
 	}

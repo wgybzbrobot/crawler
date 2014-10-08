@@ -38,7 +38,7 @@ public class ConfigController {
 	private SectionService sectionService;
 
 	/**
-	 * 返回配置页面
+	 * 跳转配置页面
 	 */
 	@RequestMapping(method = RequestMethod.GET)
 	public String index(@RequestParam(value = "sectionId", required = false) String sectionId,
@@ -117,7 +117,6 @@ public class ConfigController {
 	@RequestMapping(value = "saveDetailConf", method = RequestMethod.POST)
 	public Map<String, Object> saveDetailConf(ConfDetail detailConf, String testUrl, String oldHost) {
 		Map<String, Object> map = detailConfigVerification.verify(detailConf, testUrl);
-		List<FieldError> errors = (List<FieldError>) map.get("errors");
 
 		/*if (CollectionUtils.isEmpty(errors)) { 
 			configService.add(detailConf, oldHost);

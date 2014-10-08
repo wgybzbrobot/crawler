@@ -60,5 +60,11 @@ public class SectionDaoImpl implements SectionDao {
 	    hibernateTemplate.saveOrUpdate(section);
     }
 
+	@Override
+    public void delete(String id) {
+		Section section = hibernateTemplate.get(Section.class, id);
+	    hibernateTemplate.delete(section);
+    }
+
 
 }

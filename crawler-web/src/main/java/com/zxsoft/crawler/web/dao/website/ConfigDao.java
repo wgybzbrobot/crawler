@@ -26,7 +26,9 @@ public interface ConfigDao {
 	void addListConf(ConfList listConf);
 	
 	ConfDetail getDetailConf(String listUrl, String host);
-	void addDetailConf(ConfDetail detailConf);
 
 	void deleteConfDetail(ConfDetailId id);
+
+	void addDetailConf(ConfDetail detailConf);
+	void addDetailConfs(List<ConfDetail> detailConfs);
 }

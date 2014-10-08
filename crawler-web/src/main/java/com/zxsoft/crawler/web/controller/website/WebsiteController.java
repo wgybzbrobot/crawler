@@ -62,18 +62,20 @@ public class WebsiteController {
 	@ResponseBody
 	@RequestMapping(value = "add", method = RequestMethod.POST)
 	public String save(@RequestParam(value = "site", required = false) String site,
+	        @RequestParam(value = "id", required = false) String id,
 	        @RequestParam(value = "comment", required = false) String comment,
 	        @RequestParam(value = "sitetype", required = false) String type,
 	        @RequestParam(value = "region", required = false) String region,
 	        @RequestParam(value = "username", required = false) String username,
 	        @RequestParam(value = "password", required = false) String password, Model model) {
+
 		SiteType siteType = new SiteType(type);
 		Website website = new Website(site, siteType, comment);
+		website.setId(id);
 		website.setUsername(username);
 		website.setPassword(password);
 		website.setRegion(region);
 		websiteServiceImpl.save(website);
-
 		return "success";
 	}
 
@@ -82,10 +84,11 @@ public class WebsiteController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "moreinfo/{id}", method = RequestMethod.GET)
-	public Map<String, Object> moreinfo(@PathVariable(value="id") String id, Model model) {
+	public Map<String, Object> moreinfo(@PathVariable(value = "id") String id, Model model) {
 		Website website = websiteServiceImpl.getWebsite(id);
-		
+
 		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("id", website.getId());
 		map.put("site", website.getSite());
 		map.put("comment", website.getComment());
 		map.put("region", website.getRegion());
