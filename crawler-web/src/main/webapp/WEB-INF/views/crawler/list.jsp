@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ include file="../include/include.jsp"%>
+<%@ include file="/common/include.jsp"%>
 <%@ page session="false"%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -28,53 +28,7 @@ function addSearchJob() {
 	    closed: false
 	});
 }
-function loadSlaves() {
-	$('#loading').show();
-	$('#slaves').html('');
-	$.ajax({
-		type: 'GET',
-		url: 'slaves/list',
-		dataType: 'json',
-		success: function(data) {
-			$('#loading').hide();
-			console.log('load success');
-			if (data.code == '2000') {
-				
-				$('#slaves').datagrid({
-					title : '爬虫信息',
-					height : 500,
-					nowrap : false,
-					fitColumns: true,
-					collapsible : false,//是否可折叠的  
-					data : data.slaves,
-					sortName: 'slaveId',  
-					sortOrder: 'desc',  
-					singleSelect : true,//是否单选  
-					rownumbers : true,//行号  
-					columns : [[ 
-			            {field : 'slaveId', title : '编号', width : 30}, 
-			            {field : 'runningNum', title : '正在运行任务个数', width : 30}, 
-						{field : 'historyNum', title : '完成任务个数', width : 20},
-						{field : 'state', title : '状态', width : 20}, 
-						{field : 'code', title : '状态返回码', width : 20}, 
-						{field : 'msg', title : '说明'}
-			        ]]
-				});
-				
-			} else {
-				$('#slaves').html(data.msg);
-			}
-		},
-		error: function(xhr, status, error) {
-			$('#loading').hide();
-			$('#slaves').html('failure');
-			console.log('failure');
-		}
-	});
-};
 $(function() {
-	console.log('test');
-	loadSlaves();
 	$("#submitInspectJob").click(function(e) {
 		$('#addInspectJobForm').form('submit', {
 			url: 'slaves/addInspectJob',
@@ -111,6 +65,7 @@ $(function() {
 			success: function (data) {
 				alert('添加成功');
 				$('#addSearchJobDialog').dialog('close');
+				location.reload();
 			}
 		});
 	});
@@ -118,10 +73,9 @@ $(function() {
 </script>
 </head>
 <body>
-	<jsp:include page="../include/header.jsp"></jsp:include>
-	<div id="content">
+	<div id="body">
 		<div style="margin: 5px 0 15px 0;">
-			<a href="#" class="linkbutton" id="refresh" onclick="return loadSlaves();">刷新</a> <a href="#" class="linkbutton"
+			<a href="#" class="linkbutton" id="refresh" onclick="javascript:location.reload();">刷新</a> <a href="#" class="linkbutton"
 				id="addInspectJobBtn" onclick="return addInspectJob();">添加网络巡检任务</a> <a href="#" class="linkbutton"
 				id="addSearchJobBtn" onclick="return addSearchJob();">添加全网搜索任务</a>
 		</div>
@@ -129,14 +83,10 @@ $(function() {
 			<form id="addInspectJobForm" method="post" style="width: 80%; margin: 0 auto;">
 				<table class="maintable">
 					<tr>
-						<td>URL</td>
+						<td>版块地址:</td>
 						<td><input type="text" name="url" id="fetchurl" /></td>
 						<td><label id="fetchurlerror"></label></td>
 					</tr>
-					<%-- <tr>
-	    			<td>网站类型(对应代理类型)</td>
-	    			<td><select><option>国内</option><option>国外</option></select></td>
-	    		</tr> --%>
 					<tr>
 						<td colspan="3" align="center"><a href="#" class="linkbutton" id="submitInspectJob">添加</a></td>
 					</tr>
@@ -149,20 +99,16 @@ $(function() {
 				<div>
 					<table class="maintable">
 						<tr>
-							<td>关键词</td>
+							<td>关键词:</td>
 							<td><input type="text" name="keyword" /></td>
 							<td><label id="keyworderror"></label></td>
 						</tr>
 						<tr>
-							<td>搜索引擎</td>
-							<td><span>百度<input name="engineId" value="baidu" type="checkbox"> 搜狗<input name="engineId"
-									value="sougou" type="checkbox"></span></td>
+							<td>搜索引擎:</td>
+							<td><span>百度<input name="engineId" value="http://www.baidu.com/s?wd=%s&ie=utf-8" type="checkbox"> 搜狗<input name="engineId"
+									value="http://www.sogou.com/web?query=%s" type="checkbox"></span></td>
 							<td></td>
 						</tr>
-						<%-- <tr>
-		    			<td>网站类型(对应代理类型)</td>
-		    			<td><select><option>国内</option><option>国外</option></select></td>
-		    		</tr> --%>
 						<tr>
 							<td colspan="3" align="right"><a href="#" class="linkbutton" id="submitSearchJob">添加</a></td>
 						</tr>
@@ -172,9 +118,47 @@ $(function() {
 		</div>
 		<div style="text-align: center;">
 			<div id="loading"></div>
-			<div id="slaves"></div>
+			<div id="slaves">
+				
+			</div>
+			<div id="content">
+				<ul>
+					<c:forEach items="${map.slaves}" var="slave">
+						<c:choose>
+							<c:when test='${"success" eq slave.msg}'>
+								<li class="slave-li">
+							</c:when>
+							<c:otherwise>
+								<li class="slave-li" title="${slave.msg }" style="background: #aa3333;">
+							</c:otherwise>
+						</c:choose>
+						<a href="slaves?slaveId=${slave.machine.id}">${slave.machine.comment}</a>
+						<div style="font-size: 6px; ">
+							<fmt:formatNumber var="runningNum" type="number" value="${slave.runningNum}"  pattern="#"/>
+							<fmt:formatNumber var="historyNum" type="number" value="${slave.historyNum}"  pattern="#"/>
+							<fmt:formatNumber var="port" type="number" value="${slave.machine.port}"  pattern="#"/>
+							<c:choose>
+								<c:when test="${runningNum > 0 }">
+									<span><a href="slaves/moreinfo/running/${slave.machine.ip}/${port}" >在运行(${runningNum})</a></span>
+								</c:when>
+								<c:otherwise>
+									<span>在运行(${runningNum})</span>
+								</c:otherwise>
+							</c:choose>&nbsp;|&nbsp;
+							<c:choose>
+								<c:when test="${historyNum > 0 }">
+									<span><a href="slaves/moreinfo/history/${slave.machine.ip}/${port}" >已完成(${historyNum})</a></span>
+								</c:when>
+								<c:otherwise>
+									<span>已完成(${historyNum})</span>
+								</c:otherwise>
+							</c:choose>
+						</div>
+						</li>
+					</c:forEach>
+				</ul>
+			</div>
 		</div>
 	</div>
-	<jsp:include page="../include/footer.jsp"></jsp:include>
 </body>
 </html>

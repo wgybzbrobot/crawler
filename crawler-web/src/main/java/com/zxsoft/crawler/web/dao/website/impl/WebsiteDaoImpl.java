@@ -26,6 +26,8 @@ public class WebsiteDaoImpl  implements WebsiteDao {
     public Page<Website> getWebsites(Website website, int pageNo, int pageSize) {
 		
 		if (pageNo <= 0) pageNo = 1;
+		if (pageSize < 0 ) 
+			pageSize = 20;
 		
 		Map<String, String> params = new HashMap<String, String>();
 		
@@ -39,6 +41,11 @@ public class WebsiteDaoImpl  implements WebsiteDao {
 				sb.append(" and a.type =:type");
 				params.put("type", website.getSiteType().getType());
 			}
+			if (!StringUtils.isEmpty(website.getComment())) {
+				sb.append(" and a.comment like :comment");
+				params.put("comment", "%" + website.getComment() + "%");
+			}
+			
 		}
 		
 		HibernateCallback<Page<Website>> action = HibernateCallbackUtil.getCallbackWithPage(sb, params, null, pageNo, pageSize);
@@ -50,7 +57,11 @@ public class WebsiteDaoImpl  implements WebsiteDao {
 
 	@Override
     public void addWebsite(Website website) {
-	   hibernateTemplate.saveOrUpdate(website);
+		if (StringUtils.isEmpty(website.getId())) {
+			hibernateTemplate.save(website);
+		} else {
+			hibernateTemplate.saveOrUpdate(website);
+		}
     }
 
 	@Override

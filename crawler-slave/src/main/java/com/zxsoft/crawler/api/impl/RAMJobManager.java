@@ -15,12 +15,12 @@ import org.apache.hadoop.util.ReflectionUtils;
 
 import com.zxsoft.crawler.ConfResource;
 import com.zxsoft.crawler.CrawlTool;
-import com.zxsoft.crawler.SlaveApp;
 import com.zxsoft.crawler.JobManager;
 import com.zxsoft.crawler.JobStatus;
 import com.zxsoft.crawler.JobStatus.State;
 import com.zxsoft.crawler.NetworkInspectJob;
 import com.zxsoft.crawler.NetworkSearchJob;
+import com.zxsoft.crawler.SlaveApp;
 
 public class RAMJobManager implements JobManager {
 	int CAPACITY = 100;
@@ -36,7 +36,6 @@ public class RAMJobManager implements JobManager {
 
 		@Override
 		protected void beforeExecute(Thread t, Runnable r) {
-			// TODO Auto-generated method stub
 			super.beforeExecute(t, r);
 			synchronized (jobRunning) {
 				jobRunning.offer(((JobWorker) r).jobStatus);
@@ -85,6 +84,9 @@ public class RAMJobManager implements JobManager {
 		if (state == null)
 			state = State.ANY;
 		switch (state) {
+		case FINISHED: 
+			res.addAll(jobHistory);
+			break;
 		case ANY:
 			res.addAll(jobHistory);
 			/* FALLTHROUGH */
@@ -183,7 +185,7 @@ public class RAMJobManager implements JobManager {
 			this.id = confId + "-" + type + "-" + hashCode();
 			this.type = type;
 			this.args = args;
-			conf = new Configuration(conf);
+//			conf = new Configuration(conf);
 			if (crawlId != null) {
 				conf.set("CRAWL_ID", crawlId);
 				this.id = crawlId + "-" + this.id;
@@ -195,8 +197,11 @@ public class RAMJobManager implements JobManager {
 					clz = (Class<? extends CrawlTool>) c;
 				}
 			}
+			
 			tool = ReflectionUtils.newInstance(clz, conf);
-			tool.setConf(conf);
+			
+//			tool.setConf(conf);
+			
 			jobStatus = new JobStatus(id, type, args, State.IDLE, "idle");
 			jobStatus.tool = tool;
 		}

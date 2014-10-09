@@ -1,6 +1,6 @@
 <%@ page language="java" pageEncoding="UTF-8"%>
 <%@ page session="false"%>
-<%@ include file="../include/include.jsp"%>
+<%@ include file="/common/include.jsp"%>
 <%@ page isELIgnored="false"%>
 <meta http-equiv="Content-Type" content="text/html charset=utf-8">
 <html>
@@ -56,12 +56,13 @@
 					});
 				}
 				var html = '<strong>配置结果:</strong><p>分页栏:' + data.pagebar + '</p>';
-				html += '<table><tr><td>编号</td><td>详细页</td><td>更新时间</td></tr>';
+				html += '<table><tr><td>编号</td><td>详细页</td><td>更新时间</td><td>简介</td></tr>';
 				$.each(data.list, function(i, item){
 					html += '<tr>';
 					html += '<td class="link">' + (i+1) + '</td>';
 					html += '<td><a class="link" target="_blank" href="' + item.url + '">' + item.title + '</a></td>';
 					html += '<td>' + (item.update == null ? '' : new Date(item.update).toLocaleString()) + '</td>';
+					html += '<td>' + item.synopsis + '</td>';
 					html += '</tr>';
 				});
 				html += '</table>';
@@ -122,7 +123,7 @@
 			});
 		}); */
 		
-		$("a[id^='testConfDetail']").click(function(e) {
+		$("a[id^='testConfDetail']").on('click', function(e) {
 			e.preventDefault();
 			var index = $(this).attr('id').split('testConfDetail')[1];
 			
@@ -154,7 +155,9 @@
 						html += '<p><strong>回复数:</strong>' + data.info.replyNum + '</p>';
 						html += '<p><strong>浏览数:</strong>' + data.info.reviewNum + '</p>';
 						html += '<p><strong>转发数:</strong>' + data.info.forwardNum + '</p>';
-						html += '<p><strong>分页栏:</strong>' + $.parseHTML(data.info.pagebar)[0].data + '</p>';
+						if (data.info.pagebar != '') {
+							html += '<p><strong>分页栏:</strong>' + $.parseHTML(data.info.pagebar)[0].data + '</p>';
+						}
 						html += '<p><strong>作者:</strong>' + data.info.author + '</p>';
 						html += '<p><strong>发布时间:</strong>' + data.info.releasedate + '</p>';
 						html += '<p><strong>主内容:</strong>' + data.info.masterContent + '</p>';
@@ -167,7 +170,7 @@
 				}
 			});
 		}); 
-		$("a[id^='saveConfDetail']").click(function(e) {
+		$("a[id^='saveConfDetail']").on('click', function(e) {
 			e.preventDefault();
 			var index = $(this).attr('id').split('saveConfDetail')[1];
 			
@@ -203,11 +206,29 @@
 				}
 			});
 		});
+		
+		/* $('#content').on('click', '#addMoreDetailConf',function() {
+			var id = $('div.conf-panel:nth-last-child(3)').find('form[id^=confdetail]').attr('id');
+			var num = parseInt(id.substring(10, id.length)) + 1;
+			$('div.conf-panel:last').find('form[id^=confdetail]').attr('id', 'confdetail'+num);
+			$('div.conf-panel:last').show();
+			var title = $('div.conf-panel:nth-last-child(3)').find('div.panel-header > div.panel-title').text();
+			title = parseInt(title.substring(5, title.length)) + 1;
+			title = '详细页配置' +  title;
+			console.log(title);
+			$('div.conf-panel:last').find('div.panel-header > div.panel-title').text(title);
+			
+			$('div.conf-panel:last').find('a[id^=testConfDetail]').attr('id', 'testConfDetail' + num);
+			$('div.conf-panel:last').find('a[id^=saveConfDetail]').attr('id', 'saveConfDetail' + num);
+			$('div').find('span.textbox:eq(0)').siblings('span.textbox').remove();
+			$('div.conf-panel:last').find('#confdetail' + num).form('clear');
+			
+		}); */
 	});
 </script>
 </head>
 <body>
-	<jsp:include page="../include/header.jsp"></jsp:include>
+		
 	<div id="body">
 		<div>
 			<a class="linkbutton" href="javascript:history.go(-1);">返回</a>
@@ -226,7 +247,7 @@
 			<div id="loading" ></div>
 		</div>
 		<div class="form-wrapper" style="display: none;">
-			<a class="form-wrapper-close" href="javascript:;"></a>
+			<a class="form-wrapper-close" href="javascript:void(0);"></a>
 			<div class="form-wrapper-title">以此规则添加新版块</div>
 			<div class="form-wrapper-center">
 				<form id="sectionForm" method="post" data-options="novalidate:true">
@@ -247,11 +268,17 @@
 		<div id="content">
 			<!-- 列表页配置, 一个版块只有一个列表页配置 -->
 			<div class="conf-panel">
-				<div class="easyui-panel" title="列表页配置">
+				<div class="easyui-panel" title="列表页配置" data-options="collapsible:true">
 					<div style="padding: 10px 60px 20px 60px">
 						<div>
 							<form class="confform" id="conflist" method="post">
 								<div class="confdiv" style="float: left; text-align: right;">
+									<c:if test="${'search' eq section.category.id}">
+										<div>
+											<label class="form-label" for="keyword">搜索关键字</label>
+											<input type="text" name="keyword" class="easyui-textbox" data-options="required:true"/>
+										</div>
+									</c:if>
 									<div>
 										 <input type="hidden" name="comment" id="comment" value="${section.comment }"  />
 									 	<input type="hidden" name="url" id="url" value="${section.url }" />
@@ -332,20 +359,18 @@
 			<c:choose>
 				<c:when test="${empty confDetails}">
 					<div class="conf-panel">
-						<div class="easyui-panel conf-panel" title="详细页配置">
+						<div class="easyui-panel " title="详细页配置1" data-options="collapsible:true">
 							<div style="padding: 10px 60px 20px 60px">
-
 								<form id="confdetail1" method="post">
 									<div class="confdiv" style="float: left; text-align: right;">
 										<div><input name="id.listurl" type="hidden" value="${confList.url }" /></div>
 										<div>
 											<label class="form-label" for="testUrl">测试页URL地址<span class="red">*</span>
-											</label> <input name="testUrl" class="easyui-textbox" data-options="required:true, validType:'url'" /> <label class="form-label"
-												class="error" id="testUrlerror"></label>
+											</label> <input name="testUrl" type="text" class="easyui-validatebox" data-options="required:true, validType:'url'" />
 										</div>
 										<div>
 											<label class="form-label" for="host">域名<span class="red">*</span>
-											</label> <input name="id.host" class="easyui-textbox " style="height: 60px;" data-options="required:true, multiline:true" />
+											</label> <input name="id.host" type="text" class="easyui-validatebox " style="height: 60px; width:200px;" data-options="required:true, multiline:true" />
 										</div>
 										<div>
 											<label class="form-label" for="replyNum">回复数DOM</label>
@@ -420,7 +445,6 @@
 							<div style="text-align: center; padding: 5px">
 								<a href="javascript:void(0)" class="easyui-linkbutton" id="testConfDetail1">验证</a> 
 								<a href="javascript:void(0)" class="easyui-linkbutton" id="saveConfDetail1">保存</a>
-								<!-- <a href="javascript:void(0)" class="easyui-linkbutton" onclick="saveConfDetail()">强制保存</a> -->
 							</div>
 						</div>
 					</div>
@@ -428,7 +452,7 @@
 				<c:otherwise>
 					<c:forEach items="${confDetails}" var="confDetail" varStatus="status">
 						<div class="conf-panel">
-							<div class="easyui-panel conf-panel" title="详细页配置${status.count }">
+							<div class="easyui-panel " title="详细页配置${status.count }" data-options="collapsible:true, collapsed:true">
 								<div style="padding: 10px 60px 20px 60px">
 									<form id="confdetail${status.count }" method="post">
 										<div class="confdiv" style="float: left; text-align: right;">
@@ -546,8 +570,100 @@
 					</c:forEach>
 				</c:otherwise>
 			</c:choose>
+			<div class="conf-panel" >
+				<div class="easyui-panel " title="详细页配置(额外)" data-options="collapsible:true, collapsed:true">
+				<div style="padding: 10px 60px 20px 60px">
+				<form id="confdetailx" method="post">
+					<div class="confdiv" style="float: left; text-align: right;">
+						<div><input name="id.listurl" type="hidden" value="${confList.url }" /></div>
+						<div>
+							<label class="form-label" for="testUrl">测试页URL地址<span class="red">*</span>
+							</label> <input name="testUrl" type="text" class="easyui-validatebox" data-options="required:true, validType:'url'" />
+						</div>
+						<div>
+							<label class="form-label" for="host">域名<span class="red">*</span>
+							</label> <input name="id.host" type="text" class="easyui-validatebox " style="height: 60px; width:200px;" data-options="required:true, multiline:true" />
+						</div>
+						<div>
+							<label class="form-label" for="replyNum">回复数DOM</label>
+							<input name="replyNum" class="easyui-textbox easyui-tooltip" />
+						</div>
+						<div>
+							<label class="form-label" for="reviewNum">浏览数DOM</label> <input name="reviewNum" class="easyui-textbox" /> 
+						</div>
+						<div>
+							<label class="form-label" for="forwardNum">转发数DOM</label> <input name="forwardNum" class="easyui-textbox" /> 
+						</div>
+						<div>
+							<label class="form-label" for="sources">来源DOM </label> <input name="sources" class="easyui-textbox" /> 
+						</div>
+						<div>
+							<label class="form-label" for="fetchorder">抓取顺序</label> <input type="radio" name="fetchorder" value="false" /> 从第一页开始<input
+								type="radio" name="fetchorder" value="true" checked="checked" />从最后一页开始
+						</div>
+						<fieldset style="border: 1px solid #e3e3de">
+							<legend>主帖</legend>
+							<div>
+								<label class="form-label" for="master">主帖DOM<span class="red">*</span>
+								</label> <input name="master" class="required, easyui-textbox" /> 
+							</div>
+							<div>
+								<label class="form-label" for="author">楼主DOM<span class="red">*</span>
+								</label> <input name="author" class="required, easyui-textbox" />
+							</div>
+							<div>
+								<label class="form-label" for="date">发布时间DOM </label> <input name="date" class="easyui-textbox" />
+							</div>
+							<div>
+								<label class="form-label" for="content">内容DOM<span class="red">*</span>
+								</label> <input name="content" class="required, easyui-textbox" /> 
+							</div>
+						</fieldset>
+					</div>
+					<div class="confdiv" style="float: right; text-align: right;">
+						<fieldset style="border: 1px solid #e3e3de">
+							<legend>回复</legend>
+							<div>
+								<label class="form-label" for="reply">回复DOM </label> <input name="reply" class="easyui-textbox" />  
+							</div>
+							<div>
+								<label class="form-label" for="replyAuthor">作者DOM </label> <input name="replyAuthor" class="easyui-textbox" />  
+							</div>
+							<div>
+								<label class="form-label" for="replyDate">发布时间DOM</label> <input name="replyDate" class="easyui-textbox" />  
+							</div>
+							<div>
+								<label class="form-label" for="replyContent">内容DOM </label> <input name="replyContent" class="easyui-textbox" />  
+							</div>
+						</fieldset>
+						<fieldset style="border: 1px solid #e3e3de">
+							<legend>子回复</legend>
+							<div>
+								<label class="form-label" for="subReply">子回复DOM</label> <input name="subReply" class="easyui-textbox" />  
+							</div>
+							<div>
+								<label class="form-label" for="subReplyAuthor">作者DOM</label> <input name="subReplyAuthor" class="easyui-textbox" />  
+							</div>
+							<div>
+								<label class="form-label" for="subReplyDate">发布时间DOM</label> <input name="subReplyDate" class="easyui-textbox" />  
+							</div>
+							<div>
+								<label class="form-label" for="subReplyContent">内容DOM</label> <input name="subReplyContent" class="easyui-textbox" />  
+							</div>
+						</fieldset>
+					</div>
+				</form>
+				</div>
+				<div style="text-align: center; padding: 5px">
+					<a href="javascript:void(0)" class="easyui-linkbutton" id="testConfDetailx">验证</a> 
+					<a href="javascript:void(0)" class="easyui-linkbutton" id="saveConfDetailx">保存</a>
+				</div>
+				</div>
+			</div>
+		<!-- 	<div style="width: 986px; height: 20px; border: 1px dashed #006699; text-align: center;">
+				<a id="addMoreDetailConf" href="javascript:void(0);">点击添加更多详细页配置</a>
+			</div> -->
 		</div>
 	</div>
-	<jsp:include page="../include/footer.jsp"></jsp:include>
 </body>
 </html>

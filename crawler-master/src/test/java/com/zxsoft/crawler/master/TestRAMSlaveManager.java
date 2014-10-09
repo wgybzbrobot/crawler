@@ -1,4 +1,4 @@
-package com.zxsoft.crawler.master.impl;
+package com.zxsoft.crawler.master;
 
 import java.io.IOException;
 

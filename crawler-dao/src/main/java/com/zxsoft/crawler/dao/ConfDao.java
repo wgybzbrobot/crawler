@@ -99,11 +99,11 @@ public class ConfDao extends BaseDao {
 			if (CollectionUtils.isEmpty(list)) {
 				LOG.error("在表<" + TABLE_CONF_LIST + ">没有找到url为" + url + "的记录.");
 				return null;
+			} else {
+				listConf = list.get(0);
+				objectCache.setObject(url, listConf);
 			}
-
-			listConf = list.get(0);
-			objectCache.setObject(url, listConf);
-
+			
 			return listConf;
 		}
 	}
@@ -176,7 +176,7 @@ public class ConfDao extends BaseDao {
 		} else {
 			LOG.debug("Getting detail configuration:" + host);
 			List<DetailConf> list = jdbcTemplate.query("select * from conf_detail where listurl = ? and host like ?",
-			        new Object[] { listUrl, host }, new RowMapper<DetailConf>() {
+			        new Object[] { listUrl, "%" + host + "%"}, new RowMapper<DetailConf>() {
 				        public DetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
 					        DetailConf detailConf = new DetailConf();
 					        detailConf.setListUrl(rs.getString("listurl"));

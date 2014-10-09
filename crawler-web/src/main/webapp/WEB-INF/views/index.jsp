@@ -1,6 +1,6 @@
 <%@ page language="java" pageEncoding="UTF-8"%>
 <%@ page session="false"%>
-<%@ include file="include/include.jsp"%>
+<%@ include file="/common/include.jsp"%>
 <%@ page isELIgnored="false"%>
 <meta http-equiv="Content-Type" content="text/html charset=utf-8">
 <html>
@@ -26,9 +26,10 @@
 				$('div.form-wrapper').show();
 				$('#websiteForm').form('load', 'website/moreinfo/' + $(this).attr('id'));
 		});
+		$('#searchForm span.searchbox input:first').focus();
 	});
 	function doSearch(value) {
-		console.log('search ' + value);
+		$('#searchForm').submit();
 	}
 	function submitForm() {
 		$('#websiteForm').form('submit', {
@@ -46,11 +47,12 @@
 </script>
 </head>
 <body>
-	<jsp:include page="include/header.jsp"></jsp:include>
 	<div id="body">
 		<div style="padding-left: 43px;">
-			<input class="easyui-searchbox" data-options="prompt:'输入网站名称',searcher:doSearch" style="width: 200px" /> <a
-				id="addWebsiteBtn" class="linkbutton" href="javascript:void(0);">添加网站</a>
+			<form id="searchForm" action="website" method="get" style="display:inline; margin-right: 14px;">
+				<input value="${website.comment }" name="comment" class="easyui-searchbox" data-options="prompt:'输入网站名称进行搜索',searcher:doSearch" style="width: 200px" />
+			</form>
+			<a id="addWebsiteBtn" class="linkbutton" href="javascript:void(0);">添加网站</a>
 		</div>
 		<div class="form-wrapper" style="display: none;">
 			<a class="form-wrapper-close" href="javascript:;"></a>
@@ -67,15 +69,21 @@
 							name="comment" data-options="required:true" />
 					</div>
 					<div>
-						<label class="form-label" for="region">区域</label> <span>境内</span><input type="radio" name="region" value="境内"
+						<label class="form-label" for="region">区域:</label><span>境内</span><input type="radio" name="region" value="境内"
 							checked="checked">&nbsp;&nbsp;&nbsp;<span>境外</span><input type="radio" name="region" value="境外">
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<label class="form-label" for="status">状态:</label><span>启用</span><input type="radio" name="status" value="open"
+							checked="checked">&nbsp;&nbsp;&nbsp;<span>禁用</span><input type="radio" name="status" value="close">
 					</div>
 					<div>
-						<label class="form-label" for="sitetype">网站类型</label> <select class="easyui-validatebox form-input"
+						<label class="form-label" for="sitetype">网站类型(访问哪个代理)</label> <select class="easyui-validatebox form-input"
 							name="sitetype">
-							<option value="001">类型001</option>
+							<!-- <option value="001">类型001</option>
 							<option value="002">类型002</option>
-							<option value="003">类型003</option>
+							<option value="003">类型003</option> -->
+							<c:forEach items="${siteTypes}" var="siteType">
+								<option value="${siteType.type}">${siteType.comment}</option>
+							</c:forEach>
 						</select>
 					</div>
 					<div>
@@ -98,9 +106,35 @@
 		<div id="content">
 			<ul>
 				<c:forEach items="${page.res}" var="web">
-					<li class="site-li"><a href="section?websiteId=${web.id}" title="${web.site}">${web.comment }</a><span
-						style="font-size: 6px; color: #e3e3e3;"><a id="${web.id}" class="moreinfo"
-							href="javascript:void(0);" title="点击编辑">[${web.region}]</a></span></li>
+					<li class="site-li">
+						<a href="section?websiteId=${web.id}" title="${web.site}" class="easyui-tooltip" data-options="
+		                    hideEvent: 'none',
+		                    content: function(){
+		                        return $('#toolbar${web.id}');
+		                    },
+		                    onShow: function(){
+		                        var t = $(this);
+		                        t.tooltip('tip').focus().unbind().bind('blur',function(){
+		                            t.tooltip('hide');
+		                        });
+		                    }
+		                ">${web.comment }</a></li>
+					<div style="display:none">
+				        <div id="toolbar${web.id}" >
+							<span style="font-size: 6px; ">${web.region}</span>
+				            <a href="#" id="${web.id}" class="moreinfo linkbutton" >编辑</a>
+				            <c:choose>
+				            	<c:when test="${web.status eq 'close'}">
+				            		<!-- <a href="javascript:void(0);" class="usestatus linkbutton">启用</a> -->
+				            		<span style="font-size: 6px; ">已禁用</span>
+				            	</c:when>
+				            	<c:otherwise>
+						            <!-- <a href="javascript:void(0);" class="usestatus linkbutton">禁用</a> -->
+						            <span style="font-size: 6px; ">已启用</span>
+				            	</c:otherwise>
+				            </c:choose>
+				        </div>
+				    </div>
 				</c:forEach>
 			</ul>
 			<c:if test="${page.count > 20}">
@@ -111,5 +145,4 @@
 
 		</div>
 	</div>
-	<jsp:include page="include/footer.jsp"></jsp:include>
 </body>

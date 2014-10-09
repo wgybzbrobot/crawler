@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.thinkingcloud.framework.web.utils.HibernateCallbackUtil;
 
 import com.zxsoft.crawler.entity.Category;
+import com.zxsoft.crawler.entity.SiteType;
 import com.zxsoft.crawler.web.dao.website.DictDao;
 
 @Repository
@@ -19,6 +20,11 @@ public class DictDaoImpl implements DictDao {
 	@Override
     public List<Category> getCategories() {
 		return hibernateTemplate.find("from Category");
+    }
+
+	@Override
+    public List<SiteType> getSiteTypes() {
+	    return hibernateTemplate.find("from SiteType");
     }
 
 	

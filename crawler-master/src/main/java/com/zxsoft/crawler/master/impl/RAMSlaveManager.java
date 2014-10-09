@@ -41,7 +41,7 @@ public class RAMSlaveManager implements SlaveManager {
 		}
 	}
 
-	public static Set<String> runningMachines = new HashSet<String>(100);
+	public static Set<Machine> runningMachines = new HashSet<Machine>(100);
 	
 	static {
 		List<Machine> list = SlaveCache.machines;
@@ -49,7 +49,7 @@ public class RAMSlaveManager implements SlaveManager {
 			throw new NullPointerException("No Slave machines found, please configure it.");
 		}
 		for (Machine machine : list) {
-	        runningMachines.add(machine.getId());
+	        runningMachines.add(machine);
         }
 	}
 	
@@ -65,18 +65,21 @@ public class RAMSlaveManager implements SlaveManager {
 		List<Callable<SlaveStatus>> tasks = new ArrayList<Callable<SlaveStatus>>();
 		for (Machine machine : machines) {
 			String url = "http://" + machine.getIp() + ":" + machine.getPort() + "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH;
-			Vistor vistor = new Vistor(machine.getId(), url);
+			Vistor vistor = new Vistor(machine);
 			tasks.add(vistor);
 		}
 		List<Future<SlaveStatus>> futures = exec.invokeAll(tasks);
-		for (Future<SlaveStatus> future : futures) {
-			SlaveStatus status = future.get();
-			if (status.state == State.STOP)  {
-				runningMachines.remove(status.slaveId);
-			} else {
-				runningMachines.add(status.slaveId);
+		synchronized (runningMachines) {
+	        
+			for (Future<SlaveStatus> future : futures) {
+				SlaveStatus status = future.get();
+				if (status.state == State.STOP)  {
+					runningMachines.remove(status.machine);
+				} else {
+					runningMachines.add(status.machine);
+				}
+				res.add(status);
 			}
-			res.add(status);
 		}
 		exec.shutdown();
 		return res;
@@ -87,14 +90,14 @@ public class RAMSlaveManager implements SlaveManager {
 	}
 	
 	class Vistor implements Callable<SlaveStatus> {
-		private String url, id;
+		private Machine machine;
 
-		public Vistor(String id, String url) {
-			this.url = url;
-			this.id = id;
+		public Vistor(Machine machine) {
+			this.machine = machine;
 		}
 
 		public SlaveStatus call() throws Exception {
+			String url = "http://" + machine.getIp() + ":" + machine.getPort() + "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH;
 			ClientResource client = new ClientResource(url);
 			Representation representation = null;
 			SlaveStatus slaveStatus = null;
@@ -102,11 +105,11 @@ public class RAMSlaveManager implements SlaveManager {
 				representation = client.get();
 				String text = representation.getText();
 				NumNum tm = new Gson().fromJson(text, NumNum.class);
-				slaveStatus = new SlaveStatus(id, tm.runningNum,
+				slaveStatus = new SlaveStatus(machine, tm.runningNum,
 				        tm.historyNum, 2000, "success", State.RUNNING);
 			} catch (Exception e) {
 				e.printStackTrace();
-				slaveStatus = new SlaveStatus(id, 0, 0, 5000, e.toString(), State.STOP);
+				slaveStatus = new SlaveStatus(machine, 0, 0, 5000, e.toString(), State.STOP);
 			} finally {
 				client.release();
 			}

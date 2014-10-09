@@ -44,9 +44,11 @@ public class JobResource extends ServerResource {
 		
 		if (state != null) {
 			if (state.equals("history")) {
-				return SlaveApp.jobMgr.list(cid, State.ANY);
+				return SlaveApp.jobMgr.list(cid, State.FINISHED);
 			} else if (state.equals("running")) {
 				return SlaveApp.jobMgr.list(cid, State.RUNNING);
+			} else {
+				return SlaveApp.jobMgr.list(cid, State.ANY);
 			}
 		}
 

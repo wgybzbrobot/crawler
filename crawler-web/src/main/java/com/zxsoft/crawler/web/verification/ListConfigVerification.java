@@ -1,5 +1,7 @@
 package com.zxsoft.crawler.web.verification;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,7 +36,7 @@ public class ListConfigVerification extends ParseTool {
 		setConf(conf);
 	}
 
-	public Map<String, Object> verify(ConfList listConf) {
+	public Map<String, Object> verify(ConfList listConf, String keyword) {
 
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, String> errors = new HashMap<String, String>();
@@ -46,8 +48,16 @@ public class ListConfigVerification extends ParseTool {
 		}
 
 		List<ThreadInfo> list = new ArrayList<ThreadInfo>();
-		String pageStr = "";
-		ProtocolOutput protocolOutput = fetch(listConf.getUrl(), listConf.getAjax());
+		String pageStr = "", testurl = listConf.getUrl();
+		if ("search".equals(listConf.getCategory())) {
+			try {
+	            keyword = URLEncoder.encode(keyword, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+	            e.printStackTrace();
+            }
+			testurl = listConf.getUrl().replace("%s", keyword);
+		}
+		ProtocolOutput protocolOutput = fetch(testurl, listConf.getAjax());
 		Document document = null;
 
 		if (protocolOutput == null || !protocolOutput.getStatus().isSuccess()) {
@@ -58,7 +68,7 @@ public class ListConfigVerification extends ParseTool {
 			try {
 				Element pagebar = PageHelper.getPageBar(document);
 				pageStr = pagebar.html();
-			} catch (PageBarNotFoundException e) {
+			} catch (NullPointerException | PageBarNotFoundException e) {
 				e.printStackTrace();
 			}
 
@@ -110,7 +120,17 @@ public class ListConfigVerification extends ParseTool {
 										}
 									}
 								}
+								
+								
 								ThreadInfo info = new ThreadInfo(url, title, update);
+
+								if (!StringUtils.isEmpty(listConf.getSynopsisdom())) {
+									Elements synoEles = lineEle.select(listConf.getSynopsisdom());
+									if (!CollectionUtils.isEmpty(synoEles)) {
+										info.setSynopsis(synoEles.first().text());
+									}
+								}
+								
 								list.add(info);
 							}
 							if (updateErrorCount > 10) {

@@ -12,7 +12,7 @@ import com.zxsoft.crawler.web.dao.website.WebsiteDao;
 import com.zxsoft.crawler.web.service.website.WebsiteService;
 
 @Service
-public class WebsiteServiceImpl/* extends BaseDao*/ implements WebsiteService {
+public class WebsiteServiceImpl implements WebsiteService {
 
 	@Autowired
 	private WebsiteDao websiteDaoImpl;

@@ -19,7 +19,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.jsoup.select.Selector.SelectorParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.CollectionUtils;
@@ -97,7 +96,7 @@ public final class NetworkInspectParserController extends ParseTool {
 
 			if (pageNum.get() > _pageNum) {
 				continuePage.set(false);
-				status.setMessage("抓完设定的页数:" + _pageNum);
+				status.setMessage("抓完设定的页数" + _pageNum);
 				break;
 			}
 
@@ -145,7 +144,7 @@ public final class NetworkInspectParserController extends ParseTool {
 				
 				String title = line.select(listConf.getUrldom()).first().text();
 				
-				LOG.debug(title + update);
+				LOG.debug(title);
 				
 				ProtocolOutput outputTemp = fetch(curl, false/*ajax*/); // detail page use normal load 
 				Document doctemp = null;

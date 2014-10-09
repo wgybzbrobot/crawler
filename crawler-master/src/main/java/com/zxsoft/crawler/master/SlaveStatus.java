@@ -2,6 +2,8 @@ package com.zxsoft.crawler.master;
 
 import java.io.Serializable;
 
+import com.zxsoft.crawler.api.Machine;
+
 
 public class SlaveStatus implements Serializable {
 	
@@ -11,7 +13,11 @@ public class SlaveStatus implements Serializable {
 		IDLE, RUNNING, STOP
 	};
 
-	public String slaveId;
+	/*public String slaveId;
+	public String slaveComment;*/
+	public Machine machine;
+	
+	
 	public int runningNum;
 	public int historyNum;
 	
@@ -23,22 +29,25 @@ public class SlaveStatus implements Serializable {
 
 	
 	
-	public SlaveStatus(String slaveId, int runningNum, int historyNum, int code, String msg,
-            State state) {
+	public SlaveStatus(Machine machine, /*String slaveId,*/ int runningNum, int historyNum, int code, String msg,
+            State state/*, String slaveComment*/) {
 	    super();
-	    this.slaveId = slaveId;
+	    this.machine = machine;
+//	    this.slaveId = slaveId;
 	    this.runningNum = runningNum;
 	    this.historyNum = historyNum;
 	    this.code = code;
 	    this.msg = msg;
 	    this.state = state;
+//	    this.slaveComment = slaveComment;
     }
 
 
 
-	public SlaveStatus(String slaveId, int runningNum, int historyNum) {
+	public SlaveStatus(Machine machine,/*String slaveId,*/ int runningNum, int historyNum) {
 	    super();
-	    this.slaveId = slaveId;
+//	    this.slaveId = slaveId;
+	    this.machine = machine;
 	    this.runningNum = runningNum;
 	    this.historyNum = historyNum;
     }

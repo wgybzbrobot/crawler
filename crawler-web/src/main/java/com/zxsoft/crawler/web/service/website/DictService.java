@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.zxsoft.crawler.entity.Category;
+import com.zxsoft.crawler.entity.SiteType;
 
 /**
  * 字典
@@ -13,4 +14,6 @@ import com.zxsoft.crawler.entity.Category;
 public interface DictService {
 
 	List<Category> getCategories();
+	
+	List<SiteType> getSiteTypes();
 }

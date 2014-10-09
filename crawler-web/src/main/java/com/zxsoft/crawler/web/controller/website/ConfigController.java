@@ -1,30 +1,24 @@
 package com.zxsoft.crawler.web.controller.website;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mvc.extensions.ajax.AjaxUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.request.WebRequest;
 import org.thinkingcloud.framework.util.Assert;
-import org.thinkingcloud.framework.util.CollectionUtils;
 
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.entity.Section;
 import com.zxsoft.crawler.web.service.website.ConfigService;
 import com.zxsoft.crawler.web.service.website.SectionService;
-import com.zxsoft.crawler.web.service.website.WebsiteService;
-import com.zxsoft.crawler.web.service.website.impl.WebsiteServiceImpl;
 import com.zxsoft.crawler.web.verification.DetailConfigVerification;
 import com.zxsoft.crawler.web.verification.ListConfigVerification;
 
@@ -63,8 +57,8 @@ public class ConfigController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "testListConf", method = RequestMethod.POST)
-	public Map<String, Object> testListConf(ConfList listConf) {
-		Map<String, Object> listRes = listConfigVerification.verify(listConf);
+	public Map<String, Object> testListConf(ConfList listConf, @RequestParam(value="keyword", required=false) String keyword) {
+		Map<String, Object> listRes = listConfigVerification.verify(listConf, keyword);
 		return listRes;
 	}
 
@@ -74,13 +68,16 @@ public class ConfigController {
 	@ResponseBody
 	@RequestMapping(value = "addListConf", method = RequestMethod.POST)
 	public Map<String, Object> saveListConf(ConfList listConf) {
-		Map<String, Object> listRes = listConfigVerification.verify(listConf);
+		/*Map<String, Object> listRes = listConfigVerification.verify(listConf);
 		if (((Map<String, String>) listRes.get("errors")).size() == 0) { // save
 			configService.add(listConf);
 			listRes.put("msg", "success");
 		} else {
 			listRes.put("msg", "failure");
-		}
+		}*/
+		configService.add(listConf);
+		Map<String, Object> listRes = new HashMap<String, Object>();
+		listRes.put("msg", "success");
 		return listRes;
 	}
 

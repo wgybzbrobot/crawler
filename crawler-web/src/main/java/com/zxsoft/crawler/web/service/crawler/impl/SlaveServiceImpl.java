@@ -33,11 +33,9 @@ public class SlaveServiceImpl extends SimpleCrawlerServiceImpl implements SlaveS
 			result = (List<Map<String, Object>>) map.get("slavestatus");
 		} catch (IOException e) {
 			e.printStackTrace();
-//			r.release();
 			cli.release();
 			throw new IOException(e);
 		} finally {
-//			r.release();
 			cli.release();
 		}
 		

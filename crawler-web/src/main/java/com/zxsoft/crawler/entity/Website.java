@@ -35,6 +35,7 @@ public class Website implements java.io.Serializable {
 	private String password;
 	private String comment;
 	private String region;
+	private String status;
 	private Set<Section> sections = new HashSet<Section>(0);
 
 	public Website() {
@@ -122,6 +123,15 @@ public class Website implements java.io.Serializable {
 
 	public void setRegion(String region) {
 		this.region = region;
+	}
+
+	@Column(name="status", length = 45)
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "website")

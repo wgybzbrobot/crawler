@@ -1,4 +1,3 @@
-
 body {
 	padding: 0;
 	margin: 0;
@@ -16,6 +15,7 @@ body ul {
 a {
 	text-decoration: none;
 }
+
 h1 {
 	font-size: 25px;
 	font-weight: normal;
@@ -37,21 +37,16 @@ h5 {
 }
 
 header {
-	/* background: #ffffff;
-	
-	width: 100%;
-	color: #666666; */
-	height: 60px;
 	position: fixed;
-width: 100%;
-top: 0;
-left: 0;
-background: #203854;
-z-index: 100;
+	width: 100%;
+	top: 0;
+	left: 0;
+	background: #203854;
+	z-index: 100;
 }
 
 #logo {
-	height: 60px;
+	height: 26px;
 	overflow: hidden;
 	margin: 0 auto;
 	padding: 10px;
@@ -62,6 +57,7 @@ z-index: 100;
 	text-align: left;
 	border-bottom: 10px solid #fff;
 }
+
 #logo a {
 	font-weight: bold;
 }
@@ -69,9 +65,9 @@ z-index: 100;
 #navigation {
 	text-align: right;
 	list-style: none;
-	width: 475px;
+	width: 40%;
 	height: 40px;
-	top: 40px;
+	top: 6px;
 	/* right: 10px; */
 	margin: 0 2px;
 	padding: 5px 0;
@@ -94,11 +90,13 @@ ul {
 	color: #fff;
 	font-size: 15px;
 }
+
 #navigation li a {
 	color: #fff;
 	font-size: 15px;
 }
-#navigation li a:HOVER{
+
+#navigation li a:HOVER {
 	color: #ff0000;
 	font-size: 15px;
 }
@@ -109,43 +107,6 @@ ul {
 	margin: 1 6px;
 	padding: 4px;
 }
-
-/* #navcolumn ul {
-	margin: 5px 0 15px -0em;
-	padding: 0;
-	font-size: 15px;
-}
-
-#navcolumn li {
-	list-style-type: none;
-	background-image: none;
-	background-repeat: no-repeat;
-	background-position: 0 0.4em;
-	padding-left: 16px;
-	list-style-position: outside;
-	line-height: 1.2em;
-}
-
-#navcolumn li.none {
-	text-indent: 0.1em;
-	margin-left: 1em;
-}
-
-#navcolumn h5 {
-	font-size: 20px;
-	border-bottom: 1px solid #aaaaaa;
-	padding-top: 2px;
-	padding-left: 9px;
-}
-
-#navcolumn a {
-	text-decoration: none;
-	color: #4490f7;
-}
-
-#navcolumn a:HOVER {
-	text-decoration: underline;
-} */
 
 div.clear {
 	clear: both;
@@ -201,10 +162,10 @@ table.maintable td {
 	color: #ff0000;
 	/* background-color: #49635a; */
 }
+
 .dialog-box {
 	margin: 10px;
 }
-
 
 #minMax {
 	width: 1000px;

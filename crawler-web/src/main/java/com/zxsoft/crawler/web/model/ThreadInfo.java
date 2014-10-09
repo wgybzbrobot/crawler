@@ -10,6 +10,8 @@ public class ThreadInfo {
 	private String url;
 	private String title;
 	private Date update;
+	private String synopsis;
+	
 	public ThreadInfo() {}
 	public ThreadInfo(String url, String title, Date update) {
 	    super();
@@ -17,6 +19,13 @@ public class ThreadInfo {
 	    this.title = title;
 	    this.update = update;
     }
+	
+	public String getSynopsis() {
+		return synopsis;
+	}
+	public void setSynopsis(String synopsis) {
+		this.synopsis = synopsis;
+	}
 	public String getUrl() {
 		return url;
 	}

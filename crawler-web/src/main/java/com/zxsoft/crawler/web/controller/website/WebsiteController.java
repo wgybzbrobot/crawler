@@ -21,29 +21,37 @@ import org.thinkingcloud.framework.web.utils.Page;
 
 import com.zxsoft.crawler.entity.SiteType;
 import com.zxsoft.crawler.entity.Website;
+import com.zxsoft.crawler.web.service.website.DictService;
 import com.zxsoft.crawler.web.service.website.WebsiteService;
 
 @Controller
 @RequestMapping("/website")
 public class WebsiteController {
 
-	@ModelAttribute
-	public void ajaxAttribute(WebRequest request, Model model) {
-		model.addAttribute("ajaxRequest", AjaxUtils.isAjaxRequest(request));
-	}
-
+	@Autowired
+	private WebsiteService websiteServiceImpl;
+	
+	@Autowired
+	private DictService dictService;
+	
 	@RequestMapping(method = RequestMethod.GET)
 	public String index(@ModelAttribute("website") Website website, Model model) {
 		Page<Website> page = websiteServiceImpl.getWebsite(website, 1, 20);
 		model.addAttribute("page", page);
+		
+		if (website != null)
+			model.addAttribute("website", website);
+		
+		List<SiteType> siteTypes = dictService.getSiteTypes();
+		model.addAttribute("siteTypes", siteTypes);
+		
 		return "index";
 	}
 
-	@Autowired
-	private WebsiteService websiteServiceImpl;
+
 
 	/**
-	 * get list configuration infomation
+	 * 加载更多网站
 	 */
 	@ResponseBody
 	@RequestMapping(value = "list", method = RequestMethod.GET)
@@ -66,6 +74,7 @@ public class WebsiteController {
 	        @RequestParam(value = "comment", required = false) String comment,
 	        @RequestParam(value = "sitetype", required = false) String type,
 	        @RequestParam(value = "region", required = false) String region,
+	        @RequestParam(value = "status", required = false) String status,
 	        @RequestParam(value = "username", required = false) String username,
 	        @RequestParam(value = "password", required = false) String password, Model model) {
 
@@ -75,6 +84,7 @@ public class WebsiteController {
 		website.setUsername(username);
 		website.setPassword(password);
 		website.setRegion(region);
+		website.setStatus(status);
 		websiteServiceImpl.save(website);
 		return "success";
 	}
@@ -92,6 +102,7 @@ public class WebsiteController {
 		map.put("site", website.getSite());
 		map.put("comment", website.getComment());
 		map.put("region", website.getRegion());
+		map.put("status", website.getStatus());
 		map.put("sitetype", website.getSiteType().getType());
 		map.put("username", website.getUsername());
 		map.put("password", website.getPassword());

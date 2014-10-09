@@ -2,23 +2,14 @@ package com.zxsoft.crawler;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.bcel.classfile.Code;
 import org.apache.hadoop.conf.Configuration;
-import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.zxsoft.crawler.api.Params;
-import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.parse.NetworkInspectParserController;
 import com.zxsoft.crawler.parse.FetchStatus;
 import com.zxsoft.crawler.parse.ParserNotFoundException;
-import com.zxsoft.crawler.parse.FetchStatus.Status;
-import com.zxsoft.crawler.protocol.ProtocolOutput;
-import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.WebPage;
-import com.zxsoft.crawler.util.CrawlerConfiguration;
 
 /**
  * 网络巡检
@@ -38,7 +29,6 @@ public class NetworkInspectJob extends CrawlTool {
 		
 		String url = (String) args.get(Params.URL);
 		String urlType = (String) args.get(Params.URL_TYPE);
-		
 		
 //		numJobs = 1;
 //		currentJob = new CrawlJob(getConf(), "NetworkInsecpt");

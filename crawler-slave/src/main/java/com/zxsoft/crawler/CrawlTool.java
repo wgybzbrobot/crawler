@@ -1,5 +1,6 @@
 package com.zxsoft.crawler;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,8 +8,12 @@ import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 
-public abstract class CrawlTool /*extends Configured */{
+public abstract class CrawlTool extends Configured  implements Serializable{
 
+	/**
+	 * 
+	 */
+    private static final long serialVersionUID = 7157000320559623897L;
 	public HashMap<String, Object> results = new HashMap<String, Object>();
 	public Map<String, Object> status = Collections
 	        .synchronizedMap(new HashMap<String, Object>());
@@ -16,13 +21,13 @@ public abstract class CrawlTool /*extends Configured */{
 	public int numJobs;
 	public int currentJobNum;
 
-	private Configuration conf;
+	/*private Configuration conf;
 	public Configuration getConf() {
 		return conf;
 	}
 	public void setConf(Configuration conf) {
 		this.conf = conf;
-	}
+	}*/
 	
 	public CrawlTool() {
 	}

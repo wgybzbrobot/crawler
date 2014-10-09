@@ -1,28 +1,24 @@
 package com.zxsoft.crawler.web.controller.website;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.codec.binary.Base64;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.mvc.extensions.ajax.AjaxUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.request.WebRequest;
-import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.StringUtils;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.zxsoft.crawler.entity.Account;
 import com.zxsoft.crawler.entity.Category;
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.entity.ConfDetailId;
@@ -38,11 +34,6 @@ import com.zxsoft.crawler.web.service.website.WebsiteService;
 @RequestMapping("/section")
 public class SectionController {
 
-	@ModelAttribute
-	public void ajaxAttribute(WebRequest request, Model model) {
-		model.addAttribute("ajaxRequest", AjaxUtils.isAjaxRequest(request));
-	}
-
 	@Autowired
 	private SectionService sectionService;
 	@Autowired
@@ -56,6 +47,11 @@ public class SectionController {
 	@RequestMapping(method = RequestMethod.GET)
 	public String index(@RequestParam(value = "websiteId", required = false) String websiteId,
 	        Model model) {
+		
+		if (StringUtils.isEmpty(websiteId)) {
+			return "error";
+		}
+		
 		Website website = websiteService.getWebsite(websiteId);
 		model.addAttribute("website", website);
 
@@ -76,12 +72,20 @@ public class SectionController {
 	@ResponseBody
 	@RequestMapping(value = "add", method = RequestMethod.POST)
 	public String addOrUpdate(@RequestParam(value = "copy", required = false) String copy,
-	        Section section, Model model) {
-		if ("true".equals(copy)) {
-			Map<String, Object> map = configService.getConfig(section.getId());
-			ConfList confList = (ConfList) map.get("confList");
-			List<ConfDetail> confDetails = (List<ConfDetail>) map.get("confDetails");
-			
+	        Section section, Model model, HttpSession session) {
+		
+		Account account = (Account) session.getAttribute("account");
+		if (account == null) {
+			return "NoAccess";
+		}
+		
+		section.setAccount(account);
+		
+		Map<String, Object> map = configService.getConfig(section.getId());
+		ConfList confList = (ConfList) map.get("confList");
+		List<ConfDetail> confDetails = (List<ConfDetail>) map.get("confDetails");
+		
+		if ("true".equals(copy)) { // 复制规则并创建
 			if (confList == null) {
 				return "NoConfList";
 			}
@@ -93,12 +97,32 @@ public class SectionController {
 					confDetailId.setListurl(section.getUrl());
 	                confDetail.setId(confDetailId);
                 }
+				configService.add(confDetails);
 			}
 			section.setId(null);
 			sectionService.saveOrUpdate(section);
 			configService.add(confList);
-			configService.add(confDetails);
-		} else {
+			
+		} else { // 修改或新增
+			if (confList != null) {
+				String url = section.getUrl();
+				String category = section.getCategory().getId();
+				String comment = section.getComment();
+				confList.setUrl(url);
+				confList.setCategory(category);
+				confList.setComment(comment);
+				configService.add(confList);
+			}
+			if (!CollectionUtils.isEmpty(confDetails)) {
+				for (ConfDetail confDetail : confDetails) {
+					ConfDetailId confDetailId = new ConfDetailId();
+					confDetailId.setHost(confDetail.getId().getHost());
+					confDetailId.setListurl(section.getUrl());
+	                confDetail.setId(confDetailId);
+                }
+				configService.add(confDetails);
+			}
+			
 			sectionService.saveOrUpdate(section);
 		}
 		

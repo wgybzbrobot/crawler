@@ -57,7 +57,11 @@ public class SectionDaoImpl implements SectionDao {
 
 	@Override
     public void saveOrUpdate(Section section) {
-	    hibernateTemplate.saveOrUpdate(section);
+		if (StringUtils.isEmpty(section.getId())) {
+			hibernateTemplate.save(section);
+		} else {
+			hibernateTemplate.saveOrUpdate(section);
+		}
     }
 
 	@Override

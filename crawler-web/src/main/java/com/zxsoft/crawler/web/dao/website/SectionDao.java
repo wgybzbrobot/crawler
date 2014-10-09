@@ -18,8 +18,9 @@ public interface SectionDao {
 	 */
 	Page<Section> getSections(Section section, int pageNo, int pageSize);
 	
-	void saveOrUpdate(Section section);
 
 	void delete(String id);
+
+	void saveOrUpdate(Section section);
 	
 }

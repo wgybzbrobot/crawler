@@ -60,10 +60,30 @@ li {
 	color: #008000;
 }
 
+
+.slave-li {
+	position: relative;
+	height: 58px;
+	line-height: 28px;
+	float: left;
+	width: 180px;
+	margin: 4px;
+	white-space: nowrap;
+	background-color: #006699;
+	color: white;
+	text-align: center;
+	font-size: 20px;
+}
+
+.slave-li a {
+	color: #ffffff;
+}
+
+
 .form-wrapper {
 	display: none;
 	width: 412px;
-	height: 400px;
+	height: 448px;
 	position: fixed;
 	z-index: 100;
 	left: 50%;
@@ -127,6 +147,11 @@ li {
 	border-radius: 3px;
 	color: #fff;
 	border: none;
+}
+
+.form-wrapper-center form > div {
+	margin: 3px 0;	
+	padding: 3px 0;
 }
 
 h2,h3 {
