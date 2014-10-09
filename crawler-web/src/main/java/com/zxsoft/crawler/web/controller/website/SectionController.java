@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -23,6 +25,7 @@ import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.zxsoft.crawler.entity.Account;
 import com.zxsoft.crawler.entity.Category;
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.entity.ConfDetailId;
@@ -76,7 +79,19 @@ public class SectionController {
 	@ResponseBody
 	@RequestMapping(value = "add", method = RequestMethod.POST)
 	public String addOrUpdate(@RequestParam(value = "copy", required = false) String copy,
-	        Section section, Model model) {
+	        Section section, Model model, HttpSession session) {
+		
+		/*Account account = (Account) session.getAttribute("account");
+		if (account == null) {
+			return "NoAccess";
+		}
+		
+		section.setAccount(account);*/
+		
+		Account account = new Account();
+		account.setId("swe");
+		section.setAccount(account);
+		
 		if ("true".equals(copy)) {
 			Map<String, Object> map = configService.getConfig(section.getId());
 			ConfList confList = (ConfList) map.get("confList");

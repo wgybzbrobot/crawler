@@ -1,6 +1,6 @@
 <%@ page language="java" pageEncoding="UTF-8"%>
 <%@ page session="false"%>
-<%@ include file="include/include.jsp"%>
+<%@ include file="/common/include.jsp"%>
 <%@ page isELIgnored="false"%>
 <meta http-equiv="Content-Type" content="text/html charset=utf-8">
 <html>
@@ -46,7 +46,7 @@
 </script>
 </head>
 <body>
-	<jsp:include page="include/header.jsp"></jsp:include>
+	<%-- <jsp:include page="include/header.jsp"></jsp:include> --%>
 	<div id="body">
 		<div style="padding-left: 43px;">
 			<input class="easyui-searchbox" data-options="prompt:'输入网站名称',searcher:doSearch" style="width: 200px" /> <a
@@ -111,5 +111,5 @@
 
 		</div>
 	</div>
-	<jsp:include page="include/footer.jsp"></jsp:include>
+	<%-- <jsp:include page="include/footer.jsp"></jsp:include> --%>
 </body>

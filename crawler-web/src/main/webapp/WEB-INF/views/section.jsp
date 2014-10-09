@@ -1,6 +1,6 @@
 <%@ page language="java" pageEncoding="UTF-8"%>
 <%@ page session="false"%>
-<%@ include file="include/include.jsp"%>
+<%@ include file="/common/include.jsp"%>
 <%@ page isELIgnored="false"%>
 <meta http-equiv="Content-Type" content="text/html charset=utf-8">
 <html>
@@ -68,6 +68,8 @@
 					}, 3000);
 				} else if (data == 'NoConfList'){
 					$('#savemessage').text('列表页没有配置，不能复制规则');
+				} else if (data == 'NoAccess') {
+					$('#savemessage').text('请先登录');
 				}
 			}
 		});
@@ -97,7 +99,6 @@
 </script>
 </head>
 <body>
-	<jsp:include page="include/header.jsp"></jsp:include>
 	<div id="body">
 		<div style="padding:4px 0 4px 22px ;">
 			<a class="linkbutton" href="javascript:history.go(-1);">返回</a>
@@ -164,9 +165,10 @@
 									</h3>
 									<span>[${section.category.comment}]</span>
 									<div class="editmore">
-										<span><a id="${section.id }" class="moreinfo" href="javascript:void(0);" title="修改版块信息">[编辑]</a></span>
-										<span><a href="javascript:void(0);" idx="${section.id }" class="addSectionBtn" title="创建与【${section.comment}】相同规则的版块">[创建版块]</a></span>
-										<span><a href="javascript:void(0);" idx="${section.id }" class="deleteSectionBtn" title="删除此版块">[删除]</a></span>
+										<span title="创建者"><${section.account.username}></span>
+										<span><a id="${section.id }" class="moreinfo" href="javascript:void(0);" title="修改版块信息">&nbsp;编辑&nbsp;|</a></span>
+										<span><a href="javascript:void(0);" idx="${section.id }" class="addSectionBtn" title="创建与【${section.comment}】相同规则的版块">&nbsp;创建版块&nbsp;|</a></span>
+										<span><a href="javascript:void(0);" idx="${section.id }" class="deleteSectionBtn" title="删除此版块">&nbsp;删除</a></span>
 									</div>
 								 <br>
 								<a class="url" target="_blank" href="${section.url}">${section.url}</a>
@@ -183,5 +185,4 @@
 			</c:otherwise>
 		</c:choose>
 	</div>
-	<jsp:include page="include/footer.jsp"></jsp:include>
 </body>

@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ include file="../include/include.jsp"%>
+<%@ include file="/common/include.jsp"%>
 <%@ page session="false"%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -118,7 +118,6 @@ $(function() {
 </script>
 </head>
 <body>
-	<jsp:include page="../include/header.jsp"></jsp:include>
 	<div id="content">
 		<div style="margin: 5px 0 15px 0;">
 			<a href="#" class="linkbutton" id="refresh" onclick="return loadSlaves();">刷新</a> <a href="#" class="linkbutton"
@@ -175,6 +174,5 @@ $(function() {
 			<div id="slaves"></div>
 		</div>
 	</div>
-	<jsp:include page="../include/footer.jsp"></jsp:include>
 </body>
 </html>
