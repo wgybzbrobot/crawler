@@ -11,6 +11,7 @@ div.clear {
 }
 
 #footer {
+	padding: 10px;
 	border-top: solid #ccc 1px;
 	color: #333333;
 	font-size: x-small;
@@ -19,9 +20,15 @@ div.clear {
 </style>
 </head>
 <body>
+	<div class="clear">
+		<hr>
+	</div>
+	
 	<div id="footer">
 		<div class="xright">
 			<p>Copyright©2002-2014 Rights Reserved 中新软件 版权所有 皖ICP备05016981号-3</p>
+		</div>
+		<div class="clear">
 		</div>
 	</div>
 </body>

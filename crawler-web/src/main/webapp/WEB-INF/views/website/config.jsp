@@ -228,7 +228,6 @@
 </script>
 </head>
 <body>
-		
 	<div id="body">
 		<div>
 			<a class="linkbutton" href="javascript:history.go(-1);">返回</a>
