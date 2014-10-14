@@ -160,7 +160,11 @@
 									</h3>
 									<span>[${section.category.comment}]</span>
 									<div class="editmore">
+<<<<<<< HEAD
 										<span title="创建者">[${section.account.username}]</span>
+=======
+										<span title="创建者"><${section.account.username}></span>
+>>>>>>> d5111f79183f76bad129b5773eed2f64dd1669f5
 										<span><a id="${section.id }" class="moreinfo" href="javascript:void(0);" title="修改版块信息">&nbsp;编辑&nbsp;|</a></span>
 										<span><a href="javascript:void(0);" idx="${section.id }" class="addSectionBtn" title="创建与【${section.comment}】相同规则的版块">&nbsp;创建版块&nbsp;|</a></span>
 										<span><a href="javascript:void(0);" idx="${section.id }" class="deleteSectionBtn" title="删除此版块">&nbsp;删除</a></span>
@@ -180,7 +184,10 @@
 			</c:otherwise>
 		</c:choose>
 	</div>
+<<<<<<< HEAD
 	<div class="right-promotion">
 		<c:import url="/website/auth/${website.id}" charEncoding="utf-8" />
 	</div>
+=======
+>>>>>>> d5111f79183f76bad129b5773eed2f64dd1669f5
 </body>

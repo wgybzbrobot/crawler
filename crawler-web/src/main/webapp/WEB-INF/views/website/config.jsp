@@ -228,7 +228,11 @@
 </script>
 </head>
 <body>
+<<<<<<< HEAD
 		
+=======
+	<%-- <jsp:include page="../include/header.jsp"></jsp:include> --%>
+>>>>>>> d5111f79183f76bad129b5773eed2f64dd1669f5
 	<div id="body">
 		<div>
 			<a class="linkbutton" href="javascript:history.go(-1);">返回</a>
@@ -665,5 +669,9 @@
 			</div> -->
 		</div>
 	</div>
+<<<<<<< HEAD
+=======
+	<%-- <jsp:include page="../include/footer.jsp"></jsp:include> --%>
+>>>>>>> d5111f79183f76bad129b5773eed2f64dd1669f5
 </body>
 </html>

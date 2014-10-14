@@ -47,6 +47,10 @@
 </script>
 </head>
 <body>
+<<<<<<< HEAD:crawler-web/src/main/webapp/WEB-INF/views/website/index.jsp
+=======
+	<%-- <jsp:include page="include/header.jsp"></jsp:include> --%>
+>>>>>>> d5111f79183f76bad129b5773eed2f64dd1669f5:crawler-web/src/main/webapp/WEB-INF/views/index.jsp
 	<div id="body">
 		<div style="padding-left: 43px;">
 			<form id="searchForm" action="website" method="get" style="display:inline; margin-right: 14px;">
@@ -132,4 +136,8 @@
 
 		</div>
 	</div>
+<<<<<<< HEAD:crawler-web/src/main/webapp/WEB-INF/views/website/index.jsp
+=======
+	<%-- <jsp:include page="include/footer.jsp"></jsp:include> --%>
+>>>>>>> d5111f79183f76bad129b5773eed2f64dd1669f5:crawler-web/src/main/webapp/WEB-INF/views/index.jsp
 </body>

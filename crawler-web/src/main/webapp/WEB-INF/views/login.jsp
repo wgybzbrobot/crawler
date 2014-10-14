@@ -25,9 +25,12 @@ if (account == null) { %>
 					<div>
 						<input class="form-btn" type="submit" value="登录" />
 					</div>
+<<<<<<< HEAD
 					<div>
 						${msg }
 					</div>
+=======
+>>>>>>> d5111f79183f76bad129b5773eed2f64dd1669f5
 				</form>
 			</div>
 		</div>

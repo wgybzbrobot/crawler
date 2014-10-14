@@ -64,7 +64,11 @@ $(function() {
 </script>
 </head>
 <body>
+<<<<<<< HEAD
 	<div id="body">
+=======
+	<div id="content">
+>>>>>>> d5111f79183f76bad129b5773eed2f64dd1669f5
 		<div style="margin: 5px 0 15px 0;">
 			<a href="#" class="linkbutton" id="refresh" onclick="javascript:location.reload();">刷新</a> 
 			<a href="#" class="linkbutton" id="addInspectJobBtn" onclick="return addInspectJob();">添加网络巡检任务</a> 
