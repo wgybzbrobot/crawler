@@ -11,43 +11,34 @@
 <script type="text/javascript">
 function addInspectJob() {
 	$('#addInspectJobDialog').show();
-	$('#addInspectJobDialog').dialog({
-	    title: '添加网络巡检任务',
-	    width: 400,
-	    height: 200,
-	    closed: false
-	});
 }
-
 function addSearchJob() {
 	$('#addSearchJobDialog').show();
-	$('#addSearchJobDialog').dialog({
-	    title: '添加全网搜索任务',
-	    width: 400,
-	    height: 200,
-	    closed: false
-	});
 }
 $(function() {
+	$('a.form-wrapper-close').click(function() {
+		$('div.form-wrapper-center form').form('clear');
+		$('div.form-wrapper').hide();
+	});
 	$("#submitInspectJob").click(function(e) {
 		$('#addInspectJobForm').form('submit', {
 			url: 'slaves/addInspectJob',
 			onSubmit: function() {
 				var url = $('#fetchurl').val();
-				var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;;
+				var regexp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;;
 				if (regexp.test(url)) {
-					console.log('url is valid');
-					$('#fetchurlerror').text('');
+					$('#fetchurl').attr('title','');
 					return true;
 				} else {
 					console.log('url is invalid');
-					$('#fetchurlerror').text('不符合URL规范');
+					$('#fetchurl').focus();
+					$('#fetchurl').attr('title', '不符合URL规范');
 					return false;
 				}
 			}, 
 			success: function (data) {
 				alert('添加成功');
-				$('#addInspectJobDialog').dialog('close');
+				$('div.form-wrapper').hide();
 			}
 		});
 	});
@@ -57,14 +48,14 @@ $(function() {
 			onSubmit: function() {
 				var keyword = $('#keyword').val();
 				if (keyword == '') {
-					$('#keyworderror').text('必填');
+					$('#keyword').focus();
 					return false;
 				}
 				return true;
 			}, 
 			success: function (data) {
 				alert('添加成功');
-				$('#addSearchJobDialog').dialog('close');
+				$('div.form-wrapper').hide();
 				location.reload();
 			}
 		});
@@ -75,53 +66,48 @@ $(function() {
 <body>
 	<div id="body">
 		<div style="margin: 5px 0 15px 0;">
-			<a href="#" class="linkbutton" id="refresh" onclick="javascript:location.reload();">刷新</a> <a href="#" class="linkbutton"
-				id="addInspectJobBtn" onclick="return addInspectJob();">添加网络巡检任务</a> <a href="#" class="linkbutton"
-				id="addSearchJobBtn" onclick="return addSearchJob();">添加全网搜索任务</a>
+			<a href="#" class="linkbutton" id="refresh" onclick="javascript:location.reload();">刷新</a> 
+			<a href="#" class="linkbutton" id="addInspectJobBtn" onclick="return addInspectJob();">添加网络巡检任务</a> 
+			<a href="#" class="linkbutton" id="addSearchJobBtn" onclick="return addSearchJob();">添加全网搜索任务</a>
 		</div>
-		<div id="addInspectJobDialog" style="display: none;">
-			<form id="addInspectJobForm" method="post" style="width: 80%; margin: 0 auto;">
-				<table class="maintable">
-					<tr>
-						<td>版块地址:</td>
-						<td><input type="text" name="url" id="fetchurl" /></td>
-						<td><label id="fetchurlerror"></label></td>
-					</tr>
-					<tr>
-						<td colspan="3" align="center"><a href="#" class="linkbutton" id="submitInspectJob">添加</a></td>
-					</tr>
-				</table>
-			</form>
+		<div id="addInspectJobDialog" class="form-wrapper" style="display: none; width: 410px; height: 250px;">
+			<a class="form-wrapper-close" href="javascript:void(0);"></a>
+			<div class="form-wrapper-title">添加网络巡检任务</div>
+			<div class="form-wrapper-center">
+				<form id="addInspectJobForm" method="post" style="width: 90%; margin: 0 auto;">
+					<div>
+						<label class="form-label" for="keyword">版块地址:</label>
+						<input type="text" name="url" id="fetchurl" />
+					</div>
+					<div><input class="form-btn" type="button"  id="submitInspectJob" value="添加" /></div>
+				</form>
+			</div>
 		</div>
 
-		<div id="addSearchJobDialog" style="display: none;">
-			<form id="addSearchJobForm" method="post" style="width: 80%; margin: 0 auto;">
-				<div>
-					<table class="maintable">
-						<tr>
-							<td>关键词:</td>
-							<td><input type="text" name="keyword" /></td>
-							<td><label id="keyworderror"></label></td>
-						</tr>
-						<tr>
-							<td>搜索引擎:</td>
-							<td><span>百度<input name="engineId" value="http://www.baidu.com/s?wd=%s&ie=utf-8" type="checkbox"> 搜狗<input name="engineId"
-									value="http://www.sogou.com/web?query=%s" type="checkbox"></span></td>
-							<td></td>
-						</tr>
-						<tr>
-							<td colspan="3" align="right"><a href="#" class="linkbutton" id="submitSearchJob">添加</a></td>
-						</tr>
-					</table>
-				</div>
-			</form>
+		<div id="addSearchJobDialog" class="form-wrapper" style="display: none; width: 410px; height: 250px;">
+			<a class="form-wrapper-close" href="javascript:void(0);"></a>
+			<div class="form-wrapper-title">添加全网搜索任务</div>
+			<div class="form-wrapper-center">
+				<form id="addSearchJobForm" method="post" style="width: 90%; margin: 0 auto;">
+					<div>
+						<label class="form-label" for="keyword">关键词:</label>
+						<input type="text" name="keyword" />
+					</div>
+					<div>
+						<label class="form-label" for="url">搜索引擎:</label>
+						<c:forEach items="${engines }" var="engine">
+							<span style="margin-right: 2px;"><input name="engineId" value="${engine.url}" type="checkbox" />${engine.comment}</span>
+						</c:forEach>
+					</div>
+					<div><input class="form-btn" type="button"  id="submitSearchJob" value="添加" /></div>
+				</form>
+			</div>
 		</div>
 		<div style="text-align: center;">
-			<div id="loading"></div>
-			<div id="slaves">
-				
-			</div>
 			<div id="content">
+				<c:if test="${empty map.slaves }">
+					${map.msg }
+				</c:if>
 				<ul>
 					<c:forEach items="${map.slaves}" var="slave">
 						<c:choose>

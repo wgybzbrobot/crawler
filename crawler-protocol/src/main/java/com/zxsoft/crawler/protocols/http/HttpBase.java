@@ -112,9 +112,9 @@ public abstract class HttpBase extends PageHelper {
 		return dealResponse(response);
 	}
 	
-	public ProtocolOutput getProtocolOutputOfPrevPage(int pageNum, Document currentDoc) throws PrevPageNotFoundException, PageBarNotFoundException {
+	public ProtocolOutput getProtocolOutputOfPrevPage(int pageNum, Document currentDoc, boolean needAuth) throws PrevPageNotFoundException, PageBarNotFoundException {
         try {
-        	Response response = loadPrevPage(pageNum, currentDoc);
+        	Response response = loadPrevPage(pageNum, currentDoc, needAuth);
 	        return dealResponse(response); 
         } catch(PrevPageNotFoundException e) { 
         	throw e;
@@ -126,9 +126,9 @@ public abstract class HttpBase extends PageHelper {
         }
 	}
 	
-	public ProtocolOutput getProtocolOutputOfNextPage(int pageNum, Document currentDoc) throws PageBarNotFoundException {
+	public ProtocolOutput getProtocolOutputOfNextPage(int pageNum, Document currentDoc, boolean needAuth) throws PageBarNotFoundException {
 		try {
-			Response response = loadNextPage(pageNum, currentDoc);
+			Response response = loadNextPage(pageNum, currentDoc, needAuth);
 			return dealResponse(response); 
 		} catch(PageBarNotFoundException e) { 
         	throw e;
@@ -138,9 +138,9 @@ public abstract class HttpBase extends PageHelper {
 		}
 	}
 
-	public ProtocolOutput getProtocolOutputOfLastPage(Document currentDoc) throws PageBarNotFoundException {
+	public ProtocolOutput getProtocolOutputOfLastPage(Document currentDoc, boolean needAuth) throws PageBarNotFoundException {
 		try {
-			Response response = loadLastPage(currentDoc);
+			Response response = loadLastPage(currentDoc, needAuth);
 			return dealResponse(response); 
 		} catch(PageBarNotFoundException e) { 
         	throw e;
@@ -306,9 +306,9 @@ public abstract class HttpBase extends PageHelper {
 	public abstract Response postForResponse(URL url, NameValuePair[] data) throws IOException;
 	
 	public abstract Response getResponse(URL url,
-	        boolean followRedirects) throws ProtocolException, IOException;
-	protected abstract Response loadPrevPage(int pageNum, Document currentDoc) throws IOException, ProtocolException, PrevPageNotFoundException, PageBarNotFoundException;
-	protected abstract Response loadNextPage(int pageNum, Document currentDoc) throws IOException, ProtocolException, PageBarNotFoundException;
-	protected abstract Response loadLastPage(Document currentDoc) throws IOException, ProtocolException, PageBarNotFoundException;
+	        boolean needAuth) throws ProtocolException, IOException;
+	protected abstract Response loadPrevPage(int pageNum, Document currentDoc, boolean needAuth) throws IOException, ProtocolException, PrevPageNotFoundException, PageBarNotFoundException;
+	protected abstract Response loadNextPage(int pageNum, Document currentDoc, boolean needAuth) throws IOException, ProtocolException, PageBarNotFoundException;
+	protected abstract Response loadLastPage(Document currentDoc, boolean needAuth) throws IOException, ProtocolException, PageBarNotFoundException;
 
 }

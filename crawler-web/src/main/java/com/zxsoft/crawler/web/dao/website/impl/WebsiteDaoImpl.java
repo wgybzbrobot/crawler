@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thinkingcloud.framework.util.StringUtils;
 import org.thinkingcloud.framework.web.utils.HibernateCallbackUtil;
 import org.thinkingcloud.framework.web.utils.Page;
+
+import com.zxsoft.crawler.entity.Auth;
 import com.zxsoft.crawler.entity.Website;
 import com.zxsoft.crawler.web.dao.website.WebsiteDao;
 
@@ -72,6 +74,32 @@ public class WebsiteDaoImpl  implements WebsiteDao {
 	@Override
     public Website getWebsite(String id) {
 		return hibernateTemplate.get(Website.class, id);
+    }
+
+	@Override
+    public List<Auth> getAuths(String id) {
+	    
+	    return hibernateTemplate.find("from Auth a where a.website.id = ?", id);
+    }
+
+	@Override
+    public void addAuth(Auth auth) {
+		if (StringUtils.isEmpty(auth.getId())) {
+			hibernateTemplate.save(auth);
+		} else {
+			hibernateTemplate.saveOrUpdate(auth);
+		}
+    }
+
+	@Override
+    public Auth getAuth(String id) {
+	    return hibernateTemplate.get(Auth.class, id);
+    }
+
+	@Override
+    public void deleteAuth(String id) {
+		Auth auth = hibernateTemplate.get(Auth.class, id);
+	    hibernateTemplate.delete(auth);
     }
 
 	

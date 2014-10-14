@@ -31,12 +31,11 @@ public class Website implements java.io.Serializable {
 	private String id;
 	private String site;
 	private SiteType siteType;
-	private String username;
-	private String password;
 	private String comment;
 	private String region;
 	private String status;
 	private Set<Section> sections = new HashSet<Section>(0);
+	private Set<Auth> auths = new HashSet<Auth>(0);
 
 	public Website() {
 	}
@@ -47,12 +46,10 @@ public class Website implements java.io.Serializable {
 		this.comment = comment;
 	}
 
-	public Website(String site, SiteType siteType, String username, String password,
+	public Website(String site, SiteType siteType, 
 	        String comment, String region, Set<Section> sections) {
 		this.site = site;
 		this.siteType = siteType;
-		this.username = username;
-		this.password = password;
 		this.comment = comment;
 		this.region = region;
 		this.sections = sections;
@@ -89,24 +86,6 @@ public class Website implements java.io.Serializable {
 		this.siteType = siteType;
 	}
 
-	@Column(name = "username", length = 100)
-	public String getUsername() {
-		return this.username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	@Column(name = "password", length = 100)
-	public String getPassword() {
-		return this.password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
 	@Column(name = "comment", nullable = false, length = 100)
 	public String getComment() {
 		return this.comment;
@@ -141,6 +120,15 @@ public class Website implements java.io.Serializable {
 
 	public void setSections(Set<Section> sections) {
 		this.sections = sections;
+	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "website")
+	public Set<Auth> getAuths() {
+		return auths;
+	}
+
+	public void setAuths(Set<Auth> auths) {
+		this.auths = auths;
 	}
 
 }

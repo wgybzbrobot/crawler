@@ -19,7 +19,7 @@ public class HttpClientPageHelperTest {
 	@Test
 	public void testLoadLastPage() throws IOException, PageBarNotFoundException {
 		Document currentDoc = Jsoup.connect("http://tieba.baidu.com/p/3171682576").get();
-		ProtocolOutput protocolOutput = httpClient.getProtocolOutputOfLastPage(currentDoc);
+		ProtocolOutput protocolOutput = httpClient.getProtocolOutputOfLastPage(currentDoc, false);
 		Assert.notNull(protocolOutput);
 		Assert.notNull(protocolOutput.getDocument());
 		Assert.isTrue(protocolOutput.getDocument().location().matches("http://tieba.baidu.com/p/3171682576\\?pn=\\d+"));
@@ -28,7 +28,7 @@ public class HttpClientPageHelperTest {
 	@Test
 	public void testLoadPrevPage() throws IOException, PrevPageNotFoundException, PageBarNotFoundException {
 		Document currentDoc = Jsoup.connect("http://tieba.baidu.com/p/3171682576?pn=3").get();
-		ProtocolOutput protocolOutput = httpClient.getProtocolOutputOfPrevPage(3, currentDoc);
+		ProtocolOutput protocolOutput = httpClient.getProtocolOutputOfPrevPage(3, currentDoc, false);
 		Assert.notNull(protocolOutput);
 		Assert.notNull(protocolOutput.getDocument());
 		Assert.isTrue(protocolOutput.getDocument().location().equals("http://tieba.baidu.com/p/3171682576?pn=2"));
@@ -37,7 +37,7 @@ public class HttpClientPageHelperTest {
 	@Test
 	public void testLoadNextPage() throws IOException, PageBarNotFoundException {
 		Document currentDoc = Jsoup.connect("http://tieba.baidu.com/p/3171682576").get();
-		ProtocolOutput protocolOutput = httpClient.getProtocolOutputOfNextPage(1, currentDoc);
+		ProtocolOutput protocolOutput = httpClient.getProtocolOutputOfNextPage(1, currentDoc, false);
 		Assert.notNull(protocolOutput);
 		Assert.notNull(protocolOutput.getDocument());
 		Assert.isTrue(protocolOutput.getDocument().location().equals("http://tieba.baidu.com/p/3171682576?pn=2"));

@@ -48,26 +48,21 @@ public final class NetworkSearchParserController extends ParseTool {
 		
 		String keyword = page.getKeyword();
 		Assert.notNull(keyword);
-		
-		/*String engineUrl = confDao.getSearchEngine(page.getEngineId());
-		if (StringUtils.isEmpty(engineUrl)) {
-			throw new NullPointerException("Cannot get Engine from id:" + page.getEngineId());
-		}*/
 		String engineUrl = page.getBaseUrl();
-		
 		String indexUrl = String.format(engineUrl, URLEncoder.encode(keyword, "UTF-8"));
 		
 		ListConf listConf = confDao.getListConf(engineUrl);
-		
 		if (listConf == null) {
-			throw new NullPointerException("ListConf is null:" + page.getBaseUrl());
+			throw new NullPointerException("没有找到版块地址是" + page.getBaseUrl() + "的ConfList配置");
 		}
+		
+		boolean needAuth = listConf.isAuth();
 		
 		FetchStatus status = new FetchStatus(indexUrl);
 		
 		String listDom = listConf.getListdom();
 		if (StringUtils.isEmpty(listDom)) {
-			LOG.error("列表DOM没有配置,无法获取列表信息" + indexUrl);
+			LOG.error("列表DOM没有配置,无法获取列表信息:" + indexUrl);
 			status.setUrl(indexUrl);
 			status.setStatus(Status.CONF_ERROR);
 			status.setMessage("列表DOM没有配置,无法获取列表信息");
@@ -75,6 +70,7 @@ public final class NetworkSearchParserController extends ParseTool {
 		}
 		
 		if (listConf.isAuth()) { // need login
+			
 		}
 		
 		boolean ajax = listConf.isAjax();
@@ -156,7 +152,7 @@ public final class NetworkSearchParserController extends ParseTool {
             }
 			
 			 // 翻页
-			ProtocolOutput ptemp = fetchNextPage(pageNum.get(), document, ajax);
+			ProtocolOutput ptemp = fetchNextPage(pageNum.get(), document, ajax, needAuth);
 			if (ptemp ==null || !ptemp.getStatus().isSuccess()) {
 				LOG.debug("No next page, exit.");
 				break;

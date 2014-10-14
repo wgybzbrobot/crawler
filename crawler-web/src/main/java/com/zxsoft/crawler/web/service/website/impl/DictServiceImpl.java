@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.zxsoft.crawler.entity.Category;
+import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.entity.SiteType;
 import com.zxsoft.crawler.web.dao.website.DictDao;
 import com.zxsoft.crawler.web.service.website.DictService;
@@ -24,6 +25,11 @@ public class DictServiceImpl implements DictService {
 	@Override
     public List<SiteType> getSiteTypes() {
 	    return dictDao.getSiteTypes();
+    }
+
+	@Override
+    public List<ConfList> getSearchEngines() {
+	    return dictDao.getSearchEngines();
     }
 
 }

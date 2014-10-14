@@ -11,10 +11,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.restlet.Context;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,21 +31,32 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.zxsoft.crawler.api.Params;
+import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.master.MasterPath;
 import com.zxsoft.crawler.slave.SlavePath;
 import com.zxsoft.crawler.web.service.crawler.JobService;
 import com.zxsoft.crawler.web.service.crawler.SlaveService;
 import com.zxsoft.crawler.web.service.crawler.impl.JobServiceImpl;
 import com.zxsoft.crawler.web.service.crawler.impl.SlaveServiceImpl;
+import com.zxsoft.crawler.web.service.website.DictService;
 
 @Controller
 @RequestMapping(MasterPath.SLAVE_RESOURCE_PATH)
 public class SlaveController {
 
 	private static Logger LOG = LoggerFactory.getLogger(SlaveController.class);
-
+	
+	private SlaveService slaveService = new SlaveServiceImpl();
+	
+	@Autowired
+	private DictService dictService;
+	
 	@RequestMapping(method = RequestMethod.GET)
 	public String index(Model model) {
+		
+		List<ConfList> engines = dictService.getSearchEngines();
+		model.addAttribute("engines", engines);
+		
 		Map<String, Object> map = new HashMap<String, Object>();
 		try {
 			map.put("slaves", slaveService.slaves());
@@ -64,8 +77,6 @@ public class SlaveController {
 
 		return "/crawler/list";
 	}
-
-	SlaveService slaveService = new SlaveServiceImpl();
 
 	/**
 	 * 加载更多
@@ -135,12 +146,17 @@ public class SlaveController {
 		if (!"running".equals(state) && !"history".equals(state)) {
 			return null;
 		}
+		
+		model.addAttribute("state", state);
+		model.addAttribute("ip", ip);
+		model.addAttribute("port", port);
 
 		Callable<String> callable = new Callable<String>() {
 			public String call() throws Exception {
 				String url = "http://" + ip + ":" + port + "/" + SlavePath.PATH + "/"
 				        + SlavePath.JOB_RESOURCE_PATH + "?state=" + state;
-				ClientResource client = new ClientResource(url);
+				ClientResource client = new ClientResource(new Context(), url);
+				client.getContext().getParameters().set("socketTimeout",String.valueOf(1000));
 				Representation representation = null;
 				String text = "";
 				try {

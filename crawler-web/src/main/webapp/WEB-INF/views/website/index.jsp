@@ -78,21 +78,10 @@
 					<div>
 						<label class="form-label" for="sitetype">网站类型(访问哪个代理)</label> <select class="easyui-validatebox form-input"
 							name="sitetype">
-							<!-- <option value="001">类型001</option>
-							<option value="002">类型002</option>
-							<option value="003">类型003</option> -->
 							<c:forEach items="${siteTypes}" var="siteType">
 								<option value="${siteType.type}">${siteType.comment}</option>
 							</c:forEach>
 						</select>
-					</div>
-					<div>
-						<label class="form-label" for="username">用户名</label> <input class="easyui-validatebox form-input" type="text"
-							name="username" />
-					</div>
-					<div>
-						<label class="form-label" for="password">密码</label> <input class="easyui-validatebox form-input" type="text"
-							name="password" />
 					</div>
 					<div>
 						<input class="form-btn" type="button" onclick="return submitForm();" value="保存" />
@@ -125,11 +114,9 @@
 				            <a href="#" id="${web.id}" class="moreinfo linkbutton" >编辑</a>
 				            <c:choose>
 				            	<c:when test="${web.status eq 'close'}">
-				            		<!-- <a href="javascript:void(0);" class="usestatus linkbutton">启用</a> -->
 				            		<span style="font-size: 6px; ">已禁用</span>
 				            	</c:when>
 				            	<c:otherwise>
-						            <!-- <a href="javascript:void(0);" class="usestatus linkbutton">禁用</a> -->
 						            <span style="font-size: 6px; ">已启用</span>
 				            	</c:otherwise>
 				            </c:choose>

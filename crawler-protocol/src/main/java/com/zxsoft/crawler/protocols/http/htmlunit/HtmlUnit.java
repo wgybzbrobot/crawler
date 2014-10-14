@@ -69,7 +69,7 @@ public class HtmlUnit extends HttpBase {
 	/**
 	 * Configure request body and send request.
 	 */
-	private HtmlPage makeRequest(URL url) throws FailingHttpStatusCodeException, IOException {
+	private HtmlPage makeRequest(URL url, boolean needAuth) throws FailingHttpStatusCodeException, IOException {
 		setUp();
 
 		WebRequest request = new WebRequest(url);
@@ -94,6 +94,10 @@ public class HtmlUnit extends HttpBase {
 					request.setSocksProxy(false);
 			}
 		}
+		if (needAuth) {
+			
+		}
+		
 		htmlPage = client.getPage(request);
 //		LOG.debug(htmlPage.asText());
 		return htmlPage;
@@ -153,10 +157,10 @@ public class HtmlUnit extends HttpBase {
 	 * @param url 当前页url地址
 	 */
 	@Override
-	public Response getResponse(URL url , boolean followRedirects)
+	public Response getResponse(URL url , boolean needAuth)
 	        throws ProtocolException, IOException {
 		try {
-			htmlPage = makeRequest(url);
+			htmlPage = makeRequest(url, needAuth);
 //			LOG.debug(htmlPage.asText());
 			processResponse();
 		} finally {
@@ -173,14 +177,14 @@ public class HtmlUnit extends HttpBase {
 	 * 加载上一页
 	 */
 	@Override
-	protected Response loadPrevPage(int pageNum, Document currentDoc) throws IOException, PageBarNotFoundException {
+	protected Response loadPrevPage(int pageNum, Document currentDoc, boolean needAuth) throws IOException, PageBarNotFoundException {
 		setUp();
 		String urlStr = currentDoc.location();
 		// URL url = null;
 		if (htmlPage == null) {
 			try {
 				url = new URL(urlStr);
-				htmlPage = makeRequest(url);
+				htmlPage = makeRequest(url, needAuth);
 			} catch (FailingHttpStatusCodeException | IOException e) {
 				e.printStackTrace();
 				return null;
@@ -226,13 +230,13 @@ public class HtmlUnit extends HttpBase {
 	 * 加载下一页
 	 */
 	@Override
-	protected Response loadNextPage(int pageNum, Document currentDoc) throws IOException, PageBarNotFoundException {
+	protected Response loadNextPage(int pageNum, Document currentDoc, boolean needAuth) throws IOException, PageBarNotFoundException {
 		setUp();
 		String urlStr = currentDoc.location();
 //		if (htmlPage == null || !urlStr.equals(htmlPage.getUrl().toExternalForm())) {
 			try {
 				url = new URL(urlStr);
-				htmlPage = makeRequest(url);
+				htmlPage = makeRequest(url, needAuth);
 			} catch (FailingHttpStatusCodeException | IOException e) {
 				e.printStackTrace();
 				return null;
@@ -274,7 +278,7 @@ public class HtmlUnit extends HttpBase {
 		}
 		if (nextAnchor != null) {
 			if (NetUtils.isUrl(newUrl)) {
-				htmlPage = makeRequest(new URL(newUrl));
+				htmlPage = makeRequest(new URL(newUrl), needAuth);
 			} else {
 				htmlPage = nextAnchor.click();
 //				nextUrl = htmlPage.getUrl().toExternalForm();
@@ -295,13 +299,13 @@ public class HtmlUnit extends HttpBase {
 	 * 加载最后一页
 	 */
 	@Override
-	protected Response loadLastPage(Document currentDoc) throws IOException, PageBarNotFoundException {
+	protected Response loadLastPage(Document currentDoc, boolean needAuth) throws IOException, PageBarNotFoundException {
 		setUp();
 		String urlStr = currentDoc.location();
 		if (htmlPage == null) {
 			try {
 				url = new URL(urlStr);
-				htmlPage = makeRequest(url);
+				htmlPage = makeRequest(url, needAuth);
 			} catch (FailingHttpStatusCodeException | IOException e) {
 				e.printStackTrace();
 				return null;

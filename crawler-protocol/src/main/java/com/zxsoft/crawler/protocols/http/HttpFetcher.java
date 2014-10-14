@@ -74,25 +74,25 @@ public class HttpFetcher {
 		}
 	}
 	
-	public ProtocolOutput fetchNextPage(int pageNum, Document currentDoc, boolean ajax) throws PageBarNotFoundException {
+	public ProtocolOutput fetchNextPage(int pageNum, Document currentDoc, boolean ajax, boolean needAuth) throws PageBarNotFoundException {
 		if (!ajax) {
-			return httpClient.getProtocolOutputOfNextPage(pageNum, currentDoc);
+			return httpClient.getProtocolOutputOfNextPage(pageNum, currentDoc, needAuth);
 		} else {
-			return htmlUnit.getProtocolOutputOfNextPage(pageNum, currentDoc);
+			return htmlUnit.getProtocolOutputOfNextPage(pageNum, currentDoc, needAuth);
 		}
 	}
-	public ProtocolOutput fetchPrevPage(int pageNum, Document currentDoc, boolean ajax) throws PrevPageNotFoundException, PageBarNotFoundException {
+	public ProtocolOutput fetchPrevPage(int pageNum, Document currentDoc, boolean ajax, boolean needAuth) throws PrevPageNotFoundException, PageBarNotFoundException {
 		if (!ajax) {
-			return httpClient.getProtocolOutputOfPrevPage(pageNum, currentDoc);
+			return httpClient.getProtocolOutputOfPrevPage(pageNum, currentDoc, needAuth);
 		} else {
-			return htmlUnit.getProtocolOutputOfPrevPage(pageNum, currentDoc);
+			return htmlUnit.getProtocolOutputOfPrevPage(pageNum, currentDoc, needAuth);
 		}
 	}
-	public ProtocolOutput fetchLastPage(Document currentDoc, boolean ajax) throws PageBarNotFoundException {
+	public ProtocolOutput fetchLastPage(Document currentDoc, boolean ajax, boolean needAuth) throws PageBarNotFoundException {
 		if (!ajax) {
-			return httpClient.getProtocolOutputOfLastPage(currentDoc);
+			return httpClient.getProtocolOutputOfLastPage(currentDoc, needAuth);
 		} else {
-			return htmlUnit.getProtocolOutputOfLastPage(currentDoc);
+			return htmlUnit.getProtocolOutputOfLastPage(currentDoc, needAuth);
 		}
 	}
 	

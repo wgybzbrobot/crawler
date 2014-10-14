@@ -60,7 +60,6 @@ li {
 	color: #008000;
 }
 
-
 .slave-li {
 	position: relative;
 	height: 58px;
@@ -78,7 +77,6 @@ li {
 .slave-li a {
 	color: #ffffff;
 }
-
 
 .form-wrapper {
 	display: none;
@@ -149,8 +147,8 @@ li {
 	border: none;
 }
 
-.form-wrapper-center form > div {
-	margin: 3px 0;	
+.form-wrapper-center form>div {
+	margin: 3px 0;
 	padding: 3px 0;
 }
 
@@ -214,4 +212,26 @@ a:active,a:hover {
 .saveMsg {
 	padding: 5px;
 	font-size: 12px;
+}
+
+.right-promotion {
+	border: 1px solid #C2DFAB;
+	width: 270px;
+	display: block;
+	right: 23px;
+	position: fixed;
+	overflow: hidden;
+	top: 5px;
+	min-height: 100px;
+	text-align: center;
+}
+
+.right-promotion-title {
+	background-color: #E1EFD6;
+	color: #333;
+	font-size: 13px;
+	padding-left: 18px;
+	height: 35px;
+	line-height: 35px;
+	font-weight: 700;
 }

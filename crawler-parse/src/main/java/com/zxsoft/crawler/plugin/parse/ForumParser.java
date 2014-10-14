@@ -41,6 +41,7 @@ public class ForumParser extends Parser {
 	private ThreadLocal<String> rule = new ThreadLocal<String>() { protected String initialValue() { return "";}};
 	private ThreadLocal<Long> interval = new ThreadLocal<Long>();
 	private ThreadLocal<Boolean> ajax = new ThreadLocal<Boolean>();
+	private ThreadLocal<Boolean> auth = new ThreadLocal<Boolean>();
 	private ThreadLocal<List<RecordInfo>> threadLocalRecordInfos = new ThreadLocal<List<RecordInfo>>() {
 		protected List<RecordInfo> initialValue() {
 			return new LinkedList<RecordInfo>();
@@ -60,6 +61,7 @@ public class ForumParser extends Parser {
 		mainUrl.set(page.getBaseUrl());
 		interval.set(page.getPrevFetchTime());
 		ajax.set(page.isAjax());
+		auth.set(page.isAuth());
 		threadLocalRecordInfos.set(new LinkedList<RecordInfo>());
 		threadLocalDetailConf.set(confDao.getDetailConf(page.getListUrl(), Utils.getHost(mainUrl.get())));
 		
@@ -172,7 +174,7 @@ public class ForumParser extends Parser {
 					break;
 				}
 				pageNum++;
-				ptemp = fetchNextPage(pageNum, doc, ajax.get());
+				ptemp = fetchNextPage(pageNum, doc, ajax.get(), auth.get());
 				if (ptemp == null || ptemp.getStatus().getCode() != STATUS_CODE.SUCCESS)
 					break;
 				doc = ptemp.getDocument();
@@ -181,7 +183,7 @@ public class ForumParser extends Parser {
 
 		} else { // fetch from last page
 			// jump to last page
-			ptemp = fetchLastPage(doc, ajax.get());
+			ptemp = fetchLastPage(doc, ajax.get(), auth.get());
 			Document lastDoc = null;
 			if (ptemp == null || ptemp.getStatus().getCode() != STATUS_CODE.SUCCESS || (lastDoc = ptemp.getDocument()) == null ) {
 				parsePage(page, doc, mainUrl.get(), currentUrl);
@@ -196,7 +198,7 @@ public class ForumParser extends Parser {
 						break;
 					}
 					// 获取上一页
-					ptemp = fetchPrevPage(-1, doc, ajax.get());
+					ptemp = fetchPrevPage(-1, doc, ajax.get(), auth.get());
 					if (ptemp == null || ptemp.getStatus().getCode() != STATUS_CODE.SUCCESS)
 						break;
 					doc = ptemp.getDocument();

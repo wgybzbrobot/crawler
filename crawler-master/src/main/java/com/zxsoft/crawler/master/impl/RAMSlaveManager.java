@@ -14,6 +14,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.restlet.Client;
+import org.restlet.Context;
+import org.restlet.Request;
+import org.restlet.data.Protocol;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.thinkingcloud.framework.util.Assert;
@@ -30,9 +34,6 @@ import com.zxsoft.crawler.slave.SlavePath;
 import com.zxsoft.crawler.storage.WebPage.JOB_TYPE;
 
 public class RAMSlaveManager implements SlaveManager {
-//	int CAPACITY = 100;
-//	ThreadPoolExecutor exec = new MyPoolExecutor(10, CAPACITY, 1, TimeUnit.HOURS,
-//	        new ArrayBlockingQueue<Runnable>(CAPACITY));
 
 	private class MyPoolExecutor extends ThreadPoolExecutor {
 		public MyPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
@@ -98,7 +99,16 @@ public class RAMSlaveManager implements SlaveManager {
 
 		public SlaveStatus call() throws Exception {
 			String url = "http://" + machine.getIp() + ":" + machine.getPort() + "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH;
-			ClientResource client = new ClientResource(url);
+			
+			Client cli = new Client(Protocol.HTTP);
+			cli.setConnectTimeout(1000);
+			
+			ClientResource client = new ClientResource(new Context(), url);
+			
+			client.setNext(cli);
+			client.setRetryAttempts(0);
+			client.getContext().getParameters().add("socketTimeout",String.valueOf(1000));
+			
 			Representation representation = null;
 			SlaveStatus slaveStatus = null;
 			try {

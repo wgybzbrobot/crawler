@@ -50,7 +50,7 @@ public class HtmlUnitTest {
 		Assert.notNull(protocolOutput);
 		Document currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
-		protocolOutput = htmlUnit.getProtocolOutputOfLastPage(currentDoc);
+		protocolOutput = htmlUnit.getProtocolOutputOfLastPage(currentDoc, false);
 		Assert.notNull(protocolOutput);
 		currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
@@ -70,13 +70,13 @@ public class HtmlUnitTest {
 //		LOG.debug(currentDoc.html());
 		
 		LOG.debug("=================================");
-		protocolOutput = htmlUnit.getProtocolOutputOfNextPage(1, currentDoc);
+		protocolOutput = htmlUnit.getProtocolOutputOfNextPage(1, currentDoc, false);
 		currentDoc = protocolOutput.getDocument();
 		LOG.debug("2:" + currentDoc.location());
 //		LOG.debug(currentDoc.html());
 		
 		LOG.debug("=================================");
-		protocolOutput = htmlUnit.getProtocolOutputOfNextPage(2, currentDoc);
+		protocolOutput = htmlUnit.getProtocolOutputOfNextPage(2, currentDoc, false);
 		currentDoc = protocolOutput.getDocument();
 		LOG.debug("3:" + currentDoc.location());
 		LOG.debug(currentDoc.html());
@@ -89,7 +89,7 @@ public class HtmlUnitTest {
 		Document currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
 		
-		protocolOutput = htmlUnit.getProtocolOutputOfPrevPage(2, currentDoc);
+		protocolOutput = htmlUnit.getProtocolOutputOfPrevPage(2, currentDoc, false);
 		Assert.notNull(protocolOutput);
 		currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);

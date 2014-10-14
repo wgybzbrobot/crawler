@@ -1,23 +1,16 @@
 package com.zxsoft.crawler;
 
-import java.net.SocketException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
-import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.parse.FetchStatus;
-import com.zxsoft.crawler.parse.NetworkInspectParserController;
 import com.zxsoft.crawler.parse.NetworkSearchParserController;
 import com.zxsoft.crawler.parse.ParserNotFoundException;
-import com.zxsoft.crawler.protocol.ProtocolOutput;
-import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.WebPage;
 
 /**
@@ -25,6 +18,7 @@ import com.zxsoft.crawler.storage.WebPage;
  */
 public class NetworkSearchJob extends CrawlTool /*implements CrawlJob*/ {
 
+    private static final long serialVersionUID = -79033832898281550L;
 	private static Logger LOG = LoggerFactory.getLogger(NetworkSearchJob.class);
 
 	public NetworkSearchJob() {}

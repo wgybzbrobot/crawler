@@ -7,8 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.thinkingcloud.framework.web.utils.Page;
 
-import com.zxsoft.crawler.entity.ConfDetail;
-import com.zxsoft.crawler.entity.ConfList;
+import com.zxsoft.crawler.entity.Auth;
 import com.zxsoft.crawler.entity.Website;
 
 @Repository
@@ -23,5 +22,16 @@ public interface WebsiteDao {
 	Website getWebsite(String site);
 	void addWebsite(Website website);
 	void addWebsites(List<Website> websites);
+
+	/**
+	 * @param id webiste id
+	 */
+	List<Auth> getAuths(String id);
 	
+	/**
+	 * @param id auth id
+	 */
+	Auth getAuth(String id);
+	void addAuth(Auth auth);
+	void deleteAuth(String id);
 }

@@ -38,6 +38,7 @@
 		<property name="suffix" value=".jsp" /><!--可为空,方便实现自已的依据扩展名来选择视图解释类的逻辑 -->
 		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
 	</bean>
+	
 	<mvc:view-controller path="/" view-name="default" />
 
 	<mvc:default-servlet-handler />

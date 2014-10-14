@@ -45,6 +45,7 @@ public class TieBaParser extends Parser {
 	private ThreadLocal<String> rule = new ThreadLocal<String>() { protected String initialValue() { return "";}};
 	private ThreadLocal<Long> interval = new ThreadLocal<Long>();
 	private ThreadLocal<Boolean> ajax = new ThreadLocal<Boolean>();
+	private ThreadLocal<Boolean> auth = new ThreadLocal<Boolean>();
 	private ThreadLocal<List<RecordInfo>> threadLocalRecordInfos = new ThreadLocal<List<RecordInfo>>() {
 		protected List<RecordInfo> initialValue() {
 			return new LinkedList<RecordInfo>();
@@ -63,6 +64,7 @@ public class TieBaParser extends Parser {
 		mainUrl.set(page.getBaseUrl());
 		interval.set(page.getInterval());
 		ajax.set(page.isAjax());
+		auth.set(page.isAuth());
 		threadLocalRecordInfos.set(new LinkedList<RecordInfo>());
 		threadLocalDetailConf.set(confDao.getDetailConf(page.getListUrl(), Utils.getHost(mainUrl.get())));
 
@@ -189,7 +191,7 @@ public class TieBaParser extends Parser {
 				}
 				// 获取下一页
 				pageNum++;
-				ProtocolOutput ptemp = fetchNextPage(pageNum, doc, ajax.get());
+				ProtocolOutput ptemp = fetchNextPage(pageNum, doc, ajax.get(), auth.get());
 				if (ptemp == null || !ptemp.getStatus().isSuccess()) {
 					break;
 				}
@@ -199,7 +201,7 @@ public class TieBaParser extends Parser {
 
 		} else { // fetch from last page
 			// jump to last page
-			ProtocolOutput ptemp = fetchLastPage(doc, ajax.get());
+			ProtocolOutput ptemp = fetchLastPage(doc, ajax.get(), auth.get());
 			Document lastDoc = null;
 			if (ptemp == null || (lastDoc = ptemp.getDocument()) == null) {
 				parsePage(page, doc, currentUrl);
@@ -217,7 +219,7 @@ public class TieBaParser extends Parser {
 				}
 				// 获取上一页
 //				LOG.info(doc.location());
-				ProtocolOutput potemp = fetchPrevPage(-1, doc, ajax.get());
+				ProtocolOutput potemp = fetchPrevPage(-1, doc, ajax.get(), auth.get());
 				if (potemp == null || !potemp.getStatus().isSuccess()) {
 					break;
 				}

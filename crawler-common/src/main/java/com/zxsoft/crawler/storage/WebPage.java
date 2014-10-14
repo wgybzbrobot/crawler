@@ -31,6 +31,8 @@ public class WebPage implements Serializable {
 	
 	private String title;
 	private boolean ajax;
+	private boolean auth;
+	
 	/**
 	 * 网站类型
 	 * @see Proxy
@@ -80,6 +82,14 @@ public class WebPage implements Serializable {
 	}
 	
 	
+	public boolean isAuth() {
+		return auth;
+	}
+
+	public void setAuth(boolean auth) {
+		this.auth = auth;
+	}
+
 	public String getListUrl() {
 		return listUrl;
 	}

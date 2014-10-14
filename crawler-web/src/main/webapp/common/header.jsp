@@ -56,16 +56,15 @@ $(function() {
 		</div>
 		<div id="navigation">
 			<ul>
-				<li><a id="website" href="javascript:void(0);">网站配置</a></li>
+				<li><a id="website" href="<c:url value='/website' />" onclick="return false;">网站配置</a></li>
 				<li>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</li>
-				<li><a id="slaves" href="javascript:void(0);">爬虫监控</a></li>
+				<li><a id="slaves" href="<c:url value='/slaves' />" onclick="return false;">爬虫监控</a></li>
 				<li>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</li>
-				<li><a id="proxy" href="javascript:void(0);">代理配置</a></li>
+				<li><a id="proxy" href="proxy" onclick="return false;">代理配置</a></li>
 				<li>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</li>
-				<li><a id="help" href="javascript:void(0);">帮助</a></li>
+				<li><a id="help" href="help" onclick="return false;">帮助</a></li>
 			</ul>
 		</div>
 	</header>
-	<!-- <div style="margin-top: 120px;"></div> -->
 </body>
 </html>

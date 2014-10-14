@@ -30,7 +30,7 @@ public class ConfDao extends BaseDao {
 		if (objectCache.getObject(host) != null) {
 			return (List<Account>) objectCache.getObject(host);
 		} else {
-			List<Account> list = jdbcTemplate.query("select * from " + TABLE_ACCOUNT
+			List<Account> list = jdbcTemplate.query("select * from " + TABLE_AUTH
 			        + " where host = ?", new Object[] { host }, new RowMapper<Account>() {
 				@Override
 				public Account mapRow(ResultSet rs, int rowNum) throws SQLException {

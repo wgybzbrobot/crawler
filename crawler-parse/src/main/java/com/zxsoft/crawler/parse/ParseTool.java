@@ -42,9 +42,9 @@ public abstract class ParseTool {
 	/**
 	 * 获取上一页
 	 */
-	protected ProtocolOutput fetchPrevPage(int pageNum, Document currentDoc, boolean ajax) {
+	protected ProtocolOutput fetchPrevPage(int pageNum, Document currentDoc, boolean ajax, boolean needAuth) {
 		try {
-			return httpFetcher.fetchPrevPage(pageNum, currentDoc, ajax);
+			return httpFetcher.fetchPrevPage(pageNum, currentDoc, ajax, needAuth);
 		} catch (PrevPageNotFoundException e) {
 			LOG.debug("Cannot get preview page of " + currentDoc.location()
 			        + ", may be it has no preview page.");
@@ -61,9 +61,9 @@ public abstract class ParseTool {
 	/**
 	 * 获取下一页
 	 */
-	protected ProtocolOutput fetchNextPage(int pageNum, Document currentDoc, boolean ajax) {
+	protected ProtocolOutput fetchNextPage(int pageNum, Document currentDoc, boolean ajax, boolean needAuth) {
 		try {
-			return httpFetcher.fetchNextPage(pageNum, currentDoc, ajax);
+			return httpFetcher.fetchNextPage(pageNum, currentDoc, ajax, needAuth);
 		} catch (PageBarNotFoundException e) {
 			LOG.debug("Cannot get Next page of " + currentDoc.location() + ", may be it has no next page.");
 		}
@@ -76,9 +76,9 @@ public abstract class ParseTool {
 	/**
 	 * 获取最后页
 	 */
-	protected ProtocolOutput fetchLastPage(Document currentDoc, boolean ajax) {
+	protected ProtocolOutput fetchLastPage(Document currentDoc, boolean ajax, boolean needAuth) {
 		try {
-			return httpFetcher.fetchLastPage(currentDoc, ajax);
+			return httpFetcher.fetchLastPage(currentDoc, ajax, needAuth);
 		} catch (PageBarNotFoundException e) {
 			LOG.debug("Cannot get last page of " + currentDoc.location() + ", may be it has no last page.");
 		}

@@ -57,6 +57,8 @@ public final class NetworkInspectParserController extends ParseTool {
 			throw new NullPointerException("没有列表页配置:" + page.getBaseUrl());
 		}
 		
+		boolean needAuth = listConf.isAuth();
+		
 		FetchStatus status = new FetchStatus(indexUrl);
 		
 		ParserFactory factory = new ParserFactory();
@@ -156,6 +158,7 @@ public final class NetworkInspectParserController extends ParseTool {
 				WebPage wp = new WebPage(title, curl, outputTemp.getFetchtime(), doctemp);
 				wp.setInterval(page.getInterval());
 				wp.setListUrl(indexUrl);
+				wp.setAuth(needAuth);
 				
 				try {
 					ParseCallable pc = new ParseCallable(parser, wp);
@@ -192,7 +195,7 @@ public final class NetworkInspectParserController extends ParseTool {
 			if (!continuePage.get()) {
 				break;
 			} else { // 翻页
-				ProtocolOutput ptemp = fetchNextPage(pageNum.get(), document, ajax);
+				ProtocolOutput ptemp = fetchNextPage(pageNum.get(), document, ajax, needAuth);
 				if (ptemp ==null || !ptemp.getStatus().isSuccess()) {
 					LOG.debug("No next page, exit.");
 					break;

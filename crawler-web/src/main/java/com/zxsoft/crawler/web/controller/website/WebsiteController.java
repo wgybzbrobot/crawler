@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mvc.extensions.ajax.AjaxUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.zxsoft.crawler.entity.Auth;
 import com.zxsoft.crawler.entity.SiteType;
 import com.zxsoft.crawler.entity.Website;
 import com.zxsoft.crawler.web.service.website.DictService;
@@ -45,10 +48,8 @@ public class WebsiteController {
 		List<SiteType> siteTypes = dictService.getSiteTypes();
 		model.addAttribute("siteTypes", siteTypes);
 		
-		return "index";
+		return "website/index";
 	}
-
-
 
 	/**
 	 * 加载更多网站
@@ -74,15 +75,11 @@ public class WebsiteController {
 	        @RequestParam(value = "comment", required = false) String comment,
 	        @RequestParam(value = "sitetype", required = false) String type,
 	        @RequestParam(value = "region", required = false) String region,
-	        @RequestParam(value = "status", required = false) String status,
-	        @RequestParam(value = "username", required = false) String username,
-	        @RequestParam(value = "password", required = false) String password, Model model) {
+	        @RequestParam(value = "status", required = false) String status,  Model model) {
 
 		SiteType siteType = new SiteType(type);
 		Website website = new Website(site, siteType, comment);
 		website.setId(id);
-		website.setUsername(username);
-		website.setPassword(password);
 		website.setRegion(region);
 		website.setStatus(status);
 		websiteServiceImpl.save(website);
@@ -104,9 +101,55 @@ public class WebsiteController {
 		map.put("region", website.getRegion());
 		map.put("status", website.getStatus());
 		map.put("sitetype", website.getSiteType().getType());
-		map.put("username", website.getUsername());
-		map.put("password", website.getPassword());
 		return map;
 	}
 
+	
+	/*
+	 * Auth
+	 */
+	
+	
+	@RequestMapping(value = "auth/{id}", method = RequestMethod.GET)
+	public String auth(@PathVariable(value = "id") String id, Model model) {
+		Assert.hasLength(id);
+		
+		List<Auth> auths = websiteServiceImpl.getAuths(id);
+		model.addAttribute("auths", auths);
+		return "website/auth";
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "auth/add", method = RequestMethod.POST)
+	public String addAuth(@ModelAttribute("auth") Auth auth, Model model) {
+		Assert.notNull(auth);
+		websiteServiceImpl.saveAuth(auth);
+		return "success";
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "auth/info/{id}", method = RequestMethod.GET)
+	public Map<String, Object> loadAuthInfo(@PathVariable(value = "id") String id, Model model) {
+		Assert.hasLength(id);
+		Auth auth = websiteServiceImpl.getAuth(id);
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("id", auth.getId());
+		map.put("username", auth.getUsername());
+		map.put("password", auth.getPassword());
+		map.put("website.id", auth.getWebsite().getId());
+		
+		return map;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "auth/delete/{id}", method = RequestMethod.GET)
+	public String deleteAuth(@PathVariable(value = "id") String id, Model model) {
+		Assert.hasLength(id);
+		websiteServiceImpl.deleteAuth(id);
+		return "success";
+	}
+	
+	
+	
 }
