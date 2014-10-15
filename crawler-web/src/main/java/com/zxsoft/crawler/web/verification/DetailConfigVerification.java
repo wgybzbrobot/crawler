@@ -41,7 +41,7 @@ public class DetailConfigVerification extends ParseTool {
 		List<Map<String, String>> errors = new LinkedList<Map<String, String>>();
 		ProtocolOutput protocolOutput = fetch(testUrl, false);
 		Document document = null;
-		if (protocolOutput == null || !protocolOutput.getStatus().isSuccess()) {
+		if (protocolOutput == null || protocolOutput.getDocument() == null || !protocolOutput.getStatus().isSuccess()) {
 			Map<String, String> error = new HashMap<String, String>();
 			error.put("field", "url");
 			error.put("msg", "连接失败");

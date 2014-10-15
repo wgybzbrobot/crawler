@@ -1,9 +1,15 @@
 package com.zxsoft.crawler.web.dao.website.impl;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hibernate.HibernateException;
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,6 +17,7 @@ import org.thinkingcloud.framework.util.StringUtils;
 import org.thinkingcloud.framework.web.utils.HibernateCallbackUtil;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.entity.Section;
 import com.zxsoft.crawler.web.dao.website.SectionDao;
 
@@ -63,10 +70,34 @@ public class SectionDaoImpl implements SectionDao {
 			hibernateTemplate.saveOrUpdate(section);
 		}
     }
+	
+	
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
 
 	@Override
     public void delete(String id) {
 		Section section = hibernateTemplate.get(Section.class, id);
+		
+		final String url = section.getUrl();
+		ConfList confList = hibernateTemplate.get(ConfList.class, url);
+		if (confList != null)
+			hibernateTemplate.delete(confList);
+
+		
+		jdbcTemplate.update("delete from conf_detail  where listurl = ?", new Object[]{url});
+		
+		/*hibernateTemplate.execute(new HibernateCallback<Integer>() {
+            public Integer doInHibernate(Session session) throws HibernateException, SQLException {
+            	Transaction tx = session.beginTransaction();
+            	SQLQuery query = session.createSQLQuery("delete ConfDetail c where c.id.listurl = :listurl");    
+                query.setString("listurl", url); 
+                int count = query.executeUpdate();
+                tx.commit();
+                return count;
+            }
+		});*/
+		
 	    hibernateTemplate.delete(section);
     }
 

@@ -63,10 +63,10 @@
 			},
 			success : function(data) {
 				if (data == 'success') {
-					$('#savemessage').text('保存成功, 3秒后自动刷新页面');
+					$('#savemessage').text('保存成功, 1秒后自动刷新页面');
 					setTimeout(function() {
 						location.reload();
-					}, 3000);
+					}, 1000);
 				} else if (data == 'NoConfList'){
 					$('#savemessage').text('列表页没有配置，不能复制规则');
 				} else if (data == 'NoAccess') {

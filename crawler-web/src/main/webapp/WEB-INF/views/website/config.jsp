@@ -77,12 +77,15 @@
 		});
 		
 		$("#saveConfList").click(function() {
-			$('#loading').show();
 			$('#conflist').form('submit', {
 				url: 'config/addListConf',
 				onSubmit:function(param) {
 					console.log('validate');
-					return $(this).form('enableValidation').form('validate');
+					var valid = $(this).form('enableValidation').form('validate');
+					if (valid == true) {
+						$('#loading').show();
+					}
+					return valid;
 				},
 				success : function(data) {
 					$('#loading').hide();
@@ -199,31 +202,13 @@
 			            });
 					} else {
 						$.messager.show({
-			                title:'保存失败', msg:'配置有误,保存失败', timeout:4000, showType:'show',
+			                title:'保存失败', msg:'配置有误,保存失败', timeout:5000, showType:'show',
 			                style:{ right:'', top:document.body.scrollTop+document.documentElement.scrollTop, bottom:''}
 			            });
 					}
 				}
 			});
 		});
-		
-		/* $('#content').on('click', '#addMoreDetailConf',function() {
-			var id = $('div.conf-panel:nth-last-child(3)').find('form[id^=confdetail]').attr('id');
-			var num = parseInt(id.substring(10, id.length)) + 1;
-			$('div.conf-panel:last').find('form[id^=confdetail]').attr('id', 'confdetail'+num);
-			$('div.conf-panel:last').show();
-			var title = $('div.conf-panel:nth-last-child(3)').find('div.panel-header > div.panel-title').text();
-			title = parseInt(title.substring(5, title.length)) + 1;
-			title = '详细页配置' +  title;
-			console.log(title);
-			$('div.conf-panel:last').find('div.panel-header > div.panel-title').text(title);
-			
-			$('div.conf-panel:last').find('a[id^=testConfDetail]').attr('id', 'testConfDetail' + num);
-			$('div.conf-panel:last').find('a[id^=saveConfDetail]').attr('id', 'saveConfDetail' + num);
-			$('div').find('span.textbox:eq(0)').siblings('span.textbox').remove();
-			$('div.conf-panel:last').find('#confdetail' + num).form('clear');
-			
-		}); */
 	});
 </script>
 </head>

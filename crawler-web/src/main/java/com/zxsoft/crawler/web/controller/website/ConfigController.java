@@ -114,13 +114,6 @@ public class ConfigController {
 	@RequestMapping(value = "saveDetailConf", method = RequestMethod.POST)
 	public Map<String, Object> saveDetailConf(ConfDetail detailConf, String testUrl, String oldHost) {
 		Map<String, Object> map = detailConfigVerification.verify(detailConf, testUrl);
-
-		/*if (CollectionUtils.isEmpty(errors)) { 
-			configService.add(detailConf, oldHost);
-			map.put("msg", "success");
-		} else {
-			map.put("msg", "failure");
-		}*/
 		configService.add(detailConf, oldHost);
 		map.put("msg", "success");
 		
