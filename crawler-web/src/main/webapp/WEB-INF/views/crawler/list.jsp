@@ -10,14 +10,15 @@
 <link href="<c:url value="/resources/index.css" />" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
 function addInspectJob() {
+	$('div.form-wrapper-center form').form('clear');
 	$('#addInspectJobDialog').show();
 }
 function addSearchJob() {
+	$('div.form-wrapper-center form').form('clear');
 	$('#addSearchJobDialog').show();
 }
 $(function() {
 	$('a.form-wrapper-close').click(function() {
-		$('div.form-wrapper-center form').form('clear');
 		$('div.form-wrapper').hide();
 	});
 	$("#submitInspectJob").click(function(e) {

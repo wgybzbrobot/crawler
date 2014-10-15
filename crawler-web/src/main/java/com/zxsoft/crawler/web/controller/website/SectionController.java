@@ -1,17 +1,15 @@
 package com.zxsoft.crawler.web.controller.website;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.codec.binary.Base64;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.mvc.extensions.ajax.AjaxUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,10 +17,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
-import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.zxsoft.crawler.entity.Account;
 import com.zxsoft.crawler.entity.Category;
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.entity.ConfDetailId;
@@ -76,7 +74,14 @@ public class SectionController {
 	@ResponseBody
 	@RequestMapping(value = "add", method = RequestMethod.POST)
 	public String addOrUpdate(@RequestParam(value = "copy", required = false) String copy,
-	        Section section, Model model) {
+	        Section section, Model model, HttpSession session) {
+		
+		Account account = (Account) session.getAttribute("account");
+		if (account == null) {
+			return "NoAccess";
+		}
+		section.setAccount(account);
+		
 		if ("true".equals(copy)) {
 			Map<String, Object> map = configService.getConfig(section.getId());
 			ConfList confList = (ConfList) map.get("confList");

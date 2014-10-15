@@ -43,9 +43,10 @@
                 	$.ajax({
             			type : 'GET',
             			url : 'section/delete/' + id,
-            			dataType : 'json'
+            			success: function(data) {
+							location.reload();
+            			}
             		});
-					location.reload();
                 }
             });
 		});
