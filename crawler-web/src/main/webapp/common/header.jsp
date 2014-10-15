@@ -56,7 +56,6 @@ $(function() {
 		</div>
 		<div id="navigation">
 			<ul>
-<<<<<<< HEAD
 				<li><a id="website" href="<c:url value='/website' />" onclick="return false;">网站配置</a></li>
 				<li>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</li>
 				<li><a id="slaves" href="<c:url value='/slaves' />" onclick="return false;">爬虫监控</a></li>
@@ -67,18 +66,5 @@ $(function() {
 			</ul>
 		</div>
 	</header>
-=======
-				<li><a id="website" href="javascript:void(0);">网站配置</a></li>
-				<li>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</li>
-				<li><a id="crawler" href="javascript:void(0);">爬虫监控</a></li>
-				<li>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</li>
-				<li><a id="proxy" href="javascript:void(0);">代理配置</a></li>
-				<li>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</li>
-				<li><a id="help" href="javascript:void(0);">帮助</a></li>
-			</ul>
-		</div>
-	</header>
-	<!-- <div style="margin-top: 120px;"></div> -->
->>>>>>> d5111f79183f76bad129b5773eed2f64dd1669f5
 </body>
 </html>
