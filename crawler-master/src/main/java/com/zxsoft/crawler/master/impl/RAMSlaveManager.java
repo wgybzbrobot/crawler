@@ -20,6 +20,8 @@ import org.restlet.Request;
 import org.restlet.data.Protocol;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
 
@@ -35,6 +37,8 @@ import com.zxsoft.crawler.storage.WebPage.JOB_TYPE;
 
 public class RAMSlaveManager implements SlaveManager {
 
+	private static Logger LOG = LoggerFactory.getLogger(RAMSlaveManager.class);
+	
 	private class MyPoolExecutor extends ThreadPoolExecutor {
 		public MyPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
 		        TimeUnit unit, BlockingQueue<Runnable> workQueue) {
@@ -149,7 +153,8 @@ public class RAMSlaveManager implements SlaveManager {
 				ClientResource client = new ClientResource(url);
 				Representation r = client.put(args);
 				try {
-	                r.getText();
+	                String text = r.getText();
+	                LOG.info(text);
                 } catch (IOException e) {
 	                e.printStackTrace();
                 } finally {

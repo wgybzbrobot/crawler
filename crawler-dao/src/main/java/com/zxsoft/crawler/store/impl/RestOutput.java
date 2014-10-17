@@ -91,7 +91,7 @@ public class RestOutput implements Output {
 		
 		if (CollectionUtils.isEmpty(recordInfos)) return 0;
 		
-		if (2 > 1)return 0;
+//		if (2 > 1)return 0;
 		
 		if (StringUtils.isEmpty(recordInfos.get(0).getIp())) {
 			RecordInfo info = recordInfos.get(0);
