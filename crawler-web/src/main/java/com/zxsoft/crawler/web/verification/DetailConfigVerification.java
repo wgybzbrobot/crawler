@@ -21,6 +21,7 @@ import org.thinkingcloud.framework.util.StringUtils;
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.parse.ParseTool;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.CrawlerConfiguration;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
@@ -39,7 +40,8 @@ public class DetailConfigVerification extends ParseTool {
 		Map<String, Object> info = new LinkedHashMap<String, Object>();
 		// info.put("测试页URL", detailConf.getTestUrl());
 		List<Map<String, String>> errors = new LinkedList<Map<String, String>>();
-		ProtocolOutput protocolOutput = fetch(testUrl, false);
+		WebPage page = new WebPage(testUrl, false);
+		ProtocolOutput protocolOutput = fetch(page);
 		Document document = null;
 		if (protocolOutput == null || protocolOutput.getDocument() == null || !protocolOutput.getStatus().isSuccess()) {
 			Map<String, String> error = new HashMap<String, String>();
@@ -146,6 +148,7 @@ public class DetailConfigVerification extends ParseTool {
 						errors.add(error);
 					} else {
 						Elements masterContentEles = masterEles.select(detailConf.getContent());
+						System.out.println(masterEles.html());
 						if (CollectionUtils.isEmpty(masterContentEles)) {
 							Map<String, String> error = new HashMap<String, String>();
 							error.put("field", "content");

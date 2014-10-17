@@ -31,8 +31,10 @@ import org.thinkingcloud.framework.util.StringUtils;
 import com.zxsoft.crawler.metadata.Metadata;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
+import com.zxsoft.crawler.protocols.http.AuthHelper;
 import com.zxsoft.crawler.protocols.http.CookieStore;
 import com.zxsoft.crawler.protocols.http.HttpBase;
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.EncodingDetector;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
@@ -53,7 +55,7 @@ public class HttpClient extends HttpBase {
     }
 	
 	@Override
-	public Response getResponse(URL url, boolean needAuth) throws ProtocolException,
+	public Response getResponse(WebPage page) throws ProtocolException,
 	        IOException {
 		
 		int code = -1;
@@ -82,7 +84,7 @@ public class HttpClient extends HttpBase {
 		reqHeaders.add(new Header("Accept-Charset", acceptCharset));
 		reqHeaders.add(new Header("Accept", accept));
 		reqHeaders.add(new Header("Connection", "keep-alive"));
-		
+		url = new URL(page.getBaseUrl());
 		String cookie = CookieStore.get(NetUtils.getHost(url));
 		if (!StringUtils.isEmpty(cookie)) {
 			reqHeaders.add(new Header("Cookie", cookie));
@@ -113,7 +115,16 @@ public class HttpClient extends HttpBase {
 		methodParams.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 		methodParams.setParameter("http.protocol.cookie-policy",CookiePolicy.BROWSER_COMPATIBILITY);
 		methodParams.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
-		get.setRequestHeader("Cookie", "");
+		
+		
+//		boolean auth = AuthHelper.isAuth(url);
+		if (page.isAuth()) {
+			// get cookie
+			
+			
+			// set auth cookie
+			get.setRequestHeader("Cookie", "");
+		}
 		
 		try {
 			code = client.executeMethod(get);
@@ -239,8 +250,9 @@ public class HttpClient extends HttpBase {
 	}
 	
 	@Override
-	protected Response loadPrevPage(int pageNum, Document currentDoc, boolean needAuth) throws ProtocolException,
+	protected Response loadPrevPage(int pageNum, final WebPage page) throws ProtocolException,
 	        IOException, PrevPageNotFoundException, PageBarNotFoundException {
+		Document currentDoc = page.getDocument();
 		Elements elements = currentDoc.select("a:matchesOwn(上一页|上页|<上一页)");
 		if (!CollectionUtils.isEmpty(elements)) {
 			url = new URL(elements.first().absUrl("href"));
@@ -262,19 +274,28 @@ public class HttpClient extends HttpBase {
 		}
 		if (url != null) {
 //			LOG.info(currentDoc.location() + " Next Page url: " + url.toString());
-			return getResponse(url, needAuth);
+			WebPage np = page;
+			np.setBaseUrl(url.toExternalForm());
+			return getResponse(page);
 		}
 
 		throw new PrevPageNotFoundException("Preview Page Not Found");
 	}
 
 	@Override
-	protected Response loadNextPage(int pageNum, Document currentDoc, boolean needAuth) throws ProtocolException,
+	protected Response loadNextPage(int pageNum, final WebPage page) throws ProtocolException,
 	        IOException, PageBarNotFoundException {
+		Document currentDoc = page.getDocument();
 		Elements elements = currentDoc.select("a:matchesOwn(下一页|下页|下一页>)");
 		if (!CollectionUtils.isEmpty(elements)) {
-			url = new URL(elements.first().absUrl("href"));
-			return getResponse(url, needAuth);
+			WebPage np = page;
+			String next = elements.first().absUrl("href");
+			if (StringUtils.isEmpty(next)) {
+				throw new PageBarNotFoundException();
+			}
+			np.setBaseUrl(next);
+			
+			return getResponse(np);
 		} else {
 			/*
 			 * Find the position of current page url from page bar, get next
@@ -289,9 +310,10 @@ public class HttpClient extends HttpBase {
 					for (int i = 0; i < achors.size(); i++) {
 						if (Utils.isNum(achors.get(i).text())
 						        && Integer.valueOf(achors.get(i).text().trim()) == pageNum + 1) {
-							url = new URL(achors.get(i).absUrl("href"));
 //							LOG.info(currentDoc.location() + "Prev Page url: " + url.toString());
-							return getResponse(url,needAuth);
+							WebPage np = page;
+							np.setBaseUrl(achors.get(i).absUrl("href"));
+							return getResponse(np);
 						}
 					}
 				}
@@ -301,11 +323,13 @@ public class HttpClient extends HttpBase {
 	}
 
 	@Override
-	protected Response loadLastPage(Document currentDoc, boolean needAuth) throws ProtocolException, IOException, PageBarNotFoundException {
+	protected Response loadLastPage(WebPage page) throws ProtocolException, IOException, PageBarNotFoundException {
+		Document currentDoc = page.getDocument();
 		Elements lastEles = currentDoc.select("a:matchesOwn(尾页|末页|最后一页)");
 		if (!CollectionUtils.isEmpty(lastEles)) {
-			url = new URL(lastEles.first().absUrl("href"));
-			return getResponse(url,needAuth);
+			WebPage np = page;
+			np.setBaseUrl(lastEles.first().absUrl("href"));
+			return getResponse(np);
 		}
 
 		// 1. get all links from page bar
@@ -333,8 +357,9 @@ public class HttpClient extends HttpBase {
 		if (el == null || StringUtils.isEmpty(el.absUrl("href"))) {
 			return null;
 		}
-		url = new URL(el.absUrl("href"));
 //		LOG.info("Last Page url: " + url.toString());
-		return getResponse(url, needAuth);
+		WebPage np = page;
+		np.setBaseUrl(el.absUrl("href"));
+		return getResponse(np);
 	}
 }

@@ -27,4 +27,14 @@ public interface ConfigService {
 	void add(ConfDetail confDetail, String oldHost);
 
 	void add(List<ConfDetail> confDetails);
+
+	/**
+	 * 修改ConfList主键
+	 */
+	void updateConfListKey(String oldUrl, String url);
+
+	/**
+	 * 修改ConfDetail主键
+	 */
+	void updateConfDetailKey(String oldUrl, String url);
 }

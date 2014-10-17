@@ -185,7 +185,6 @@ public class RAMJobManager implements JobManager {
 			this.id = confId + "-" + type + "-" + hashCode();
 			this.type = type;
 			this.args = args;
-//			conf = new Configuration(conf);
 			if (crawlId != null) {
 				conf.set("CRAWL_ID", crawlId);
 				this.id = crawlId + "-" + this.id;
@@ -199,8 +198,6 @@ public class RAMJobManager implements JobManager {
 			}
 			
 			tool = ReflectionUtils.newInstance(clz, conf);
-			
-//			tool.setConf(conf);
 			
 			jobStatus = new JobStatus(id, type, args, State.IDLE, "idle");
 			jobStatus.tool = tool;

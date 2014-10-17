@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
 import org.thinkingcloud.framework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.StringUtils;
 import org.thinkingcloud.framework.web.utils.Page;
 
 import com.zxsoft.crawler.entity.Account;
@@ -74,7 +75,7 @@ public class SectionController {
 	@ResponseBody
 	@RequestMapping(value = "add", method = RequestMethod.POST)
 	public String addOrUpdate(@RequestParam(value = "copy", required = false) String copy,
-	        Section section, Model model, HttpSession session) {
+	        Section section, String oldUrl, Model model, HttpSession session) {
 		
 		Account account = (Account) session.getAttribute("account");
 		if (account == null) {
@@ -105,6 +106,12 @@ public class SectionController {
 			configService.add(confDetails);
 		} else {
 			sectionService.saveOrUpdate(section);
+			if (!StringUtils.isEmpty(section.getId())) { //修改
+				if (!section.getUrl().equals(oldUrl)) {
+					configService.updateConfListKey(oldUrl, section.getUrl());
+					configService.updateConfDetailKey(oldUrl, section.getUrl());
+				}
+			}
 		}
 		
 		return "success";

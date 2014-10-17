@@ -18,6 +18,7 @@ import com.zxsoft.crawler.protocol.ProtocolStatus;
 import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.protocols.http.htmlunit.HtmlUnit;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClient;
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 
@@ -43,10 +44,10 @@ public class HttpFetcher {
 		return httpClient.post(url, data);
 	}
 	
-	public ProtocolOutput fetch(String url, boolean ajax) {
+	public ProtocolOutput fetch(WebPage page) {
 		
 		ProtocolOutput protocolOutput = new ProtocolOutput();
-		
+		String url = page.getBaseUrl();
 		if (StringUtils.isEmpty(url) || !url.matches("^(https|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
 			LOG.error("Error: not match url regular expression: " + url);
 			ProtocolStatus status = new ProtocolStatus();
@@ -57,10 +58,10 @@ public class HttpFetcher {
 		}
 		
 		try {
-		if (ajax) {
-			protocolOutput = htmlUnit.getProtocolOutput(url);
+		if (page.isAjax()) {
+			protocolOutput = htmlUnit.getProtocolOutput(page);
 		} else {
-			protocolOutput = httpClient.getProtocolOutput(url);
+			protocolOutput = httpClient.getProtocolOutput(page);
 		}
 		} catch (ProtocolException e) {
 			String msg = "Fetch " + url + " failed with the following error:" + e.getMessage();
@@ -74,30 +75,30 @@ public class HttpFetcher {
 		}
 	}
 	
-	public ProtocolOutput fetchNextPage(int pageNum, Document currentDoc, boolean ajax, boolean needAuth) throws PageBarNotFoundException {
-		if (!ajax) {
-			return httpClient.getProtocolOutputOfNextPage(pageNum, currentDoc, needAuth);
+	public ProtocolOutput fetchNextPage(int pageNum, WebPage page) throws PageBarNotFoundException {
+		if (!page.isAjax()) {
+			return httpClient.getProtocolOutputOfNextPage(pageNum, page);
 		} else {
-			return htmlUnit.getProtocolOutputOfNextPage(pageNum, currentDoc, needAuth);
+			return htmlUnit.getProtocolOutputOfNextPage(pageNum, page);
 		}
 	}
-	public ProtocolOutput fetchPrevPage(int pageNum, Document currentDoc, boolean ajax, boolean needAuth) throws PrevPageNotFoundException, PageBarNotFoundException {
-		if (!ajax) {
-			return httpClient.getProtocolOutputOfPrevPage(pageNum, currentDoc, needAuth);
+	public ProtocolOutput fetchPrevPage(int pageNum, WebPage page) throws PrevPageNotFoundException, PageBarNotFoundException {
+		if (!page.isAjax()) {
+			return httpClient.getProtocolOutputOfPrevPage(pageNum, page);
 		} else {
-			return htmlUnit.getProtocolOutputOfPrevPage(pageNum, currentDoc, needAuth);
+			return htmlUnit.getProtocolOutputOfPrevPage(pageNum, page);
 		}
 	}
-	public ProtocolOutput fetchLastPage(Document currentDoc, boolean ajax, boolean needAuth) throws PageBarNotFoundException {
-		if (!ajax) {
-			return httpClient.getProtocolOutputOfLastPage(currentDoc, needAuth);
+	public ProtocolOutput fetchLastPage(WebPage page) throws PageBarNotFoundException {
+		if (!page.isAjax()) {
+			return httpClient.getProtocolOutputOfLastPage(page);
 		} else {
-			return htmlUnit.getProtocolOutputOfLastPage(currentDoc, needAuth);
+			return htmlUnit.getProtocolOutputOfLastPage(page);
 		}
 	}
 	
 	
-	public ProtocolOutput fetch(String url) {
-		return fetch(url, false);
-	}
+//	public ProtocolOutput fetch(String url) {
+//		return fetch(url, false);
+//	}
 }

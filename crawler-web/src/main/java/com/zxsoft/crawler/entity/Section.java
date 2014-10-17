@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -31,6 +32,8 @@ public class Section implements java.io.Serializable {
 	private Category category;
 	private String comment;
 	private String status;
+	
+//	private ConfList confList;
 
 	public Section() {
 	}
@@ -124,4 +127,14 @@ public class Section implements java.io.Serializable {
 		this.status = status;
 	}
 
+//	@OneToOne(fetch = FetchType.LAZY,mappedBy = "url")
+//	public ConfList getConfList() {
+//		return confList;
+//	}
+//
+//	public void setConfList(ConfList confList) {
+//		this.confList = confList;
+//	}
+
+	
 }

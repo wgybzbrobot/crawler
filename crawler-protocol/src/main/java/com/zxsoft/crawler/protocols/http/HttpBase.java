@@ -23,6 +23,7 @@ import com.zxsoft.crawler.protocol.ProtocolStatusUtils;
 import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.protocols.http.htmlunit.HtmlUnit;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClient;
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PageHelper;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
@@ -106,15 +107,15 @@ public abstract class HttpBase extends PageHelper {
 	/** Get ProtocolOutput of current, prev, next, last page 
 	 * @throws IOException 
 	 * @throws ProtocolException **/
-	public ProtocolOutput getProtocolOutput(String url) throws ProtocolException, IOException {
-		URL u = new URL(url);
-		Response response = getResponse(u , false); 
+	public ProtocolOutput getProtocolOutput(WebPage page) throws ProtocolException, IOException {
+//		URL u = new URL(url);
+		Response response = getResponse(page); 
 		return dealResponse(response);
 	}
 	
-	public ProtocolOutput getProtocolOutputOfPrevPage(int pageNum, Document currentDoc, boolean needAuth) throws PrevPageNotFoundException, PageBarNotFoundException {
+	public ProtocolOutput getProtocolOutputOfPrevPage(int pageNum, WebPage page) throws PrevPageNotFoundException, PageBarNotFoundException {
         try {
-        	Response response = loadPrevPage(pageNum, currentDoc, needAuth);
+        	Response response = loadPrevPage(pageNum, page);
 	        return dealResponse(response); 
         } catch(PrevPageNotFoundException e) { 
         	throw e;
@@ -122,31 +123,31 @@ public abstract class HttpBase extends PageHelper {
         	throw e;
         } catch (Throwable e) {
         	LOG.error("Failed with the following error: ", e);
-        	return new ProtocolOutput(new ProtocolStatus(currentDoc.location(), STATUS_CODE.FAILED, e.getMessage()));
+        	return new ProtocolOutput(new ProtocolStatus(page.getDocument().location(), STATUS_CODE.FAILED, e.getMessage()));
         }
 	}
 	
-	public ProtocolOutput getProtocolOutputOfNextPage(int pageNum, Document currentDoc, boolean needAuth) throws PageBarNotFoundException {
+	public ProtocolOutput getProtocolOutputOfNextPage(int pageNum, WebPage page) throws PageBarNotFoundException {
 		try {
-			Response response = loadNextPage(pageNum, currentDoc, needAuth);
+			Response response = loadNextPage(pageNum, page);
 			return dealResponse(response); 
 		} catch(PageBarNotFoundException e) { 
         	throw e;
         } catch (Throwable e) {
 			LOG.error("Failed with the following error: ", e);
-			return new ProtocolOutput(new ProtocolStatus(currentDoc.location(), STATUS_CODE.FAILED, e.getMessage()));
+			return new ProtocolOutput(new ProtocolStatus(page.getDocument().location(), STATUS_CODE.FAILED, e.getMessage()));
 		}
 	}
 
-	public ProtocolOutput getProtocolOutputOfLastPage(Document currentDoc, boolean needAuth) throws PageBarNotFoundException {
+	public ProtocolOutput getProtocolOutputOfLastPage(WebPage page) throws PageBarNotFoundException {
 		try {
-			Response response = loadLastPage(currentDoc, needAuth);
+			Response response = loadLastPage(page);
 			return dealResponse(response); 
 		} catch(PageBarNotFoundException e) { 
         	throw e;
         }  catch (Throwable e) {
 			LOG.error("Failed with the following error: ", e);
-			return new ProtocolOutput(new ProtocolStatus(currentDoc.location(), STATUS_CODE.FAILED, e.getMessage()));
+			return new ProtocolOutput(new ProtocolStatus(page.getDocument().location(), STATUS_CODE.FAILED, e.getMessage()));
 		}
 	}
 	/** End get ProtocolOutput of current, prev, next, last page **/
@@ -305,10 +306,15 @@ public abstract class HttpBase extends PageHelper {
 
 	public abstract Response postForResponse(URL url, NameValuePair[] data) throws IOException;
 	
-	public abstract Response getResponse(URL url,
-	        boolean needAuth) throws ProtocolException, IOException;
-	protected abstract Response loadPrevPage(int pageNum, Document currentDoc, boolean needAuth) throws IOException, ProtocolException, PrevPageNotFoundException, PageBarNotFoundException;
-	protected abstract Response loadNextPage(int pageNum, Document currentDoc, boolean needAuth) throws IOException, ProtocolException, PageBarNotFoundException;
-	protected abstract Response loadLastPage(Document currentDoc, boolean needAuth) throws IOException, ProtocolException, PageBarNotFoundException;
+	
+	/**
+	 * @param page 包含url, auth, website
+	 * URL url,
+	        boolean needAuth, String webiste
+	 */
+	public abstract Response getResponse(WebPage page) throws ProtocolException, IOException;
+	protected abstract Response loadPrevPage(int pageNum, final WebPage page) throws IOException, ProtocolException, PrevPageNotFoundException, PageBarNotFoundException;
+	protected abstract Response loadNextPage(int pageNum, final WebPage page) throws IOException, ProtocolException, PageBarNotFoundException;
+	protected abstract Response loadLastPage(final WebPage page) throws IOException, ProtocolException, PageBarNotFoundException;
 
 }

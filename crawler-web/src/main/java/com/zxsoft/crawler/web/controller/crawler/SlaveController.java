@@ -46,13 +46,14 @@ public class SlaveController {
 
 	private static Logger LOG = LoggerFactory.getLogger(SlaveController.class);
 	
-	private SlaveService slaveService = new SlaveServiceImpl();
 	
 	@Autowired
 	private DictService dictService;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String index(Model model) {
+
+		SlaveService slaveService = new SlaveServiceImpl();
 		
 		List<ConfList> engines = dictService.getSearchEngines();
 		model.addAttribute("engines", engines);
@@ -85,6 +86,8 @@ public class SlaveController {
 	@RequestMapping(value = "list", method = RequestMethod.GET)
 	public Map<String, Object> slaves() {
 
+		SlaveService slaveService = new SlaveServiceImpl();
+		
 		Map<String, Object> map = new HashMap<String, Object>();
 		try {
 			map.put("slaves", slaveService.slaves());

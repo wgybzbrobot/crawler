@@ -21,6 +21,7 @@ import org.thinkingcloud.framework.util.StringUtils;
 import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.parse.ParseTool;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.CrawlerConfiguration;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
@@ -57,7 +58,8 @@ public class ListConfigVerification extends ParseTool {
             }
 			testurl = listConf.getUrl().replace("%s", keyword);
 		}
-		ProtocolOutput protocolOutput = fetch(testurl, listConf.getAjax());
+		WebPage page = new WebPage(testurl, false);
+		ProtocolOutput protocolOutput = fetch(page);
 		Document document = null;
 
 		if (protocolOutput == null || !protocolOutput.getStatus().isSuccess()) {

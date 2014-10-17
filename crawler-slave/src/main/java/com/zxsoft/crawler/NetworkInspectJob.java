@@ -26,27 +26,23 @@ public class NetworkInspectJob extends CrawlTool {
 	
 	@Override
     public Map<String, Object> run(Map<String, Object> args) throws Exception {
+		Configuration conf = getConf();
 		
 		String url = (String) args.get(Params.URL);
 		String urlType = (String) args.get(Params.URL_TYPE);
-		
-//		numJobs = 1;
-//		currentJob = new CrawlJob(getConf(), "NetworkInsecpt");
-		
-		Configuration conf = getConf();
-		
-		long interval = conf.getLong("fetch.interval", 60 * 60 * 1000L);
-		
+		long prevFetchTime = 0;
 		try {
-			interval = Long.valueOf(args.get(Params.Interval).toString());
-		} catch (ClassCastException | NullPointerException e) {
-		}
+			prevFetchTime = (long) args.get(Params.PREV_FETCH_TIME);
+		} catch(NullPointerException e) {
+			prevFetchTime = System.currentTimeMillis() - 48 * 60 * 60 * 1000/*conf.getLong("fetch.interval", 60 * 60 * 1000L)*/;
+			LOG.warn(url + "任务没有上次抓取时间, 将使用程序设定:" + prevFetchTime);
+		} 
 		
 		Map<String, Object> map = new HashMap<String, Object>(); 
 		map.put("url", url);
 		try {
 			NetworkInspectParserController parseUtil = new NetworkInspectParserController(conf);
-			WebPage page = new WebPage(url, urlType, interval);
+			WebPage page = new WebPage(url, urlType, prevFetchTime);
 			FetchStatus status = parseUtil.parse(page);
 			map.put("code", 2001);
 			map.put("count", status.getCount());

@@ -50,10 +50,18 @@ public class NewsParser extends Parser {
 	@Override
 	public FetchStatus parse(WebPage page) throws Exception {
 		Assert.notNull(page, "Page is null");
-		Document document = page.getDocument();
-		Assert.notNull(document, "Document is null");
-
+		
 		FetchStatus status = new FetchStatus(page.getBaseUrl());
+		
+		ProtocolOutput outputTemp = fetch(page); 
+		Document document = null;
+		if (outputTemp == null || (document = outputTemp.getDocument()) == null) {
+			LOG.error("Http protocol get page error ..." + page.getBaseUrl());
+			status.setStatus(Status.PROTOCOL_FAILURE);
+			status.setMessage("Http protocol get page error.");
+			return status;
+		}
+		page.setDocument(document);
 		
 		threadLocalRecordInfos.set(new LinkedList<RecordInfo>());
 		mainUrl.set(page.getBaseUrl());
@@ -95,7 +103,7 @@ public class NewsParser extends Parser {
 	public void fetchContent(WebPage page) /* throws ConnectException */{
 		RecordInfo info = new RecordInfo(page.getTitle(), page.getBaseUrl(), page.getFetchTime());
 
-		ProtocolOutput po = fetch(page.getBaseUrl(), ajax.get());
+		ProtocolOutput po = fetch(page);
 		if (po == null || !po.getStatus().isSuccess()) {
 			return;
 		}
@@ -146,6 +154,7 @@ public class NewsParser extends Parser {
 			info.setRead_count(Integer.valueOf(reviewNum));
 		}
 
+		info.setId(Md5Signatrue.generateMd5(info.getUrl()));
 		threadLocalRecordInfos.get().add(info);
 
 	}

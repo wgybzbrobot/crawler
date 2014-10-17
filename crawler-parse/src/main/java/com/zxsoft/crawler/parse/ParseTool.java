@@ -13,6 +13,7 @@ import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.ProtocolStatus;
 import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.store.Output;
 import com.zxsoft.crawler.store.impl.RestOutput;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
@@ -35,56 +36,56 @@ public abstract class ParseTool {
 		indexWriter = new RestOutput(conf);
 	}
 	
-	protected ProtocolOutput fetch(String url, boolean ajax) {
-	    return httpFetcher.fetch(url, ajax);
+	protected ProtocolOutput fetch(WebPage page) {
+	    return httpFetcher.fetch(page);
     }
 	
 	/**
 	 * 获取上一页
 	 */
-	protected ProtocolOutput fetchPrevPage(int pageNum, Document currentDoc, boolean ajax, boolean needAuth) {
+	protected ProtocolOutput fetchPrevPage(int pageNum, WebPage page) {
 		try {
-			return httpFetcher.fetchPrevPage(pageNum, currentDoc, ajax, needAuth);
+			return httpFetcher.fetchPrevPage(pageNum, page);
 		} catch (PrevPageNotFoundException e) {
-			LOG.debug("Cannot get preview page of " + currentDoc.location()
+			LOG.debug("Cannot get preview page of " + page.getBaseUrl()
 			        + ", may be it has no preview page.");
 		} catch (PageBarNotFoundException e) {
-			LOG.debug("Cannot get page bar of " + currentDoc.location()
+			LOG.debug("Cannot get page bar of " + page.getBaseUrl()
 			        + ", may be it has no page bar.");
 		}
 		ProtocolStatus status = new ProtocolStatus();
 		status.setCode(STATUS_CODE.FAILED);
-		status.setMessage("Cannot get preview page of " + currentDoc.location() + ", may be it has no preview page.");
+		status.setMessage("Cannot get preview page of " + page.getBaseUrl() + ", may be it has no preview page.");
 		return new ProtocolOutput(null, status);
 	}
 
 	/**
 	 * 获取下一页
 	 */
-	protected ProtocolOutput fetchNextPage(int pageNum, Document currentDoc, boolean ajax, boolean needAuth) {
+	protected ProtocolOutput fetchNextPage(int pageNum, WebPage page) {
 		try {
-			return httpFetcher.fetchNextPage(pageNum, currentDoc, ajax, needAuth);
+			return httpFetcher.fetchNextPage(pageNum, page);
 		} catch (PageBarNotFoundException e) {
-			LOG.debug("Cannot get Next page of " + currentDoc.location() + ", may be it has no next page.");
+			LOG.debug("Cannot get Next page of " + page.getBaseUrl() + ", may be it has no next page.");
 		}
 		ProtocolStatus status = new ProtocolStatus();
 		status.setCode(STATUS_CODE.FAILED);
-		status.setMessage("Cannot get Next page of " + currentDoc.location() + ", may be it has no next page.");
+		status.setMessage("Cannot get Next page of " + page.getBaseUrl() + ", may be it has no next page.");
 		return new ProtocolOutput(null, status);
 	}
 
 	/**
 	 * 获取最后页
 	 */
-	protected ProtocolOutput fetchLastPage(Document currentDoc, boolean ajax, boolean needAuth) {
+	protected ProtocolOutput fetchLastPage(WebPage page) {
 		try {
-			return httpFetcher.fetchLastPage(currentDoc, ajax, needAuth);
+			return httpFetcher.fetchLastPage(page);
 		} catch (PageBarNotFoundException e) {
-			LOG.debug("Cannot get last page of " + currentDoc.location() + ", may be it has no last page.");
+			LOG.debug("Cannot get last page of " + page.getBaseUrl() + ", may be it has no last page.");
 		}
 		ProtocolStatus status = new ProtocolStatus();
 		status.setCode(STATUS_CODE.FAILED);
-		status.setMessage("Cannot get last page of " + currentDoc.location() + ", may be it has no last page.");
+		status.setMessage("Cannot get last page of " + page.getBaseUrl() + ", may be it has no last page.");
 		return new ProtocolOutput(null, status);
 	}
 

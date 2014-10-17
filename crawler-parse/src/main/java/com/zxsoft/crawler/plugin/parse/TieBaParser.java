@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,7 +25,6 @@ import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
-import com.zxsoft.crawler.protocol.ProtocolStatusCodes;
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
@@ -43,7 +41,7 @@ public class TieBaParser extends Parser {
 	
 	private ThreadLocal<String> mainUrl = new ThreadLocal<String>();
 	private ThreadLocal<String> rule = new ThreadLocal<String>() { protected String initialValue() { return "";}};
-	private ThreadLocal<Long> interval = new ThreadLocal<Long>();
+	private ThreadLocal<Long> prevFetchTime = new ThreadLocal<Long>();
 	private ThreadLocal<Boolean> ajax = new ThreadLocal<Boolean>();
 	private ThreadLocal<Boolean> auth = new ThreadLocal<Boolean>();
 	private ThreadLocal<List<RecordInfo>> threadLocalRecordInfos = new ThreadLocal<List<RecordInfo>>() {
@@ -59,16 +57,24 @@ public class TieBaParser extends Parser {
 	
 	public FetchStatus parse(WebPage page) throws Exception {
 		Assert.notNull(page, "Page is null");
-		Document document = page.getDocument();
-		Assert.notNull(document, "Document is null");
+		ProtocolOutput outputTemp = fetch(page); 
+		Document document = null;
 		mainUrl.set(page.getBaseUrl());
-		interval.set(page.getInterval());
+		prevFetchTime.set(page.getPrevFetchTime());
 		ajax.set(page.isAjax());
 		auth.set(page.isAuth());
+		FetchStatus status = new FetchStatus(mainUrl.get());
+		if (outputTemp == null || (document = outputTemp.getDocument()) == null) {
+			LOG.error("Http protocol get page error ..." + page.getBaseUrl());
+			status.setStatus(Status.PROTOCOL_FAILURE);
+			status.setMessage("Http protocol get page error.");
+			return status;
+		}
+		page.setDocument(document);
+		
 		threadLocalRecordInfos.set(new LinkedList<RecordInfo>());
 		threadLocalDetailConf.set(confDao.getDetailConf(page.getListUrl(), Utils.getHost(mainUrl.get())));
 
-		FetchStatus status = new FetchStatus(mainUrl.get());
 		status.setStatus(FetchStatus.Status.PARSING);
 		
 		if (threadLocalDetailConf == null || threadLocalDetailConf.get() == null) {
@@ -82,6 +88,10 @@ public class TieBaParser extends Parser {
 		int num = threadLocalRecordInfos.get().size();
 		try {
 			indexWriter.write(threadLocalRecordInfos.get());
+			LOG.info("size:" + num);
+			for (RecordInfo info : threadLocalRecordInfos.get()) {
+	            LOG.info(info.getNickname() + ": " + info.getContent());
+            }
 		} catch (OutputException e) {
 			status.setStatus(FetchStatus.Status.OUTPUT_FAILURE);
 			status.setMessage(e.getMessage());
@@ -91,7 +101,7 @@ public class TieBaParser extends Parser {
 		LOG.debug(mainUrl.get() + " has " + num + " records.");
 		status.setStatus(Status.SUCCESS);
 		status.setCount(num);
-		status.setMessage("");
+		status.setMessage("完成抓取");
 		return status;
 	}
 
@@ -103,20 +113,11 @@ public class TieBaParser extends Parser {
 	 * @param threadLocalDetailConf
 	 *            详细页配置对象(Object of detail page configuration)
 	 */
-	public void fetchContent(WebPage page) {
-		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl.get(), page.getFetchTime());
-		ProtocolOutput ptemp = fetch(mainUrl.get(), ajax.get());
-		if (ptemp == null || !ptemp.getStatus().isSuccess())
-			return;
-		Document document = ptemp.getDocument();
-		page.setDocument(document);
-		if (document == null)
-			return;
-		if (threadLocalDetailConf == null) {
-			LOG.warn("Detail page has no configuration in database:" + mainUrl);
-			return;
-		}
+	public void fetchContent(final WebPage page) {
+		RecordInfo info = new RecordInfo(page.getTitle(), page.getBaseUrl(), page.getFetchTime());
 
+		Document document = page.getDocument();
+		
 		if (!CollectionUtils.isEmpty(document.select(threadLocalDetailConf.get().getReplyNum()))) {
 			info.setComment_count(Integer.valueOf(document.select(threadLocalDetailConf.get().getReplyNum()).first()
 			        .text()));
@@ -166,6 +167,9 @@ public class TieBaParser extends Parser {
             	LOG.error("Cannot parse date: " + dateField + " in page " + mainUrl.get());
             }
 
+            info.setId(Md5Signatrue.generateMd5(info.getNickname(), info.getContent(),
+			        info.getPic_url(), info.getVoice_url(), info.getVideo_url()));
+			
 			threadLocalRecordInfos.get().add(info);
 			parseReply(page);
 		} else {
@@ -177,10 +181,10 @@ public class TieBaParser extends Parser {
 	/**
 	 * 解析回复
 	 */
-	private void parseReply(WebPage page) {
+	private void parseReply(final WebPage page) {
 		String newPageUrl = "", currentPageText = "1";
 		Document doc = page.getDocument();
-		String currentUrl = mainUrl.get();
+		String currentUrl = mainUrl.get(); // 首页
 
 		if (!threadLocalDetailConf.get().isFetchorder()) { // 从第一页
 			int pageNum = 1;
@@ -191,7 +195,9 @@ public class TieBaParser extends Parser {
 				}
 				// 获取下一页
 				pageNum++;
-				ProtocolOutput ptemp = fetchNextPage(pageNum, doc, ajax.get(), auth.get());
+				WebPage np = page.clone();
+				np.setDocument(doc);
+				ProtocolOutput ptemp = fetchNextPage(pageNum, np);
 				if (ptemp == null || !ptemp.getStatus().isSuccess()) {
 					break;
 				}
@@ -201,10 +207,12 @@ public class TieBaParser extends Parser {
 
 		} else { // fetch from last page
 			// jump to last page
-			ProtocolOutput ptemp = fetchLastPage(doc, ajax.get(), auth.get());
+			WebPage np = page.clone();
+			np.setDocument(doc);
+			ProtocolOutput ptemp = fetchLastPage(np);
 			Document lastDoc = null;
 			if (ptemp == null || (lastDoc = ptemp.getDocument()) == null) {
-				parsePage(page, doc, currentUrl);
+				parsePage(np, doc, currentUrl);
 				return;
 			}
 
@@ -213,13 +221,15 @@ public class TieBaParser extends Parser {
 			while (true) {
 				if (doc == null || StringUtils.isEmpty(currentUrl))
 					break;
-				boolean isContinue = parsePage(page, doc, currentUrl);
+				boolean isContinue = parsePage(np, doc, currentUrl);
 				if (!isContinue) {
 					break;
 				}
 				// 获取上一页
 //				LOG.info(doc.location());
-				ProtocolOutput potemp = fetchPrevPage(-1, doc, ajax.get(), auth.get());
+				np.setDocument(doc);
+				np.setBaseUrl(currentUrl);
+				ProtocolOutput potemp = fetchPrevPage(-1, np);
 				if (potemp == null || !potemp.getStatus().isSuccess()) {
 					break;
 				}
@@ -254,7 +264,7 @@ public class TieBaParser extends Parser {
 			String pid = extractPid(json);
 			info = save(info, element, tid, pid, page); // 保存回复
 			
-			if (info.getTimestamp() != 0 && info.getTimestamp() < System.currentTimeMillis() - interval.get())
+			if (info.getTimestamp() != 0 && info.getTimestamp() < prevFetchTime.get())
 				return false;
 			/*
 			 * 解析子回复
@@ -288,8 +298,6 @@ public class TieBaParser extends Parser {
         	LOG.error("Cannot parse date: " + dateField + " in page " + info.getUrl());
         }
         
-		String id = UUID.randomUUID().toString();
-		info.setId(id);
 		if (!CollectionUtils.isEmpty(element.select(threadLocalDetailConf.get().getReplyAuthor()))) {
 			info.setNickname(element.select(threadLocalDetailConf.get().getReplyAuthor()).first().text());
 		}
@@ -305,7 +313,9 @@ public class TieBaParser extends Parser {
 			info.setVoice_url("http://tieba.baidu.com/voice/index?tid=" + tid + "&pid=" + pid);
 		}
 
-//		recordInfos.add(info);
+		info.setId(Md5Signatrue.generateMd5(info.getNickname(), info.getContent(),
+		        info.getPic_url(), info.getVoice_url(), info.getVideo_url()));
+		
 		threadLocalRecordInfos.get().add(info);
 		return info;
 	}
@@ -314,7 +324,8 @@ public class TieBaParser extends Parser {
 	 * 解析子回复
 	 */
 	private void saveSub(RecordInfo reply, String surl, String tid) {
-		ProtocolOutput ptemp = fetch(surl, ajax.get());
+		WebPage np = new WebPage(surl, ajax.get());
+		ProtocolOutput ptemp = fetch(np);
 		if (ptemp.getStatus().getCode() != STATUS_CODE.SUCCESS){
 			LOG.debug("No Sub reply infomation.");
 			return;
@@ -335,7 +346,8 @@ public class TieBaParser extends Parser {
 			parseSubPage(reply, doc, tid);
 		} else {
 			// jump to last page
-			ptemp = fetch(u, ajax.get());
+			np.setBaseUrl(u);
+			ptemp = fetch(np);
 			while (true) {
 				if (ptemp == null || !ptemp.getStatus().isSuccess())
 					break;
@@ -349,7 +361,8 @@ public class TieBaParser extends Parser {
 				if (newPageUrl == null) {
 					break;
 				}
-				ptemp = fetch(newPageUrl, false);
+				np.setBaseUrl(newPageUrl);
+				ptemp = fetch(np);
 			}
 		}
 	}
@@ -364,8 +377,6 @@ public class TieBaParser extends Parser {
 			return;
 		for (Element element : elements) {
 			RecordInfo reply = _reply.clone();
-			String id = UUID.randomUUID().toString();
-			reply.setId(id);
 
 			String json = element.attr("data-field");
 			String spid = extractSpid(json);
@@ -399,7 +410,9 @@ public class TieBaParser extends Parser {
 		        }
 			}
 
-//			recordInfos.add(reply);
+			reply.setId(Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(),
+					reply.getPic_url(), reply.getVoice_url(), reply.getVideo_url()));
+
 			threadLocalRecordInfos.get().add(reply);
 		}
 	}

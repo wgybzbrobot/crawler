@@ -27,6 +27,7 @@ import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.store.OutputException;
+import com.zxsoft.crawler.util.Md5Signatrue;
 
 /**
  * 解析全网搜索，与网络巡检不同的是不用进入详细页
@@ -47,16 +48,14 @@ public final class NetworkSearchParserController extends ParseTool {
 	public FetchStatus parse(WebPage page) throws ParserNotFoundException, UnsupportedEncodingException, MalformedURLException {
 		
 		String keyword = page.getKeyword();
-		Assert.notNull(keyword);
-		String engineUrl = page.getBaseUrl();
-		String indexUrl = String.format(engineUrl, URLEncoder.encode(keyword, "UTF-8"));
+		String listUrl = page.getListUrl();
+		String indexUrl = String.format(listUrl, URLEncoder.encode(keyword, "UTF-8"));
 		
-		ListConf listConf = confDao.getListConf(engineUrl);
+		
+		ListConf listConf = confDao.getListConf(listUrl);
 		if (listConf == null) {
 			throw new NullPointerException("没有找到版块地址是" + page.getBaseUrl() + "的ConfList配置");
 		}
-		
-		boolean needAuth = listConf.isAuth();
 		
 		FetchStatus status = new FetchStatus(indexUrl);
 		
@@ -75,7 +74,10 @@ public final class NetworkSearchParserController extends ParseTool {
 		
 		boolean ajax = listConf.isAjax();
 		HttpFetcher httpFetcher = new HttpFetcher(conf);
-		ProtocolOutput output = httpFetcher.fetch(indexUrl, ajax);
+		WebPage tempPage = page;
+		tempPage.setBaseUrl(indexUrl);
+		tempPage.setAjax(ajax);
+		ProtocolOutput output = httpFetcher.fetch(tempPage);
 		if (!output.getStatus().isSuccess()) {
 			status.setStatus(Status.PROTOCOL_FAILURE);
 			status.setMessage(output.getStatus().getMessage());
@@ -138,8 +140,10 @@ public final class NetworkSearchParserController extends ParseTool {
 				}*/
 				
 				RecordInfo info = new RecordInfo(title, curl, System.currentTimeMillis());
+				info.setId(Md5Signatrue.generateMd5(curl));
 				info.setIp(ip);
 				info.setTimestamp(date);
+				LOG.info(title);
 				infos.add(info);
 			}
 			
@@ -151,8 +155,11 @@ public final class NetworkSearchParserController extends ParseTool {
 	            LOG.error("无法写数据出去" + e.getMessage(), e);
             }
 			
+			tempPage.setDocument(document);
+			tempPage.setBaseUrl(document.location());
+			
 			 // 翻页
-			ProtocolOutput ptemp = fetchNextPage(pageNum.get(), document, ajax, needAuth);
+			ProtocolOutput ptemp = fetchNextPage(pageNum.get(), tempPage);
 			if (ptemp ==null || !ptemp.getStatus().isSuccess()) {
 				LOG.debug("No next page, exit.");
 				break;

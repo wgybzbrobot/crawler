@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.parse.FetchStatus;
@@ -16,7 +17,7 @@ import com.zxsoft.crawler.storage.WebPage;
 /**
  * 全网搜索
  */
-public class NetworkSearchJob extends CrawlTool /*implements CrawlJob*/ {
+public class NetworkSearchJob extends CrawlTool {
 
     private static final long serialVersionUID = -79033832898281550L;
 	private static Logger LOG = LoggerFactory.getLogger(NetworkSearchJob.class);
@@ -31,10 +32,11 @@ public class NetworkSearchJob extends CrawlTool /*implements CrawlJob*/ {
     public Map<String, Object> run(Map<String, Object> args) throws Exception {
 		
 		String keyword = (String) args.get(Params.KEYWORD);
+		Assert.notNull(keyword);
 		String urlType = (String) args.get(Params.URL_TYPE);
-		String engineUrl = (String) args.get(Params.ENGINE_URL);
+		String listUrl = (String) args.get(Params.ENGINE_URL);
 		
-		WebPage page = new WebPage(keyword, engineUrl, urlType);
+		WebPage page = new WebPage(keyword, listUrl, urlType);
 		
 		Configuration conf = getConf();
 		NetworkSearchParserController parserController = new NetworkSearchParserController(conf);

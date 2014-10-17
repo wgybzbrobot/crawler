@@ -21,12 +21,14 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
 
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.storage.ListConf;
+import com.zxsoft.crawler.storage.Section;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
 
@@ -49,15 +51,14 @@ public final class NetworkInspectParserController extends ParseTool {
 	}
 	
 	public FetchStatus parse(WebPage page) throws ParserNotFoundException {
+		Assert.notNull(page);
 		String indexUrl = page.getBaseUrl();
-		
 		ListConf listConf = confDao.getListConf(indexUrl);
-		
 		if (listConf == null) {
 			throw new NullPointerException("没有列表页配置:" + page.getBaseUrl());
 		}
-		
-		boolean needAuth = listConf.isAuth();
+		page.setAjax(listConf.isAjax());
+		page.setAuth(listConf.isAuth());
 		
 		FetchStatus status = new FetchStatus(indexUrl);
 		
@@ -71,8 +72,9 @@ public final class NetworkInspectParserController extends ParseTool {
 			numThreads = maxThreads;
 		pool = newFixedThreadPool(numThreads);
 		
-		boolean ajax = listConf.isAjax();
-		ProtocolOutput output = fetch(indexUrl, ajax);
+		page.setBaseUrl(indexUrl);
+		page.setListUrl(page.getBaseUrl());
+		ProtocolOutput output = fetch(page);
 		if (!output.getStatus().isSuccess()) {
 			status.setStatus(Status.PROTOCOL_FAILURE);
 			status.setMessage(output.getStatus().getMessage());
@@ -111,8 +113,9 @@ public final class NetworkInspectParserController extends ParseTool {
 				if (!StringUtils.isEmpty(updateDom) && !CollectionUtils.isEmpty(line.select(updateDom))) {
 					try {
 	                    update = Utils.formatDate(line.select(updateDom).first().text());
-	                    if (update.getTime() < System.currentTimeMillis() - page.getInterval()) {
-	                    	status.setMessage("更新时间不在" + page.getInterval() / 1000 / 60 + "分钟内, 停止抓取");
+	                    if (update.getTime() < page.getPrevFetchTime()) {
+	                    	status.setMessage("更新时间在上次抓取时间" + page.getPrevFetchTime() + "之前, 停止抓取");
+	                    	LOG.info("更新时间在上次抓取时间" + page.getPrevFetchTime() + "之前, 停止抓取");
 	                    	continuePage.set(false);
 	                    	break;
 	                    }
@@ -146,19 +149,12 @@ public final class NetworkInspectParserController extends ParseTool {
 				
 				String title = line.select(listConf.getUrldom()).first().text();
 				
-				LOG.debug(title);
-				
-				ProtocolOutput outputTemp = fetch(curl, false/*ajax*/); // detail page use normal load 
-				Document doctemp = null;
-				if (outputTemp == null || (doctemp = outputTemp.getDocument()) == null) {
-					LOG.debug("Http protocol get page error ..." + curl);
-					continue;
-				}
-				
-				WebPage wp = new WebPage(title, curl, outputTemp.getFetchtime(), doctemp);
-				wp.setInterval(page.getInterval());
-				wp.setListUrl(indexUrl);
-				wp.setAuth(needAuth);
+				LOG.info(title);
+				WebPage wp = page.clone();
+				wp.setTitle(title);
+				wp.setBaseUrl(curl);
+				wp.setAjax(false);// detail page use normal load 
+				wp.setDocument(null);
 				
 				try {
 					ParseCallable pc = new ParseCallable(parser, wp);
@@ -182,7 +178,7 @@ public final class NetworkInspectParserController extends ParseTool {
 //	                    if (parseStatus.getStatus() != Status.SUCCESS) {
 	                    	status.setStatus(parseStatus.getStatus());
 //	                    }
-	                    LOG.debug(parseStatus.getUrl() + ":数量(" + parseStatus.getCount() + "):消息 (" + parseStatus.getMessage() + ")");
+	                    LOG.info(parseStatus.getUrl() + ":数量(" + parseStatus.getCount() + "):消息 (" + parseStatus.getMessage() + ")");
 	                    sum.addAndGet(parseStatus.getCount());
                     } catch (ExecutionException e) {
 	                    e.printStackTrace();
@@ -195,7 +191,10 @@ public final class NetworkInspectParserController extends ParseTool {
 			if (!continuePage.get()) {
 				break;
 			} else { // 翻页
-				ProtocolOutput ptemp = fetchNextPage(pageNum.get(), document, ajax, needAuth);
+				WebPage np = page.clone();
+				np.setBaseUrl(document.location());
+				np.setDocument(document);
+				ProtocolOutput ptemp = fetchNextPage(pageNum.get(), np);
 				if (ptemp ==null || !ptemp.getStatus().isSuccess()) {
 					LOG.debug("No next page, exit.");
 					break;
@@ -209,7 +208,7 @@ public final class NetworkInspectParserController extends ParseTool {
 			}
 		}
 		// pool.shutdown();
-		LOG.debug("【" + listConf.getComment() + "】抓取结束, 共抓取数据数量:" + sum.get());
+		LOG.info("【" + listConf.getComment() + "】抓取结束, 共抓取数据数量:" + sum.get());
 //		status.setStatus(FetchStatus.Status.SUCCESS);
 		status.setCount(sum.get());
 		return status;

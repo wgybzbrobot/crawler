@@ -2,9 +2,13 @@ package com.zxsoft.crawler.entity;
 
 // Generated 2014-9-19 17:19:57 by Hibernate Tools 3.4.0.CR1
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -14,6 +18,7 @@ import javax.persistence.Table;
 @Table(name = "conf_list", catalog = "crawler")
 public class ConfList implements java.io.Serializable {
 
+//	private String id;
 	private String url;
 	private String comment;
 	private String category;
@@ -28,6 +33,8 @@ public class ConfList implements java.io.Serializable {
 	private String datedom;
 	private String updatedom;
 	private String synopsisdom;
+	
+//	private Section section;
 
 	public ConfList() {
 	}
@@ -54,6 +61,17 @@ public class ConfList implements java.io.Serializable {
 		this.updatedom = updatedom;
 		this.synopsisdom = synopsisdom;
 	}
+
+//	@Id
+//	@Column(name = "id", unique = true, nullable = false, length = 150)
+//	public String getId() {
+//		return id;
+//	}
+//
+//	public void setId(String id) {
+//		this.id = id;
+//	}
+
 
 	@Id
 	@Column(name = "url", unique = true, nullable = false, length = 150)
@@ -182,4 +200,15 @@ public class ConfList implements java.io.Serializable {
 		this.synopsisdom = synopsisdom;
 	}
 
+//	@OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
+//	@JoinColumn(name = "confList")
+//	public Section getSection() {
+//		return section;
+//	}
+//
+//	public void setSection(Section section) {
+//		this.section = section;
+//	}
+
+	
 }

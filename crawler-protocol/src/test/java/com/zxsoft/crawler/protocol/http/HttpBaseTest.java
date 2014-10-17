@@ -75,13 +75,15 @@ import org.thinkingcloud.framework.util.Assert;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.protocols.http.HttpBase;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClient;
+import com.zxsoft.crawler.storage.WebPage;
 
 public class HttpBaseTest {
 
 	@Test
 	public void testProxy() throws ProtocolException, IOException {
 		HttpBase http = new HttpClient();
-		Document document = http.getProtocolOutput("http://news.sohu.com/scroll/").getDocument();
+		WebPage page = new WebPage("http://news.sohu.com/scroll/", true);
+		Document document = http.getProtocolOutput(page).getDocument();
 		Assert.notNull(document);
 		System.out.println(document.html());
 	}

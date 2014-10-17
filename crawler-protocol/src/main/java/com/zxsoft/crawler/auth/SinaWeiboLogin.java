@@ -25,6 +25,7 @@ import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocols.http.HttpBase;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClient;
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.EncodingDetector;
 
 public class SinaWeiboLogin implements Login {
@@ -80,7 +81,10 @@ public class SinaWeiboLogin implements Login {
 		}
 		if (!StringUtils.isEmpty(ajaxUrl)) {
 			ajaxUrl = ajaxUrl.substring(18, ajaxUrl.length() - 2);
-			Response newResponse = httpClient.getResponse(new URL(ajaxUrl), true);
+			WebPage page = new WebPage();
+			page.setBaseUrl(ajaxUrl);
+			page.setAjax(true);
+			Response newResponse = httpClient.getResponse(page);
 			contentType = response.getHeader(Response.CONTENT_TYPE);
 			charset = EncodingDetector.parseCharacterEncoding(contentType, newResponse.content);
 			String content = new String(newResponse.content, charset);
@@ -135,7 +139,10 @@ public class SinaWeiboLogin implements Login {
 		String preloginUrl = String
 		        .format("http://login.sina.com.cn/sso/prelogin.php?entry=sso&callback=sinaSSOController.preloginCallBack&su=%s&rsakt=mod&client=ssologin.js(v1.4.5)",
 		                name);
-		Response response = httpClient.getResponse(new URL(preloginUrl), true);
+		WebPage page = new WebPage();
+		page.setBaseUrl(preloginUrl);
+		page.setAjax(true);
+		Response response = httpClient.getResponse(page);
 		byte[] content = response.content;
 		URL u = response.url;
 		if (content == null)

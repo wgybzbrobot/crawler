@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thinkingcloud.framework.util.StringUtils;
@@ -63,7 +64,7 @@ public class ConfigServiceImpl implements ConfigService {
 		StringBuilder sb = new StringBuilder();
 		for (String str : strs) {
 			if (str.endsWith("/")) {
-				str = str.substring(0, host.lastIndexOf("/"));
+				str = str.substring(0, str.lastIndexOf("/"));
 			}
 			sb.append(str + " ");
         }
@@ -84,5 +85,18 @@ public class ConfigServiceImpl implements ConfigService {
 	@Override
     public void add(List<ConfDetail> confDetails) {
 	    configDao.addDetailConfs(confDetails);
+    }
+
+	@Autowired
+	private JdbcTemplate  jdbcTemplate;
+	
+	@Override
+    public void updateConfListKey(String oldUrl, String url) {
+		jdbcTemplate.update("update conf_list set url = ? where url = ? ", new Object[]{url, oldUrl});
+    }
+
+	@Override
+    public void updateConfDetailKey(String oldUrl, String url) {
+		jdbcTemplate.update("update conf_detail set listurl = ? where listurl = ? ", new Object[]{url, oldUrl});
     }
 }

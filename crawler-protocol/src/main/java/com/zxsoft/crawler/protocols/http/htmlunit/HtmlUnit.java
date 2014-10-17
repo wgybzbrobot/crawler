@@ -31,6 +31,7 @@ import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocols.http.HttpBase;
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.proxy.Proxy;
@@ -69,9 +70,11 @@ public class HtmlUnit extends HttpBase {
 	/**
 	 * Configure request body and send request.
 	 */
-	private HtmlPage makeRequest(URL url, boolean needAuth) throws FailingHttpStatusCodeException, IOException {
+	private HtmlPage makeRequest(WebPage page) throws FailingHttpStatusCodeException, IOException {
 		setUp();
 
+		url = new URL(page.getBaseUrl());
+		
 		WebRequest request = new WebRequest(url);
 		request.setAdditionalHeader("User-Agent", userAgent);
 		request.setAdditionalHeader("Accept-Language", acceptLanguage);
@@ -94,7 +97,7 @@ public class HtmlUnit extends HttpBase {
 					request.setSocksProxy(false);
 			}
 		}
-		if (needAuth) {
+		if (page.isAuth()) {
 			
 		}
 		
@@ -157,10 +160,10 @@ public class HtmlUnit extends HttpBase {
 	 * @param url 当前页url地址
 	 */
 	@Override
-	public Response getResponse(URL url , boolean needAuth)
+	public Response getResponse(WebPage page)
 	        throws ProtocolException, IOException {
 		try {
-			htmlPage = makeRequest(url, needAuth);
+			htmlPage = makeRequest(page);
 //			LOG.debug(htmlPage.asText());
 			processResponse();
 		} finally {
@@ -177,14 +180,15 @@ public class HtmlUnit extends HttpBase {
 	 * 加载上一页
 	 */
 	@Override
-	protected Response loadPrevPage(int pageNum, Document currentDoc, boolean needAuth) throws IOException, PageBarNotFoundException {
+	protected Response loadPrevPage(int pageNum, WebPage page) throws IOException, PageBarNotFoundException {
 		setUp();
+		Document currentDoc = page.getDocument();
 		String urlStr = currentDoc.location();
 		// URL url = null;
 		if (htmlPage == null) {
 			try {
-				url = new URL(urlStr);
-				htmlPage = makeRequest(url, needAuth);
+//				url = new URL(urlStr);
+				htmlPage = makeRequest(page);
 			} catch (FailingHttpStatusCodeException | IOException e) {
 				e.printStackTrace();
 				return null;
@@ -230,13 +234,14 @@ public class HtmlUnit extends HttpBase {
 	 * 加载下一页
 	 */
 	@Override
-	protected Response loadNextPage(int pageNum, Document currentDoc, boolean needAuth) throws IOException, PageBarNotFoundException {
+	protected Response loadNextPage(int pageNum, WebPage page) throws IOException, PageBarNotFoundException {
 		setUp();
+		Document currentDoc = page.getDocument();
 		String urlStr = currentDoc.location();
 //		if (htmlPage == null || !urlStr.equals(htmlPage.getUrl().toExternalForm())) {
 			try {
 				url = new URL(urlStr);
-				htmlPage = makeRequest(url, needAuth);
+				htmlPage = makeRequest(page);
 			} catch (FailingHttpStatusCodeException | IOException e) {
 				e.printStackTrace();
 				return null;
@@ -278,7 +283,9 @@ public class HtmlUnit extends HttpBase {
 		}
 		if (nextAnchor != null) {
 			if (NetUtils.isUrl(newUrl)) {
-				htmlPage = makeRequest(new URL(newUrl), needAuth);
+				WebPage np = page;
+				np.setBaseUrl(newUrl);
+				htmlPage = makeRequest(np);
 			} else {
 				htmlPage = nextAnchor.click();
 //				nextUrl = htmlPage.getUrl().toExternalForm();
@@ -299,13 +306,13 @@ public class HtmlUnit extends HttpBase {
 	 * 加载最后一页
 	 */
 	@Override
-	protected Response loadLastPage(Document currentDoc, boolean needAuth) throws IOException, PageBarNotFoundException {
+	protected Response loadLastPage(WebPage page) throws IOException, PageBarNotFoundException {
 		setUp();
-		String urlStr = currentDoc.location();
+		String urlStr = page.getDocument().location();
 		if (htmlPage == null) {
 			try {
-				url = new URL(urlStr);
-				htmlPage = makeRequest(url, needAuth);
+//				url = new URL(urlStr);
+				htmlPage = makeRequest(page);
 			} catch (FailingHttpStatusCodeException | IOException e) {
 				e.printStackTrace();
 				return null;

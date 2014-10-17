@@ -14,6 +14,7 @@ import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpBase;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
+import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.CrawlerConfiguration;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
@@ -37,7 +38,8 @@ public class HtmlUnitTest {
 	public void testLoadCurrentPage() throws ProtocolException, IOException {
 //		String url = "http://roll.news.sina.com.cn/s/channel.php";
 		String url = "http://roll.sohu.com/";
-		ProtocolOutput protocolOutput = htmlUnit.getProtocolOutput(url);
+		WebPage page = new WebPage(url, true);
+		ProtocolOutput protocolOutput = htmlUnit.getProtocolOutput(page);
 		Assert.notNull(protocolOutput);
 		Document currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
@@ -46,11 +48,14 @@ public class HtmlUnitTest {
 	
 	@Test
 	public void testLoadLastPage() throws IOException, PageBarNotFoundException {
-		ProtocolOutput protocolOutput = httpFetcher.fetch("http://roll.news.sina.com.cn/s/channel.php", true);
+		ProtocolOutput protocolOutput = httpFetcher.fetch(new WebPage("http://roll.news.sina.com.cn/s/channel.php", true));
 		Assert.notNull(protocolOutput);
 		Document currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
-		protocolOutput = htmlUnit.getProtocolOutputOfLastPage(currentDoc, false);
+		WebPage page = new WebPage();
+		page.setDocument(currentDoc);
+		page.setAjax(false);
+		protocolOutput = htmlUnit.getProtocolOutputOfLastPage(page);
 		Assert.notNull(protocolOutput);
 		currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
@@ -64,19 +69,24 @@ public class HtmlUnitTest {
 //		url = "http://www.sogou.com/web?query=%E5%90%B8%E6%AF%92&repp=1&page=1&&ie=utf8";
 //		url = "http://news.163.com/latest/";
 
-		ProtocolOutput protocolOutput = httpFetcher.fetch(url, true);
+		WebPage page = new WebPage(url, true);
+		ProtocolOutput protocolOutput = httpFetcher.fetch(page);
 		Document currentDoc = protocolOutput.getDocument();
 		LOG.debug("1:" + currentDoc.location());
 //		LOG.debug(currentDoc.html());
 		
 		LOG.debug("=================================");
-		protocolOutput = htmlUnit.getProtocolOutputOfNextPage(1, currentDoc, false);
+		page.setDocument(currentDoc);
+		page.setBaseUrl(currentDoc.location());
+		protocolOutput = htmlUnit.getProtocolOutputOfNextPage(1, page);
 		currentDoc = protocolOutput.getDocument();
 		LOG.debug("2:" + currentDoc.location());
 //		LOG.debug(currentDoc.html());
 		
 		LOG.debug("=================================");
-		protocolOutput = htmlUnit.getProtocolOutputOfNextPage(2, currentDoc, false);
+		page.setDocument(currentDoc);
+		page.setBaseUrl(currentDoc.location());
+		protocolOutput = htmlUnit.getProtocolOutputOfNextPage(2, page);
 		currentDoc = protocolOutput.getDocument();
 		LOG.debug("3:" + currentDoc.location());
 		LOG.debug(currentDoc.html());
@@ -84,12 +94,19 @@ public class HtmlUnitTest {
 	
 	@Test
 	public void testLoadPrevPage() throws IOException, PrevPageNotFoundException, PageBarNotFoundException {
-		ProtocolOutput protocolOutput = httpFetcher.fetch("http://roll.news.sina.com.cn/s/channel.php#col=89&spec=&type=&ch=&k=&offset_page=0&offset_num=0&num=60&asc=&page=2", true);
+		WebPage page = new WebPage("http://roll.news.sina.com.cn/s/channel.php#col=89&spec=&type=&ch=&k=&offset_page=0&offset_num=0&num=60&asc=&page=2", true);
+		
+		
+		ProtocolOutput protocolOutput = httpFetcher.fetch(page);
 		Assert.notNull(protocolOutput);
 		Document currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
 		
-		protocolOutput = htmlUnit.getProtocolOutputOfPrevPage(2, currentDoc, false);
+		page.setDocument(currentDoc);
+		page.setBaseUrl(currentDoc.location());
+		page.setAjax(true);
+		
+		protocolOutput = htmlUnit.getProtocolOutputOfPrevPage(2, page);
 		Assert.notNull(protocolOutput);
 		currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
