@@ -43,6 +43,7 @@ public class NetUtils {
 	 * 获取域名
 	 */
 	public static String getHost(URL url) {
+		if (url == null) return "";
 		return url.getProtocol() + "://" + url.getHost();
 	}
 

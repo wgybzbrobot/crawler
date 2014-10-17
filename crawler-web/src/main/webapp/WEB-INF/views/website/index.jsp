@@ -39,8 +39,12 @@
 				return $(this).form('enableValidation').form('validate');
 			},
 			success : function(data) {
-				if (data == 'success')
-					$('#savemessage').text('保存成功');
+				if (data == 'success') {
+					$('#savemessage').text('保存成功, 2秒后自动刷新页面');
+					setTimeout(function() {
+						location.reload();
+					}, 2000);
+				}
 			}
 		});
 	}

@@ -40,6 +40,7 @@ $(function() {
 			success: function (data) {
 				alert('添加成功');
 				$('div.form-wrapper').hide();
+				location.reload();
 			}
 		});
 	});

@@ -62,10 +62,10 @@ public class RecordInfo implements Serializable, Cloneable {
         }
 	}
     
-	public RecordInfo(String title, String baseUrl, long fetchTime) {
+	public RecordInfo(String title, String url, long fetchTime) {
 	    this.title = title;
 	    this.timestamp = fetchTime;
-	    this.url = baseUrl;
+	    this.url = url;
     }
 
 

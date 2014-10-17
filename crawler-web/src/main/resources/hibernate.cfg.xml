@@ -18,7 +18,5 @@
 		<property name="format_sql">true</property>
 		<property name="show_sql">true</property>
 		<property name="current_session_context_class">thread</property>
-		<!-- <mapping class="com.b510.examples.Product" />
-		<mapping class="com.b510.examples.Category" /> -->
 	</session-factory>
 </hibernate-configuration>

@@ -1,5 +1,6 @@
 package com.zxsoft.crawler.dao;
 
+import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -9,10 +10,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.thinkingcloud.framework.cache.ObjectCache;
 import org.thinkingcloud.framework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.NetUtils;
 
 import com.zxsoft.crawler.storage.Account;
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.ListConf;
+import com.zxsoft.crawler.storage.Section;
 
 public class ConfDao extends BaseDao {
 
@@ -210,5 +213,72 @@ public class ConfDao extends BaseDao {
 			return detailConf;
 		}
 	}
+	
+	public DetailConf getDetailConf(String host) {
+		ObjectCache objectCache = ObjectCache.get("DetailConf");
 
+		if (objectCache.getObject(host) != null) {
+			return (DetailConf) objectCache.getObject(host);
+		} else {
+			LOG.debug("Getting detail configuration:" + host);
+			List<DetailConf> list = jdbcTemplate.query("select * from conf_detail where host like ?",
+			        new Object[] { "%" + host + "%"}, new RowMapper<DetailConf>() {
+				        public DetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
+					        DetailConf detailConf = new DetailConf();
+					        detailConf.setListUrl(rs.getString("listurl"));
+					        detailConf.setHost(rs.getString("host"));
+					        detailConf.setReplyNum(rs.getString("replyNum"));
+					        detailConf.setForwardNum(rs.getString("forwardNum"));
+					        detailConf.setReviewNum(rs.getString("reviewNum"));
+					        detailConf.setSources(rs.getString("sources"));
+					        detailConf.setFetchorder(rs.getBoolean("fetchorder"));
+					        detailConf.setMaster(rs.getString("master"));
+					        detailConf.setAuthor(rs.getString("author"));
+					        detailConf.setDate(rs.getString("date"));
+					        detailConf.setContent(rs.getString("content"));
+					        detailConf.setReply(rs.getString("reply"));
+					        detailConf.setReplyAuthor(rs.getString("replyAuthor"));
+					        detailConf.setReplyDate(rs.getString("replyDate"));
+					        detailConf.setReplyContent(rs.getString("replyContent"));
+					        detailConf.setSubReply(rs.getString("subReply"));
+					        detailConf.setSubReplyAuthor(rs.getString("subReplyAuthor"));
+					        detailConf.setSubReplyDate(rs.getString("subReplyDate"));
+					        detailConf.setSubReplyContent(rs.getString("subReplyContent"));
+					        return detailConf;
+				        }
+			        });
+			DetailConf detailConf = null;
+			if (!CollectionUtils.isEmpty(list)) {
+				detailConf = list.get(0);
+			}
+
+			objectCache.setObject(host, detailConf);
+			return detailConf;
+		}
+	}
+
+	
+	public String getWebsite(URL url) {
+		String host = NetUtils.getHost(url);
+		
+		// 先查询ConfDetail
+		DetailConf detailConf = getDetailConf(host);
+		String urlstr = url.toExternalForm();
+		if (detailConf != null) {
+			urlstr = detailConf.getListUrl();
+		}
+		// 再查询ConfList
+		ListConf listConf = getListConf(urlstr);
+		
+		if (listConf == null) {
+			LOG.warn("没有找到ListConf:" + url.toExternalForm());
+		}
+		
+		return "";
+	}
+
+//	public Section getSection(String indexUrl) {
+//		
+//	    return null;
+//    }
 }

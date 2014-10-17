@@ -3,7 +3,7 @@
 <configuration>
 	<property>
 		<name>data.output.address</name>
-		<value>http://192.168.32.11:8900/sentiment/index</value>
+		<value>http://192.168.3.21:8084/spider/index</value>
 		<description></description>
 	</property>
 	<property>

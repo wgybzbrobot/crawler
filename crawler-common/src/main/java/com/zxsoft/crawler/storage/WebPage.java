@@ -4,75 +4,91 @@ import java.io.Serializable;
 
 import org.jsoup.nodes.Document;
 
-public class WebPage implements Serializable {
+public class WebPage implements Serializable, Cloneable {
 
 	private static final long serialVersionUID = 6780885020548185632L;
-	
+
 	public enum JOB_TYPE {
 		/** 网络巡检 */
-		NETWORK_INSPECT, 
+		NETWORK_INSPECT,
 		/** 全网搜索 */
 		NETWORK_SEARCH
 	}
-	
-	private String baseUrl; 
-	private String keyword; 
-	
+
+	private String baseUrl;
+	private String keyword;
+
+	/**
+	 * url所属的网站
+	 */
+	public String website;
 	private String listUrl; // 列表页URL
-	
+
 	private int status;
 	private long fetchTime;
 	private long prevFetchTime;
-	private long interval;
 	private int retriesSinceFetch;
 	private Document document;
 
 	private JOB_TYPE jobType;
-	
+
 	private String title;
 	private boolean ajax;
 	private boolean auth;
-	
+
 	/**
 	 * 网站类型
+	 * 
 	 * @see Proxy
 	 */
 	private String type;
-	
-	public WebPage () {}
-	
-	public WebPage (String baseUrl, boolean ajax) {
+
+	@Override
+	public WebPage clone()  {
+		try {
+	        return (WebPage) super.clone();
+        } catch (CloneNotSupportedException e) {
+	        e.printStackTrace();
+        }
+		return null;
+	}
+
+	public WebPage() {
+	}
+
+	public WebPage(String baseUrl, boolean ajax) {
 		super();
 		this.baseUrl = baseUrl;
-		this.ajax =  ajax;
+		this.ajax = ajax;
 	}
-	
-	public WebPage (String keyword, String baseUrl, String urlType) {
+
+	public WebPage(String keyword, String listUrl, String urlType) {
 		this.keyword = keyword;
-		this.baseUrl = baseUrl;
+		this.listUrl = listUrl;
 		this.type = urlType;
 	}
-	
+
 	public WebPage(String baseUrl, long fetchTime, Document document) {
-	    super();
-	    this.baseUrl = baseUrl;
-	    this.fetchTime = fetchTime;
-	    this.document = document;
-    }
-	
-	public WebPage(String baseUrl, boolean  ajax, long prevFetchTime) {
 		super();
 		this.baseUrl = baseUrl;
-		this. ajax =  ajax;
+		this.fetchTime = fetchTime;
+		this.document = document;
+	}
+
+	public WebPage(String baseUrl, boolean ajax, long prevFetchTime) {
+		super();
+		this.baseUrl = baseUrl;
+		this.ajax = ajax;
 		this.prevFetchTime = prevFetchTime;
 	}
-	public WebPage(String baseUrl, String  urlType, long interval) {
+
+	public WebPage(String baseUrl, String urlType, long prevFetchTime) {
 		super();
 		this.baseUrl = baseUrl;
 		this.type = urlType;
-		this.interval = interval;
+		this.prevFetchTime = prevFetchTime;
 	}
-	
+
 	public WebPage(String title, String baseUrl, long fetchTime, Document document) {
 		super();
 		this.title = title;
@@ -80,8 +96,7 @@ public class WebPage implements Serializable {
 		this.fetchTime = fetchTime;
 		this.document = document;
 	}
-	
-	
+
 	public boolean isAuth() {
 		return auth;
 	}
@@ -168,14 +183,6 @@ public class WebPage implements Serializable {
 
 	public void setPrevFetchTime(long prevFetchTime) {
 		this.prevFetchTime = prevFetchTime;
-	}
-
-	public long getInterval() {
-		return interval;
-	}
-
-	public void setInterval(long interval) {
-		this.interval = interval;
 	}
 
 	public int getRetriesSinceFetch() {

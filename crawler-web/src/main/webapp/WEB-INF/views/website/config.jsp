@@ -101,7 +101,7 @@
 						$.messager.show({
 			                title:'保存结果',
 			                msg:'保存成功',
-			                timeout:5000,
+			                timeout:3000,
 			                showType:'show',
 			                style:{
 			                    right:'',
@@ -370,8 +370,8 @@
 											<label class="form-label" for="sources">来源DOM </label> <input name="sources" class="easyui-textbox" /> 
 										</div>
 										<div>
-											<label class="form-label" for="fetchorder">抓取顺序</label> <input type="radio" name="fetchorder" value="false" /> 从第一页开始<input
-												type="radio" name="fetchorder" value="true" checked="checked" />从最后一页开始
+											<label class="form-label" for="fetchOrder">抓取顺序</label> <input type="radio" name="fetchOrder" value="false" /> 从第一页开始<input
+												type="radio" name="fetchOrder" value="true" checked="checked" />从最后一页开始
 										</div>
 										<fieldset style="border: 1px solid #e3e3de">
 											<legend>主帖</legend>
@@ -470,15 +470,15 @@
 													class="easyui-textbox" />  
 											</div>
 											<div>
-												<label class="form-label" for="fetchorder">抓取顺序</label>
+												<label class="form-label" for="fetchOrder">抓取顺序</label>
 												<c:choose>
 													<c:when test="${confDetail.fetchOrder }">
-														<input type="radio" name="fetchorder" value="false" checked="checked" /> 从第一页开始
-																	<input type="radio" name="fetchorder" value="true" />从最后一页开始
+														<input type="radio" name="fetchOrder" value="false" checked="checked" /> 从第一页开始
+																	<input type="radio" name="fetchOrder" value="true" />从最后一页开始
 																</c:when>
 													<c:otherwise>
-														<input type="radio" name="fetchorder" value="false" /> 从第一页开始
-																	<input type="radio" name="fetchorder" value="true" checked="checked" />从最后一页开始
+														<input type="radio" name="fetchOrder" value="false" /> 从第一页开始
+																	<input type="radio" name="fetchOrder" value="true" checked="checked" />从最后一页开始
 																</c:otherwise>
 												</c:choose>
 											</div>
@@ -582,8 +582,8 @@
 							<label class="form-label" for="sources">来源DOM </label> <input name="sources" class="easyui-textbox" /> 
 						</div>
 						<div>
-							<label class="form-label" for="fetchorder">抓取顺序</label> <input type="radio" name="fetchorder" value="false" /> 从第一页开始<input
-								type="radio" name="fetchorder" value="true" checked="checked" />从最后一页开始
+							<label class="form-label" for="fetchOrder">抓取顺序</label> <input type="radio" name="fetchOrder" value="false" /> 从第一页开始<input
+								type="radio" name="fetchOrder" value="true" checked="checked" />从最后一页开始
 						</div>
 						<fieldset style="border: 1px solid #e3e3de">
 							<legend>主帖</legend>

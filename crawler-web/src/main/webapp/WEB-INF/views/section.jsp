@@ -26,6 +26,9 @@
 			function(e) {
 				$('div.form-wrapper-title').text('版块详细信息');
 				$('div.form-wrapper').show();
+				var oldurl = $(this).attr('idx');
+				console.log(oldurl);
+				$('#sectionForm input[name=oldUrl]').val(oldurl);				
 				$('#sectionForm').form('load', 'section/moreinfo/' + $(this).attr('id'));
 		});
 		/* 创建 */
@@ -113,6 +116,7 @@
 						<input type="hidden"  name="website.id" value="${website.id}" />
 						<input type="hidden"  name="id" />
 						<input type="hidden" name="copy" />
+						<input type="hidden" name="oldUrl" />
 					</div>
 					<div>
 						<label class="form-label" for="url">版块地址</label> <input class="easyui-validatebox form-input" type="text"
@@ -162,7 +166,7 @@
 									<span>[${section.category.comment}]</span>
 									<div class="editmore">
 										<span title="创建者">[${section.account.username}]</span>
-										<span><a id="${section.id }" class="moreinfo" href="javascript:void(0);" title="修改版块信息">&nbsp;编辑&nbsp;|</a></span>
+										<span><a id="${section.id }" idx="${section.url}" class="moreinfo" href="javascript:void(0);" title="修改版块信息">&nbsp;编辑&nbsp;|</a></span>
 										<span><a href="javascript:void(0);" idx="${section.id }" class="addSectionBtn" title="创建与【${section.comment}】相同规则的版块">&nbsp;创建版块&nbsp;|</a></span>
 										<span><a href="javascript:void(0);" idx="${section.id }" class="deleteSectionBtn" title="删除此版块">&nbsp;删除</a></span>
 									</div>
