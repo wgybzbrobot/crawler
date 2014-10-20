@@ -1,12 +1,16 @@
 package com.zxsoft.crawler.master.impl;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -58,6 +62,8 @@ public class RAMSlaveManager implements SlaveManager {
         }
 	}
 	
+	private static SlaveScheduler scheduler = SlaveScheduler.getInstance();
+	
 	@Override
 	@SuppressWarnings("fallthrough")
 	public List<SlaveStatus> list() throws Exception {
@@ -74,21 +80,25 @@ public class RAMSlaveManager implements SlaveManager {
 			tasks.add(vistor);
 		}
 		List<Future<SlaveStatus>> futures = exec.invokeAll(tasks);
-		synchronized (runningMachines) {
-	        
-			for (Future<SlaveStatus> future : futures) {
-				SlaveStatus status = future.get();
-				if (status.state == State.STOP)  {
-					runningMachines.remove(status.machine);
-				} else {
-					runningMachines.add(status.machine);
-				}
-				res.add(status);
+		for (Future<SlaveStatus> future : futures) {
+			SlaveStatus status = future.get();
+			if (status.state == State.STOP)  {
+				status.score = 0.0f;
+			} else {
+				status.score = 1.0f / (1.0f + status.runningNum);
+				
+				ScoredMachine sm = new ScoredMachine(status.machine, status.runningNum, status.score);
+				scheduler.addSlave(sm);
+				
+				LOG.info(status.machine.getId() + ":" + status.score);
 			}
+			res.add(status);
 		}
 		exec.shutdown();
 		return res;
 	}
+	
+	
 
 	public void listRunning(String slaveId) {
 		
@@ -126,6 +136,7 @@ public class RAMSlaveManager implements SlaveManager {
 				slaveStatus = new SlaveStatus(machine, 0, 0, 5000, e.toString(), State.STOP);
 			} finally {
 				client.release();
+				((Client)client.getNext()).stop();
 			}
 			return slaveStatus;
 		}
@@ -136,12 +147,21 @@ public class RAMSlaveManager implements SlaveManager {
 		int historyNum;
 	}
 	
+	
+	/**
+	 *  choose a url to send job
+	 */
 	public String chooseUrl() {
-		// choose a url to send job
-		if (CollectionUtils.isEmpty(runningMachines)) {
-			
-		}
-		return  "http://localhost:8989/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH;
+		ScoredMachine sm = scheduler.selectSlave();
+		
+		URL url = null;
+		try {
+	        url = new URL("http", sm.machine.getIp(), sm.machine.getPort(), "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH);
+        } catch (MalformedURLException e) {
+	        e.printStackTrace();
+        }
+		return url.toExternalForm();
+//		return  "http://localhost:8989/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH;
 	}
 	
 	@Override
@@ -193,5 +213,6 @@ public class RAMSlaveManager implements SlaveManager {
 		// }
 		return false;
 	}
-
+	
+	
 }

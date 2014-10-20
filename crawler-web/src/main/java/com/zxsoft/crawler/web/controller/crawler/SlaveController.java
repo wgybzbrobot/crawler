@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.restlet.Client;
 import org.restlet.Context;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
@@ -169,6 +170,7 @@ public class SlaveController {
 					e.printStackTrace();
 				} finally {
 					client.release();
+					((Client)client.getNext()).stop();
 				}
 				return text;
 			}

@@ -47,6 +47,7 @@ public class NetworkSearchJob extends CrawlTool {
 			map.put("code", 2001);
 			map.put("count", status.getCount());
 			map.put("message", status.getMessage());
+			map.put("description", status.getDescription());
 		} catch (NullPointerException e) {
 			map.put("code", 5001);
 			map.put("message", e.getMessage());

@@ -1,5 +1,7 @@
 package com.zxsoft.crawler.api;
 
+import java.util.Comparator;
+
 public class Machine {
 	
 	private String id;
@@ -53,6 +55,7 @@ public class Machine {
 	}
 	
 	public String toString() {
-		return id + "\t" + ip + ":" + port + "\t" + comment;
+		return id + "(" + ip + ":" + port + " -- " + comment + ")";
 	}
+
 }

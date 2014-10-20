@@ -1,9 +1,14 @@
 package com.zxsoft.crawler.master;
 
+import java.util.concurrent.TimeUnit;
+
+import org.apache.hadoop.conf.Configuration;
 import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.zxsoft.crawler.util.CrawlerConfiguration;
 
 /**
  *
@@ -45,8 +50,30 @@ public class MasterServer {
 		LOG.info("Started CrawlerServer on port " + port);
 		running = true;
 		MasterApp.started = System.currentTimeMillis();
+		
+		Configuration conf = CrawlerConfiguration.create();
+		long heartbeat = conf.getLong("heartbeat", 3 * 60 * 1000); // default is 3 min
+		new HeartBeatThread(heartbeat).start();
 	}
 
+	class HeartBeatThread extends Thread {
+		private long heartbeat;
+		public HeartBeatThread(long heartbeat) {
+			this.heartbeat = heartbeat;
+        }
+		@Override
+		public void run() {
+			while (true) {
+				try {
+		            TimeUnit.MILLISECONDS.sleep(heartbeat);
+	            } catch (InterruptedException e) {
+		            e.printStackTrace();
+	            }
+				
+			}
+		}
+	}
+	
 	public static void main(String[] args) throws Exception {
 		if (args.length == 0) {
 			System.err.println("Usage: CrawlerServer <port>");
