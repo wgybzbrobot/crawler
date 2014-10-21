@@ -120,7 +120,7 @@ $(function() {
 								<li class="slave-li" title="${slave.msg }" style="background: #aa3333;">
 							</c:otherwise>
 						</c:choose>
-						<a href="slaves?slaveId=${slave.machine.id}">${slave.machine.comment}</a>
+						<a href="slaves?slaveId=${slave.machine.id}" onclick="return fasle;">${slave.machine.comment}</a>
 						<div style="font-size: 6px; ">
 							<fmt:formatNumber var="runningNum" type="number" value="${slave.runningNum}"  pattern="#"/>
 							<fmt:formatNumber var="historyNum" type="number" value="${slave.historyNum}"  pattern="#"/>

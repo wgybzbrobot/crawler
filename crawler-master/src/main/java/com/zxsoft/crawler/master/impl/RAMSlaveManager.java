@@ -147,13 +147,11 @@ public class RAMSlaveManager implements SlaveManager {
 		int historyNum;
 	}
 	
-	
 	/**
 	 *  choose a url to send job
 	 */
 	public String chooseUrl() {
 		ScoredMachine sm = scheduler.selectSlave();
-		
 		URL url = null;
 		try {
 	        url = new URL("http", sm.machine.getIp(), sm.machine.getPort(), "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH);
@@ -161,7 +159,6 @@ public class RAMSlaveManager implements SlaveManager {
 	        e.printStackTrace();
         }
 		return url.toExternalForm();
-//		return  "http://localhost:8989/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH;
 	}
 	
 	@Override
