@@ -51,7 +51,7 @@ public class NewsParser extends Parser {
 	public FetchStatus parse(WebPage page) throws Exception {
 		Assert.notNull(page, "Page is null");
 		
-		FetchStatus status = new FetchStatus(page.getBaseUrl());
+		FetchStatus status = new FetchStatus(page.getBaseUrl(), "");
 		
 		ProtocolOutput outputTemp = fetch(page); 
 		Document document = null;

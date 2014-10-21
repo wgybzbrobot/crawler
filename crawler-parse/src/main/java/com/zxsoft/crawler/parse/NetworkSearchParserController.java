@@ -49,20 +49,18 @@ public final class NetworkSearchParserController extends ParseTool {
 		
 		String keyword = page.getKeyword();
 		String listUrl = page.getListUrl();
-		String indexUrl = String.format(listUrl, URLEncoder.encode(keyword, "UTF-8"));
-		
 		
 		ListConf listConf = confDao.getListConf(listUrl);
 		if (listConf == null) {
 			throw new NullPointerException("没有找到版块地址是" + page.getBaseUrl() + "的ConfList配置");
 		}
 		
-		FetchStatus status = new FetchStatus(indexUrl);
+		String indexUrl = String.format(listUrl, URLEncoder.encode(keyword, "UTF-8"));
+		FetchStatus status = new FetchStatus(indexUrl, listConf.getComment() + keyword);
 		
 		String listDom = listConf.getListdom();
 		if (StringUtils.isEmpty(listDom)) {
 			LOG.error("列表DOM没有配置,无法获取列表信息:" + indexUrl);
-			status.setUrl(indexUrl);
 			status.setStatus(Status.CONF_ERROR);
 			status.setMessage("列表DOM没有配置,无法获取列表信息");
 			return status;
@@ -98,7 +96,6 @@ public final class NetworkSearchParserController extends ParseTool {
 			Elements list = document.select(listDom);
 			if (CollectionUtils.isEmpty(list)) {
 				LOG.error("列表DOM设置错误,无法获取列表信息" + indexUrl);
-				status.setUrl(indexUrl);
 				status.setStatus(Status.CONF_ERROR);
 				status.setMessage("列表DOM设置错误,无法获取列表信息");
 				return status;

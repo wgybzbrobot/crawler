@@ -62,7 +62,7 @@ public class ForumParser extends Parser {
 		Assert.notNull(page, "Page is null");
 		ProtocolOutput outputTemp = fetch(page);
 		Document document = null;
-		FetchStatus status = new FetchStatus(mainUrl.get());
+		FetchStatus status = new FetchStatus(mainUrl.get(), "");
 		if (outputTemp == null || (document = outputTemp.getDocument()) == null) {
 			LOG.error("Http protocol get page error ..." + page.getBaseUrl());
 			status.setStatus(Status.PROTOCOL_FAILURE);

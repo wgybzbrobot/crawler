@@ -8,6 +8,8 @@ public class FetchStatus {
 	
 	private String url;
 	private String message;
+	private String description;
+	
 	/**
 	 * 抓取的记录数
 	 */
@@ -16,16 +18,24 @@ public class FetchStatus {
 	
 	public FetchStatus() {}
 	
-	public FetchStatus(String url) {
+	public FetchStatus(String url, String description) {
+		this.description = description;
 		this.url = url;
 	}
 	
-	public FetchStatus(String url, String message) {
+	public FetchStatus(String message) {
 	    super();
-	    this.url = url;
 	    this.message = message;
     }
 	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public int getCount() {
 		return count;
 	}

@@ -60,7 +60,7 @@ public final class NetworkInspectParserController extends ParseTool {
 		page.setAjax(listConf.isAjax());
 		page.setAuth(listConf.isAuth());
 		
-		FetchStatus status = new FetchStatus(indexUrl);
+		FetchStatus status = new FetchStatus(indexUrl, listConf.getComment());
 		
 		ParserFactory factory = new ParserFactory();
 		factory.setConf(conf);

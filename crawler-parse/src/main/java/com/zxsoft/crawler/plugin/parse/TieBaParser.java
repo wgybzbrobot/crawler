@@ -63,7 +63,7 @@ public class TieBaParser extends Parser {
 		prevFetchTime.set(page.getPrevFetchTime());
 		ajax.set(page.isAjax());
 		auth.set(page.isAuth());
-		FetchStatus status = new FetchStatus(mainUrl.get());
+		FetchStatus status = new FetchStatus(mainUrl.get(), "");
 		if (outputTemp == null || (document = outputTemp.getDocument()) == null) {
 			LOG.error("Http protocol get page error ..." + page.getBaseUrl());
 			status.setStatus(Status.PROTOCOL_FAILURE);
