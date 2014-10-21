@@ -38,7 +38,12 @@ public class JobStatus implements Serializable {
 	}
 
 	public String toString() {
-		return "helooooooooo";
+		StringBuilder sb = new StringBuilder();
+		sb.append("{id:" + id + ",");
+		sb.append("type:" + type.toString() + ",");
+		sb.append("state:" + state + ",");
+		sb.append("msg:" + msg + "}");
+		return sb.toString();
 	}
 
 }

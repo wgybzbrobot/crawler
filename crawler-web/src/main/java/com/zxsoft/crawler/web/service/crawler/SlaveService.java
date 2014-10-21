@@ -7,5 +7,5 @@ import java.util.Map;
 
 public interface SlaveService {
 
-	List<Map<String, Object>> slaves() throws IOException ;
+	List<Map<String, Object>> slaves() throws Exception ;
 }

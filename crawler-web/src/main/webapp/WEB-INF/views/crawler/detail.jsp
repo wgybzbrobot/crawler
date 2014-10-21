@@ -67,7 +67,7 @@
 												</c:choose>
 											</span>
 											<span style="margin: 0 12px 0 0;" title="抓取数量"><fmt:formatNumber var="count" type="number" value="${map.result.count}"  pattern="#"/>${count}</span>
-											<span><a href="${map.result.url}">${map.result.url }</a></span>
+											<span><a target="_blank" href="${map.result.url}">${map.result.url }</a></span>
 										</li>
 										</c:forEach>
 									</ul>
