@@ -20,37 +20,62 @@
 		<div style="padding:4px 0 4px 22px ;">
 			<a class="linkbutton" href="javascript:history.go(-1);">返回</a>
 			<div id="content">
-				<div>
+				<div style="text-align: center;">
 					<c:choose>
 						<c:when test="${'running' eq state}">
-							正在运行的任务
+							<h3>正在运行的任务</h3>
+							<c:choose>
+								<c:when test="${empty list }">
+									<div>没有任务</div>
+								</c:when>
+								<c:otherwise>
+									<ul>
+										<c:forEach items="${list}" var="map">
+										<li class="section-li">
+											<span>
+												<c:choose>
+													<c:when test="${'NETWORK_INSPECT' eq map.type }">网络巡检
+														<%-- <span style="margin: 0 12px 0 0;" title="抓取数量"><fmt:formatNumber var="count" type="number" value="${map.result.count}"  pattern="#"/>${count}</span> --%>
+														<span><a target="_blank" href="${map.args.url}">${map.args.url }</a></span>
+													</c:when>
+													<c:when test="${'NETWORK_SEARCH' eq map.type }">全网搜索
+														<%-- <span style="margin: 0 12px 0 0;" title="抓取数量"><fmt:formatNumber var="count" type="number" value="${map.result.count}"  pattern="#"/>${count}</span> --%>
+														<span><a target="_blank" href="${fn:replace(map.args.engineUrl, '%s', map.args.keyword)}">${fn:replace(map.args.engineUrl, '%s', map.args.keyword)}</a></span>
+													</c:when>
+												</c:choose>
+											</span>
+										</li>
+										</c:forEach>
+									</ul>
+								</c:otherwise>
+							</c:choose>
 						</c:when>
 						<c:otherwise>
-							完成的任务
+							<h3>完成的任务</h3>
+							<c:choose>
+								<c:when test="${empty list }">
+									<div>没有任务</div>
+								</c:when>
+								<c:otherwise>
+									<ul>
+										<c:forEach items="${list}" var="map">
+										<li class="section-li">
+											<span>
+												<c:choose>
+													<c:when test="${'NETWORK_INSPECT' eq map.type }">网络巡检</c:when>
+													<c:when test="${'NETWORK_SEARCH' eq map.type }">全网搜索</c:when>
+												</c:choose>
+											</span>
+											<span style="margin: 0 12px 0 0;" title="抓取数量"><fmt:formatNumber var="count" type="number" value="${map.result.count}"  pattern="#"/>${count}</span>
+											<span><a href="${map.result.url}">${map.result.url }</a></span>
+										</li>
+										</c:forEach>
+									</ul>
+								</c:otherwise>
+							</c:choose>
 						</c:otherwise>
 					</c:choose>
 				</div>
-				<c:choose>
-					<c:when test="${empty list }">
-						<div>没有任务</div>
-					</c:when>
-					<c:otherwise>
-						<ul>
-							<c:forEach items="${list}" var="map">
-							<li class="section-li">
-								<span><a href="${map.id}">${map.args.url }</a></span>
-								<span>
-									<c:choose>
-										<c:when test="${'NETWORK_INSPECT' eq map.type }">网络巡检</c:when>
-										<c:when test="${'NETWORK_SEARCH' eq map.type }">全网搜索</c:when>
-									</c:choose>
-								</span>
-								<span><fmt:formatNumber var="count" type="number" value="${map.result.count}"  pattern="#"/>${count}</span>
-							</li>
-							</c:forEach>
-						</ul>
-					</c:otherwise>
-				</c:choose>
 			</div>
 		</div>
 	</div>
