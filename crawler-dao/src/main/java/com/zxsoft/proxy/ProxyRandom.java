@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.mortbay.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
@@ -57,7 +56,7 @@ public class ProxyRandom extends BaseDao {
 		if (objectCache.getObject(host) != null) {
 			return (String) objectCache.getObject(host);
 		} else {
-			Log.debug("Getting Website Type of Host:" + host);
+			LOG.debug("Getting Website Type of Host:" + host);
 			List<String> list = jdbcTemplate.query("select type from " + TABLE_WEBSITE
 			        + " where host = ? ", new Object[] {host}, new RowMapper<String>() {
 				@Override
