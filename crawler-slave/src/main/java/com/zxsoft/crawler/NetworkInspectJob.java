@@ -29,7 +29,7 @@ public class NetworkInspectJob extends CrawlTool {
 		Configuration conf = getConf();
 		
 		String url = (String) args.get(Params.URL);
-		String urlType = (String) args.get(Params.URL_TYPE);
+		String urlType = (String) args.get(Params.PROXY_TYPE);
 		long prevFetchTime = 0;
 		try {
 			prevFetchTime = (long) args.get(Params.PREV_FETCH_TIME);
@@ -47,6 +47,7 @@ public class NetworkInspectJob extends CrawlTool {
 			map.put("code", 2001);
 			map.put("count", status.getCount());
 			map.put("message", status.getMessage());
+			map.put("status", status.getStatus());
 		} catch (NullPointerException e) {
 			map.put("code", 5001);
 			map.put("message", e.getMessage());

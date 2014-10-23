@@ -33,7 +33,7 @@ public class NetworkSearchJob extends CrawlTool {
 		
 		String keyword = (String) args.get(Params.KEYWORD);
 		Assert.notNull(keyword);
-		String urlType = (String) args.get(Params.URL_TYPE);
+		String urlType = (String) args.get(Params.PROXY_TYPE);
 		String listUrl = (String) args.get(Params.ENGINE_URL);
 		
 		WebPage page = new WebPage(keyword, listUrl, urlType);

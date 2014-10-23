@@ -179,6 +179,7 @@ public final class NetworkInspectParserController extends ParseTool {
 	                    	status.setStatus(parseStatus.getStatus());
 //	                    }
 	                    LOG.info(parseStatus.getUrl() + ":数量(" + parseStatus.getCount() + "):消息 (" + parseStatus.getMessage() + ")");
+	                    status.setMessage(status.getMessage() + ", 消息(" + parseStatus.getMessage() + ")");
 	                    sum.addAndGet(parseStatus.getCount());
                     } catch (ExecutionException e) {
 	                    e.printStackTrace();
