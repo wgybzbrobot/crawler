@@ -51,9 +51,11 @@ li {
 	color: #369;
 }
 
-.section-li {
+li.section-li {
 	margin: 6px 0;
 	padding: 6px 0;
+	text-align: left;
+	list-style: none;
 }
 
 .section-li a.url {
