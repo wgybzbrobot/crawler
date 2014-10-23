@@ -5,16 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-import org.restlet.Client;
-import org.restlet.Context;
-import org.restlet.representation.Representation;
-import org.restlet.resource.ClientResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +19,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.thinkingcloud.framework.util.Assert;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.WebResource;
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.master.MasterPath;
@@ -46,19 +37,18 @@ import com.zxsoft.crawler.web.service.website.DictService;
 public class SlaveController {
 
 	private static Logger LOG = LoggerFactory.getLogger(SlaveController.class);
-	
-	
+
 	@Autowired
 	private DictService dictService;
-	
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String index(Model model) {
 
 		SlaveService slaveService = new SlaveServiceImpl();
-		
+
 		List<ConfList> engines = dictService.getSearchEngines();
 		model.addAttribute("engines", engines);
-		
+
 		Map<String, Object> map = new HashMap<String, Object>();
 		try {
 			map.put("slaves", slaveService.slaves());
@@ -88,7 +78,7 @@ public class SlaveController {
 	public Map<String, Object> slaves() {
 
 		SlaveService slaveService = new SlaveServiceImpl();
-		
+
 		Map<String, Object> map = new HashMap<String, Object>();
 		try {
 			map.put("slaves", slaveService.slaves());
@@ -150,47 +140,24 @@ public class SlaveController {
 		if (!"running".equals(state) && !"history".equals(state)) {
 			return null;
 		}
-		
+
 		model.addAttribute("state", state);
 		model.addAttribute("ip", ip);
 		model.addAttribute("port", port);
 
-		Callable<String> callable = new Callable<String>() {
-			public String call() throws Exception {
-				String url = "http://" + ip + ":" + port + "/" + SlavePath.PATH + "/"
-				        + SlavePath.JOB_RESOURCE_PATH + "?state=" + state;
-				ClientResource client = new ClientResource(new Context(), url);
-				client.getContext().getParameters().set("socketTimeout",String.valueOf(1000));
-				Representation representation = null;
-				String text = "";
-				try {
-					representation = client.get();
-					text = representation.getText();
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					client.release();
-					((Client)client.getNext()).stop();
-				}
-				return text;
-			}
-		};
-		ExecutorService pool = Executors.newFixedThreadPool(1);
-		Future<String> future = pool.submit(callable);
+		String url = "http://" + ip + ":" + port + "/" + SlavePath.PATH + "/"
+		        + SlavePath.JOB_RESOURCE_PATH + "?state=" + state;
+		Client client = Client.create();
+		WebResource webResource = client.resource(url);
 		List<JobStatus> res = new ArrayList<JobStatus>();
 		try {
-			String text = future.get();
+			String text = webResource.get(String.class);
 			res = new Gson().fromJson(text, List.class);
-			System.out.println(text);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+		} catch (ClientHandlerException e) {
 			e.printStackTrace();
 		}
-		pool.shutdown();
-		
+
 		model.addAttribute("list", res);
-		
 		return "crawler/detail";
 	}
 

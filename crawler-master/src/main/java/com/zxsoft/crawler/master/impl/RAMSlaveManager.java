@@ -1,16 +1,12 @@
 package com.zxsoft.crawler.master.impl;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -18,26 +14,22 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.restlet.Client;
-import org.restlet.Context;
-import org.restlet.Request;
-import org.restlet.data.Protocol;
-import org.restlet.representation.Representation;
-import org.restlet.resource.ClientResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 import com.zxsoft.crawler.api.Machine;
-import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.master.SlaveCache;
 import com.zxsoft.crawler.master.SlaveManager;
 import com.zxsoft.crawler.master.SlaveStatus;
 import com.zxsoft.crawler.master.SlaveStatus.State;
 import com.zxsoft.crawler.slave.SlavePath;
-import com.zxsoft.crawler.storage.WebPage.JOB_TYPE;
 
 public class RAMSlaveManager implements SlaveManager {
 
@@ -113,31 +105,13 @@ public class RAMSlaveManager implements SlaveManager {
 
 		public SlaveStatus call() throws Exception {
 			String url = "http://" + machine.getIp() + ":" + machine.getPort() + "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH;
-			
-			Client cli = new Client(Protocol.HTTP);
-			cli.setConnectTimeout(1000);
-			
-			ClientResource client = new ClientResource(new Context(), url);
-			
-			client.setNext(cli);
-			client.setRetryAttempts(0);
-			client.getContext().getParameters().add("socketTimeout",String.valueOf(1000));
-			
-			Representation representation = null;
 			SlaveStatus slaveStatus = null;
-			try {
-				representation = client.get();
-				String text = representation.getText();
-				NumNum tm = new Gson().fromJson(text, NumNum.class);
-				slaveStatus = new SlaveStatus(machine, tm.runningNum,
-				        tm.historyNum, 2000, "success", State.RUNNING);
-			} catch (Exception e) {
-				e.printStackTrace();
-				slaveStatus = new SlaveStatus(machine, 0, 0, 5000, e.toString(), State.STOP);
-			} finally {
-				client.release();
-				((Client)client.getNext()).stop();
-			}
+			com.sun.jersey.api.client.Client client = com.sun.jersey.api.client.Client.create();
+			WebResource webResource = client.resource(url);
+			String text = webResource.get(String.class);
+			NumNum tm = new Gson().fromJson(text, NumNum.class);
+			slaveStatus = new SlaveStatus(machine, tm.runningNum,
+			        tm.historyNum, 2000, "success", State.RUNNING);
 			return slaveStatus;
 		}
 	}
@@ -152,6 +126,8 @@ public class RAMSlaveManager implements SlaveManager {
 	 */
 	public String chooseUrl() {
 		ScoredMachine sm = scheduler.selectSlave();
+		Assert.notNull(sm);
+		
 		URL url = null;
 		try {
 	        url = new URL("http", sm.machine.getIp(), sm.machine.getPort(), "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH);
@@ -163,24 +139,17 @@ public class RAMSlaveManager implements SlaveManager {
 	
 	@Override
 	public String create(final Map<String, Object> args) throws Exception {
-		
 		final String url = chooseUrl();
-		Thread t = new Thread() {
-			public void run() {
-				ClientResource client = new ClientResource(url);
-				Representation r = client.put(args);
-				try {
-	                String text = r.getText();
-	                LOG.info(text);
-                } catch (IOException e) {
-	                e.printStackTrace();
-                } finally {
-                	client.release();
-                }
-			}
-		};
-		t.start();
-		
+		com.sun.jersey.api.client.Client client = com.sun.jersey.api.client.Client.create();
+		WebResource webResource = client.resource(url);
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		String json = gson.toJson(args, Map.class);
+		try {
+			webResource.type("application/json").put(ClientResponse.class, json);
+		} catch (ClientHandlerException e) {
+			LOG.info("create job failure");
+			e.printStackTrace();
+		}
 		return url;
 	}
 
