@@ -90,8 +90,6 @@ public class RAMSlaveManager implements SlaveManager {
 		return res;
 	}
 	
-	
-
 	public void listRunning(String slaveId) {
 		
 	}
@@ -108,10 +106,13 @@ public class RAMSlaveManager implements SlaveManager {
 			SlaveStatus slaveStatus = null;
 			com.sun.jersey.api.client.Client client = com.sun.jersey.api.client.Client.create();
 			WebResource webResource = client.resource(url);
-			String text = webResource.get(String.class);
-			NumNum tm = new Gson().fromJson(text, NumNum.class);
-			slaveStatus = new SlaveStatus(machine, tm.runningNum,
-			        tm.historyNum, 2000, "success", State.RUNNING);
+			try {
+				String text = webResource.get(String.class);
+				NumNum tm = new Gson().fromJson(text, NumNum.class);
+				slaveStatus = new SlaveStatus(machine, tm.runningNum, tm.historyNum, 2000, "success", State.RUNNING);
+			} catch(ClientHandlerException e) {
+				slaveStatus = new SlaveStatus(machine, 0, 0, 4040, e.getMessage(), State.STOP);
+			}
 			return slaveStatus;
 		}
 	}
@@ -139,18 +140,26 @@ public class RAMSlaveManager implements SlaveManager {
 	
 	@Override
 	public String create(final Map<String, Object> args) throws Exception {
-		final String url = chooseUrl();
-		com.sun.jersey.api.client.Client client = com.sun.jersey.api.client.Client.create();
-		WebResource webResource = client.resource(url);
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		String json = gson.toJson(args, Map.class);
-		try {
-			webResource.type("application/json").put(ClientResponse.class, json);
-		} catch (ClientHandlerException e) {
-			LOG.info("create job failure");
-			e.printStackTrace();
+		int i = 0;
+		while (i++ < SlaveCache.machines.size()) {
+			String url = chooseUrl();
+			com.sun.jersey.api.client.Client client = com.sun.jersey.api.client.Client.create();
+			WebResource webResource = client.resource(url);
+			Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+			String json = gson.toJson(args, Map.class);
+			try {
+				webResource.type("application/json").put(ClientResponse.class, json);
+			} catch (ClientHandlerException e) {
+				LOG.error(e.getMessage());
+				LOG.error("URL为" + url + "的slave不能执行任务,他可能很忙,也可能挂了. 准备换一个slave试试...");
+				list(); // 重新获取每个slave状态
+				continue;
+			}
+			LOG.info("选中slave(" + url + ")执行任务");
+			return url;
 		}
-		return url;
+		LOG.error("Oh My God! 所有slave都罢工了, 都不能执行任务.");
+		return null;
 	}
 
 	@Override
