@@ -42,6 +42,11 @@ public class ConfigServiceImpl implements ConfigService {
 		
 		return map;
 	}
+	
+	@Override
+	public ConfList getConfList(String url) {
+		return configDao.getConfList(url);
+	}
 
 	@Override
 	public void add(ConfList listConf) {

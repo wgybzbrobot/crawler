@@ -3,8 +3,10 @@ package com.zxsoft.crawler.web.controller.crawler;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,20 +19,30 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.thinkingcloud.framework.util.Assert;
+import org.thinkingcloud.framework.util.CollectionUtils;
+
+import redis.clients.jedis.Jedis;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.WebResource;
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.entity.ConfList;
+import com.zxsoft.crawler.entity.Prey;
+import com.zxsoft.crawler.entity.Section;
+import com.zxsoft.crawler.entity.Website;
 import com.zxsoft.crawler.master.MasterPath;
 import com.zxsoft.crawler.slave.SlavePath;
+import com.zxsoft.crawler.web.controller.crawler.JobStatus.JobType;
 import com.zxsoft.crawler.web.service.crawler.JobService;
 import com.zxsoft.crawler.web.service.crawler.SlaveService;
 import com.zxsoft.crawler.web.service.crawler.impl.JobServiceImpl;
 import com.zxsoft.crawler.web.service.crawler.impl.SlaveServiceImpl;
+import com.zxsoft.crawler.web.service.website.ConfigService;
 import com.zxsoft.crawler.web.service.website.DictService;
+import com.zxsoft.crawler.web.service.website.SectionService;
 
 @Controller
 @RequestMapping(MasterPath.SLAVE_RESOURCE_PATH)
@@ -40,14 +52,15 @@ public class SlaveController {
 
 	@Autowired
 	private DictService dictService;
+	@Autowired
+	private ConfigService configService;
+	@Autowired
+	private SectionService sectionService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String index(Model model) {
 
 		SlaveService slaveService = new SlaveServiceImpl();
-
-		List<ConfList> engines = dictService.getSearchEngines();
-		model.addAttribute("engines", engines);
 
 		Map<String, Object> map = new HashMap<String, Object>();
 		try {
@@ -98,6 +111,28 @@ public class SlaveController {
 		return map;
 	}
 
+	@RequestMapping(value = "preys/{index}", method = RequestMethod.GET)
+	public String preys(@PathVariable(value = "index") int index, Model model) {
+		List<Prey> list = new LinkedList<Prey>();
+		Jedis jedis = new Jedis(REDIS_HOST, 6379);
+		long count = jedis.zcard(URLBASE);
+		Set<String> set = jedis.zrevrange(URLBASE, 0, index - 1);
+		if (!CollectionUtils.isEmpty(set)) {
+			Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+			for (String str : set) {
+				Prey prey = gson.fromJson(str, Prey.class);
+				list.add(prey);
+			}
+		}
+		jedis.close();
+		model.addAttribute("count", count);
+		model.addAttribute("preys", list);
+
+		List<ConfList> engines = dictService.getSearchEngines();
+		model.addAttribute("engines", engines);
+		return "/crawler/preys";
+	}
+
 	private JobService jobService = new JobServiceImpl();
 
 	@ResponseBody
@@ -116,13 +151,41 @@ public class SlaveController {
 		return null;
 	}
 
+	private static final String URLBASE = "urlbase";
+	private static final String REDIS_HOST = "localhost";
+
 	@ResponseBody
 	@RequestMapping(value = "addInspectJob", method = RequestMethod.POST)
 	public Map<String, Object> addInspectJob(
 	        @RequestParam(value = "url", required = false) String url) {
 
+		Assert.hasLength(url);
+
 		Map<String, Object> args = new HashMap<String, Object>();
-		args.put(Params.URL, url);
+		ConfList confList = configService.getConfList(url);
+		if (confList == null) {
+			args.put("msg", "noconflist");
+			return args;
+		}
+
+		Section section = sectionService.getSectionByUrl(url);
+		if (section == null)
+			throw new NullPointerException("section is null, but conflist is not null: " + url);
+		Website website = section.getWebsite();
+		String site = website.getSite();
+		String proxyType = website.getSiteType().getType();
+
+		// args.put(Params.URL, url);
+		// jobService.addInsecptJob(args);
+
+		// 判断任务列表中是否已存在该任务
+
+		Jedis jedis = new Jedis(REDIS_HOST, 6379);
+		double score = 1.0d / (confList.getFetchinterval() + 1.0d);
+		Prey prey = new Prey(site, url,  confList.getComment(), JobType.NETWORK_INSPECT.toString(),
+		        proxyType, confList.getFetchinterval());
+		jedis.zadd(URLBASE, score, prey.toString());
+		jedis.close();
 
 		jobService.addInsecptJob(args);
 

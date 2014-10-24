@@ -17,5 +17,6 @@ public interface SectionService {
 	void saveOrUpdate(Section section);
 	
 	void delete(String id);
+	Section getSectionByUrl(String url);
 
 }

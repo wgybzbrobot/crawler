@@ -37,4 +37,6 @@ public interface ConfigService {
 	 * 修改ConfDetail主键
 	 */
 	void updateConfDetailKey(String oldUrl, String url);
+
+	ConfList getConfList(String url);
 }

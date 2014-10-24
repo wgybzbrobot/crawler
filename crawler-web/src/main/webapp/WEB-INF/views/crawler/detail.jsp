@@ -19,6 +19,7 @@
 	<div id="body">
 		<div style="padding:4px 0 4px 22px ;">
 			<a class="linkbutton" href="javascript:history.go(-1);">返回</a>
+			&nbsp;&nbsp;&nbsp;
 			<a href="#" class="linkbutton" id="refresh" onclick="javascript:location.reload();">刷新</a> 
 			<div id="content">
 				<div style="text-align: center;">
@@ -64,12 +65,11 @@
 											<span>${status.index + 1}</span>
 											<span>
 												<c:choose>
-													<c:when test="${'NETWORK_INSPECT' eq map.type }">网络巡检</c:when>
-													<c:when test="${'NETWORK_SEARCH' eq map.type }">全网搜索</c:when>
+													<c:when test="${'NETWORK_INSPECT' eq map.type }"><a target="_blank" href="${map.result.url}" title="网络巡检">${map.result.comment}</a></c:when>
+													<c:when test="${'NETWORK_SEARCH' eq map.type }"><a target="_blank" href="${map.result.url}" title="全网搜索">${map.result.comment}</a></c:when>
 												</c:choose>
 											</span>
 											<span style="margin: 0 12px 0 0;" title="抓取数量"><fmt:formatNumber var="count" type="number" value="${map.result.count}"  pattern="#"/>${count}</span>
-											<span><a target="_blank" href="${map.result.url}">${map.result.url }</a></span>
 										</li>
 										</c:forEach>
 									</ul>

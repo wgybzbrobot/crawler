@@ -1,7 +1,10 @@
 package com.zxsoft.crawler.web.service.website.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.web.utils.Page;
 
 import com.zxsoft.crawler.entity.Section;
@@ -39,6 +42,16 @@ public class SectionServiceImpl implements SectionService {
     public void delete(String id) {
 	    sectionDao.delete(id);
 	    
+    }
+
+	@Override
+    public Section getSectionByUrl(String url) {
+		Section section = new Section(url);
+	    Page<Section> page = sectionDao.getSections(section, 1, 10);
+	    List<Section> sections = page.getRes();
+	    if (CollectionUtils.isEmpty(sections))
+	    	return null;
+	    return sections.get(0);
     }
 
 
