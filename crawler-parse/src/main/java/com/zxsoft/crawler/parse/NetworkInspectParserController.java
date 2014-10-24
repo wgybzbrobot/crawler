@@ -88,6 +88,8 @@ public final class NetworkInspectParserController extends ParseTool {
 		String lineDom = listConf.getLinedom();
 		String updateDom = listConf.getUpdatedom();
 		
+		// 标志是否有更新时间，若有则抓取根据根据时间判断截止条件，否则抓取指定的页数_pageNum后停止
+		boolean hasUpdate = false; 
 		while (true) {
 //			LOG.debug(document.html());
 			Elements list = document.select(listDom);
@@ -98,7 +100,7 @@ public final class NetworkInspectParserController extends ParseTool {
 			
 			Elements lines = list.first().select(lineDom);
 
-			if (pageNum.get() > _pageNum) {
+			if (!hasUpdate && pageNum.get() > _pageNum) {
 				continuePage.set(false);
 				status.setMessage("抓完设定的页数" + _pageNum);
 				break;
@@ -114,11 +116,12 @@ public final class NetworkInspectParserController extends ParseTool {
 					try {
 	                    update = Utils.formatDate(line.select(updateDom).first().text());
 	                    if (update.getTime() < page.getPrevFetchTime()) {
-	                    	status.setMessage("更新时间在上次抓取时间" + page.getPrevFetchTime() + "之前, 停止抓取");
-	                    	LOG.info("更新时间在上次抓取时间" + page.getPrevFetchTime() + "之前, 停止抓取");
+	                    	status.setMessage("更新时间在上次抓取时间" + new Date(page.getPrevFetchTime()).toLocaleString() + "之前, 停止抓取");
+	                    	LOG.info("更新时间在上次抓取时间" + new Date(page.getPrevFetchTime()).toLocaleString() + "之前, 停止抓取");
 	                    	continuePage.set(false);
 	                    	break;
 	                    }
+	                    hasUpdate = true;
                     } catch (ParseException e) {
                     	LOG.error("Cannot parse date: " + update + " in page " + indexUrl, e);
                     }
@@ -172,19 +175,19 @@ public final class NetworkInspectParserController extends ParseTool {
 			try {
 				LOG.debug("task size: " + tasks.size());
 	            List<Future<FetchStatus>> result = pool.invokeAll(tasks);
+	            String tempStr = "";
 	            for (Future<FetchStatus> future : result) {
 	                try {
 	                    FetchStatus parseStatus = future.get();
-//	                    if (parseStatus.getStatus() != Status.SUCCESS) {
-	                    	status.setStatus(parseStatus.getStatus());
-//	                    }
+                    	status.setStatus(parseStatus.getStatus());
+                    	tempStr = parseStatus.getMessage();
 	                    LOG.info(parseStatus.getUrl() + ":数量(" + parseStatus.getCount() + "):消息 (" + parseStatus.getMessage() + ")");
-	                    status.setMessage(status.getMessage() + ", 消息(" + parseStatus.getMessage() + ")");
 	                    sum.addAndGet(parseStatus.getCount());
                     } catch (ExecutionException e) {
 	                    e.printStackTrace();
                     }
                 }
+	            status.setMessage(status.getMessage() + ", 消息(" + tempStr + ")");
             } catch (InterruptedException e) {
 	            e.printStackTrace();
             }

@@ -27,7 +27,7 @@ public class SlaveScheduler {
 		if (queue == null || queue.isEmpty())
 			return null;
 		ScoredMachine sm = queue.poll();
-		if (sm != null) {
+		if (sm != null) { // 重新计算score
 			sm.runningCount += 1;
 			sm.score = 1.0f / (1.0f + sm.runningCount);
 			queue.put(sm);

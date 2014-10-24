@@ -28,6 +28,7 @@ public interface Params {
   public static final String PREV_FETCH_TIME = "prevFetchTime";
   
   /** 搜索引擎 */
-  public static final String ENGINE_URL = "engineUrl"; 
+  public static final String ENGINE_URL = "engineUrl";
+public static final String COMMENT = "comment"; 
   
 }

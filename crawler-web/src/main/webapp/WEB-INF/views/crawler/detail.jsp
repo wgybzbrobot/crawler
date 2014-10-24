@@ -59,20 +59,34 @@
 									<div>没有任务</div>
 								</c:when>
 								<c:otherwise>
-									<ul>
-										<c:forEach items="${list}" var="map" varStatus="status">
-										<li class="section-li">
-											<span>${status.index + 1}</span>
-											<span>
+								<table style="font-size: 14px;">
+									<thead><tr><td style="width: 35px;">序号</td><td>版块</td><td>抓取时间</td><td>数量</td><td>消息</td></tr></thead>
+									<c:forEach items="${list}" var="map" varStatus="status">
+										<tr>
+											<td style="width: 35px;"><span>${status.index + 1}</span></td>
+											<td style="width: 120px;"><span>
 												<c:choose>
 													<c:when test="${'NETWORK_INSPECT' eq map.type }"><a target="_blank" href="${map.result.url}" title="网络巡检">${map.result.comment}</a></c:when>
 													<c:when test="${'NETWORK_SEARCH' eq map.type }"><a target="_blank" href="${map.result.url}" title="全网搜索">${map.result.comment}</a></c:when>
-												</c:choose>
-											</span>
-											<span style="margin: 0 12px 0 0;" title="抓取数量"><fmt:formatNumber var="count" type="number" value="${map.result.count}"  pattern="#"/>${count}</span>
-										</li>
-										</c:forEach>
-									</ul>
+												</c:choose></span>
+											</td>
+											<td style="width: 150px;"><span title="开始抓取时间">${map.result.starttime}</span></td>
+											<td style="width: 45px;"><span style="margin: 0 12px 0 0;" title="抓取数量"><fmt:formatNumber var="count" type="number" value="${map.result.count}"  pattern="#"/>${count}</span></td>
+											<td>
+												<span title="${map.result.message }">
+												<c:choose>   
+												    <c:when test="${fn:length(map.result.message) > 40}">   
+												        <c:out value="${fn:substring(map.result.message, 0, 40)}..." />   
+												    </c:when>   
+												   <c:otherwise>   
+												      <c:out value="${map.result.message }" />   
+												    </c:otherwise>   
+												</c:choose> 
+												</span>
+											</td>
+										</tr>
+									</c:forEach>
+								</table>
 								</c:otherwise>
 							</c:choose>
 						</c:otherwise>

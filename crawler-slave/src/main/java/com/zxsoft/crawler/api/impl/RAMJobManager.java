@@ -199,7 +199,7 @@ public class RAMJobManager implements JobManager {
 			
 			tool = ReflectionUtils.newInstance(clz, conf);
 			
-			jobStatus = new JobStatus(id, type, args, State.IDLE, "idle");
+			jobStatus = new JobStatus(id, type, (String)args.get("comment"), args, State.IDLE, "idle");
 			jobStatus.tool = tool;
 		}
 

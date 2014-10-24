@@ -19,6 +19,7 @@ public class JobStatus implements Serializable {
 
 	public String id;
 	public JobType type;
+	public String comment;
 	public Map<String, Object> args;
 	public Map<String, Object> result;
 	@JsonIgnore
@@ -29,9 +30,10 @@ public class JobStatus implements Serializable {
 	public JobStatus() {
 	}
 
-	public JobStatus(String id, JobType type, Map<String, Object> args, State state, String msg) {
+	public JobStatus(String id, JobType type, String comment, Map<String, Object> args, State state, String msg) {
 		this.id = id;
 		this.type = type;
+		this.comment = comment;
 		this.args = args;
 		this.state = state;
 		this.msg = msg;

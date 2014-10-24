@@ -1,6 +1,5 @@
 package com.zxsoft.crawler.master.impl;
 
-import java.net.URL;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -9,7 +8,6 @@ import org.thinkingcloud.framework.util.CollectionUtils;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
 import com.google.gson.Gson;
 import com.zxsoft.crawler.master.Prey;
@@ -52,7 +50,7 @@ public class RedisPreyFrontier extends PreyFrontier {
 	@Override
 	public void pushPrey(Prey prey) {
 		Jedis jedis = factory.getJedis();
-		double score = 1.0d / (System.currentTimeMillis() + prey.getFetchinterval());
+		double score = 1.0d / (System.currentTimeMillis() / 60000 + prey.getFetchinterval());
 		jedis.zadd(URLBASE, score, prey.toString());
 		LOG.info("push prey: " + prey.toString() + ", score:" + score);
 	}

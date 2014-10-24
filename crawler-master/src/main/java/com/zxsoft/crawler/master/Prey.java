@@ -27,6 +27,8 @@ public class Prey implements Serializable {
 	 */
 	private String url;
 	
+	private String comment;
+	
 	/**
 	 * @see Params.JOB_TYPE, 默认是网络巡检
 	 */
@@ -48,6 +50,22 @@ public class Prey implements Serializable {
 	private long prevFetchTime;
 
 	/**
+	 * 任务状态，1表示执行，0表示暂停
+	 */
+	private int state = 1;
+	
+	public Prey(String site, String url, String comment, String jobType, String proxyType, int fetchinterval) {
+	    super();
+	    this.site = site;
+	    this.url = url;
+	    this.comment = comment;
+	    this.jobType = jobType;
+	    this.proxyType = proxyType;
+	    this.fetchinterval = fetchinterval;
+	    this.prevFetchTime = System.currentTimeMillis();
+	    this.state = 1;
+    }
+	/**
 	 * Only Constructor
 	 * @param site
 	 * @param url
@@ -55,15 +73,27 @@ public class Prey implements Serializable {
 	 * @param fetchinterval
 	 * @param prevFetchTime
 	 */
-	public Prey(String site, String url, String jobType, String proxyType, int fetchinterval, long prevFetchTime) {
+	public Prey(String site, String url, String comment,String jobType, String proxyType, int fetchinterval, long prevFetchTime, int state) {
 	    super();
 	    this.site = site;
 	    this.url = url;
+	    this.comment = comment;
 	    this.jobType = jobType;
 	    this.proxyType = proxyType;
 	    this.fetchinterval = fetchinterval;
 	    this.prevFetchTime = prevFetchTime;
+	    this.state = state;
     }
+
+
+	public int getState() {
+		return state;
+	}
+
+
+	public void setState(int state) {
+		this.state = state;
+	}
 
 
 	public String getSite() {
@@ -81,6 +111,16 @@ public class Prey implements Serializable {
 	public void setUrl(String url) {
 		this.url = url;
 	}
+
+	public String getComment() {
+		return comment;
+	}
+
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
 
 	public String getJobType() {
 		return jobType;

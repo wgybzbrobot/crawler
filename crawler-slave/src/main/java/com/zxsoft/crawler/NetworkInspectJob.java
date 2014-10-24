@@ -1,10 +1,13 @@
 package com.zxsoft.crawler;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.parse.NetworkInspectParserController;
 import com.zxsoft.crawler.parse.FetchStatus;
@@ -16,6 +19,11 @@ import com.zxsoft.crawler.storage.WebPage;
  */
 public class NetworkInspectJob extends CrawlTool {
 
+	/**
+	 * 
+	 */
+    private static final long serialVersionUID = -6300768337043076256L;
+    
 	private static Logger LOG = LoggerFactory.getLogger(NetworkInspectJob.class);
 	
 	public NetworkInspectJob () {}
@@ -30,6 +38,7 @@ public class NetworkInspectJob extends CrawlTool {
 		
 		String url = (String) args.get(Params.URL);
 		String urlType = (String) args.get(Params.PROXY_TYPE);
+		String comment = (String) args.get(Params.COMMENT);
 		long prevFetchTime = 0;
 		try {
 			prevFetchTime = (long) args.get(Params.PREV_FETCH_TIME);
@@ -40,6 +49,8 @@ public class NetworkInspectJob extends CrawlTool {
 		
 		Map<String, Object> map = new HashMap<String, Object>(); 
 		map.put("url", url);
+		map.put("comment", comment);
+		map.put("starttime", new Date().toLocaleString());
 		try {
 			NetworkInspectParserController parseUtil = new NetworkInspectParserController(conf);
 			WebPage page = new WebPage(url, urlType, prevFetchTime);
