@@ -22,6 +22,7 @@ import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -68,7 +69,7 @@ public class SlaveController {
 			map.put("msg", "正常");
 			map.put("code", "2000");
 
-		} catch (ConnectException e) {
+		} catch (ClientHandlerException e) {
 			LOG.warn(e.getMessage(), e);
 			map.put("msg", "无法连接到主控，可能没有启动.");
 			map.put("code", "5000");
@@ -115,21 +116,30 @@ public class SlaveController {
 	public String preys(@PathVariable(value = "index") int index, Model model) {
 		List<Prey> list = new LinkedList<Prey>();
 		Jedis jedis = new Jedis(REDIS_HOST, 6379);
-		long count = jedis.zcard(URLBASE);
-		Set<String> set = jedis.zrevrange(URLBASE, 0, index - 1);
-		if (!CollectionUtils.isEmpty(set)) {
-			Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-			for (String str : set) {
-				Prey prey = gson.fromJson(str, Prey.class);
-				list.add(prey);
+		long count = 0;
+		try {
+			count = jedis.zcard(URLBASE);
+			Set<String> set = jedis.zrevrange(URLBASE, 0, index - 1);
+			if (!CollectionUtils.isEmpty(set)) {
+				Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+				for (String str : set) {
+					Prey prey = gson.fromJson(str, Prey.class);
+					list.add(prey);
+				}
 			}
+		} catch (JedisConnectionException e) {
+			model.addAttribute("code", 5000);
+			model.addAttribute("msg", "Redis没有启动: " + REDIS_HOST + ":" + 6379);
+			e.printStackTrace();
+		} finally {
+			model.addAttribute("count", count);
+			model.addAttribute("preys", list);
 		}
 		jedis.close();
-		model.addAttribute("count", count);
-		model.addAttribute("preys", list);
 
 		List<ConfList> engines = dictService.getSearchEngines();
 		model.addAttribute("engines", engines);
+		
 		return "/crawler/preys";
 	}
 
@@ -158,9 +168,7 @@ public class SlaveController {
 	@RequestMapping(value = "addInspectJob", method = RequestMethod.POST)
 	public Map<String, Object> addInspectJob(
 	        @RequestParam(value = "url", required = false) String url) {
-
 		Assert.hasLength(url);
-
 		Map<String, Object> args = new HashMap<String, Object>();
 		ConfList confList = configService.getConfList(url);
 		if (confList == null) {
@@ -175,18 +183,21 @@ public class SlaveController {
 		String site = website.getSite();
 		String proxyType = website.getSiteType().getType();
 
-		// args.put(Params.URL, url);
-		// jobService.addInsecptJob(args);
-
 		// 判断任务列表中是否已存在该任务
 
 		Jedis jedis = new Jedis(REDIS_HOST, 6379);
-		double score = 1.0d / (confList.getFetchinterval() + 1.0d);
+		double score = 1.0d / (System.currentTimeMillis() / 60000 + 	confList.getFetchinterval());
 		Prey prey = new Prey(site, url,  confList.getComment(), JobType.NETWORK_INSPECT.toString(),
 		        proxyType, confList.getFetchinterval());
 		jedis.zadd(URLBASE, score, prey.toString());
 		jedis.close();
 
+		args.put(Params.URL, url);
+		args.put(Params.URL, prey.getUrl());
+		args.put(Params.PROXY_TYPE, prey.getProxyType());
+		args.put(Params.PREV_FETCH_TIME, 0.0d);
+		args.put(Params.COMMENT, prey.getComment());
+		
 		jobService.addInsecptJob(args);
 
 		return args;

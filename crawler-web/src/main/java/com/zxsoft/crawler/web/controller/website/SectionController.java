@@ -7,16 +7,13 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mvc.extensions.ajax.AjaxUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.request.WebRequest;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
 import org.thinkingcloud.framework.web.utils.Page;
@@ -37,10 +34,6 @@ import com.zxsoft.crawler.web.service.website.WebsiteService;
 @RequestMapping("/section")
 public class SectionController {
 
-	@ModelAttribute
-	public void ajaxAttribute(WebRequest request, Model model) {
-		model.addAttribute("ajaxRequest", AjaxUtils.isAjaxRequest(request));
-	}
 
 	@Autowired
 	private SectionService sectionService;
@@ -66,14 +59,14 @@ public class SectionController {
 		Page<Section> page = sectionService.getSections(section, 1, Page.DEFAULT_PAGE_SIZE);
 		model.addAttribute("page", page);
 
-		return "section";
+		return "website/section";
 	}
 
 	/**
 	 * 添加或修改版块
 	 */
 	@ResponseBody
-	@RequestMapping(value = "add", method = RequestMethod.POST)
+	@RequestMapping(value = "ajax/add", method = RequestMethod.POST)
 	public String addOrUpdate(@RequestParam(value = "copy", required = false) String copy,
 	        Section section, String oldUrl, Model model, HttpSession session) {
 		
@@ -121,7 +114,7 @@ public class SectionController {
 	 * 获取某个网站的详细信息
 	 */
 	@ResponseBody
-	@RequestMapping(value = "moreinfo/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "ajax/moreinfo/{id}", method = RequestMethod.GET)
 	public Map<String, Object> moreinfo(@PathVariable(value = "id") String id, Model model) {
 		Section section = sectionService.getSection(id);
 
@@ -135,7 +128,7 @@ public class SectionController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "delete/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "ajax/delete/{id}", method = RequestMethod.GET)
 	public String delete(@PathVariable(value = "id") String id, Model model) {
 		sectionService.delete(id);
 		return "success";

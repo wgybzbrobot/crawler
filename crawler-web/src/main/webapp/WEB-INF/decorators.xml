@@ -8,12 +8,13 @@
 		
 	</decorator>
 	
-	<!-- <excludes>
+	<excludes>
 		<pattern>/excludes/*</pattern>
 		<pattern>/default.jsp</pattern>
 		<pattern>/welcome.jsp</pattern>
 		<pattern>*/index/*</pattern>
 		<pattern>*/json/*</pattern>
+		<pattern>*/ajax/*</pattern>
 		<pattern>/common/include.jsp</pattern>
-	</excludes> -->
+	</excludes>
 </decorators>

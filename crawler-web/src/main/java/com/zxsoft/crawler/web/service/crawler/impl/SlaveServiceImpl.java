@@ -23,19 +23,11 @@ public class SlaveServiceImpl extends SimpleCrawlerServiceImpl implements SlaveS
 		com.sun.jersey.api.client.Client client = com.sun.jersey.api.client.Client.create();
 		WebResource webResource = client.resource(CRAWLER_MASTER
 		        + MasterPath.SLAVE_RESOURCE_PATH);
-		try {
-			String text = webResource.get(String.class);
-			Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-			Map<String, Object> map = gson.fromJson(text, Map.class);
-			result = (List<Map<String, Object>>) map.get("slavestatus");
-		} catch(ClientHandlerException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
+		String text = webResource.get(String.class);
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		Map<String, Object> map = gson.fromJson(text, Map.class);
+		result = (List<Map<String, Object>>) map.get("slavestatus");
 		return result;
-
 	}
 
 }

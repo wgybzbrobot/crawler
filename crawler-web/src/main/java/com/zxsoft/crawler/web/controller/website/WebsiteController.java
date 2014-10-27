@@ -39,7 +39,7 @@ public class WebsiteController {
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String index(@ModelAttribute("website") Website website, Model model) {
-		Page<Website> page = websiteServiceImpl.getWebsite(website, 1, 20);
+		Page<Website> page = websiteServiceImpl.getWebsite(website, 1, 50);
 		model.addAttribute("page", page);
 		
 		if (website != null)
@@ -55,10 +55,10 @@ public class WebsiteController {
 	 * 加载更多网站
 	 */
 	@ResponseBody
-	@RequestMapping(value = "list", method = RequestMethod.GET)
+	@RequestMapping(value = "ajax/list", method = RequestMethod.GET)
 	public List<Website> list(
 	        @RequestParam(value = "page", defaultValue = "1", required = false) Integer pageNo,
-	        @RequestParam(value = "rows", defaultValue = "15", required = false) Integer pageSize,
+	        @RequestParam(value = "rows", defaultValue = "50", required = false) Integer pageSize,
 	        Website website) {
 		Page<Website> page = websiteServiceImpl.getWebsite(website, pageNo, pageSize);
 		List<Website> list = page.getRes();
@@ -69,7 +69,7 @@ public class WebsiteController {
 	 * 修改或新增
 	 */
 	@ResponseBody
-	@RequestMapping(value = "add", method = RequestMethod.POST)
+	@RequestMapping(value = "ajax/add", method = RequestMethod.POST)
 	public String save(@RequestParam(value = "site", required = false) String site,
 	        @RequestParam(value = "id", required = false) String id,
 	        @RequestParam(value = "comment", required = false) String comment,
@@ -90,7 +90,7 @@ public class WebsiteController {
 	 * 获取某个网站的详细信息
 	 */
 	@ResponseBody
-	@RequestMapping(value = "moreinfo/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "ajax/moreinfo/{id}", method = RequestMethod.GET)
 	public Map<String, Object> moreinfo(@PathVariable(value = "id") String id, Model model) {
 		Website website = websiteServiceImpl.getWebsite(id);
 
@@ -120,7 +120,7 @@ public class WebsiteController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "auth/add", method = RequestMethod.POST)
+	@RequestMapping(value = "ajax/auth/add", method = RequestMethod.POST)
 	public String addAuth(@ModelAttribute("auth") Auth auth, Model model) {
 		Assert.notNull(auth);
 		websiteServiceImpl.saveAuth(auth);
@@ -143,7 +143,7 @@ public class WebsiteController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "auth/delete/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "ajax/auth/delete/{id}", method = RequestMethod.GET)
 	public String deleteAuth(@PathVariable(value = "id") String id, Model model) {
 		Assert.hasLength(id);
 		websiteServiceImpl.deleteAuth(id);

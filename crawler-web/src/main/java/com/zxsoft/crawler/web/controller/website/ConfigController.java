@@ -56,7 +56,7 @@ public class ConfigController {
 	 * 验证列表页配置是否正确
 	 */
 	@ResponseBody
-	@RequestMapping(value = "testListConf", method = RequestMethod.POST)
+	@RequestMapping(value = "ajax/testListConf", method = RequestMethod.POST)
 	public Map<String, Object> testListConf(ConfList listConf, @RequestParam(value="keyword", required=false) String keyword) {
 		Map<String, Object> listRes = listConfigVerification.verify(listConf, keyword);
 		return listRes;
@@ -66,15 +66,8 @@ public class ConfigController {
 	 * 保存列表页配置
 	 */
 	@ResponseBody
-	@RequestMapping(value = "addListConf", method = RequestMethod.POST)
+	@RequestMapping(value = "ajax/addListConf", method = RequestMethod.POST)
 	public Map<String, Object> saveListConf(ConfList listConf) {
-		/*Map<String, Object> listRes = listConfigVerification.verify(listConf);
-		if (((Map<String, String>) listRes.get("errors")).size() == 0) { // save
-			configService.add(listConf);
-			listRes.put("msg", "success");
-		} else {
-			listRes.put("msg", "failure");
-		}*/
 		configService.add(listConf);
 		Map<String, Object> listRes = new HashMap<String, Object>();
 		listRes.put("msg", "success");
@@ -85,7 +78,7 @@ public class ConfigController {
 	 * 判断listConf是否存在
 	 */
 	@ResponseBody
-	@RequestMapping(value = "listConfExist", method = RequestMethod.GET)
+	@RequestMapping(value = "ajax/listConfExist", method = RequestMethod.GET)
 	public boolean listConfExist(@RequestParam(value = "url", required = false) String url,
 	        @ModelAttribute("ajaxRequest") boolean ajaxRequest) {
 		// boolean exist = websiteService.listConfExist(url);
@@ -101,7 +94,7 @@ public class ConfigController {
 	 * 验证详细页配置
 	 */
 	@ResponseBody
-	@RequestMapping(value = "testDetailConf", method = RequestMethod.POST)
+	@RequestMapping(value = "ajax/testDetailConf", method = RequestMethod.POST)
 	public Map<String, Object> testDetailConf(ConfDetail detailConf, String testUrl) {
 		Map<String, Object> map = detailConfigVerification.verify(detailConf, testUrl);
 		return map;
@@ -111,7 +104,7 @@ public class ConfigController {
 	 * 保存详细页配置
 	 */
 	@ResponseBody
-	@RequestMapping(value = "saveDetailConf", method = RequestMethod.POST)
+	@RequestMapping(value = "ajax/saveDetailConf", method = RequestMethod.POST)
 	public Map<String, Object> saveDetailConf(ConfDetail detailConf, String testUrl, String oldHost) {
 		Map<String, Object> map = detailConfigVerification.verify(detailConf, testUrl);
 		configService.add(detailConf, oldHost);
@@ -124,7 +117,7 @@ public class ConfigController {
 	 * 检查详细页HOST是否存在
 	 */
 	@ResponseBody
-	@RequestMapping(value = "detailConfExist", method = RequestMethod.GET)
+	@RequestMapping(value = "ajax/detailConfExist", method = RequestMethod.GET)
 	public boolean detailConfExist(
 	        @RequestParam(value = "listUrl", required = false) String listUrl,
 	        @RequestParam(value = "host", required = false) String host,
