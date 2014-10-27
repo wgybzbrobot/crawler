@@ -5,6 +5,7 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>classpath*:spring/applicationContext.xml</param-value>
 	</context-param>
+	
 	<filter>
 		<filter-name>Character Encoding Filter</filter-name>
 		<filter-class>com.zxsoft.framework.filter.MyCharacterEncodingFilter</filter-class>
@@ -29,11 +30,19 @@
 			<param-value>false</param-value>
 		</init-param>
 	</filter>
-
 	<filter-mapping>
 		<filter-name>openSessionInViewFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+	<filter>
+		<filter-name>sitemesh</filter-name>
+		<filter-class>com.opensymphony.sitemesh.webapp.SiteMeshFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>sitemesh</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
@@ -51,8 +60,13 @@
 		<servlet-name>appServlet</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
+
+
+	<session-config>
+		<session-timeout>60</session-timeout>
+	</session-config>
+
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
-	<!-- <jsp-config> <jsp-property-group> <el-ignored>false</el-ignored> </jsp-property-group> </jsp-config> -->
 </web-app>

@@ -1,0 +1,19 @@
+<decorators defaultdir="/decorators">
+	
+	<decorator name="main" page="main.jsp">
+		<pattern>/*</pattern>
+		<!-- <pattern>/website/*</pattern>
+		<pattern>/crawler/*</pattern>
+		<pattern>/proxy/*</pattern> -->
+		
+	</decorator>
+	
+	<!-- <excludes>
+		<pattern>/excludes/*</pattern>
+		<pattern>/default.jsp</pattern>
+		<pattern>/welcome.jsp</pattern>
+		<pattern>*/index/*</pattern>
+		<pattern>*/json/*</pattern>
+		<pattern>/common/include.jsp</pattern>
+	</excludes> -->
+</decorators>
