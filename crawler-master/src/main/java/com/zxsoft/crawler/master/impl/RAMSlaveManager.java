@@ -127,7 +127,7 @@ public class RAMSlaveManager implements SlaveManager {
 	 */
 	public String chooseUrl() {
 		ScoredMachine sm = scheduler.selectSlave();
-		Assert.notNull(sm);
+		Assert.notNull(sm, "没有Slave启动");
 		
 		URL url = null;
 		try {

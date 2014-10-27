@@ -19,14 +19,12 @@
 	<div id="body">
 		<div style="padding:4px 0 4px 22px ;">
 			<a class="linkbutton" href="javascript:history.go(-1);">返回</a>
-			&nbsp;&nbsp;&nbsp;
-			<a href="#" class="linkbutton" id="refresh" onclick="javascript:location.reload();">刷新</a> 
 			<div id="content">
-				<div style="text-align: center;">
-					<div>爬虫${ip}:${port}</div>
+				<div>
+					<div style="text-align: center;">爬虫${ip}:${port}</div>
 					<c:choose>
 						<c:when test="${'running' eq state}">
-							<h3>正在运行的任务</h3>
+							<h3  style="text-align: center;">正在运行的任务</h3>
 							<c:choose>
 								<c:when test="${empty list }">
 									<div>没有任务</div>
@@ -53,13 +51,13 @@
 							</c:choose>
 						</c:when>
 						<c:otherwise>
-							<h3>完成的任务</h3>
+							<h3  style="text-align: center;">完成的任务</h3>
 							<c:choose>
 								<c:when test="${empty list }">
 									<div>没有任务</div>
 								</c:when>
 								<c:otherwise>
-								<table style="font-size: 14px;">
+								<table style="text-align:left; font-size: 14px;">
 									<thead><tr><td style="width: 35px;">序号</td><td>版块</td><td>抓取时间</td><td>数量</td><td>消息</td></tr></thead>
 									<c:forEach items="${list}" var="map" varStatus="status">
 										<tr>

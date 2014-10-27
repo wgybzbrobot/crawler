@@ -37,7 +37,7 @@ public class WebPage implements Serializable, Cloneable {
 	private boolean auth;
 
 	/**
-	 * 网站类型
+	 * 代理类型
 	 * 
 	 * @see Proxy
 	 */

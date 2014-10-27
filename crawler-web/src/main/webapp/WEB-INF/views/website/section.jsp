@@ -1,16 +1,12 @@
 <%@ page language="java" pageEncoding="UTF-8"%>
-<%@ page session="false"%>
 <%@ include file="/common/include.jsp"%>
 <%@ page isELIgnored="false"%>
 <meta http-equiv="Content-Type" content="text/html charset=utf-8">
 <html>
 <head>
-<title>舆情网络爬虫</title>
-<link href="<c:url value="/resources/form.css" />" rel="stylesheet" type="text/css" />
-<link href="<c:url value="/resources/index.css" />" rel="stylesheet" type="text/css" />
+<title>版块配置</title>
 <script type="text/javascript">
 	$(function() {
-		
 		$('.addNewSectionBtn').click(function() {
 			$('#sectionForm input[type!=hidden][type!=button]').val('');
 			$('#sectionForm input[name=id]').val('');
@@ -29,7 +25,7 @@
 				var oldurl = $(this).attr('idx');
 				console.log(oldurl);
 				$('#sectionForm input[name=oldUrl]').val(oldurl);				
-				$('#sectionForm').form('load', 'section/moreinfo/' + $(this).attr('id'));
+				$('#sectionForm').form('load', 'section/ajax/moreinfo/' + $(this).attr('id'));
 		});
 		/* 创建 */
 		$('a.addSectionBtn').click(function(e) {
@@ -45,7 +41,7 @@
                 if (r){
                 	$.ajax({
             			type : 'GET',
-            			url : 'section/delete/' + id,
+            			url : 'section/ajax/delete/' + id,
             			success: function(data) {
 							location.reload();
             			}
@@ -60,7 +56,7 @@
 
 	function submitForm() {
 		$('#sectionForm').form('submit', {
-			url : 'section/add',
+			url : 'section/ajax/add',
 			onSubmit : function(param) {
 				return $(this).form('enableValidation').form('validate');
 			},
@@ -83,7 +79,7 @@
 		console.log('search ' + value);
 		$.ajax({
 			type : 'GET',
-			url : 'section/list',
+			url : 'section/ajax/list',
 			dataType : 'json',
 			data: {comment: value},
 			success : function(data) {
@@ -175,7 +171,7 @@
 							</li>
 						</c:forEach>
 					</ul>
-					<c:if test="${page.count > 15}">
+					<c:if test="${page.count > 50}">
 						<div class="section-more" id="section_more">
 							<a href="javascript:void(0)"><span>加载更多</span></a>
 						</div>
@@ -185,7 +181,7 @@
 			</c:otherwise>
 		</c:choose>
 	</div>
-	<div class="right-promotion">
+<%-- 	<div class="right-promotion">
 		<c:import url="/website/auth/${website.id}" charEncoding="utf-8" />
-	</div>
+	</div> --%>
 </body>

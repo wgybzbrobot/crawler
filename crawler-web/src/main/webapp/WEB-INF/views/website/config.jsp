@@ -6,8 +6,6 @@
 <html>
 <head>
 <title>舆情网络爬虫</title>
-<link href="<c:url value="/resources/form.css" />" rel="stylesheet" type="text/css" />
-<link href="<c:url value="/resources/index.css" />" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
 	$(function() {
 		$('fieldset > legend').next('table').hide();
@@ -30,7 +28,7 @@
 		$('#url').blur(function() {
 			var url = $('#url').val();
 			if (url != '') {
-				$.get('website/listConfExist',{url: url}, function(data) {
+				$.get('website/ajax/listConfExist',{url: url}, function(data) {
 					console.log(data);
 					if (data == true) {
 						$('#confdetail' + index).find('label[for=url]').css('border', '1px solid #ff0000');
@@ -44,7 +42,7 @@
 		
 		$("#testConfList").click(function() {
 			$('#loading').show();
-			$.post('config/testListConf', $('#conflist').serialize(), function(data) {
+			$.post('config/ajax/testListConf', $('#conflist').serialize(), function(data) {
 				$('#loading').hide();
 				$('#conflist').find('label').css('border', 'none');
 				$('#conflist').find('label').attr('title', '');
@@ -78,7 +76,7 @@
 		
 		$("#saveConfList").click(function() {
 			$('#conflist').form('submit', {
-				url: 'config/addListConf',
+				url: 'config/ajax/addListConf',
 				onSubmit:function(param) {
 					console.log('validate');
 					var valid = $(this).form('enableValidation').form('validate');
@@ -134,7 +132,7 @@
 			$('#saveMessage').html('');
 			
 			$('#confdetail' + index).form('submit', {
-				url: 'config/testDetailConf',
+				url: 'config/ajax/testDetailConf',
 				onSubmit:function(param) {
 					return $(this).form('enableValidation').form('validate');
 				},
@@ -180,7 +178,7 @@
 			$('label.error').text('');
 			$('#saveMessage').html('');
 			$('#confdetail' + index).form('submit', {
-				url: 'config/saveDetailConf',
+				url: 'config/ajax/saveDetailConf',
 				onSubmit:function(param) {
 					return $(this).form('enableValidation').form('validate');
 				},

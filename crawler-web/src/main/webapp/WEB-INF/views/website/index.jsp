@@ -1,13 +1,10 @@
-<%@ page language="java" pageEncoding="UTF-8"%>
-<%@ page session="false"%>
-<%@ include file="/common/include.jsp"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="/common/include.jsp" %>
 <%@ page isELIgnored="false"%>
 <meta http-equiv="Content-Type" content="text/html charset=utf-8">
 <html>
 <head>
-<title>舆情网络爬虫</title>
-<link href="<c:url value="/resources/form.css" />" rel="stylesheet" type="text/css" />
-<link href="<c:url value="/resources/index.css" />" rel="stylesheet" type="text/css" />
+<title>网站配置</title>
 <script type="text/javascript">
 	$(function() {
 		$('#addWebsiteBtn').click(function(e) {
@@ -20,11 +17,11 @@
 			$('div.form-wrapper').hide();
 		});
 
-		$('a.moreinfo').click(
-			function(e) {
-				$('div.form-wrapper-title').text('编辑网站');
-				$('div.form-wrapper').show();
-				$('#websiteForm').form('load', 'website/moreinfo/' + $(this).attr('id'));
+		$('a.moreinfo').click(function(e) {
+			$('div.form-wrapper-title').text('编辑网站');
+			$('div.form-wrapper').show();
+			$('#websiteForm').form('load', 'website/ajax/moreinfo/' + $(this).attr('id'));
+			return false;
 		});
 		$('#searchForm span.searchbox input:first').focus();
 	});
@@ -33,7 +30,7 @@
 	}
 	function submitForm() {
 		$('#websiteForm').form('submit', {
-			url : 'website/add',
+			url : 'website/ajax/add',
 			onSubmit : function(param) {
 				console.log('validate');
 				return $(this).form('enableValidation').form('validate');
@@ -80,7 +77,7 @@
 							checked="checked">&nbsp;&nbsp;&nbsp;<span>禁用</span><input type="radio" name="status" value="close">
 					</div>
 					<div>
-						<label class="form-label" for="sitetype">网站类型(访问哪个代理)</label> <select class="easyui-validatebox form-input"
+						<label class="form-label" for="sitetype">访问代理类型</label> <select class="easyui-validatebox form-input"
 							name="sitetype">
 							<c:forEach items="${siteTypes}" var="siteType">
 								<option value="${siteType.type}">${siteType.comment}</option>
@@ -115,7 +112,7 @@
 					<div style="display:none">
 				        <div id="toolbar${web.id}" >
 							<span style="font-size: 6px; ">${web.region}</span>
-				            <a href="#" id="${web.id}" class="moreinfo linkbutton" >编辑</a>
+				            <a href="website/moreinfo/${web.id}" onclick="return false" id="${web.id}" class="moreinfo linkbutton" >编辑</a>
 				            <c:choose>
 				            	<c:when test="${web.status eq 'close'}">
 				            		<span style="font-size: 6px; ">已禁用</span>
@@ -128,7 +125,7 @@
 				    </div>
 				</c:forEach>
 			</ul>
-			<c:if test="${page.count > 20}">
+			<c:if test="${page.count > 50}">
 				<div class="website-more" id="website_more">
 					<a href="javascript:void(0)"><span>加载更多</span></a>
 				</div>

@@ -11,10 +11,6 @@
 </head>
 <body>
 	<div id="body">
-		<div style="margin: 5px 0 15px 0;">
-			<a href="#" class="linkbutton" id="refresh" onclick="javascript:location.reload();">刷新</a> 
-			<a href="<c:url value='slaves/preys/20'/>" class="linkbutton">任务队列</a>
-		</div>
 		<div style="text-align: center;">
 			<div id="content">
 				<c:if test="${empty map.slaves }">

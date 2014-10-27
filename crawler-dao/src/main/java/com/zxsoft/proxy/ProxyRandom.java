@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.CollectionUtils;
 import org.thinkingcloud.framework.cache.ObjectCache;
+import org.thinkingcloud.framework.util.Assert;
 
 import com.zxsoft.crawler.dao.BaseDao;
 import com.zxsoft.crawler.util.Utils;
@@ -29,17 +30,17 @@ public class ProxyRandom extends BaseDao {
 		this.proxyFactory = proxyFactory;
 	}
 
-	public Proxy random(String url) {
+	public Proxy random(String type) {
 		
-		String host = "";
-		try {
-			host = Utils.getHost(url);
-		} catch (MalformedURLException e) {
-			LOG.error(e.getMessage());
-			e.printStackTrace();
-		}
-
-		String type = getWebSiteType(host);
+//		String host = "";
+//		try {
+//			host = Utils.getHost(url);
+//		} catch (MalformedURLException e) {
+//			LOG.error(e.getMessage());
+//			e.printStackTrace();
+//		}
+//
+//		String type = getWebSiteType(host);
 
 		List<Proxy> proxies = proxyFactory.getProxies(type);
 

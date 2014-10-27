@@ -1,15 +1,8 @@
 #body {
 	width: 980px;
 	margin: 0 auto;
-}
-
-ul,ol {
-	list-style: none;
-}
-
-li {
-	display: list-item;
-	text-align: -webkit-match-parent;
+	min-height: 80%;
+	height: 80%;
 }
 
 .site-li {
@@ -24,6 +17,7 @@ li {
 	color: white;
 	text-align: center;
 	font-size: 20px;
+	list-style: none;
 }
 
 .site-li a {
@@ -74,6 +68,7 @@ li.section-li {
 	color: white;
 	text-align: center;
 	font-size: 20px;
+	list-style: none;
 }
 
 .slave-li a {
@@ -110,7 +105,7 @@ li.section-li {
 	float: right;
 	width: 44px;
 	height: 44px;
-	background: url(img/card_manage.png) -30px 16px no-repeat;
+	background: url(../img/card_manage.png) -30px 16px no-repeat;
 	background-color: #F7F7F7;
 }
 

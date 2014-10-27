@@ -7,9 +7,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>與情网络爬虫</title>
 </head>
-<frameset border="0" frameSpacing="0" rows="55, *, 70" frameBorder="no"  name="top">
+<%-- <frameset border="0" frameSpacing="0" rows="55, *, 70" frameBorder="no"  name="top">
 	<frame name="banner" src="<c:url value='/common/header.jsp' />" >
 	<frame name="main" bordercolor="#FFFFFF" src="website" frameBorder="0" noresize>
 	<frame name="bottom" src="<c:url value='/common/footer.jsp' />" style="display: none;">
-</frameset>
+</frameset> --%>
+
+<c:redirect url="website"></c:redirect>
 </html>

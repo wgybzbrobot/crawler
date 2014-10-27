@@ -71,10 +71,12 @@ $(function() {
 </head>
 <body>
 	<div id="body">
+	<c:choose>
+		<c:when test="${code eq 5000 }">
+			<div>${msg}</div>
+		</c:when>
+		<c:otherwise>
 		<div style="margin: 5px 0 15px 0;">
-			<a class="linkbutton" href="javascript:history.go(-1);">返回</a>
-			&nbsp;&nbsp;&nbsp;
-			<a href="#" class="linkbutton" id="refresh" onclick="javascript:location.reload();">刷新</a> 
 			<a href="#" class="linkbutton" id="addInspectJobBtn" onclick="return addInspectJob();">添加网络巡检任务</a> 
 			<a href="#" class="linkbutton" id="addSearchJobBtn" onclick="return addSearchJob();">添加全网搜索任务</a>
 		</div>
@@ -116,43 +118,57 @@ $(function() {
 				<div>Redis任务队列总共有${count}个任务, 下面为您显示
 					<form id="preyForm" action="" style="display: inline;"><input style="width: 90px;" type="text" value="${fn:length(preys)}" title="输入个数后回车"/></form>个任务
 				</div>
-				<ul>
+				<div>
+				<table style="text-align: left; font-size: 14px;">
+					<thead>
+						<tr>
+							<td style="width: 35px;">序号</td>
+							<td>任务</td>
+							<td>上次抓取时间</td>
+							<td>时间间隔</td>
+							<td>预计下次抓取时间</td>
+							<td>操作</td>
+						</tr>
+					</thead>
 					<c:forEach items="${preys}" var="prey" varStatus="status">
-						<li class="section-li">
-							<span>${status.index + 1}.</span>
-							<span>
-							<c:choose>
-								<c:when test="${prey.jobType eq 'NETWORK_INSPECT' }"><a href="${prey.url}" target="_blank" title="网络巡检">${prey.comment}</a></c:when>
-								<c:when test="${prey.jobType eq 'NETWORK_SEARCH' }"><a href="${prey.url}" target="_blank" title="全网搜索">${prey.comment}</a></c:when>
-							</c:choose>
-							</span>
-							<span title="抓取间隔时间">${prey.fetchinterval}分钟</span>
-							<span title="上次抓取时间">
-							<jsp:useBean id="prevFetchTime" class="java.util.Date" />
-							<jsp:setProperty name="prevFetchTime" property="time" value="${prey.prevFetchTime }" />
-							<fmt:formatDate type="both"  value="${prevFetchTime}" pattern="yyyy-MM-dd HH:mm:ss" var="prevFetchTimef"/>
-							${prevFetchTimef}
-							</span>
-							<span title="预计下次抓取时间">
-								<jsp:useBean id="nextFetchTime" class="java.util.Date" />
-								<jsp:setProperty name="nextFetchTime" property="time" value="${prey.prevFetchTime + prey.fetchinterval * 60 * 1000}" />
-								<fmt:formatDate type="both" value="${nextFetchTime}" pattern="yyyy-MM-dd HH:mm:ss" var="nextFetchTimef"/>
-								${nextFetchTimef }
-							</span>
-							<div class="editmore">
-							<span><a href="javascript:void(0);">删除</a></span>
-							<span>
-							<c:choose>
-								<c:when test="${prey.state eq 1 }"><a href="javascript:void(0);">暂停</a></c:when>
-								<c:otherwise><a href="javascript:void(0);">执行</a></c:otherwise>
-							</c:choose>
-							</span>
-							</div>
-						</li>
+						<tr>
+							<td><span>${status.index + 1}</span></td>
+							<td><span> <c:choose>
+										<c:when test="${prey.jobType eq 'NETWORK_INSPECT' }">
+											<a href="${prey.url}" target="_blank" title="网络巡检">${prey.comment}</a>
+										</c:when>
+										<c:when test="${prey.jobType eq 'NETWORK_SEARCH' }">
+											<a href="${prey.url}" target="_blank" title="全网搜索">${prey.comment}</a>
+										</c:when>
+									</c:choose>
+							</span></td>
+							<td><span title="上次抓取时间"> <jsp:useBean id="prevFetchTime" class="java.util.Date" /> <jsp:setProperty
+										name="prevFetchTime" property="time" value="${prey.prevFetchTime }" /> <fmt:formatDate type="both"
+										value="${prevFetchTime}" pattern="yyyy-MM-dd HH:mm:ss" var="prevFetchTimef" /> ${prevFetchTimef}
+							</span></td>
+							<td><span title="抓取间隔时间">${prey.fetchinterval}分钟</span></td>
+							<td><span title="预计下次抓取时间"> <jsp:useBean id="nextFetchTime" class="java.util.Date" /> <jsp:setProperty
+										name="nextFetchTime" property="time" value="${prey.prevFetchTime + prey.fetchinterval * 60 * 1000}" /> <fmt:formatDate
+										type="both" value="${nextFetchTime}" pattern="yyyy-MM-dd HH:mm:ss" var="nextFetchTimef" />
+									${nextFetchTimef }
+							</span></td>
+							<td><span><a href="javascript:void(0);">删除</a></span> <span> <c:choose>
+										<c:when test="${prey.state eq 1 }">
+											<a href="javascript:void(0);">暂停</a>
+										</c:when>
+										<c:otherwise>
+											<a href="javascript:void(0);">执行</a>
+										</c:otherwise>
+									</c:choose>
+							</span></td>
+						</tr>
 					</c:forEach>
-				</ul>
+				</table>
+				</div>
 			</div>
 		</div>
+		</c:otherwise>
+		</c:choose>
 	</div>
 </body>
 </html>
