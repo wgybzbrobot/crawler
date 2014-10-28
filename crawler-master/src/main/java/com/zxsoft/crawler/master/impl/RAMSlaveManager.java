@@ -112,6 +112,8 @@ public class RAMSlaveManager implements SlaveManager {
 				slaveStatus = new SlaveStatus(machine, tm.runningNum, tm.historyNum, 2000, "success", State.RUNNING);
 			} catch(ClientHandlerException e) {
 				slaveStatus = new SlaveStatus(machine, 0, 0, 4040, e.getMessage(), State.STOP);
+			} finally {
+				client.destroy();
 			}
 			return slaveStatus;
 		}
@@ -154,6 +156,8 @@ public class RAMSlaveManager implements SlaveManager {
 				LOG.error("URL为" + url + "的slave不能执行任务,他可能很忙,也可能挂了. 准备换一个slave试试...");
 				list(); // 重新获取每个slave状态
 				continue;
+			} finally {
+				client.destroy();
 			}
 			LOG.info("选中slave(" + url + ")执行任务");
 			return url;

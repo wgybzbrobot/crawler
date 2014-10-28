@@ -195,7 +195,7 @@ public class SlaveController {
 		args.put(Params.URL, url);
 		args.put(Params.URL, prey.getUrl());
 		args.put(Params.PROXY_TYPE, prey.getProxyType());
-		args.put(Params.PREV_FETCH_TIME, 0.0d);
+		args.put(Params.PREV_FETCH_TIME, System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000); // 设置上次抓取时间是3天前
 		args.put(Params.COMMENT, prey.getComment());
 		
 		jobService.addInsecptJob(args);

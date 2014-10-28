@@ -24,6 +24,7 @@ public class SlaveServiceImpl extends SimpleCrawlerServiceImpl implements SlaveS
 		WebResource webResource = client.resource(CRAWLER_MASTER
 		        + MasterPath.SLAVE_RESOURCE_PATH);
 		String text = webResource.get(String.class);
+		client.destroy();
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		Map<String, Object> map = gson.fromJson(text, Map.class);
 		result = (List<Map<String, Object>>) map.get("slavestatus");
