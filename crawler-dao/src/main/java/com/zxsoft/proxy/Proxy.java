@@ -19,6 +19,14 @@ public class Proxy implements Serializable {
 	public Proxy() {
 	}
 
+	public Proxy(String ip, int port, String type) {
+	    super();
+	    this.ip = ip;
+	    this.port = port;
+	    this.type = type;
+    }
+
+
 	public Proxy(String type, String ip, int port, String username, String password) {
 		super();
 		this.username = username;

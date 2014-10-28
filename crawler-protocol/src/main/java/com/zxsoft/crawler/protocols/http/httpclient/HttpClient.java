@@ -94,7 +94,7 @@ public class HttpClient extends HttpBase {
 		// HTTP proxy server details
 		if (useProxy) {
 //			Proxy proxy = proxyRandom.random(url.toString());
-			Proxy proxy = getProxy(url.toString());
+			Proxy proxy = getProxy(page.getType());
 			if (proxy != null) {
 				hostConf.setProxy(proxy.getIp(), proxy.getPort());
 			}
@@ -120,7 +120,6 @@ public class HttpClient extends HttpBase {
 //		boolean auth = AuthHelper.isAuth(url);
 		if (page.isAuth()) {
 			// get cookie
-			
 			
 			// set auth cookie
 			get.setRequestHeader("Cookie", "");

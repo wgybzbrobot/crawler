@@ -120,7 +120,7 @@ public class HttpBaseTest {
 				HttpHost target = new HttpHost("e.bank.ecitic.com/perbank5/signInCredit.do", 443,
 				        "https");
 				HttpHost target2 = new HttpHost("baidu.com", 80, "http");
-				HttpHost proxy = new HttpHost("192.168.31.244", 28080);
+				HttpHost proxy = new HttpHost("220.178.87.13", 28128);
 
 				RequestConfig config = RequestConfig.custom().setProxy(proxy).build();
 				HttpGet request = new HttpGet("/");

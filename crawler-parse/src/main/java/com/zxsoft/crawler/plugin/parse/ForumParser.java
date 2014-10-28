@@ -1,5 +1,6 @@
 package com.zxsoft.crawler.plugin.parse;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,9 +44,10 @@ public class ForumParser extends Parser {
 			return "";
 		}
 	};
-	private ThreadLocal<Long> interval = new ThreadLocal<Long>();
+	private ThreadLocal<Long> prevFetchTime = new ThreadLocal<Long>();
 	private ThreadLocal<Boolean> ajax = new ThreadLocal<Boolean>();
 	private ThreadLocal<Boolean> auth = new ThreadLocal<Boolean>();
+	private ThreadLocal<String> proxyType = new ThreadLocal<String>();
 	private ThreadLocal<String> website = new ThreadLocal<String>();
 	private ThreadLocal<List<RecordInfo>> threadLocalRecordInfos = new ThreadLocal<List<RecordInfo>>() {
 		protected List<RecordInfo> initialValue() {
@@ -62,7 +64,7 @@ public class ForumParser extends Parser {
 		Assert.notNull(page, "Page is null");
 		ProtocolOutput outputTemp = fetch(page);
 		Document document = null;
-		FetchStatus status = new FetchStatus(mainUrl.get(), "");
+		FetchStatus status = new FetchStatus(page.getBaseUrl(), "");
 		if (outputTemp == null || (document = outputTemp.getDocument()) == null) {
 			LOG.error("Http protocol get page error ..." + page.getBaseUrl());
 			status.setStatus(Status.PROTOCOL_FAILURE);
@@ -72,8 +74,9 @@ public class ForumParser extends Parser {
 		page.setDocument(document);
 
 		mainUrl.set(page.getBaseUrl());
-		interval.set(page.getPrevFetchTime());
+		prevFetchTime.set(page.getPrevFetchTime());
 		ajax.set(page.isAjax());
+		proxyType.set(page.getType());
 		auth.set(page.isAuth());
 		website.set(page.website);
 
@@ -194,10 +197,10 @@ public class ForumParser extends Parser {
 					break;
 				}
 				pageNum++;
-				WebPage np = page;
-				page.setDocument(doc);
-				page.setBaseUrl(doc.location());
-				ptemp = fetchNextPage(pageNum, page);
+				WebPage np = page.clone();
+				np.setDocument(doc);
+				np.setBaseUrl(doc.location());
+				ptemp = fetchNextPage(pageNum, np);
 				if (ptemp == null || ptemp.getStatus().getCode() != STATUS_CODE.SUCCESS)
 					break;
 				doc = ptemp.getDocument();
@@ -241,7 +244,6 @@ public class ForumParser extends Parser {
 	 */
 	private boolean parsePage(WebPage page, Document doc, String mainUrl, String currentUrl)
 	        throws SelectorParseException {
-		LOG.info(currentUrl);
 		Elements replyEles = doc.select(threadLocalDetailConf.get().getReply());
 		for (Element element : replyEles) {
 			RecordInfo reply = new RecordInfo();
@@ -250,7 +252,7 @@ public class ForumParser extends Parser {
 			String id = save(page, reply, element, null); // 保存回复
 
 			if (reply.getTimestamp() != 0
-			        && reply.getTimestamp() < System.currentTimeMillis() - interval.get())
+			        && reply.getTimestamp() < prevFetchTime.get())
 				return false;
 
 			if (id == null)

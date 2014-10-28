@@ -85,7 +85,7 @@ public class ConfDao extends BaseDao {
 			return (ListConf) objectCache.getObject(url);
 			// if not foudn in cache, get ListConf from database
 		} else {
-			LOG.debug("Getting list config:" + url);
+			LOG.info("Getting list config:" + url);
 			List<ListConf> list = jdbcTemplate.query("select * from conf_list where url = ?",
 			        new Object[] { url }, new RowMapper<ListConf>() {
 				        public ListConf mapRow(ResultSet rs, int rowNum) throws SQLException {

@@ -10,14 +10,16 @@ import org.apache.http.HttpHost;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.ProxyClient;
 import org.apache.http.protocol.HTTP;
+import org.junit.Test;
 
 public class ProxyClientTest {
 
+	@Test
 	public void test() throws Exception {
 
 		ProxyClient proxyClient = new ProxyClient();
 		HttpHost target = new HttpHost("www.yahoo.com", 80);
-		HttpHost proxy = new HttpHost("localhost", 8888);
+		HttpHost proxy = new HttpHost("220.178.87.13", 28128);
 		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("user", "pwd");
 		Socket socket = proxyClient.tunnel(proxy, target, credentials);
 		try {

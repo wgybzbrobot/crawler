@@ -82,10 +82,10 @@ public class WebPage implements Serializable, Cloneable {
 		this.prevFetchTime = prevFetchTime;
 	}
 
-	public WebPage(String baseUrl, String urlType, long prevFetchTime) {
+	public WebPage(String baseUrl, String proxyType, long prevFetchTime) {
 		super();
 		this.baseUrl = baseUrl;
-		this.type = urlType;
+		this.type = proxyType;
 		this.prevFetchTime = prevFetchTime;
 	}
 

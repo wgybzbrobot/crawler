@@ -8,7 +8,7 @@
 	</property>
 	<property>
 		<name>http.proxy.use</name>
-		<value>false</value>
+		<value>true</value>
 		<description>whether to use proxy visiting website</description>
 	</property>
 	<property>

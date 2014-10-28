@@ -41,6 +41,7 @@ public class TieBaParser extends Parser {
 	
 	private ThreadLocal<String> mainUrl = new ThreadLocal<String>();
 	private ThreadLocal<String> rule = new ThreadLocal<String>() { protected String initialValue() { return "";}};
+	private ThreadLocal<String> proxyType = new ThreadLocal<String>();
 	private ThreadLocal<Long> prevFetchTime = new ThreadLocal<Long>();
 	private ThreadLocal<Boolean> ajax = new ThreadLocal<Boolean>();
 	private ThreadLocal<Boolean> auth = new ThreadLocal<Boolean>();
@@ -61,11 +62,12 @@ public class TieBaParser extends Parser {
 		Document document = null;
 		mainUrl.set(page.getBaseUrl());
 		prevFetchTime.set(page.getPrevFetchTime());
+		proxyType.set(page.getType());
 		ajax.set(page.isAjax());
 		auth.set(page.isAuth());
 		FetchStatus status = new FetchStatus(mainUrl.get(), "");
 		if (outputTemp == null || (document = outputTemp.getDocument()) == null) {
-			LOG.error("Http protocol get page error ..." + page.getBaseUrl());
+			LOG.error("Http protocol get page error: " + page.getBaseUrl());
 			status.setStatus(Status.PROTOCOL_FAILURE);
 			status.setMessage("Http protocol get page error.");
 			return status;
@@ -165,7 +167,9 @@ public class TieBaParser extends Parser {
 	            info.setTimestamp(dateTemp.getTime());
             } catch (ParseException e) {
             	LOG.error("Cannot parse date: " + dateField + " in page " + mainUrl.get());
-            }
+            } catch (Exception e) {
+				LOG.error(e.getMessage());
+			}
 
             info.setId(Md5Signatrue.generateMd5(info.getNickname(), info.getContent(),
 			        info.getPic_url(), info.getVoice_url(), info.getVideo_url()));
@@ -325,6 +329,7 @@ public class TieBaParser extends Parser {
 	 */
 	private void saveSub(RecordInfo reply, String surl, String tid) {
 		WebPage np = new WebPage(surl, ajax.get());
+		np.setType(proxyType.get());
 		ProtocolOutput ptemp = fetch(np);
 		if (ptemp.getStatus().getCode() != STATUS_CODE.SUCCESS){
 			LOG.debug("No Sub reply infomation.");

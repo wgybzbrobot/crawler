@@ -29,6 +29,7 @@ import com.zxsoft.crawler.util.page.PageHelper;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 import com.zxsoft.crawler.util.protocol.DeflateUtils;
 import com.zxsoft.crawler.util.protocol.GZIPUtils;
+import com.zxsoft.proxy.DbProxyFactory;
 import com.zxsoft.proxy.Proxy;
 import com.zxsoft.proxy.ProxyRandom;
 
@@ -93,14 +94,14 @@ public abstract class HttpBase extends PageHelper {
 		return this.conf;
 	}
 	
-	private ProxyRandom proxyRandom = new ProxyRandom();
+	private ProxyRandom proxyRandom = new ProxyRandom(new DbProxyFactory());
 	
 	public HttpBase() {
 		
 	}
 	
-	protected Proxy getProxy(String url) {
-		return proxyRandom.random(url);
+	protected Proxy getProxy(String type) {
+		return proxyRandom.random(type);
 	}
 
 	
@@ -122,7 +123,8 @@ public abstract class HttpBase extends PageHelper {
         } catch(PageBarNotFoundException e) { 
         	throw e;
         } catch (Throwable e) {
-        	LOG.error("Failed with the following error: ", e);
+        	LOG.error("Failed with the following error: ", e.getMessage());
+        	e.printStackTrace();
         	return new ProtocolOutput(new ProtocolStatus(page.getDocument().location(), STATUS_CODE.FAILED, e.getMessage()));
         }
 	}

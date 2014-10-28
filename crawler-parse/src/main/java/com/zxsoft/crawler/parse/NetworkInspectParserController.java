@@ -82,7 +82,7 @@ public final class NetworkInspectParserController extends ParseTool {
 		}
 		Document document = output.getDocument();
 		
-		LOG.debug("【" + listConf.getComment() + "】抓取开始");
+		LOG.info("【" + listConf.getComment() + "】抓取开始");
 		
 		String listDom = listConf.getListdom();
 		String lineDom = listConf.getLinedom();
@@ -106,7 +106,7 @@ public final class NetworkInspectParserController extends ParseTool {
 				break;
 			}
 
-			LOG.debug("【" + listConf.getComment() + "】thread number in " + pageNum.get() + " page: " + lines.size());
+			LOG.info("【" + listConf.getComment() + "】thread number in " + pageNum.get() + " page: " + lines.size());
 			
 			List<Callable<FetchStatus>> tasks = new ArrayList<Callable<FetchStatus>>();
 			
@@ -152,7 +152,7 @@ public final class NetworkInspectParserController extends ParseTool {
 				
 				String title = line.select(listConf.getUrldom()).first().text();
 				
-				LOG.info(title);
+				LOG.debug(title);
 				WebPage wp = page.clone();
 				wp.setTitle(title);
 				wp.setBaseUrl(curl);
