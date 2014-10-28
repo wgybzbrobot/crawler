@@ -295,7 +295,7 @@
 									</div>
 									<div>
 										<label class="form-label" for="fetchinterval">时间间隔(分钟)<span class="red">*</span></label> <input name="fetchinterval"
-											class="easyui-numberbox" data-options="required:true,min:1,precision:0,value:30" value="${confList.fetchinterval }" />
+											class="easyui-numberbox" data-options="required:true,min:1,precision:0" value="${confList.fetchinterval }" />
 									</div>
 									<div>
 										<label class="form-label" for="filterurl">过滤URL的正则表达式</label> <input name="filterurl" class="easyui-textbox "

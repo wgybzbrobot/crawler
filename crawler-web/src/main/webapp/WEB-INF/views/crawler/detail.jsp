@@ -6,8 +6,6 @@
 <html>
 <head>
 <title>爬虫详细信息</title>
-<link href="<c:url value="/resources/form.css" />" rel="stylesheet" type="text/css" />
-<link href="<c:url value="/resources/index.css" />" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
 	$(function() {
 		

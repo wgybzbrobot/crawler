@@ -1,13 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/common/include.jsp"%>
-<%@ page session="false"%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>爬虫监控</title>
-<link href="<c:url	 value="/resources/form.css" />" rel="stylesheet" type="text/css" />
-<link href="<c:url value="/resources/index.css" />" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
 function addInspectJob() {
 	$('div.form-wrapper-center form').form('clear');
@@ -152,7 +149,9 @@ $(function() {
 										type="both" value="${nextFetchTime}" pattern="yyyy-MM-dd HH:mm:ss" var="nextFetchTimef" />
 									${nextFetchTimef }
 							</span></td>
-							<td><span><a href="javascript:void(0);">删除</a></span> <span> <c:choose>
+							<td><span><a href="javascript:void(0);">删除</a></span> 
+								<span><a>修改</a></span>
+								<span> <c:choose>
 										<c:when test="${prey.state eq 1 }">
 											<a href="javascript:void(0);">暂停</a>
 										</c:when>
