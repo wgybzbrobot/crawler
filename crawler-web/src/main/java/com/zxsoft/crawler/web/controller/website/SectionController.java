@@ -76,15 +76,16 @@ public class SectionController {
 		}
 		section.setAccount(account);
 		
-		if ("true".equals(copy)) {
+		if ("true".equals(copy)) { // 是否是拷贝规则的创建
 			Map<String, Object> map = configService.getConfig(section.getId());
 			ConfList confList = (ConfList) map.get("confList");
 			List<ConfDetail> confDetails = (List<ConfDetail>) map.get("confDetails");
 			
-			if (confList == null) {
+			if (confList == null) { // 母版没有规则，无法拷贝
 				return "NoConfList";
 			}
 			confList.setUrl(section.getUrl());
+			confList.setComment(section.getComment());
 			if (!CollectionUtils.isEmpty(confDetails)) {
 				for (ConfDetail confDetail : confDetails) {
 					ConfDetailId confDetailId = new ConfDetailId();
