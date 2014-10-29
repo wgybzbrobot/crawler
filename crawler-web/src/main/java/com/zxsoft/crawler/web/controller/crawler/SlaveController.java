@@ -189,6 +189,7 @@ public class SlaveController {
 		double score = 1.0d / (System.currentTimeMillis() / 60000 + 	confList.getFetchinterval());
 		Prey prey = new Prey(site, url,  confList.getComment(), JobType.NETWORK_INSPECT.toString(),
 		        proxyType, confList.getFetchinterval());
+		prey.setStart(System.currentTimeMillis());
 		jedis.zadd(URLBASE, score, prey.toString());
 		jedis.close();
 

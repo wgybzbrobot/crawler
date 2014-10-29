@@ -121,6 +121,7 @@ $(function() {
 						<tr>
 							<td style="width: 35px;">序号</td>
 							<td>任务</td>
+							<td>开始时间</td>
 							<td>上次抓取时间</td>
 							<td>时间间隔</td>
 							<td>预计下次抓取时间</td>
@@ -138,6 +139,10 @@ $(function() {
 											<a href="${prey.url}" target="_blank" title="全网搜索">${prey.comment}</a>
 										</c:when>
 									</c:choose>
+							</span></td>
+							<td><span title="开始时间"> <jsp:useBean id="startTime" class="java.util.Date" /> <jsp:setProperty
+										name="startTime" property="time" value="${prey.start }" /> <fmt:formatDate type="both"
+										value="${prevFetchTime}" pattern="yyyy-MM-dd HH:mm:ss" var="startTimef" /> ${startTimef}
 							</span></td>
 							<td><span title="上次抓取时间"> <jsp:useBean id="prevFetchTime" class="java.util.Date" /> <jsp:setProperty
 										name="prevFetchTime" property="time" value="${prey.prevFetchTime }" /> <fmt:formatDate type="both"

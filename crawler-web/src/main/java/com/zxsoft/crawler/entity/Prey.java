@@ -44,6 +44,11 @@ public class Prey implements Serializable {
 	private int fetchinterval;
 	
 	/**
+	 * 开始时间
+	 */
+	private long start;
+	
+	/**
 	 * 上次抓取时间，默认为0, 单位毫秒(ms)
 	 */
 	private long prevFetchTime;
@@ -82,6 +87,26 @@ public class Prey implements Serializable {
 	    this.prevFetchTime = prevFetchTime;
 	    this.state = state;
     }
+	public Prey(String site, String url, String comment, String jobType, String proxyType, int fetchinterval, long start, long prevFetchTime, int state) {
+		super();
+		this.site = site;
+		this.url = url;
+		this.comment = comment;
+		this.jobType = jobType;
+		this.proxyType = proxyType;
+		this.start = start;
+		this.fetchinterval = fetchinterval;
+		this.prevFetchTime = prevFetchTime;
+		this.state = state;
+	}
+	
+	
+	public long getStart() {
+		return start;
+	}
+	public void setStart(long start) {
+		this.start = start;
+	}
 	public int getState() {
 		return state;
 	}
