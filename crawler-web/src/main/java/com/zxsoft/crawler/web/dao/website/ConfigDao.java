@@ -31,4 +31,6 @@ public interface ConfigDao {
 
 	void addDetailConf(ConfDetail detailConf);
 	void addDetailConfs(List<ConfDetail> detailConfs);
+
+	List<ConfList> getInspectConfLists(ConfList confList);
 }

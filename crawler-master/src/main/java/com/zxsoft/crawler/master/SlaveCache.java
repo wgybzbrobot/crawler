@@ -19,14 +19,14 @@ public class SlaveCache {
 
 	private static Logger LOG = LoggerFactory.getLogger(SlaveCache.class);
 	
-	private static final String PROXY_FILE = "slaves.ini";
+	private static final String SLAVE_FILE = "slaves.ini";
 
 	public static final List<Machine> machines = new ArrayList<Machine>();
 
 	static {
 		BufferedReader reader = null;
 		try {
-			ClassPathResource resource = new ClassPathResource(PROXY_FILE);
+			ClassPathResource resource = new ClassPathResource(SLAVE_FILE);
 			InputStream is = resource.getInputStream();
 			
 			reader = new BufferedReader(new InputStreamReader(is));

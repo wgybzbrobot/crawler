@@ -20,6 +20,7 @@
 		<module>crawler-slave</module>
 		<module>crawler-master</module>
 		<module>crawler-web</module>
+		<module>crawler-assemblies</module>
 	</modules>
 	<organization>
 		<name>中新软件有限公司</name>

@@ -12,11 +12,6 @@
 		<description>whether to use proxy visiting website</description>
 	</property>
 	<property>
-		<name>redis.host</name>
-		<value>localhost</value>
-		<description>redis host</description>
-	</property>
-	<property>
 		<name>redis.port</name>
 		<value>6379</value>
 		<description>redis port</description>
@@ -26,14 +21,14 @@
 		<value>36000000</value>
 		<description>fetch interval, out of inteval will not be fetched</description>
 	</property>
-	<property><!-- 本机器爬虫的线程数 -->
+	<property><!-- 本机器爬虫的线程数, 指同时可以爬多少个网站 -->
 		<name>spider.thread.num</name>
-		<value>10</value>
+		<value>30</value>
 		<description>threads count of current machine</description>
 	</property>
 	<property><!-- 一个URL种子的最大解析线程数 -->
 		<name>spider.parse.thread.max</name>
-		<value>4</value>
+		<value>10</value>
 		<description>max thread count per url</description>
 	</property>
 	<property>

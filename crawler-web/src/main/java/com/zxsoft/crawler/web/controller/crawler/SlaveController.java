@@ -136,7 +136,10 @@ public class SlaveController {
 			model.addAttribute("preys", list);
 		}
 		jedis.close();
-
+		
+		List<ConfList> confLists = configService.getInspectConfLists(null);
+		model.addAttribute("confLists", confLists);
+		
 		List<ConfList> engines = dictService.getSearchEngines();
 		model.addAttribute("engines", engines);
 		
@@ -146,7 +149,7 @@ public class SlaveController {
 	private JobService jobService = new JobServiceImpl();
 
 	@ResponseBody
-	@RequestMapping(value = "addSearchJob", method = RequestMethod.POST)
+	@RequestMapping(value = "ajax/addSearchJob", method = RequestMethod.POST)
 	public Map<String, Object> addSearchJob(
 	        @RequestParam(value = "keyword", required = false) String keyword,
 	        @RequestParam(value = "engineId", required = false) List<String> engineIds) {
@@ -165,7 +168,7 @@ public class SlaveController {
 	private static final String REDIS_HOST = "localhost";
 
 	@ResponseBody
-	@RequestMapping(value = "addInspectJob", method = RequestMethod.POST)
+	@RequestMapping(value = "ajax/addInspectJob", method = RequestMethod.POST)
 	public Map<String, Object> addInspectJob(
 	        @RequestParam(value = "url", required = false) String url) {
 		Assert.hasLength(url);

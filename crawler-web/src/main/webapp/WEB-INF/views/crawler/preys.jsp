@@ -9,33 +9,29 @@
 function addInspectJob() {
 	$('div.form-wrapper-center form').form('clear');
 	$('#addInspectJobDialog').show();
+	$('div.message').text('');
 }
 function addSearchJob() {
 	$('div.form-wrapper-center form').form('clear');
 	$('#addSearchJobDialog').show();
+	$('div.message').text('');
 }
 $(function() {
 	$('a.form-wrapper-close').click(function() {
 		$('div.form-wrapper').hide();
 	});
+	$('form input').keydown(function() {
+		$('div.message').text('');
+	});
+	
 	$("#submitInspectJob").click(function(e) {
 		$('#addInspectJobForm').form('submit', {
-			url: '../addInspectJob',
-			onSubmit: function() {
-				var url = $('#fetchurl').val();
-				console.log(url);
-				var regexp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;;
-				if (regexp.test(url)) {
-					$('#fetchurl').attr('title','');
-					return true;
-				} else {
-					console.log('url is invalid');
-					$('#fetchurl').focus();
-					$('#fetchurl').attr('title', '不符合URL规范');
+			success: function (data) {
+				data = $.parseJSON(data);
+				if (data.msg == 'noconflist') {
+					$('div.message').text('该版块没有配置, 不能执行任务');
 					return false;
 				}
-			}, 
-			success: function (data) {
 				alert('添加成功');
 				$('div.form-wrapper').hide();
 				location.reload();
@@ -44,7 +40,7 @@ $(function() {
 	});
 	$("#submitSearchJob").click(function(e) {
 		$('#addSearchJobForm').form('submit', {
-			url: '../addSearchJob',
+			url: '../ajax/addSearchJob',
 			onSubmit: function() {
 				var keyword = $('#keyword').val();
 				if (keyword == '') {
@@ -60,16 +56,25 @@ $(function() {
 			}
 		});
 	});
-	$('li.section-li').hover(function() {
-		$(this).find('.editmore span').toggle();
-	});
 });
 </script>
 </head>
 <body>
+	<div class="right-panel" >
+		<div><input name="url" type="text" title="输入版块名称或网址搜索" /></div>
+		<div>
+			<ol>
+			<c:forEach items="${confLists}" var="confList" varStatus="status">
+				<li style="line-height: 22px;">
+					<a href="${confList.url}" onclick="return false;" title="点击添加网络巡检任务">${confList.comment }</a>
+				</li>
+			</c:forEach>
+			</ol>
+		</div>
+	</div>
 	<div id="body">
 	<c:choose>
-		<c:when test="${code eq 5000 }">
+		<c:when test="${code ge 5000 }">
 			<div>${msg}</div>
 		</c:when>
 		<c:otherwise>
@@ -81,11 +86,12 @@ $(function() {
 			<a class="form-wrapper-close" href="javascript:void(0);"></a>
 			<div class="form-wrapper-title">添加网络巡检任务</div>
 			<div class="form-wrapper-center">
-				<form id="addInspectJobForm" method="post" style="width: 90%; margin: 0 auto;">
+				<form id="addInspectJobForm" action="<c:url value='/slaves/ajax/addInspectJob' />" method="post" style="width: 90%; margin: 0 auto;" data-options="novalidate:true">
 					<div>
-						<label class="form-label" for="keyword">版块地址:</label>
-						<input type="text" name="url" id="fetchurl" />
+						<label class="form-label" for="url">版块地址:</label>
+						<input type="text" name="url" id="fetchurl" class="easyui-validatebox form-input" style="width: 260px;" data-options="required:true"  validtype="url"/>
 					</div>
+					<div class="message"></div>
 					<div><input class="form-btn" type="button"  id="submitInspectJob" value="添加" /></div>
 				</form>
 			</div>
@@ -95,7 +101,7 @@ $(function() {
 			<a class="form-wrapper-close" href="javascript:void(0);"></a>
 			<div class="form-wrapper-title">添加全网搜索任务</div>
 			<div class="form-wrapper-center">
-				<form id="addSearchJobForm" method="post" style="width: 90%; margin: 0 auto;">
+				<form id="addSearchJobForm" action="<c:url value='/slaves/ajax/addSearchtJob' />" method="post" style="width: 90%; margin: 0 auto;">
 					<div>
 						<label class="form-label" for="keyword">关键词:</label>
 						<input type="text" name="keyword" />
@@ -106,6 +112,7 @@ $(function() {
 							<span style="margin-right: 2px;"><input name="engineId" value="${engine.url}" type="checkbox" />${engine.comment}</span>
 						</c:forEach>
 					</div>
+					<div class="message"></div>
 					<div><input class="form-btn" type="button"  id="submitSearchJob" value="添加" /></div>
 				</form>
 			</div>
@@ -142,7 +149,7 @@ $(function() {
 							</span></td>
 							<td><span title="开始时间"> <jsp:useBean id="startTime" class="java.util.Date" /> <jsp:setProperty
 										name="startTime" property="time" value="${prey.start }" /> <fmt:formatDate type="both"
-										value="${prevFetchTime}" pattern="yyyy-MM-dd HH:mm:ss" var="startTimef" /> ${startTimef}
+										value="${startTime}" pattern="yyyy-MM-dd HH:mm:ss" var="startTimef" /> ${startTimef}
 							</span></td>
 							<td><span title="上次抓取时间"> <jsp:useBean id="prevFetchTime" class="java.util.Date" /> <jsp:setProperty
 										name="prevFetchTime" property="time" value="${prey.prevFetchTime }" /> <fmt:formatDate type="both"

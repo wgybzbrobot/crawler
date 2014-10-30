@@ -66,6 +66,8 @@ public class MasterServer {
 		
 		Configuration conf = CrawlerConfiguration.create();
 		final long heartbeat = conf.getLong("heartbeat", 3 * 60 * 1000); // default is 3 min
+		final String redisUrl = conf.get("redis.host");
+		final int redisPort = conf.getInt("redis.port", 6379);
 		
 		// 监测slave
 		new Thread(new Runnable() {
@@ -92,7 +94,7 @@ public class MasterServer {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Jedis jedis = new Jedis("localhost", 6379);
+				Jedis jedis = new Jedis(redisUrl, redisPort);
 				while (true) {
 					Set<String> strs = jedis.zrevrange(URLBASE, 0, 0);
 					if (CollectionUtils.isEmpty(strs)) {

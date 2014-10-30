@@ -104,4 +104,9 @@ public class ConfigServiceImpl implements ConfigService {
     public void updateConfDetailKey(String oldUrl, String url) {
 		jdbcTemplate.update("update conf_detail set listurl = ? where listurl = ? ", new Object[]{url, oldUrl});
     }
+
+	@Override
+    public List<ConfList> getInspectConfLists(ConfList confList) {
+	    return configDao.getInspectConfLists(confList);
+    }
 }

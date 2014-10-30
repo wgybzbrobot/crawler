@@ -35,7 +35,6 @@
 			<artifactId>crawler-common</artifactId>
 			<version>1.0.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
@@ -45,14 +44,36 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>slaves.ini</exclude>
+					<exclude>log4j.xml</exclude>
+				</excludes>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.4.1</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.zxsoft.crawler</groupId>
+						<artifactId>crawler-assemblies</artifactId>
+						<version>${project.version}</version>
+					</dependency>
+				</dependencies>
 				<configuration>
-					<descriptors>
-						<descriptor>src/main/assembly/assembly.xml</descriptor>
-					</descriptors>
+					<tarLongFileMode>gnu</tarLongFileMode>
+					<appendAssemblyId>false</appendAssemblyId>
+					<attach>false</attach>
+					<finalName>${project.artifactId}-${project.version}</finalName>
+					<descriptorRefs>
+						<descriptorRef>master-dist</descriptorRef>
+					</descriptorRefs>
 					<archive>
 						<manifest>
 							<mainClass>com.zxsoft.crawler.master.MasterServer</mainClass>
@@ -71,5 +92,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

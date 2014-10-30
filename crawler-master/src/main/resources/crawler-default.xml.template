@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+	<!-- URL任务队列地址 -->
+	<property> 
+		<name>redis.host</name>
+		<value>localhost</value>
+		<description>redis host</description>
+	</property>
+	<property>
+		<name>redis.port</name>
+		<value>6379</value>
+		<description>redis port</description>
+	</property>
+	<property>
+		<name>fetch.interval</name>
+		<value>36000000</value>
+		<description>fetch interval, out of inteval will not be fetched</description>
+	</property>
+</configuration>

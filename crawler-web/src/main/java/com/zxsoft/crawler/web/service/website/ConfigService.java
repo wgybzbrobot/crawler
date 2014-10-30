@@ -39,4 +39,6 @@ public interface ConfigService {
 	void updateConfDetailKey(String oldUrl, String url);
 
 	ConfList getConfList(String url);
+
+	List<ConfList> getInspectConfLists(ConfList confList);
 }
