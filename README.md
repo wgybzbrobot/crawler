@@ -68,10 +68,3 @@ Redis用于构建URL任务队列
 	```
 
 
-## 4. 打包发布
-打包(http://www.infoq.com/cn/news/2011/06/xxb-maven-9-package)
-
-
-
-
-
