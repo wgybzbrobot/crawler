@@ -92,4 +92,18 @@ public class PageHelperTest {
 		Assert.notNull(pagebar);
 		System.out.println(pagebar);
 	}
+
+	/**
+	 * 猫扑
+	 */
+	@Test
+	public void testGetPageBarMop() throws IOException, PageBarNotFoundException {
+		Connection conn = Jsoup.connect("http://dzh.mop.com/yuanchuang");
+		conn.userAgent("Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36");
+		Document currentDoc = conn.get();
+		Element ele = currentDoc.select("div.leftAllPost-cont").first();
+		Element pagebar = PageHelper.getPageBar(ele);
+		Assert.notNull(pagebar);
+		System.out.println(pagebar);
+	}
 }

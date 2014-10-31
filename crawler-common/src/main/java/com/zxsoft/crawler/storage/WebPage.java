@@ -43,6 +43,8 @@ public class WebPage implements Serializable, Cloneable {
 	 */
 	private String type;
 
+	private ListConf ListConf;
+	
 	@Override
 	public WebPage clone()  {
 		try {
@@ -95,6 +97,14 @@ public class WebPage implements Serializable, Cloneable {
 		this.baseUrl = baseUrl;
 		this.fetchTime = fetchTime;
 		this.document = document;
+	}
+
+	public ListConf getListConf() {
+		return ListConf;
+	}
+
+	public void setListConf(ListConf listConf) {
+		ListConf = listConf;
 	}
 
 	public boolean isAuth() {

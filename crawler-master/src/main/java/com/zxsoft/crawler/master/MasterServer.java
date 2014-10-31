@@ -100,26 +100,24 @@ public class MasterServer {
 					if (CollectionUtils.isEmpty(strs)) {
 						LOG.warn("No records in redis urlbase.");
 						 try {
-	                        Thread.sleep(10000);
+	                        Thread.sleep(30000);
                         } catch (InterruptedException e) {
+                        	LOG.error(e.getMessage());
 	                        e.printStackTrace();
                         }
 						 continue;
 					}
 					String json = strs.toArray(new String[0])[0];
 					Prey prey = new Gson().fromJson(json, Prey.class);
-					LOG.info("pop prey: " + json);
 					long interval = System.currentTimeMillis() - prey.getPrevFetchTime();
-					long realInterval = prey.getFetchinterval() * 60 * 1000;
+					long realInterval = prey.getFetchinterval() * 60 * 1000L;
 					long prevFetchTime = prey.getPrevFetchTime();
 					if (interval >= realInterval) {
-						Long count = jedis.zrem(URLBASE, prey.toString());
-						LOG.info("remove count: " + count);
+						jedis.zrem(URLBASE, prey.toString());
 						// 将上次抓取时间设置为当前时间，供下次抓取使用
 						prey.setPrevFetchTime(System.currentTimeMillis());
-						double score = 1.0d / (System.currentTimeMillis() / 60000 + prey.getFetchinterval());
+						double score = 1.0d / (System.currentTimeMillis() / 60000.0d + prey.getFetchinterval() * 1.0d);
 						jedis.zadd(URLBASE, score, prey.toString());
-						LOG.info("push prey: " + prey.toString() + ", score:" + score);
 					} else {
 						long wait = realInterval - interval;
 						LOG.info("Sleep " + wait + " milliseconds");
@@ -130,7 +128,7 @@ public class MasterServer {
                         }
 	                    continue;
 					}
-					
+					LOG.info("分发任务: " + prey.toString());
 					Map<String, Object> map = new HashMap<String, Object>();
 					map.put(Params.JOB_TYPE, prey.getJobType());
 					Map<String, Object> args = new HashMap<String, Object>();

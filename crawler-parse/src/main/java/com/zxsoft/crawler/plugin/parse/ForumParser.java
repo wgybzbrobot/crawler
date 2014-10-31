@@ -113,7 +113,7 @@ public class ForumParser extends Parser {
 		}
 		LOG.debug(mainUrl.get() + " has " + num + " records.");
 		status.setStatus(FetchStatus.Status.SUCCESS);
-		status.setMessage("Fetch " + num + " records from " + mainUrl.get());
+		status.setMessage("success");
 		status.setCount(num);
 		return status;
 	}

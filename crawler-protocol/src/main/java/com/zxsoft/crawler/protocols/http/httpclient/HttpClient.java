@@ -34,6 +34,7 @@ import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocols.http.AuthHelper;
 import com.zxsoft.crawler.protocols.http.CookieStore;
 import com.zxsoft.crawler.protocols.http.HttpBase;
+import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.EncodingDetector;
 import com.zxsoft.crawler.util.Utils;
@@ -252,11 +253,26 @@ public class HttpClient extends HttpBase {
 	protected Response loadPrevPage(int pageNum, final WebPage page) throws ProtocolException,
 	        IOException, PrevPageNotFoundException, PageBarNotFoundException {
 		Document currentDoc = page.getDocument();
-		Elements elements = currentDoc.select("a:matchesOwn(上一页|上页|<上一页)");
+		
+		// 从列表块中选
+//		ListConf listConf = page.getListConf();
+//		String listdom = listConf == null ? null : listConf.getListdom();
+//		Element listElement = null;
+//		if (!StringUtils.isEmpty(listConf)) {
+//			listElement = CollectionUtils.isEmpty(currentDoc.select(listdom)) ? null : currentDoc.select(listdom).first();
+//		}
+		Elements elements = null;
+		
+//		if (listElement == null) {
+			elements = currentDoc.select("a:matchesOwn(上一页|上页|<上一页)");
+//		} else {
+//			elements = listElement.select("a:matchesOwn(上一页|上页|<上一页)");
+//		}
+		
 		if (!CollectionUtils.isEmpty(elements)) {
 			url = new URL(elements.first().absUrl("href"));
 		} else if (pageNum > 1) {
-			Element pagebar = getPageBar(currentDoc);
+			Element pagebar = getPageBar(currentDoc/*listElement == null ? currentDoc : listElement*/);
 			if (pagebar != null) {
 				Elements achors = pagebar.getElementsByTag("a");
 				if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
@@ -285,7 +301,22 @@ public class HttpClient extends HttpBase {
 	protected Response loadNextPage(int pageNum, final WebPage page) throws ProtocolException,
 	        IOException, PageBarNotFoundException {
 		Document currentDoc = page.getDocument();
-		Elements elements = currentDoc.select("a:matchesOwn(下一页|下页|下一页>)");
+		
+		// 从列表块中选
+//		ListConf listConf = page.getListConf();
+//		String listdom = listConf == null ? null : listConf.getListdom();
+//		Element listElement = null;
+//		if (!StringUtils.isEmpty(listConf)) {
+//			listElement = CollectionUtils.isEmpty(currentDoc.select(listdom)) ? null : currentDoc.select(listdom).first();
+//		}
+		Elements elements = null;
+		
+//		if (listElement != null) {
+//			elements = listElement.select("a:matchesOwn(下一页|下页|下一页>)");
+//		} else {
+			elements = currentDoc.select("a:matchesOwn(下一页|下页|下一页>)");
+//		}
+		
 		if (!CollectionUtils.isEmpty(elements)) {
 			WebPage np = page;
 			String next = elements.first().absUrl("href");
@@ -302,7 +333,7 @@ public class HttpClient extends HttpBase {
 			 * very accurate, some url cannot find from page bar, because it
 			 * changed when load it.
 			 */
-			Element pagebar = getPageBar(currentDoc);
+			Element pagebar = getPageBar(currentDoc/*listElement == null ? currentDoc : listElement*/);
 			if (pagebar != null) {
 				Elements achors = pagebar.getElementsByTag("a");
 				if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
@@ -331,8 +362,16 @@ public class HttpClient extends HttpBase {
 			return getResponse(np);
 		}
 
+		// 从列表块中选
+//		ListConf listConf = page.getListConf();
+//		String listdom = listConf == null ? null : listConf.getListdom();
+//		Element listElement = null;
+//		if (!StringUtils.isEmpty(listConf)) {
+//			listElement = CollectionUtils.isEmpty(currentDoc.select(listdom)) ? null : currentDoc.select(listdom).first();
+//		}
+		
 		// 1. get all links from page bar
-		Element pagebar = getPageBar(currentDoc);
+		Element pagebar = getPageBar(currentDoc/*listElement == null ? currentDoc : listElement*/);
 		if (pagebar == null)
 			return null;
 		Elements links = pagebar.getElementsByTag("a");

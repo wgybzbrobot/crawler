@@ -1,6 +1,7 @@
 package com.zxsoft.crawler.parse;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
@@ -65,21 +66,39 @@ public class TestNetworkInspectParserController {
 	public void testParseTianYa() throws ParserNotFoundException {
 		String urlStr = "http://bbs.tianya.cn/list-free-1.shtml";
 		WebPage page = new WebPage(urlStr, false);
+		page.setType("001");
 		ProtocolOutput protocolOutput = httpFetcher.fetch(page);
 		Assert.notNull(protocolOutput);
 		Document document = protocolOutput.getDocument();
 		Assert.notNull(document);
 		page = new WebPage("title", urlStr, System.currentTimeMillis(), document);
 		page.setAjax(false);
-		
+		page.setType("001");
 		NetworkInspectParserController parserController = new NetworkInspectParserController(conf);
 		parserController.parse(page);
 	}
 	
 	@Test
 	public void testParseZhongAn() throws ParserNotFoundException {
-		String urlStr = "http://bbs.anhuinews.com/forum-319-1.html";
+		String urlStr = "http://bbs.anhuinews.com/forum.php?mod=forumdisplay&fid=319&filter=lastpost&orderby=lastpost";
+		long now = System.currentTimeMillis();
+		long interval = 20 * 24 * 60 * 60 * 1000L;
+		System.out.println(interval);
+		long prev = now - interval;
+		System.out.println("prev:" + new Date(prev));
+		WebPage page = new WebPage("title", urlStr, System.currentTimeMillis(), null);
+		page.setType("001");
+		page.setAjax(false);
+		page.setPrevFetchTime(prev);
+		NetworkInspectParserController parserController = new NetworkInspectParserController(conf);
+		parserController.parse(page);
+	}
+	
+	@Test
+	public void testParseMop() throws ParserNotFoundException {
+		String urlStr = "http://dzh.mop.com/yuanchuang";
 		WebPage page = new WebPage(urlStr, false);
+		page.setType("001");
 		page.setPrevFetchTime(System.currentTimeMillis() - 4000 * 60 * 1000);
 		ProtocolOutput protocolOutput = httpFetcher.fetch(page);
 		Assert.notNull(protocolOutput);
@@ -87,6 +106,7 @@ public class TestNetworkInspectParserController {
 		Document document = protocolOutput.getDocument();
 		Assert.notNull(document);
 		page = new WebPage("title", urlStr, System.currentTimeMillis(), document);
+		page.setType("001");
 		page.setAjax(false);
 		page.setPrevFetchTime(System.currentTimeMillis() - 4000 * 60 * 1000);
 		

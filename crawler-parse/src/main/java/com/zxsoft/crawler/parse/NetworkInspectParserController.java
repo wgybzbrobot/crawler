@@ -57,6 +57,7 @@ public final class NetworkInspectParserController extends ParseTool {
 		if (listConf == null) {
 			throw new NullPointerException("没有列表页配置:" + page.getBaseUrl());
 		}
+//		page.setListConf(listConf);
 		page.setAjax(listConf.isAjax());
 		page.setAuth(listConf.isAuth());
 		
@@ -187,7 +188,7 @@ public final class NetworkInspectParserController extends ParseTool {
 	                    e.printStackTrace();
                     }
                 }
-	            status.setMessage(status.getMessage() + ", 消息(" + tempStr + ")");
+	            status.setMessage(status.getMessage() == null ? "" : status.getMessage() + ", 消息(" + tempStr + ")");
             } catch (InterruptedException e) {
 	            e.printStackTrace();
             }

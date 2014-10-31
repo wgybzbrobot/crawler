@@ -114,8 +114,11 @@ public class Utils {
 				time = time - Integer.valueOf(nt.trim()) * 60 * 1000;
 			} else if (param.contains("秒前")) {
 				time = time - Integer.valueOf(nt.trim()) * 1000;
-			} else if (param.trim().matches("\\d{4}年\\d{2}月\\d{2}日\\d{2}:\\d{2}")) {
+			} else if (param.trim().matches("\\d{4}年\\d{2}月\\d{2}日\\s+\\d{2}:\\d{2}")) {
 				sdf = new SimpleDateFormat("yyyy年MM月dd日HH:mm");
+				return sdf.parse(param);
+			} else if (param.trim().matches("\\d{4}年\\d{2}月\\d{2}日\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}")) {
+				sdf = new SimpleDateFormat("yyyy年MM月dd日HH:mm:ss");
 				return sdf.parse(param);
 			} else if (param.trim().matches("\\d{1,2}-\\d{2}\\s+\\d{1,2}:\\d{2}")) {
 				// 05-23 13:52
@@ -206,7 +209,8 @@ public class Utils {
 	}
 
 	public static List<String> extractUrls(Element element) {
-		Assert.notNull(element);
+		if (element == null) return null;
+		
 		List<String> list = new LinkedList<String>();
 		Elements anchors = element.getElementsByTag("a");
 		for (Element ele : anchors) {

@@ -16,7 +16,7 @@
 		</filter> -->
 	</appender>
 	<appender name="dailyfile" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="File" value="/tmp/crawlerlogs/core.log" />
+		<param name="File" value="/tmp/crawlerlogs/slave.log" />
 		<param name="Append" value="true" />
 		<param name="Encoding" value="UTF-8" />
 		<param name="DatePattern" value="'.'yyyy_MM_dd" />
@@ -27,25 +27,6 @@
 	<appender name="mail" class="org.apache.log4j.net.SMTPAppender">
 		
 	</appender>
-	<logger name="CoreErrorLog" additivity="false">
-		<level value="error" />
-		<appender-ref ref="dailyfile" />
-	</logger>
-	<logger name="com.gargoylesoftware.htmlunit" additivity="false">
-		<level value="off" />
-		<appender-ref ref="console" />
-		<appender-ref ref="dailyfile" />
-	</logger>
-	<logger name="org.apache" additivity="false">
-		<level value="error" />
-		<appender-ref ref="console" />
-		<appender-ref ref="dailyfile" />
-	</logger>
-	<logger name="com.zxsoft.crawler" additivity="false">
-		<level value="debug" />
-		<appender-ref ref="console" />
-		<appender-ref ref="dailyfile" />
-	</logger>
 	<root>
 		<level value="info" />
 		<appender-ref ref="console" />

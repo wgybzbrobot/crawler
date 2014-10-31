@@ -23,7 +23,9 @@ public class UtilsTest {
             String str5 = "发表于 3 秒前 ";
             String str6 = "发表于 前天08:27 ";
             String str7 = "发表于 今天08:27 ";
-            String str8 = "2014年05月22日09:08";
+            String str8 = "2014年05月22日 09:08";
+            String str9 = "2014年10月29日 20:46:46"; 
+            		
 
             System.out.println(str0 + "\t\t" + Utils.formatDate(str0));
             System.out.println(str1 + "\t\t" + Utils.formatDate(str1));
@@ -34,6 +36,7 @@ public class UtilsTest {
             System.out.println(str6 + "\t\t" + Utils.formatDate(str6));
             System.out.println(str7 + "\t\t" + Utils.formatDate(str7));
             System.out.println(str8 + "\t\t" + Utils.formatDate(str8));
+            System.out.println(str9 + "\t\t" + Utils.formatDate(str9));
     }
     
     @Test

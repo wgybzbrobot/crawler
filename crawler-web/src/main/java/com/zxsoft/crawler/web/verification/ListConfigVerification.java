@@ -67,13 +67,7 @@ public class ListConfigVerification extends ParseTool {
 
 		} else {
 			document = protocolOutput.getDocument();
-			try {
-				Element pagebar = PageHelper.getPageBar(document);
-				pageStr = pagebar.html();
-			} catch (NullPointerException | PageBarNotFoundException e) {
-				e.printStackTrace();
-			}
-
+			
 			if (StringUtils.isEmpty(listConf.getListdom())) {
 				errors.put("listdomerror", "必填");
 			} else {//document.select("form#moderate  table:gt(1)");
@@ -85,6 +79,14 @@ public class ListConfigVerification extends ParseTool {
 					if (StringUtils.isEmpty(listConf.getLinedom())) {
 						errors.put("linedom", "必填");
 					} else {
+						
+						try {
+							Element pagebar = PageHelper.getPageBar(listElement);
+							pageStr = pagebar.html();
+						} catch (NullPointerException | PageBarNotFoundException e) {
+							e.printStackTrace();
+						}
+						
 						Elements lineElements = listElement.select(listConf.getLinedom());
 						if (CollectionUtils.isEmpty(lineElements) || lineElements.size() < 3) {
 							errors.put("linedom", "获取列表行失败");
@@ -143,6 +145,15 @@ public class ListConfigVerification extends ParseTool {
 							}
 						}
 					}
+				}
+			}
+			
+			if (StringUtils.isEmpty(pageStr)) {
+				try {
+					Element pagebar = PageHelper.getPageBar(document);
+					pageStr = pagebar.html();
+				} catch (NullPointerException | PageBarNotFoundException e) {
+					e.printStackTrace();
 				}
 			}
 		}

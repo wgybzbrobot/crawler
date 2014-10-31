@@ -345,7 +345,7 @@
 							<div style="padding: 10px 60px 20px 60px">
 								<form id="confdetail1" method="post">
 									<div class="confdiv" style="float: left; text-align: right;">
-										<div><input name="id.listurl" type="hidden" value="${confList.url }" /></div>
+										<div><input name="id.listurl" type="hidden" value="${section.url }" /></div>
 										<div>
 											<label class="form-label" for="testUrl">测试页URL地址<span class="red">*</span>
 											</label> <input name="testUrl" type="text" class="easyui-validatebox" data-options="required:true, validType:'url'" />

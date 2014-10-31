@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.NetUtils;
+import org.thinkingcloud.framework.util.StringUtils;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
@@ -31,6 +32,7 @@ import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocols.http.HttpBase;
+import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
@@ -205,6 +207,15 @@ public class HtmlUnit extends HttpBase {
 		}
 		String pageXml = htmlPage.asXml();
 		Document document = Jsoup.parse(pageXml, host);
+		
+		// 从列表块中选
+//		ListConf listConf = page.getListConf();
+//		String listdom = listConf == null ? null : listConf.getListdom();
+//		Element listElement = null;
+//		if (!StringUtils.isEmpty(listConf)) {
+//			listElement = CollectionUtils.isEmpty(document.select(listdom)) ? null : document.select(listdom).first();
+//		}
+		
 		Elements elements = document.select("a:matchesOwn(上一页|上页|<上一页)");
 		HtmlAnchor prevAnchor = null;
 		if (!CollectionUtils.isEmpty(elements)) {
@@ -329,12 +340,21 @@ public class HtmlUnit extends HttpBase {
 		}
 		String pageXml = htmlPage.asXml();
 		Document document = Jsoup.parse(pageXml, host);
+
+		// 从列表块中选分页栏
+		ListConf listConf = page.getListConf();
+		String listdom = listConf == null ? null : listConf.getListdom();
+		Element listElement = null;
+		if (!StringUtils.isEmpty(listConf)) {
+			listElement = CollectionUtils.isEmpty(document.select(listdom)) ? null : document.select(listdom).first();
+		}
+		
 		Elements elements = document.select("a:matchesOwn(尾页|末页|最后一页|最末页)");
 		HtmlAnchor lastAnchor = null;
 		if (!CollectionUtils.isEmpty(elements)) {
 			lastAnchor = htmlPage.getAnchorByText(elements.first().text());
 		} else {
-			Element pagebar = getPageBar(document);
+			Element pagebar = getPageBar(listElement == null ? document : listElement);
 			if (pagebar == null)
 				return null;
 			Elements links = pagebar.getElementsByTag("a");

@@ -25,8 +25,9 @@ public class PageHelper/* extends Configured */{
 	 * @return page bar element.
 	 * @throws PageBarNotFoundException
 	 */
-	public static Element getPageBar(Document document) throws PageBarNotFoundException {
-		Assert.notNull(document);
+	public static Element getPageBar(Element document) throws PageBarNotFoundException {
+		if (document == null) return null;
+		
 		Elements eles = document.select("a:matches(上一页|上页|<上一页|下一页|下页|下一页>|尾页|末页)");
 		if (!CollectionUtils.isEmpty(eles)) { // bug: if only has '下一页'
 			Elements siblingEles = eles.first().siblingElements();
@@ -179,6 +180,8 @@ public class PageHelper/* extends Configured */{
 	        PageBarNotFoundException {
 		Element pagebar = getPageBar(currentDoc);
 		List<String> urls = Utils.extractUrls(pagebar);
+		if (CollectionUtils.isEmpty(urls))
+			return null;
 		URL currentUrl = null;
 		try {
 			currentUrl = new URL(currentDoc.location());
