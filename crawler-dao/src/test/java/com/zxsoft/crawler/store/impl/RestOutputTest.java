@@ -1,10 +1,5 @@
 package com.zxsoft.crawler.store.impl;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.hadoop.conf.Configuration;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.util.Assert;
 
@@ -14,18 +9,10 @@ import com.sun.jersey.api.client.WebResource;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.store.Output;
 import com.zxsoft.crawler.store.OutputException;
-import com.zxsoft.crawler.util.CrawlerConfiguration;
 
 public class RestOutputTest {
 
-	Configuration conf;
-	
-	@BeforeClass
-	public void before() {
-		conf = CrawlerConfiguration.create();
-	}
-
-	private Output output = new RestOutput(conf);
+	private Output output = new RestOutput();
 	
 	@Test
 	public void testWrite() throws OutputException /*throws OutputException*/ {
@@ -33,7 +20,6 @@ public class RestOutputTest {
 		output.write(info);
 	}
 	
-
 	private String records= "{"
 	+"\"num\":2,"
 	+"\"records\":["

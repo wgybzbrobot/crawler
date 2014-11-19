@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -90,7 +91,12 @@ public final class NetworkSearchParserController extends ParseTool {
 		String synopsisDom = listConf.getSynopsisdom();
 		String dateDom = listConf.getDatedom();
 		
-		String ip = new DNSCache().getAsString(new URL(indexUrl));
+		String ip = "";
+        try {
+	        ip = DNSCache.getIp(new URL(indexUrl));
+        } catch (UnknownHostException e1) {
+	        e1.printStackTrace();
+        }
 		
 		while (true) {
 			Elements list = document.select(listDom);
