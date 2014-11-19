@@ -33,7 +33,7 @@ public class ConfDao extends BaseDao {
 		if (objectCache.getObject(host) != null) {
 			return (List<Account>) objectCache.getObject(host);
 		} else {
-			List<Account> list = jdbcTemplate.query("select * from " + TABLE_AUTH
+			List<Account> list = getJdbcTemplate().query("select * from " + TABLE_AUTH
 			        + " where host = ?", new Object[] { host }, new RowMapper<Account>() {
 				@Override
 				public Account mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -86,7 +86,7 @@ public class ConfDao extends BaseDao {
 			// if not foudn in cache, get ListConf from database
 		} else {
 			LOG.info("Getting list config:" + url);
-			List<ListConf> list = jdbcTemplate.query("select * from conf_list where url = ?",
+			List<ListConf> list = getJdbcTemplate().query("select * from conf_list where url = ?",
 			        new Object[] { url }, new RowMapper<ListConf>() {
 				        public ListConf mapRow(ResultSet rs, int rowNum) throws SQLException {
 					        return new ListConf(rs.getString("comment"), rs.getString("url"), rs
@@ -119,7 +119,7 @@ public class ConfDao extends BaseDao {
 			return (ListConf) objectCache.getObject(category);
 		} else {
 			LOG.debug("Getting list config by category:" + category);
-			List<ListConf> list = jdbcTemplate.query("select * from conf_list where category = ?",
+			List<ListConf> list = getJdbcTemplate().query("select * from conf_list where category = ?",
 			        new Object[] { category }, new RowMapper<ListConf>() {
 				        public ListConf mapRow(ResultSet rs, int rowNum) throws SQLException {
 					        return new ListConf(rs.getString("comment"), rs.getString("url"), rs
@@ -150,7 +150,7 @@ public class ConfDao extends BaseDao {
 	public List<ListConf> getListConfsOfNetworkSearch() {
 
 		LOG.debug("Getting list config of NetworkSearch.");
-		List<ListConf> list = jdbcTemplate.query(
+		List<ListConf> list = getJdbcTemplate().query(
 		        "select * from conf_list where category = 'search'", new RowMapper<ListConf>() {
 			        public ListConf mapRow(ResultSet rs, int rowNum) throws SQLException {
 				        return new ListConf(rs.getString("comment"), rs.getString("url"), rs
@@ -178,7 +178,7 @@ public class ConfDao extends BaseDao {
 			return (DetailConf) objectCache.getObject(host);
 		} else {
 			LOG.debug("Getting detail configuration:" + host);
-			List<DetailConf> list = jdbcTemplate.query("select * from conf_detail where listurl = ? and host like ?",
+			List<DetailConf> list = getJdbcTemplate().query("select * from conf_detail where listurl = ? and host like ?",
 			        new Object[] { listUrl, "%" + host + "%"}, new RowMapper<DetailConf>() {
 				        public DetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
 					        DetailConf detailConf = new DetailConf();
@@ -221,7 +221,7 @@ public class ConfDao extends BaseDao {
 			return (DetailConf) objectCache.getObject(host);
 		} else {
 			LOG.debug("Getting detail configuration:" + host);
-			List<DetailConf> list = jdbcTemplate.query("select * from conf_detail where host like ?",
+			List<DetailConf> list = getJdbcTemplate().query("select * from conf_detail where host like ?",
 			        new Object[] { "%" + host + "%"}, new RowMapper<DetailConf>() {
 				        public DetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
 					        DetailConf detailConf = new DetailConf();

@@ -28,7 +28,7 @@ public class DbProxyFactory extends BaseDao implements ProxyFactory {
 		if (!CollectionUtils.isEmpty(proxies)) {
 			return proxies;
 		} else {
-			proxies = jdbcTemplate.query("select * from " + TABLE_PROXY + " where type = ?",
+			proxies = getJdbcTemplate().query("select * from " + TABLE_PROXY + " where type = ?",
 			        new Object[] { type },
 			        new RowMapper<Proxy>() {
 				        public Proxy mapRow(ResultSet rs, int rowNum) throws SQLException {

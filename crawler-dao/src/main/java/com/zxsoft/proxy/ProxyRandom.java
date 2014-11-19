@@ -32,16 +32,6 @@ public class ProxyRandom extends BaseDao {
 
 	public Proxy random(String type) {
 		
-//		String host = "";
-//		try {
-//			host = Utils.getHost(url);
-//		} catch (MalformedURLException e) {
-//			LOG.error(e.getMessage());
-//			e.printStackTrace();
-//		}
-//
-//		String type = getWebSiteType(host);
-
 		List<Proxy> proxies = proxyFactory.getProxies(type);
 
 		if (CollectionUtils.isEmpty(proxies))
@@ -58,7 +48,7 @@ public class ProxyRandom extends BaseDao {
 			return (String) objectCache.getObject(host);
 		} else {
 			LOG.debug("Getting Website Type of Host:" + host);
-			List<String> list = jdbcTemplate.query("select type from " + TABLE_WEBSITE
+			List<String> list = getJdbcTemplate().query("select type from " + TABLE_WEBSITE
 			        + " where host = ? ", new Object[] {host}, new RowMapper<String>() {
 				@Override
 				public String mapRow(ResultSet rs, int rowNum) throws SQLException {

@@ -62,6 +62,7 @@
 				<value>com.zxsoft.crawler.entity.Website</value>
 				<value>com.zxsoft.crawler.entity.Account</value>
 				<value>com.zxsoft.crawler.entity.Category</value>
+				<value>com.zxsoft.crawler.entity.Auth</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">

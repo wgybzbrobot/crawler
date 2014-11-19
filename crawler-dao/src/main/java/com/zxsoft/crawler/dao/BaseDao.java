@@ -6,6 +6,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+@SuppressWarnings("deprecation")
 public abstract class BaseDao {
 
 	protected static final String TABLE_CONF_LIST = "conf_list";
@@ -15,11 +16,19 @@ public abstract class BaseDao {
 	protected static final String TABLE_PROXY = "proxy";
 	protected static final String TABLE_WEBSITE = "website";
 	
-	protected static JdbcTemplate jdbcTemplate;
+	private static final BeanFactory factory;
+	private JdbcTemplate jdbcTemplate;
 
+	public BaseDao() {
+		jdbcTemplate = (JdbcTemplate) factory.getBean("jdbcTemplate");
+	}
+	
 	static {
 		Resource resource = new ClassPathResource("dao.xml");
-		BeanFactory factory = new XmlBeanFactory(resource);
-		jdbcTemplate = (JdbcTemplate) factory.getBean("jdbcTemplate");
+		factory = new XmlBeanFactory(resource);
+	}
+	
+	public JdbcTemplate getJdbcTemplate() {
+		return this.jdbcTemplate;
 	}
 }
