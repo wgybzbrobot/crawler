@@ -9,36 +9,16 @@
 	<artifactId>crawler-protocol</artifactId>
 	<packaging>jar</packaging>
 	<dependencies>
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.zxsoft.crawler</groupId>
 			<artifactId>crawler-common</artifactId>
 			<version>1.0.0</version>
-		</dependency>
-		<!-- <dependency>
+		</dependency> -->
+		<dependency>
 			<groupId>com.zxsoft.crawler</groupId>
-			<artifactId>crawler-cache</artifactId>
+			<artifactId>crawler-dao</artifactId>
 			<version>1.0.0</version>
-		</dependency> -->
-		<!-- <dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.3.4</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient-cache</artifactId>
-			<version>4.3.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpmime</artifactId>
-			<version>4.3.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>fluent-hc</artifactId>
-			<version>4.3.4</version>
-		</dependency> -->
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
@@ -49,35 +29,11 @@
 			<artifactId>htmlunit</artifactId>
 			<version>2.14</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>dnsjava</groupId>
 			<artifactId>dnsjava</artifactId>
 			<version>2.1.6</version>
-		</dependency>
-		<!-- <dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-			<version>2.10.4</version>
 		</dependency> -->
-		<!-- <dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-remote-shell</artifactId>
-			<version>1.1.4.RELEASE</version>
-		</dependency> -->
-		<!-- <dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty</artifactId>
-			<version>3.6.6.Final</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-net</groupId>
-			<artifactId>commons-net</artifactId>
-			<version>3.3</version>
-		</dependency> -->
-		<dependency>
-			<groupId>com.zxsoft.crawler</groupId>
-			<artifactId>crawler-dao</artifactId>
-			<version>1.0.0</version>
-		</dependency>
+		
 	</dependencies>
 </project>

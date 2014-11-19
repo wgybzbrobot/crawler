@@ -12,11 +12,11 @@
 		<spring.version>3.2.10.RELEASE</spring.version>
 	</properties>
 	<dependencies>
-	<dependency>
-		<groupId>com.sun.jersey</groupId>
-		<artifactId>jersey-client</artifactId>
-		<version>1.8</version>
-	</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>1.8</version>
+		</dependency>
 		<dependency>
 			<groupId>com.zxsoft.crawler</groupId>
 			<artifactId>crawler-common</artifactId>
@@ -27,12 +27,12 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.30</version>
 		</dependency>
+		<!-- <dependency>
+			<groupId>c3p0</groupId>
+			<artifactId>c3p0</artifactId>
+			<version>0.9.1.2</version>
+		</dependency> -->
 		<dependency>
-		    <groupId>c3p0</groupId>
-		    <artifactId>c3p0</artifactId>
-		    <version>0.9.1.2</version>
-		</dependency>
-			<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
 			<version>${spring.version}</version>
@@ -48,4 +48,16 @@
 			<version>${spring.version}</version>
 		</dependency>
 	</dependencies>
+	<!-- <build>
+		<resources>
+			<resource> exclude file to jar
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>log4j.xml</exclude>
+					<exclude>dao.xml</exclude>
+				</excludes>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+	</build> -->
 </project>
