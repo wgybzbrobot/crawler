@@ -21,9 +21,6 @@ public class ConfDao extends BaseDao {
 
 	private Logger LOG = LoggerFactory.getLogger(ConfDao.class);
 
-	public ConfDao() {
-	}
-
 	/**
 	 * 获取登录帐号
 	 */
@@ -178,7 +175,7 @@ public class ConfDao extends BaseDao {
 			return (DetailConf) objectCache.getObject(host);
 		} else {
 			LOG.debug("Getting detail configuration:" + host);
-			List<DetailConf> list = getJdbcTemplate().query("select * from conf_detail where listurl = ? and host like ?",
+			List<DetailConf> list = getJdbcTemplate().query("select * from " + TABLE_CONF_DETAIL + " where listurl = ? and host like ?",
 			        new Object[] { listUrl, "%" + host + "%"}, new RowMapper<DetailConf>() {
 				        public DetailConf mapRow(ResultSet rs, int rowNum) throws SQLException {
 					        DetailConf detailConf = new DetailConf();
