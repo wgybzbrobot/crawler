@@ -87,8 +87,8 @@ public abstract class HttpBase extends PageHelper {
 	// Inherited Javadoc
 	public void setConf(Configuration conf) {
 		this.conf = conf;
-		this.proxyHost = conf.get("");
-		this.proxyPort = conf.getInt("", 8080);
+		this.proxyHost = conf.get("http.proxy.host");
+		this.proxyPort = conf.getInt("http.proxy.port", 8080);
 		this.useProxy = (proxyHost != null && proxyHost.length() > 0);
 		this.timeout = conf.getInt("http.timeout", 9000);
 		this.maxContent = conf.getInt("http.content.limit", 1024 * 1024);

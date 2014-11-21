@@ -7,13 +7,18 @@
 		<description></description>
 	</property>
 	<property>
-		<name>http.proxy.use</name>
-		<value>true</value>
-		<description>whether to use proxy visiting website</description>
+		<name>http.proxy.host</name>
+		<value></value>
+		<description></description>
+	</property>
+	<property>
+		<name>http.proxy.port</name>
+		<value></value>
+		<description></description>
 	</property>
 	<property>
 		<name>redis.host</name>
-		<value>localhost</value>
+		<value>192.168.4.137</value>
 		<description>redis host</description>
 	</property>
 	<property>
