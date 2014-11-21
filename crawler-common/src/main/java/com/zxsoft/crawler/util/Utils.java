@@ -49,14 +49,17 @@ public class Utils {
 	 * 格式化日期
 	 * @throws ParseException 
 	 */
-	public static Date formatDate(String param) throws ParseException {
-		long time = System.currentTimeMillis();
-		if (StringUtils.isEmpty(param))
+	public static Date formatDate(String text) throws ParseException {
+		if (!StringUtils.hasLength(text)) {
+			LOG.info("Input text for formate date is null.");
 			return null;
+		}
+		
+		text = text.replaceAll("\\s+", " ");
+		text = text.replaceAll("\u00a0", " "); // 去除&nbsp;表示的空格
+		
 		StringBuilder sb = new StringBuilder();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Scanner scanner = new Scanner(param);
-		// anything other than alphanumberic characters, : or - is skipped
+		Scanner scanner = new Scanner(text);
 		scanner.useDelimiter("[^\\p{Alnum}\\:-]");
 		while (true) {
 			if (scanner.hasNextInt()) {
@@ -70,102 +73,103 @@ public class Utils {
 		}
 		scanner.close();
 		String nt = sb.toString();
-		Date date = null;
-//		try {
-			if (param.contains("天前")) {
-				time = time - Integer.valueOf(nt.trim()) * 24 * 60 * 60 * 1000;
-			} else if (param.contains("今天")) {
-				Calendar cd = Calendar.getInstance();
-				String[] n = nt.split(":");
-				if (n != null && n.length == 2) {
-					cd.set(Calendar.HOUR_OF_DAY, Integer.valueOf(n[0].trim()));
-					cd.set(Calendar.MINUTE, Integer.valueOf(n[1].trim()));
-				}
-				String s = sdf.format(cd.getTime());
-				date = sdf.parse(s);
-				return date;
-			} else if (param.contains("昨天")) {
-				Calendar cd = Calendar.getInstance();
-				cd.add(Calendar.DATE, -1);
-				String[] n = nt.split(":");
-				if (n != null && n.length == 2) {
-					cd.set(Calendar.HOUR_OF_DAY, Integer.valueOf(n[0].trim()));
-					cd.set(Calendar.MINUTE, Integer.valueOf(n[1].trim()));
-				}
-				String s = sdf.format(cd.getTime());
-				date = sdf.parse(s);
-				return date;
-			} else if (param.contains("前天")) {
-				Calendar cd = Calendar.getInstance();
-				cd.add(Calendar.DATE, -2);
-				String[] n = nt.split(":");
-				if (n != null && n.length == 2) {
-					cd.set(Calendar.HOUR_OF_DAY, Integer.valueOf(n[0].trim()));
-					cd.set(Calendar.MINUTE, Integer.valueOf(n[1].trim()));
-				}
-				String s = sdf.format(cd.getTime());
-				date = sdf.parse(s);
-				return date;
-			} else if (param.contains("半小时前")) {
-				time = time - 30 * 60 * 1000;
-			} else if (param.contains("时前")) {
-				time = time - Integer.valueOf(nt.trim()) * 60 * 60 * 1000;
-			} else if (param.contains("分钟前")) {
-				time = time - Integer.valueOf(nt.trim()) * 60 * 1000;
-			} else if (param.contains("秒前")) {
-				time = time - Integer.valueOf(nt.trim()) * 1000;
-			} else if (param.trim().matches("\\d{4}年\\d{2}月\\d{2}日\\s+\\d{2}:\\d{2}")) {
-				sdf = new SimpleDateFormat("yyyy年MM月dd日HH:mm");
-				return sdf.parse(param);
-			} else if (param.trim().matches("\\d{4}年\\d{2}月\\d{2}日\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}")) {
-				sdf = new SimpleDateFormat("yyyy年MM月dd日HH:mm:ss");
-				return sdf.parse(param);
-			} else if (param.trim().matches("\\d{1,2}-\\d{2}\\s+\\d{1,2}:\\d{2}")) {
-				// 05-23 13:52
-				param = param.replaceAll("\\s+", " ");
-				param = Calendar.getInstance().get(Calendar.YEAR) + "-" + param;
+		
+		SimpleDateFormat sdf = null;
+		try {
+			 if (text.trim().matches(".*\\d{4}-\\d{1,2}-\\d{1,2}\\s+\\d{2}:\\d{2}")) { // 2014-4-16 21:08
+				text = nt;
 				sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-				return sdf.parse(param);
-			} else if (param.trim().matches("\\d{4}-\\d{1,2}-\\d{1,2}\\s+\\d{2}:\\d{2}")) {
-				// 2013-07-27 05:55 2013-7-7 05:55
-				param = param.replaceAll("\\s+", " ");
-				sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-				return sdf.parse(param);
-			} else if (nt.trim().matches("\\d{4}-\\d{1,2}-\\d{1,2}\\s+\\d{2}:\\d{2}")) {
-				nt = nt.replaceAll("\\s+", " ");
-				sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-				return sdf.parse(nt);
-			} else if (nt.trim().matches("\\d{4}-\\d{1,2}-\\d{1,2}\\s+\\d{2}:\\d{2}:\\d{2}")) {
-				nt = nt.replaceAll("\\s+", " ");
+				return sdf.parse(text);
+			} else if (text.trim().matches(".*\\d{4}-\\d{1,2}-\\d{1,2}\\s+\\d{2}:\\d{2}:\\d{2}")) { // 2014-4-16 21:08:48
+				text = nt;
 				sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				return sdf.parse(nt);
-			} else if (param.trim().matches("\\d{1,2}:\\d{1,2}")) { // 12:43
-				param = param.replaceAll("\\s+", " ");
+				return sdf.parse(text);
+			} else if (text.trim().matches("\\d{4}年\\d{1,2}月\\d{1,2}日\\s+\\d{1,2}:\\d{1,2}")) { // 2014年05月22日 09:08
+				sdf = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+				return sdf.parse(text);
+			} else if (text.trim().matches("\\d{4}年\\d{1,2}月\\d{1,2}日\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}")) { // 2014年10月29日 20:46:46
+				sdf = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
+				return sdf.parse(text);
+			} else if (text.trim().matches(".*\\d{4}年\\d{1,2}月\\d{1,2}日.*")) { // 博讯北京时间2014年11月01日 转载	
+				Scanner scan = new Scanner(text);
+				scan.useDelimiter("[^d{4}年\\d{1,2}月\\d{1,2}日]");
+				StringBuilder _sb = new StringBuilder();
+				while (true) {
+					if (scan.hasNextInt()) {
+						int i = scan.nextInt();
+						_sb.append(" " + i + " ");
+					} else if (scan.hasNext()) {
+						String str = scan.next();
+						_sb.append(" " + str + " ");
+					} else
+						break;
+				}
+				scan.close();
+				text = _sb.toString();
+				sdf = new SimpleDateFormat("yyyy年MM月dd日");
+				return sdf.parse(text);
+			} else if (text.trim().matches(".*\\d{1,2}\\s*天前")) { // 发表于 3 天前
+				int num = Utils.extractNum(text);
+				if (num != -1) {
+					return new Date(System.currentTimeMillis() - num * 24 * 60 * 60 * 1000);
+				}
+			} else if (text.trim().matches(".*\\d{1,2}\\s*小时前")) { // 发表于 3 小时前 ;
+				int num = Utils.extractNum(text);
+				if (num != -1) {
+					return new Date(System.currentTimeMillis() - num * 60 * 60 * 1000);
+				}
+			} else if (text.trim().matches(".*\\d{1,2}\\s*分钟前")) { // 发表于 3 分钟前
+				int num = Utils.extractNum(text);
+				if (num != -1) {
+					return new Date(System.currentTimeMillis() - num * 60 * 1000);
+				}
+			} else if (text.trim().matches(".*\\d{1,2}\\s*秒前")) { // 发表于 3 秒前
+				int num = Utils.extractNum(text);
+				if (num != -1) {
+					return new Date(System.currentTimeMillis() - num * 1000);
+				}
+			} else if (text.trim().matches(".*前天\\s*\\d{1,2}:\\d{1,2}")) { // 发表于 前天08:27
 				Calendar cal = Calendar.getInstance();
-				param = cal.get(Calendar.YEAR) + "-" + (cal.get(Calendar.MONTH) + 1) + "-"
-				        + cal.get(Calendar.DAY_OF_MONTH) + " " + param;
-				sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-				return sdf.parse(param);
-			} else if (param.trim().matches("\\d{1,2}-\\d{1,2}")) { // 5-26
+				cal.add(Calendar.DATE, -2);
+				String[] n = nt.split(":");
+				if (n != null && n.length == 2) {
+					cal.set(Calendar.HOUR_OF_DAY, Integer.valueOf(n[0].trim()));
+					cal.set(Calendar.MINUTE, Integer.valueOf(n[1].trim()));
+				}
+				return cal.getTime();
+			} else if (text.trim().matches(".*今天\\s*\\d{1,2}:\\d{1,2}")) { // 发表于 今天08:27
 				Calendar cal = Calendar.getInstance();
-				param = cal.get(Calendar.YEAR) + "-" + param;
-				sdf = new SimpleDateFormat("yyyy-MM-dd");
-				return sdf.parse(param);
-			} else {
-//				try {
-					date = sdf.parse(nt.trim());
-//				} catch (ParseException e) {
-//					LOG.error(e.getMessage());
-//					return null;
-//				}
-				return date;
+				String[] n = nt.split(":");
+				if (n != null && n.length == 2) {
+					cal.set(Calendar.HOUR_OF_DAY, Integer.valueOf(n[0].trim()));
+					cal.set(Calendar.MINUTE, Integer.valueOf(n[1].trim()));
+				}
+				return cal.getTime();
+			} else if (text.trim().matches(".*今天\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}")) { // 今天 13:40:01
+				Calendar cal = Calendar.getInstance();
+				String[] n = nt.split(":");
+				if (n != null && n.length == 3) {
+					cal.set(Calendar.HOUR_OF_DAY, Integer.valueOf(n[0].trim()));
+					cal.set(Calendar.MINUTE, Integer.valueOf(n[1].trim()));
+					cal.set(Calendar.SECOND, Integer.valueOf(n[2].trim()));
+				}
+				return cal.getTime();
+			} else if (text.trim().matches(".*昨天\\s*\\d{1,2}:\\d{1,2}")) { // 发表于 昨天08:27
+				Calendar cal = Calendar.getInstance();
+				cal.add(Calendar.DATE, -1);
+				String[] n = nt.split(":");
+				if (n != null && n.length == 2) {
+					cal.set(Calendar.HOUR_OF_DAY, Integer.valueOf(n[0].trim()));
+					cal.set(Calendar.MINUTE, Integer.valueOf(n[1].trim()));
+				}
+				return cal.getTime();
+			} else if (text.trim().matches(".*半小时前")) {
+				return new Date(System.currentTimeMillis() - 30 * 60 * 1000);
 			}
-			date = new Date(time);
-//		} catch (ParseException e) {
-//			e.printStackTrace();
-//			return null;
-//		}
-		return date;
+		}	catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -186,7 +190,7 @@ public class Utils {
 			try {
 				result = Integer.valueOf(matcher.group(0));
 			} catch (NumberFormatException e) {
-				LOG.error("NumberFormatException: cannot extract number from " + str);
+				LOG.info("NumberFormatException: cannot extract number from " + str);
 			}
 		}
 		return result;

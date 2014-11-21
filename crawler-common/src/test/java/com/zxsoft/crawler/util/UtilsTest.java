@@ -1,12 +1,9 @@
 package com.zxsoft.crawler.util;
 
 import java.text.ParseException;
-import java.util.Calendar;
 
-import org.junit.Assert;
 import org.junit.Test;
-
-import com.zxsoft.crawler.util.Utils;
+import org.thinkingcloud.framework.util.Assert;
 
 public class UtilsTest {
 
@@ -14,19 +11,31 @@ public class UtilsTest {
     public void testFormatDate() throws ParseException {
 
             String str0 = "2014-4-16 21:08:48";
-
             String str1 = "发表于 2014-4-16 21:08:48";
-
-            String str2 = "发表于 3 天前 ";
+            String str2 = "发表于 4 天前";
             String str3 = "发表于 3 小时前 ";
             String str4 = "发表于 3 分钟前 ";
             String str5 = "发表于 3 秒前 ";
             String str6 = "发表于 前天08:27 ";
             String str7 = "发表于 今天08:27 ";
             String str8 = "2014年05月22日 09:08";
-            String str9 = "2014年10月29日 20:46:46"; 
-            		
-
+            String str9 = "2014年09月15日 21:19:26"; 
+            String str10 = "2014-6-30 10:08";
+            String s11 = "发表于 2013-3-9 18:51";
+            String s2 = "2014-11-08 12:41:32";
+            String s3 = "博讯北京时间2014年11月01日 转载";
+            String s4 = "发表于 7 天前";
+            String s5 = "今天 13:40:01";
+            String s6 = "发表于 昨天 11:25";
+            String s7 = "发表于 半小时前";
+//            Assert.isTrue(s4.equals(str2));
+            System.out.println(s7 + "\t\t" +  Utils.formatDate(s7));
+            System.out.println(s6 + "\t\t" +  Utils.formatDate(s6));
+            System.out.println(s5 + "\t\t" +  Utils.formatDate(s5));
+            System.out.println(s4 + "\t\t" +  Utils.formatDate(s4));
+            System.out.println(s3 + "\t\t" +  Utils.formatDate(s3));
+            System.out.println(s2 + "\t\t" +  Utils.formatDate(s2));
+            System.out.println(s11 + "\t\t" +  Utils.formatDate(s11));
             System.out.println(str0 + "\t\t" + Utils.formatDate(str0));
             System.out.println(str1 + "\t\t" + Utils.formatDate(str1));
             System.out.println(str2 + "\t\t" + Utils.formatDate(str2));
@@ -37,59 +46,22 @@ public class UtilsTest {
             System.out.println(str7 + "\t\t" + Utils.formatDate(str7));
             System.out.println(str8 + "\t\t" + Utils.formatDate(str8));
             System.out.println(str9 + "\t\t" + Utils.formatDate(str9));
-    }
-    
-    @Test
-    public void testFormatDate1() throws ParseException {
-        String str = "05-23 13:52";
-        System.out.println(Utils.formatDate(str));
-    }
-    
-    @Test
-    public void testFormatDate2() throws ParseException {
-        String str = "5-23  9:59";
-        System.out.println(Utils.formatDate(str));
-    }
-
-    @Test
-    public void testFormatDate3() throws ParseException {
-    	String str = "2013-07-27  05:55";
-    	String str1 = "2013-7-7  05:55";
-    	String str2 = "2014-6-7  09:23";
-    	System.out.println(Utils.formatDate(str));
-    	System.out.println(Utils.formatDate(str1));
-    	System.out.println(Utils.formatDate(str2));
-    }
-    
-    @Test
-    public void testFormatDate4() throws ParseException {
-    	String str = "12:49";
-    	String str1 = "1:1";
-    	System.out.println(Utils.formatDate(str));
-    	System.out.println(Utils.formatDate(str1));
-    }
-    
-    @Test
-    public void testFormatDate5() throws ParseException {
-    	String str = "5-27";
-    	String str1 = "11-2";
-    	System.out.println(Utils.formatDate(str));
-    	System.out.println(Utils.formatDate(str1));
+            System.out.println(str10 + "\t\t" +Utils.formatDate(str10));
     }
     
     @Test
     public void testIsNum() {
-    	Assert.assertTrue(Utils.isNum("3"));
-    	Assert.assertTrue(Utils.isNum("33"));
-    	Assert.assertFalse(Utils.isNum("3njb"));
-    	Assert.assertFalse(Utils.isNum(""));
-    	Assert.assertFalse(Utils.isNum(null));
+    	Assert.isTrue(Utils.isNum("3"));
+    	Assert.isTrue(Utils.isNum("33"));
+    	Assert.isTrue(Utils.isNum("3njb"));
+    	Assert.isTrue(Utils.isNum(""));
+    	Assert.isTrue(Utils.isNum(null));
     }
 
     @Test
     public void testExtractNum() {
-    	Assert.assertEquals(Utils.extractNum("Hello3Two"), 3);
-    	Assert.assertEquals(Utils.extractNum("33 HelloTwo"), 33);
-    	Assert.assertEquals(Utils.extractNum("HelloTwo 4 5"), 4);
+    	Assert.isTrue(Utils.extractNum("Hello3Two") == 3);
+    	Assert.isTrue(Utils.extractNum("33 HelloTwo") == 33);
+    	Assert.isTrue(Utils.extractNum("HelloTwo 4 5") == 4);
     }
 }
