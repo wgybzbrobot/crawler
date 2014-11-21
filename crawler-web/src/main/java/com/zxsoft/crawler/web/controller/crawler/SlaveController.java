@@ -1,11 +1,13 @@
 package com.zxsoft.crawler.web.controller.crawler;
 
+import java.io.IOException;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -18,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.thinkingcloud.framework.io.ClassPathResource;
 import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.StringUtils;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -70,7 +74,7 @@ public class SlaveController {
 			map.put("code", "2000");
 
 		} catch (ClientHandlerException e) {
-			LOG.warn(e.getMessage(), e);
+			LOG.warn(e.getMessage());
 			map.put("msg", "无法连接到主控，可能没有启动.");
 			map.put("code", "5000");
 		} catch (Exception e) {
@@ -134,8 +138,8 @@ public class SlaveController {
 		} finally {
 			model.addAttribute("count", count);
 			model.addAttribute("preys", list);
+			jedis.close();
 		}
-		jedis.close();
 		
 		List<ConfList> confLists = configService.getInspectConfLists(null);
 		model.addAttribute("confLists", confLists);
@@ -165,7 +169,27 @@ public class SlaveController {
 	}
 
 	private static final String URLBASE = "urlbase";
-	private static final String REDIS_HOST = "localhost";
+	private static final String REDIS_HOST;
+	private static final int REDIS_PORT;
+	
+	static {
+		ClassPathResource resource = new ClassPathResource("redis.properties");
+		Properties properties = new Properties();
+		try {
+	        properties.load(resource.getInputStream());
+        } catch (IOException e) {
+	        e.printStackTrace();
+        }
+		REDIS_HOST = properties.getProperty("redis.host");
+		REDIS_PORT = Integer.valueOf(properties.getProperty("redis.port"));
+
+		if (StringUtils.isEmpty(REDIS_HOST)) {
+			throw new NullPointerException("redis.properties中没有配置<redis.host>");
+		}
+		if (StringUtils.isEmpty(REDIS_HOST)) {
+			throw new NullPointerException("redis.properties中没有配置<redis.prot>");
+		}
+	}
 
 	@ResponseBody
 	@RequestMapping(value = "ajax/addInspectJob", method = RequestMethod.POST)
@@ -188,7 +212,7 @@ public class SlaveController {
 
 		// 判断任务列表中是否已存在该任务
 
-		Jedis jedis = new Jedis(REDIS_HOST, 6379);
+		Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
 		double score = 1.0d / (System.currentTimeMillis() / 60000 + 	confList.getFetchinterval());
 		Prey prey = new Prey(site, url,  confList.getComment(), JobType.NETWORK_INSPECT.toString(),
 		        proxyType, confList.getFetchinterval());
@@ -233,6 +257,8 @@ public class SlaveController {
 			res = new Gson().fromJson(text, List.class);
 		} catch (ClientHandlerException e) {
 			e.printStackTrace();
+		} finally {
+			client.destroy();
 		}
 
 		model.addAttribute("list", res);
