@@ -28,135 +28,72 @@ public class NewsParser extends Parser {
 
 	private static Logger LOG = LoggerFactory.getLogger(NewsParser.class);
 
-	private ThreadLocal<String> mainUrl = new ThreadLocal<String>();
-	private ThreadLocal<String> rule = new ThreadLocal<String>() {
-		protected String initialValue() {
-			return "";
-		}
-	};
-	private ThreadLocal<Long> prevFetchTime = new ThreadLocal<Long>();
 	private ThreadLocal<Boolean> ajax = new ThreadLocal<Boolean>();
 	private ThreadLocal<List<RecordInfo>> threadLocalRecordInfos = new ThreadLocal<List<RecordInfo>>() {
 		protected List<RecordInfo> initialValue() {
 			return new LinkedList<RecordInfo>();
 		}
 	};
-	private ThreadLocal<DetailConf> threadLocalDetailConf = new ThreadLocal<DetailConf>() {
-		protected DetailConf initialValue() {
-			return new DetailConf();
-		}
-	};
 
 	@Override
 	public FetchStatus parse(WebPage page) throws Exception {
 		Assert.notNull(page, "Page is null");
-		
-		FetchStatus status = new FetchStatus(page.getBaseUrl(), "");
-		
-		ProtocolOutput outputTemp = fetch(page); 
-		Document document = null;
-		if (outputTemp == null || (document = outputTemp.getDocument()) == null) {
-			LOG.error("Http protocol get page error ..." + page.getBaseUrl());
-			status.setStatus(Status.PROTOCOL_FAILURE);
-			status.setMessage("Http protocol get page error.");
-			return status;
+		String mainUrl = page.getBaseUrl();
+
+		ProtocolOutput _output = fetch(page);
+		if (!_output.getStatus().isSuccess()) {
+			return new FetchStatus(mainUrl, 61, Status.PROTOCOL_FAILURE);
 		}
+		Document document = _output.getDocument();
 		page.setDocument(document);
-		
-		threadLocalRecordInfos.set(new LinkedList<RecordInfo>());
-		mainUrl.set(page.getBaseUrl());
+
 		ajax.set(page.isAjax());
-		String md5 = Md5Signatrue.generateMd5(mainUrl.get());
-		if (duplicateInspector.md5Exist(md5)) {
-			status.setStatus(Status.NOT_CHANGE);
-			return status;
-		} else {
-			duplicateInspector.addMd5(md5);
+
+		DetailConf detailConf = confDao.getDetailConf(page.getListUrl(), Utils.getHost(mainUrl));
+		if (detailConf == null) {
+			return new FetchStatus(mainUrl, 41, Status.CONF_ERROR);
 		}
 
-		threadLocalDetailConf.set(confDao.getDetailConf(page.getListUrl(), Utils.getHost(mainUrl.get())));
-		if (threadLocalDetailConf == null || threadLocalDetailConf.get() == null) {
-			LOG.error("列表页[" + page.getListUrl() + "]没有详细页["  + mainUrl.get() + "]配置:");
-			status.setStatus(Status.PARSE_FAILURE);
-			status.setMessage("No detail page configuration in database");
-			return status;
-		}
-		fetchContent(page);
-
-		int num = threadLocalRecordInfos.get().size();
-		try {
-			indexWriter.write(threadLocalRecordInfos.get());
-		} catch (OutputException e) {
-			status.setStatus(Status.OUTPUT_FAILURE);
-			status.setCount(num);
-			status.setMessage("写出数据失败:" + e.getMessage());
-			return status;
-		}
-
-		LOG.debug(mainUrl.get() + " has record number: " + num);
-		status.setStatus(Status.SUCCESS);
-		status.setCount(num);
-		status.setMessage("抓取成功");
-		return status;
-	}
-
-	public void fetchContent(WebPage page) /* throws ConnectException */{
-		RecordInfo info = new RecordInfo(page.getTitle(), page.getBaseUrl(), page.getFetchTime());
-
-		ProtocolOutput po = fetch(page);
-		if (po == null || !po.getStatus().isSuccess()) {
-			return;
-		}
-
-		Document document = po.getDocument();
-
-		if (document == null)
-			return;
-
-		Elements contentEles = document.select(threadLocalDetailConf.get().getContent());
-		if (!CollectionUtils.isEmpty(contentEles)) {
+		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, System.currentTimeMillis());
+		Elements contentEles = null;
+		if (StringUtils.isEmpty(detailConf.getContent()) && !CollectionUtils.isEmpty(contentEles = document.select(detailConf.getContent()))) {
 			Element contentEle = contentEles.first();
 			info.setContent(contentEle.text());
-			info.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, rule.get()));
+			info.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, ""));
 			info.setVoice_url(MultimediaExtractor.extractAudioUrl(contentEle));
 			info.setVideo_url(MultimediaExtractor.extractVideoUrl(contentEle));
 		}
-
-		String authorDom = threadLocalDetailConf.get().getAuthor();
+		String authorDom = detailConf.getAuthor();
 		if (!StringUtils.isEmpty(authorDom) && !CollectionUtils.isEmpty(document.select(authorDom))) {
 			info.setNickname(document.select(authorDom).first().text());
 		}
-
-		String sourcesDom = threadLocalDetailConf.get().getSources();
-		if (!StringUtils.isEmpty(sourcesDom)
-		        && !CollectionUtils.isEmpty(document.select(sourcesDom))) {
+		String sourcesDom = detailConf.getSources();
+		if (!StringUtils.isEmpty(sourcesDom) && !CollectionUtils.isEmpty(document.select(sourcesDom))) 
 			info.setSource_name(document.select(sourcesDom).first().text());
-		}
-
-		String replyNumDom = threadLocalDetailConf.get().getReplyNum();
-		if (!StringUtils.isEmpty(replyNumDom)
-		        && !CollectionUtils.isEmpty(document.select(replyNumDom))) {
-			String replyNum = document.select(replyNumDom).first().text();
-			info.setComment_count(Integer.valueOf(replyNum));
-		}
-
-		String forwardNumDom = threadLocalDetailConf.get().getForwardNum();
-		if (!StringUtils.isEmpty(forwardNumDom)
-		        && !CollectionUtils.isEmpty(document.select(forwardNumDom))) {
+		String replyNumDom = detailConf.getReplyNum();
+		if (!StringUtils.isEmpty(replyNumDom) && !CollectionUtils.isEmpty(document.select(replyNumDom)))
+			info.setComment_count(Integer.valueOf(document.select(replyNumDom).first().text()));
+		String forwardNumDom = detailConf.getForwardNum();
+		if (!StringUtils.isEmpty(forwardNumDom) && !CollectionUtils.isEmpty(document.select(forwardNumDom))) {
 			String forwardNum = document.select(forwardNumDom).first().text();
 			info.setRepost_count(Integer.valueOf(forwardNum));
 		}
-
-		String reviewNumDom = threadLocalDetailConf.get().getReviewNum();
-		if (!StringUtils.isEmpty(reviewNumDom)
-		        && !CollectionUtils.isEmpty(document.select(reviewNumDom))) {
+		String reviewNumDom = detailConf.getReviewNum();
+		if (!StringUtils.isEmpty(reviewNumDom) && !CollectionUtils.isEmpty(document.select(reviewNumDom))) {
 			String reviewNum = document.select(reviewNumDom).first().text();
 			info.setRead_count(Integer.valueOf(reviewNum));
 		}
-
 		info.setId(Md5Signatrue.generateMd5(info.getUrl()));
 		threadLocalRecordInfos.get().add(info);
 
+		int count = threadLocalRecordInfos.get().size();
+		try {
+			indexWriter.write(threadLocalRecordInfos.get());
+		} catch (OutputException e) {
+			return new FetchStatus(mainUrl, 61, Status.OUTPUT_FAILURE);
+		}
+
+		return new FetchStatus(mainUrl, 21, Status.SUCCESS, count);
 	}
 
 }

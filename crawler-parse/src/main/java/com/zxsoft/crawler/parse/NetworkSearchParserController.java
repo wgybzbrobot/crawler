@@ -39,13 +39,6 @@ public final class NetworkSearchParserController extends ParseTool {
 	private AtomicInteger pageNum = new AtomicInteger(1);
 	private AtomicInteger sum = new AtomicInteger(0);
 	
-	private Configuration conf;
-	
-	public NetworkSearchParserController(Configuration conf) {
-		this.conf = conf;
-		setConf(conf);
-	}
-	
 	public FetchStatus parse(WebPage page) throws ParserNotFoundException, UnsupportedEncodingException, MalformedURLException {
 		
 		String keyword = page.getKeyword();
@@ -72,7 +65,7 @@ public final class NetworkSearchParserController extends ParseTool {
 		}
 		
 		boolean ajax = listConf.isAjax();
-		HttpFetcher httpFetcher = new HttpFetcher(conf);
+		HttpFetcher httpFetcher = new HttpFetcher(/*conf*/);
 		WebPage tempPage = page;
 		tempPage.setBaseUrl(indexUrl);
 		tempPage.setAjax(ajax);

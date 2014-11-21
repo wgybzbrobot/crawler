@@ -2,10 +2,8 @@ package com.zxsoft.crawler.plugin.parse;
 
 import java.util.Calendar;
 
-import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.util.CollectionUtils;
 
@@ -16,28 +14,22 @@ import com.google.gson.JsonParser;
 import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.WebPage;
-import com.zxsoft.crawler.util.CrawlerConfiguration;
 
 public class TieBaParserTest {
 
-	static HttpFetcher httpFetcher;
-	static Configuration conf;
+	static HttpFetcher httpFetcher = new HttpFetcher();
 	
-	@BeforeClass
-	public static void  before() {
-		conf = CrawlerConfiguration.create();
-		httpFetcher = new HttpFetcher(conf);
-	}
 	
 	@Test
 	public void test1 () throws Exception {
 		String url = "http://tieba.baidu.com/p/3353843101";
 		WebPage page = new WebPage(url, false);
+		page.setListUrl("http://tieba.baidu.com/f?ie=utf-8&kw=%E8%9A%8C%E5%9F%A0");
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(2014, 9, 1);
 		page.setPrevFetchTime(calendar.getTimeInMillis());
+		
 		Parser parser = new TieBaParser();
-		parser.setConf(conf);
 		parser.parse(page);
 	}
 	
