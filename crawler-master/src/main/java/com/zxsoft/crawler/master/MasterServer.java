@@ -88,14 +88,14 @@ public class MasterServer {
 					
 				}
 			}
-		}).start();;
+		}).start();
 		
 		// 任务队列管理
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Jedis jedis = new Jedis(redisUrl, redisPort);
 				while (true) {
+					Jedis jedis = new Jedis(redisUrl, redisPort);
 					Set<String> strs = jedis.zrevrange(URLBASE, 0, 0);
 					if (CollectionUtils.isEmpty(strs)) {
 						LOG.warn("No records in redis urlbase.");
@@ -145,6 +145,7 @@ public class MasterServer {
 	                	LOG.warn(e.getMessage());
 		                e.printStackTrace();
 	                }
+					jedis.close();
 				}
 			}
 		}).start();
