@@ -79,7 +79,8 @@ public class ConfigDaoImpl implements ConfigDao {
 		hibernateTemplate.delete(confDetail);
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+    @Override
 	public List<ConfList> getInspectConfLists(ConfList confList) {
 		StringBuffer sb = new StringBuffer(" from ConfList a where 1=1 and a.category != 'search'");
 

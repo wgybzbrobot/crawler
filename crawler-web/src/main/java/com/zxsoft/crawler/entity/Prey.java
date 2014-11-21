@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.zxsoft.crawler.api.Params;
+//import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.web.controller.crawler.JobStatus.JobType;
 
 /**

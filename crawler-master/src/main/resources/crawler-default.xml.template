@@ -4,7 +4,7 @@
 	<!-- URL任务队列地址 -->
 	<property> 
 		<name>redis.host</name>
-		<value>localhost</value>
+		<value>192.168.4.137</value>
 		<description>redis host</description>
 	</property>
 	<property>

@@ -5,16 +5,11 @@ import java.util.List;
 import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.WebResource;
 import com.zxsoft.crawler.master.MasterPath;
 import com.zxsoft.crawler.web.service.crawler.SlaveService;
 
 public class SlaveServiceImpl extends SimpleCrawlerServiceImpl implements SlaveService {
-
-	public SlaveServiceImpl() {
-		super();
-	}
 
 	@Override
 	public List<Map<String, Object>> slaves() throws Exception {

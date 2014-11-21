@@ -3,6 +3,9 @@ package com.zxsoft.crawler.web.controller.crawler;
 import java.io.Serializable;
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class JobStatus implements Serializable {
 	/**
 	 * 
@@ -35,7 +38,9 @@ public class JobStatus implements Serializable {
 	}
 
 	public String toString() {
-		return "helooooooooo";
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		String json = gson.toJson(this); 
+		return json;
 	}
 
 }

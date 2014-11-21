@@ -80,10 +80,6 @@
 					<groupId>com.sun.jersey</groupId>
 					<artifactId>jersey-server</artifactId>
 				</exclusion>
-				<exclusion>
-					<artifactId>hadoop-core</artifactId>
-					<groupId>org.apache.hadoop</groupId>
-				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -97,7 +93,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- <dependency>
+		<dependency>
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet</artifactId>
 			<version>${restlet.version}</version>
@@ -106,8 +102,7 @@
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet.ext.jackson</artifactId>
 			<version>${restlet.version}</version>
-		</dependency> -->
-
+		</dependency>
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework</groupId>

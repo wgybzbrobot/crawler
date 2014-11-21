@@ -1,5 +1,8 @@
 package com.zxsoft.crawler.parse;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class FetchStatus {
 	
 	public enum Status {
@@ -7,6 +10,7 @@ public class FetchStatus {
 	}
 	
 	private String url;
+	private int code;
 	private String message;
 	private String description;
 	
@@ -18,6 +22,30 @@ public class FetchStatus {
 	
 	public FetchStatus() {}
 	
+	public FetchStatus(String url, int code, Status status) {
+	    super();
+	    this.url = url;
+	    this.code = code;
+	    this.status = status;
+    }
+
+	public FetchStatus(String url, int code, Status status, int count) {
+		super();
+		this.url = url;
+		this.code = code;
+		this.status = status;
+		this.count = count;
+	}
+
+	public FetchStatus(String url, int code, Status status, int count, String msg) {
+		super();
+		this.url = url;
+		this.code = code;
+		this.status = status;
+		this.count = count;
+		this.message = msg;
+	}
+
 	public FetchStatus(String url, String description) {
 		this.description = description;
 		this.url = url;
@@ -27,6 +55,12 @@ public class FetchStatus {
 	    super();
 	    this.message = message;
     }
+	
+	public String toString() {
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		String json = gson.toJson(this); 
+		return json;
+	}
 	
 	public String getDescription() {
 		return description;
@@ -38,6 +72,14 @@ public class FetchStatus {
 
 	public int getCount() {
 		return count;
+	}
+
+	public int getCode() {
+		return code;
+	}
+
+	public void setCode(int code) {
+		this.code = code;
 	}
 
 	public void setCount(int count) {

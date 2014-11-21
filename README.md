@@ -58,14 +58,19 @@ Redis用于构建URL任务队列
     $ vim applicationContext.xml
     
     修改配置mysql数据库的地址
-    ```
+    
+```xml
     <bean id="jdbcDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
 		<property name="url" value="jdbc:mysql://192.168.4.137:3306/crawler?useUnicode=true&amp;characterEncoding=UTF-8" />
 		<property name="username" value="zxsoft" />
 		<property name="password" value="" />
 	</bean>
-	```
+```
+```java
+
+
+```
 
 
 ## 4. 打包发布

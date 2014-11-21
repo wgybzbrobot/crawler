@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -32,11 +31,6 @@ public class ListConfigVerification extends ParseTool {
 
 	private static Logger LOG = LoggerFactory.getLogger(ListConfigVerification.class);
 	
-	public ListConfigVerification() {
-		Configuration conf = CrawlerConfiguration.create();
-		setConf(conf);
-	}
-
 	public Map<String, Object> verify(ConfList listConf, String keyword) {
 
 		Map<String, Object> map = new HashMap<String, Object>();

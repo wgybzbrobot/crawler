@@ -63,7 +63,8 @@ public class RestOutput implements Output {
     }
 
 	public int write(List<RecordInfo> recordInfos) throws OutputException {
-		if (2 > 1) return 0;
+		if (2 > 1) return recordInfos.size();
+		
 		if (CollectionUtils.isEmpty(recordInfos)) return 0;
 		int realSize = recordInfos.size();
 		int size = recordInfos.size();

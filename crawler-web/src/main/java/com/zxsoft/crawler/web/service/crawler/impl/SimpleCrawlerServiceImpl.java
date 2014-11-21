@@ -36,7 +36,7 @@ public abstract class SimpleCrawlerServiceImpl {
 		CRAWLER_MASTER = properties.getProperty("crawler.master.url");
 
 		if (StringUtils.isEmpty(CRAWLER_MASTER)) {
-			throw new NullPointerException("爬虫主控URL地址未找到, master.xml中是否配置了<crawler.master.url>");
+			throw new NullPointerException("爬虫主控URL地址未找到, master.properties中是否配置了<crawler.master.url>");
 		}
 
 		if (CRAWLER_MASTER.endsWith("/")) {

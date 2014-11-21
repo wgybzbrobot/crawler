@@ -3,9 +3,6 @@ package com.zxsoft.crawler.urlbase;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-
-import org.springframework.stereotype.Component;
-
 import com.zxsoft.crawler.storage.WebPage;
 
 public abstract class UrlbaseFactory {

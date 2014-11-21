@@ -41,7 +41,7 @@ public class WebPage implements Serializable, Cloneable {
 	 * 
 	 * @see Proxy
 	 */
-	private String type;
+	private String proxyType;
 
 	private ListConf ListConf;
 	
@@ -67,7 +67,7 @@ public class WebPage implements Serializable, Cloneable {
 	public WebPage(String keyword, String listUrl, String urlType) {
 		this.keyword = keyword;
 		this.listUrl = listUrl;
-		this.type = urlType;
+		this.proxyType = urlType;
 	}
 
 	public WebPage(String baseUrl, long fetchTime, Document document) {
@@ -87,7 +87,7 @@ public class WebPage implements Serializable, Cloneable {
 	public WebPage(String baseUrl, String proxyType, long prevFetchTime) {
 		super();
 		this.baseUrl = baseUrl;
-		this.type = proxyType;
+		this.proxyType = proxyType;
 		this.prevFetchTime = prevFetchTime;
 	}
 
@@ -140,11 +140,11 @@ public class WebPage implements Serializable, Cloneable {
 	}
 
 	public String getType() {
-		return type;
+		return proxyType;
 	}
 
 	public void setType(String type) {
-		this.type = type;
+		this.proxyType = type;
 	}
 
 	public boolean isAjax() {
