@@ -25,162 +25,119 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.CollectionUtils;
-import org.thinkingcloud.framework.util.NetUtils;
 import org.thinkingcloud.framework.util.StringUtils;
 
 import com.zxsoft.crawler.metadata.Metadata;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
-import com.zxsoft.crawler.protocols.http.AuthHelper;
-import com.zxsoft.crawler.protocols.http.CookieStore;
 import com.zxsoft.crawler.protocols.http.HttpBase;
-import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.EncodingDetector;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PageHelper;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
-import com.zxsoft.proxy.Proxy;
 
 public class HttpClient extends HttpBase {
 
 	public static final Logger LOG = LoggerFactory.getLogger(HttpClient.class);
-	
-	private org.apache.commons.httpclient.HttpClient client = new org.apache.commons.httpclient.HttpClient(connectionManager);
+	private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
 
-	public HttpClient() {}
-	
-	public HttpClient(Configuration conf) {
-		setConf(conf);
-    }
-	
-	@Override
-	public Response getResponse(WebPage page) throws ProtocolException,
-	        IOException {
-		
-		int code = -1;
-		Metadata headers = new Metadata();
-		byte[] content = new byte[1024];
-		
+	private static org.apache.commons.httpclient.HttpClient client = new org.apache.commons.httpclient.HttpClient(connectionManager);
+	private int maxThreadsTotal = 30;
+
+	public void setConf(Configuration conf) {
+		super.setConf(conf);
+		this.maxThreadsTotal = conf.getInt("fetcher.threads.fetch", 10);
+		configureClient();
+	}
+
+	private void configureClient() {
 		ProtocolSocketFactory factory = new SSLProtocolSocketFactory();
 		Protocol https = new Protocol("https", factory, 443);
 		Protocol.registerProtocol("https", https);
-
 		HttpConnectionManagerParams params = connectionManager.getParams();
 		params.setConnectionTimeout(timeout);
 		params.setSoTimeout(timeout);
 		params.setSendBufferSize(BUFFER_SIZE);
 		params.setReceiveBufferSize(BUFFER_SIZE);
 		params.setMaxTotalConnections(maxThreadsTotal);
-
-		params.setDefaultMaxConnectionsPerHost(maxThreadsTotal);
-
 		client.getParams().setConnectionManagerTimeout(timeout);
-
 		HostConfiguration hostConf = client.getHostConfiguration();
-		ArrayList<Header> reqHeaders = new ArrayList<Header>();
-		reqHeaders.add(new Header("User-Agent", userAgent));
-		reqHeaders.add(new Header("Accept-Language", acceptLanguage));
-		reqHeaders.add(new Header("Accept-Charset", acceptCharset));
-		reqHeaders.add(new Header("Accept", accept));
-		reqHeaders.add(new Header("Connection", "keep-alive"));
-		url = new URL(page.getBaseUrl());
-		String cookie = CookieStore.get(NetUtils.getHost(url));
-		if (!StringUtils.isEmpty(cookie)) {
-			reqHeaders.add(new Header("Cookie", cookie));
-		}
-		hostConf.getParams().setParameter("http.default-headers", reqHeaders);
-
-		// HTTP proxy server details
+		ArrayList<Header> headers = new ArrayList<Header>();
+		headers.add(new Header("User-Agent", userAgent));
+		headers.add(new Header("Accept-Language", acceptLanguage));
+		headers.add(new Header("Accept-Charset", acceptCharset));
+		headers.add(new Header("Accept",accept));
+		headers.add(new Header("Connection", "keep-alive"));
+		headers.add(new Header("Accept-Encoding", "x-gzip, gzip, deflate"));
+		hostConf.getParams().setParameter("http.default-headers", headers);
 		if (useProxy) {
-//			Proxy proxy = proxyRandom.random(url.toString());
-			Proxy proxy = getProxy(page.getType());
-			if (proxy != null) {
-				hostConf.setProxy(proxy.getIp(), proxy.getPort());
-			}
-			/*if (proxy.getUsername().length() > 0) {
-				AuthScope proxyAuthScope = getAuthScope(proxy.getHost(),
-						proxy.getPort(),proxy.getRealm());
-				NTCredentials proxyCredentials = new NTCredentials(
-				        this.proxyUsername, this.proxyPassword, Http.agentHost,
-				        this.proxyRealm);
-				client.getState().setProxyCredentials(proxyAuthScope,
-				        proxyCredentials);
-			}*/
+			hostConf.setProxy(proxyHost, proxyPort);
 		}
-		
+	}
+
+	@Override
+	public Response getResponse(WebPage page) throws ProtocolException, IOException {
+
+		int code = -1;
+		Metadata headers = new Metadata();
+		byte[] content = null/* new byte[1024] */;
+
+		URL url = new URL(page.getBaseUrl());
+
 		GetMethod get = new GetMethod(url.toString());
-		HttpMethodParams methodParams = get.getParams();
-		methodParams.makeLenient();
-		methodParams.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-		methodParams.setParameter("http.protocol.cookie-policy",CookiePolicy.BROWSER_COMPATIBILITY);
-		methodParams.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
-		
-		
-//		boolean auth = AuthHelper.isAuth(url);
-		if (page.isAuth()) {
-			// get cookie
-			
-			// set auth cookie
-			get.setRequestHeader("Cookie", "");
-		}
-		
+		HttpMethodParams params = get.getParams();
+		params.makeLenient();
+		params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+		params.setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
+		params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
+
 		try {
 			code = client.executeMethod(get);
-			
-			get.getRequestHeaders();
-			
 			Header[] heads = get.getResponseHeaders();
-			for (int i = 0; i < heads.length; i++) 
+			for (int i = 0; i < heads.length; i++)
 				headers.set(heads[i].getName(), heads[i].getValue());
-			
+
 			String contentType = headers.get(Response.CONTENT_TYPE);
 			charset = EncodingDetector.parseCharacterEncoding(contentType, get.getResponseBody());
 			long contentLength = Long.MAX_VALUE;
-			InputStream in = get.getResponseBodyAsStream();
 			byte[] buffer = new byte[1024 * 1024];
 			int bufferFilled = 0;
 			int totalRead = 0;
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			InputStream in = get.getResponseBodyAsStream();
 			try {
-				while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1
-						&& totalRead + bufferFilled <= contentLength) {
+				while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1 && totalRead + bufferFilled <= contentLength) {
 					totalRead += bufferFilled;
 					out.write(buffer, 0, bufferFilled);
 				}
 				content = out.toByteArray();
 			} catch (Exception e) {
 				if (code == 200) {
-
 				}
 			} finally {
 				if (in != null) {
 					in.close();
 				}
-				get.abort();
 			}
-
 			if (content != null) {
 				// check if we have to uncompress it
-				String contentEncoding = headers
-						.get(Response.CONTENT_ENCODING);
-				if ("gzip".equals(contentEncoding)
-						|| "x-gzip".equals(contentEncoding)) {
+				String contentEncoding = headers.get(Response.CONTENT_ENCODING);
+				if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
 					content = processGzipEncoded(content, url);
 				} else if ("deflate".equals(contentEncoding)) {
 					content = processDeflateEncoded(content, url);
 				}
 			}
+		} catch (Exception e) {
+			LOG.info(e.getMessage() + ": " + url.toString());
 		} finally {
 			get.releaseConnection();
 		}
-		
+
 		return new Response(url, code, headers, content, charset);
 	}
-
-	private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
-	private int maxThreadsTotal = 10;
 
 	@Override
 	public Response postForResponse(URL url, NameValuePair[] data) throws IOException {
@@ -190,25 +147,26 @@ public class HttpClient extends HttpBase {
 		params.makeLenient();
 		params.setContentCharset("UTF-8");
 		params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-		params.setParameter("http.protocol.cookie-policy",CookiePolicy.BROWSER_COMPATIBILITY);
+		params.setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
 		params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
-		
+
 		try {
 			code = client.executeMethod(post);
-//			post.getResponseBodyAsString();
+			// post.getResponseBodyAsString();
 			Header[] cookies = post.getResponseHeaders("Set-Cookie");
 			StringBuilder sb = new StringBuilder();
-			for (Header cookie: cookies) {
-	            sb.append(cookie.getValue());
-            }
-//			com.zxsoft.crawler.protocols.http.CookieStore.put(NetUtils.getHost(url), sb.toString());
-			
+			for (Header cookie : cookies) {
+				sb.append(cookie.getValue());
+			}
+			// com.zxsoft.crawler.protocols.http.CookieStore.put(NetUtils.getHost(url),
+			// sb.toString());
+
 			headers.set("Cookie", sb.toString());
-			
+
 			Header[] heads = post.getRequestHeaders();
 			for (int i = 0; i < heads.length; i++)
 				headers.set(heads[i].getName(), heads[i].getValue());
-			
+
 			long contentLength = Long.MAX_VALUE;
 			InputStream in = post.getResponseBodyAsStream();
 			byte[] buffer = new byte[1024 * 1024];
@@ -216,8 +174,7 @@ public class HttpClient extends HttpBase {
 			int totalRead = 0;
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			try {
-				while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1
-						&& totalRead + bufferFilled <= contentLength) {
+				while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1 && totalRead + bufferFilled <= contentLength) {
 					totalRead += bufferFilled;
 					out.write(buffer, 0, bufferFilled);
 				}
@@ -234,10 +191,8 @@ public class HttpClient extends HttpBase {
 			}
 			if (content != null) {
 				// check if we have to uncompress it
-				String contentEncoding = headers
-						.get(Response.CONTENT_ENCODING);
-				if ("gzip".equals(contentEncoding)
-						|| "x-gzip".equals(contentEncoding)) {
+				String contentEncoding = headers.get(Response.CONTENT_ENCODING);
+				if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
 					content = processGzipEncoded(content, url);
 				} else if ("deflate".equals(contentEncoding)) {
 					content = processDeflateEncoded(content, url);
@@ -248,37 +203,40 @@ public class HttpClient extends HttpBase {
 		}
 		return new Response(url, code, headers, content, charset);
 	}
-	
+
 	@Override
-	protected Response loadPrevPage(int pageNum, final WebPage page) throws ProtocolException,
-	        IOException, PrevPageNotFoundException, PageBarNotFoundException {
+	protected Response loadPrevPage(int pageNum, final WebPage page) throws ProtocolException, IOException, PrevPageNotFoundException,
+	        PageBarNotFoundException {
 		Document currentDoc = page.getDocument();
-		
+
 		// 从列表块中选
-//		ListConf listConf = page.getListConf();
-//		String listdom = listConf == null ? null : listConf.getListdom();
-//		Element listElement = null;
-//		if (!StringUtils.isEmpty(listConf)) {
-//			listElement = CollectionUtils.isEmpty(currentDoc.select(listdom)) ? null : currentDoc.select(listdom).first();
-//		}
+		// ListConf listConf = page.getListConf();
+		// String listdom = listConf == null ? null : listConf.getListdom();
+		// Element listElement = null;
+		// if (!StringUtils.isEmpty(listConf)) {
+		// listElement = CollectionUtils.isEmpty(currentDoc.select(listdom)) ?
+		// null : currentDoc.select(listdom).first();
+		// }
 		Elements elements = null;
-		
-//		if (listElement == null) {
-			elements = currentDoc.select("a:matchesOwn(上一页|上页|<上一页)");
-//		} else {
-//			elements = listElement.select("a:matchesOwn(上一页|上页|<上一页)");
-//		}
-		
+
+		// if (listElement == null) {
+		elements = currentDoc.select("a:matchesOwn(上一页|上页|<上一页)");
+		// } else {
+		// elements = listElement.select("a:matchesOwn(上一页|上页|<上一页)");
+		// }
+		URL url = null;
 		if (!CollectionUtils.isEmpty(elements)) {
 			url = new URL(elements.first().absUrl("href"));
 		} else if (pageNum > 1) {
-			Element pagebar = getPageBar(currentDoc/*listElement == null ? currentDoc : listElement*/);
+			Element pagebar = getPageBar(currentDoc/*
+													 * listElement == null ?
+													 * currentDoc : listElement
+													 */);
 			if (pagebar != null) {
 				Elements achors = pagebar.getElementsByTag("a");
 				if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
 					for (int i = 0; i < achors.size(); i++) {
-						if (Utils.isNum(achors.get(i).text())
-						        && Integer.valueOf(achors.get(i).text().trim()) == pageNum - 1) {
+						if (Utils.isNum(achors.get(i).text()) && Integer.valueOf(achors.get(i).text().trim()) == pageNum - 1) {
 							url = new URL(achors.get(i).absUrl("href"));
 						}
 					}
@@ -288,7 +246,8 @@ public class HttpClient extends HttpBase {
 			url = PageHelper.calculatePrevPageUrl(currentDoc);
 		}
 		if (url != null) {
-//			LOG.info(currentDoc.location() + " Next Page url: " + url.toString());
+			// LOG.info(currentDoc.location() + " Next Page url: " +
+			// url.toString());
 			WebPage np = page;
 			np.setBaseUrl(url.toExternalForm());
 			return getResponse(page);
@@ -298,25 +257,25 @@ public class HttpClient extends HttpBase {
 	}
 
 	@Override
-	protected Response loadNextPage(int pageNum, final WebPage page) throws ProtocolException,
-	        IOException, PageBarNotFoundException {
+	protected Response loadNextPage(int pageNum, final WebPage page) throws ProtocolException, IOException, PageBarNotFoundException {
 		Document currentDoc = page.getDocument();
-		
+
 		// 从列表块中选
-//		ListConf listConf = page.getListConf();
-//		String listdom = listConf == null ? null : listConf.getListdom();
-//		Element listElement = null;
-//		if (!StringUtils.isEmpty(listConf)) {
-//			listElement = CollectionUtils.isEmpty(currentDoc.select(listdom)) ? null : currentDoc.select(listdom).first();
-//		}
+		// ListConf listConf = page.getListConf();
+		// String listdom = listConf == null ? null : listConf.getListdom();
+		// Element listElement = null;
+		// if (!StringUtils.isEmpty(listConf)) {
+		// listElement = CollectionUtils.isEmpty(currentDoc.select(listdom)) ?
+		// null : currentDoc.select(listdom).first();
+		// }
 		Elements elements = null;
-		
-//		if (listElement != null) {
-//			elements = listElement.select("a:matchesOwn(下一页|下页|下一页>)");
-//		} else {
-			elements = currentDoc.select("a:matchesOwn(下一页|下页|下一页>)");
-//		}
-		
+
+		// if (listElement != null) {
+		// elements = listElement.select("a:matchesOwn(下一页|下页|下一页>)");
+		// } else {
+		elements = currentDoc.select("a:matchesOwn(下一页|下页|下一页>)");
+		// }
+
 		if (!CollectionUtils.isEmpty(elements)) {
 			WebPage np = page;
 			String next = elements.first().absUrl("href");
@@ -324,7 +283,7 @@ public class HttpClient extends HttpBase {
 				throw new PageBarNotFoundException();
 			}
 			np.setBaseUrl(next);
-			
+
 			return getResponse(np);
 		} else {
 			/*
@@ -333,14 +292,17 @@ public class HttpClient extends HttpBase {
 			 * very accurate, some url cannot find from page bar, because it
 			 * changed when load it.
 			 */
-			Element pagebar = getPageBar(currentDoc/*listElement == null ? currentDoc : listElement*/);
+			Element pagebar = getPageBar(currentDoc/*
+													 * listElement == null ?
+													 * currentDoc : listElement
+													 */);
 			if (pagebar != null) {
 				Elements achors = pagebar.getElementsByTag("a");
 				if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
 					for (int i = 0; i < achors.size(); i++) {
-						if (Utils.isNum(achors.get(i).text())
-						        && Integer.valueOf(achors.get(i).text().trim()) == pageNum + 1) {
-//							LOG.info(currentDoc.location() + "Prev Page url: " + url.toString());
+						if (Utils.isNum(achors.get(i).text()) && Integer.valueOf(achors.get(i).text().trim()) == pageNum + 1) {
+							// LOG.info(currentDoc.location() +
+							// "Prev Page url: " + url.toString());
 							WebPage np = page;
 							np.setBaseUrl(achors.get(i).absUrl("href"));
 							return getResponse(np);
@@ -363,15 +325,19 @@ public class HttpClient extends HttpBase {
 		}
 
 		// 从列表块中选
-//		ListConf listConf = page.getListConf();
-//		String listdom = listConf == null ? null : listConf.getListdom();
-//		Element listElement = null;
-//		if (!StringUtils.isEmpty(listConf)) {
-//			listElement = CollectionUtils.isEmpty(currentDoc.select(listdom)) ? null : currentDoc.select(listdom).first();
-//		}
-		
+		// ListConf listConf = page.getListConf();
+		// String listdom = listConf == null ? null : listConf.getListdom();
+		// Element listElement = null;
+		// if (!StringUtils.isEmpty(listConf)) {
+		// listElement = CollectionUtils.isEmpty(currentDoc.select(listdom)) ?
+		// null : currentDoc.select(listdom).first();
+		// }
+
 		// 1. get all links from page bar
-		Element pagebar = getPageBar(currentDoc/*listElement == null ? currentDoc : listElement*/);
+		Element pagebar = getPageBar(currentDoc/*
+												 * listElement == null ?
+												 * currentDoc : listElement
+												 */);
 		if (pagebar == null)
 			return null;
 		Elements links = pagebar.getElementsByTag("a");
@@ -395,7 +361,7 @@ public class HttpClient extends HttpBase {
 		if (el == null || StringUtils.isEmpty(el.absUrl("href"))) {
 			return null;
 		}
-//		LOG.info("Last Page url: " + url.toString());
+		// LOG.info("Last Page url: " + url.toString());
 		WebPage np = page;
 		np.setBaseUrl(el.absUrl("href"));
 		return getResponse(np);

@@ -4,7 +4,6 @@
 	<id>master-dist</id>
 	<formats>
 		<format>dir</format>
-		<format>tar.gz</format>
 	</formats>
 	<dependencySets>
 		<dependencySet>
@@ -23,13 +22,10 @@
 			<directory>src/main/resources</directory>
 			<outputDirectory>/conf</outputDirectory>
 			<includes>
-				<include>slaves.ini.template</include>
+				<include>slaves.ini</include>
 				<include>crawler-default.xml.template</include>
 				<include>log4j.xml</include>
 			</includes>
-			<excludes>
-				<exclude>slaves.ini</exclude>
-			</excludes>
 		</fileSet>
 		<fileSet>
 			<directory>src/main/bin</directory>

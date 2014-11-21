@@ -12,13 +12,8 @@ import com.zxsoft.crawler.util.CrawlerConfiguration;
 
 public class HttpFetcherTest {
 
-	static HttpFetcher httpFetcher;
+	static HttpFetcher httpFetcher = new HttpFetcher();
 	
-	static {
-		Configuration conf = CrawlerConfiguration.create();
-		httpFetcher = new HttpFetcher(conf);
-	}
-
 	SinaWeiboLogin login;
 	
 	@Test

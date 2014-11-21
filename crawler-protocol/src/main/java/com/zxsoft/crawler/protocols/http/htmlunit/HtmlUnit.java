@@ -1,8 +1,6 @@
 package com.zxsoft.crawler.protocols.http.htmlunit;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -75,7 +73,7 @@ public class HtmlUnit extends HttpBase {
 	private HtmlPage makeRequest(WebPage page) throws FailingHttpStatusCodeException, IOException {
 		setUp();
 
-		url = new URL(page.getBaseUrl());
+		URL url = new URL(page.getBaseUrl());
 		
 		WebRequest request = new WebRequest(url);
 		request.setAdditionalHeader("User-Agent", userAgent);
@@ -106,7 +104,6 @@ public class HtmlUnit extends HttpBase {
 		}
 		
 		htmlPage = client.getPage(request);
-//		LOG.debug(htmlPage.asText());
 		return htmlPage;
 	}
 
@@ -176,7 +173,7 @@ public class HtmlUnit extends HttpBase {
 		}
 		
 //		LOG.debug(new String(content, charset));
-		
+		URL url = new URL(page.getBaseUrl());
 		return new Response(url, code, headers, content, charset);
 	}
 
@@ -251,6 +248,7 @@ public class HtmlUnit extends HttpBase {
 		setUp();
 		Document currentDoc = page.getDocument();
 		String urlStr = currentDoc.location();
+		URL url = null;
 //		if (htmlPage == null || !urlStr.equals(htmlPage.getUrl().toExternalForm())) {
 			try {
 				url = new URL(urlStr);

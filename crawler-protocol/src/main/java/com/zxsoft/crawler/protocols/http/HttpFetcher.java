@@ -1,13 +1,9 @@
 package com.zxsoft.crawler.protocols.http;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.log4j.LogManager;
-import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.StringUtils;
@@ -19,24 +15,22 @@ import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.protocols.http.htmlunit.HtmlUnit;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClient;
 import com.zxsoft.crawler.storage.WebPage;
+import com.zxsoft.crawler.util.CrawlerConfiguration;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 
 public class HttpFetcher {
 	
 	private static Logger LOG = LoggerFactory.getLogger(HttpFetcher.class);
-	private static org.apache.log4j.Logger errorLogger = LogManager.getLogger("ProtocolErrorLog"); 
-	
-	private Configuration conf;
 
-	private HttpBase htmlUnit;
+	private static HttpBase htmlUnit;
+	private static HttpBase httpClient;
 	
-	private HttpBase httpClient;
-	
-	public HttpFetcher(Configuration conf) {
-		this.conf = conf;
+	static {
+		Configuration conf = CrawlerConfiguration.create();
 		htmlUnit = new HtmlUnit(conf);
-		httpClient = new HttpClient(conf);
+		httpClient = new HttpClient();
+		httpClient.setConf(conf);
 	}
 	
 
@@ -48,6 +42,7 @@ public class HttpFetcher {
 		
 		ProtocolOutput protocolOutput = new ProtocolOutput();
 		String url = page.getBaseUrl();
+		
 		if (StringUtils.isEmpty(url) || !url.matches("^(https|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
 			LOG.error("Error: not match url regular expression: " + url);
 			ProtocolStatus status = new ProtocolStatus();
@@ -58,11 +53,11 @@ public class HttpFetcher {
 		}
 		
 		try {
-		if (page.isAjax()) {
-			protocolOutput = htmlUnit.getProtocolOutput(page);
-		} else {
-			protocolOutput = httpClient.getProtocolOutput(page);
-		}
+			if (page.isAjax()) {
+				protocolOutput = htmlUnit.getProtocolOutput(page);
+			} else {
+				protocolOutput = httpClient.getProtocolOutput(page);
+			}
 		} catch (ProtocolException e) {
 			String msg = "Fetch " + url + " failed with the following error:" + e.getMessage();
 			protocolOutput.setStatus(new ProtocolStatus(url, STATUS_CODE.FAILED, msg));
@@ -71,6 +66,9 @@ public class HttpFetcher {
 			protocolOutput.setStatus(new ProtocolStatus(url, STATUS_CODE.FAILED, msg));
 			LOG.error(msg);
 		} finally {
+			if (!protocolOutput.getStatus().isSuccess()) {
+//				LOG.info(url);
+			}
 			return protocolOutput;
 		}
 	}
@@ -96,9 +94,4 @@ public class HttpFetcher {
 			return htmlUnit.getProtocolOutputOfLastPage(page);
 		}
 	}
-	
-	
-//	public ProtocolOutput fetch(String url) {
-//		return fetch(url, false);
-//	}
 }

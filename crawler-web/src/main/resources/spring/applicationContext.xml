@@ -86,12 +86,6 @@
 		</tx:attributes>
 	</tx:advice>
 
-	<!-- <aop:config proxy-target-class="true">
-		<aop:pointcut id="serviceManager" expression="execution(* com.supwisdom.*.service.impl.*.*(..))" />
-		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceManager" />
-	</aop:config> -->
-
-
 	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>

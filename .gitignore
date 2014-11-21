@@ -5,6 +5,7 @@ target
 .springBeans
 logs
 bin
+*.log
 *.class
 *.jar
 *.war

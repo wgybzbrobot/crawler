@@ -27,7 +27,7 @@ public class HtmlUnitTest {
 	public static void setup() {
 		Configuration conf = CrawlerConfiguration.create();
 		 htmlUnit = new HtmlUnit(conf);
-		 httpFetcher = new HttpFetcher(conf);
+		 httpFetcher = new HttpFetcher();
 	}
 	
 	static HttpBase htmlUnit;

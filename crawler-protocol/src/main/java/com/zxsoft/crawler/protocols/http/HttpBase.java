@@ -42,8 +42,14 @@ public abstract class HttpBase extends PageHelper {
 	public static final int BUFFER_SIZE = 1024 * 1024;
 
 	/** Indicates if a proxy is used */
-	protected boolean useProxy = true;
+	protected boolean useProxy = false;
+	/** The proxy hostname. */
+	protected String proxyHost = null;
 
+	/** The proxy port. */
+	protected int proxyPort = 8080;
+
+	/** Indicates if a proxy is used */
 	/** The network timeout in millisecond */
 	protected int timeout = 10000;
 
@@ -54,7 +60,7 @@ public abstract class HttpBase extends PageHelper {
 	protected String userAgent = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36";
 
 	protected String acceptCharset = "utf-8,ISO-8859-1;q=0.7,*;q=0.7";
-	
+
 	/** The "Accept-Language" request header value. */
 	protected String acceptLanguage = "en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4,zh-TW;q=0.2";
 
@@ -70,21 +76,23 @@ public abstract class HttpBase extends PageHelper {
 	/** Do we use HTTP/1.1? */
 	protected boolean useHttp11 = false;
 
-	protected URL url;
-	
+	// protected URL url;
+
 	protected int code;
 	protected Metadata headers = new Metadata();
 	protected byte[] content = null;
 	protected String charset = "utf-8";
 	protected String contentType;
-	
+
 	// Inherited Javadoc
 	public void setConf(Configuration conf) {
 		this.conf = conf;
-		this.useProxy = conf.getBoolean("http.proxy.use", true);
-		this.timeout = conf.getInt("http.timeout", 5000);
+		this.proxyHost = conf.get("");
+		this.proxyPort = conf.getInt("", 8080);
+		this.useProxy = (proxyHost != null && proxyHost.length() > 0);
+		this.timeout = conf.getInt("http.timeout", 9000);
 		this.maxContent = conf.getInt("http.content.limit", 1024 * 1024);
-		this.userAgent =conf.get("", userAgent);
+		this.userAgent = conf.get("", userAgent);
 		this.acceptLanguage = conf.get("http.accept.language", acceptLanguage);
 		this.accept = conf.get("http.accept", accept);
 		this.useHttp11 = conf.getBoolean("http.useHttp11", false);
@@ -93,49 +101,51 @@ public abstract class HttpBase extends PageHelper {
 	public Configuration getConf() {
 		return this.conf;
 	}
-	
+
 	private ProxyRandom proxyRandom = new ProxyRandom(new DbProxyFactory());
-	
+
 	public HttpBase() {
-		
+
 	}
-	
+
 	protected Proxy getProxy(String type) {
 		return proxyRandom.random(type);
 	}
 
-	
-	/** Get ProtocolOutput of current, prev, next, last page 
-	 * @throws IOException 
-	 * @throws ProtocolException **/
+	/**
+	 * Get ProtocolOutput of current, prev, next, last page
+	 * 
+	 * @throws IOException
+	 * @throws ProtocolException
+	 **/
 	public ProtocolOutput getProtocolOutput(WebPage page) throws ProtocolException, IOException {
-//		URL u = new URL(url);
-		Response response = getResponse(page); 
+		// URL u = new URL(url);
+		Response response = getResponse(page);
 		return dealResponse(response);
 	}
-	
+
 	public ProtocolOutput getProtocolOutputOfPrevPage(int pageNum, WebPage page) throws PrevPageNotFoundException, PageBarNotFoundException {
-        try {
-        	Response response = loadPrevPage(pageNum, page);
-	        return dealResponse(response); 
-        } catch(PrevPageNotFoundException e) { 
-        	throw e;
-        } catch(PageBarNotFoundException e) { 
-        	throw e;
-        } catch (Throwable e) {
-        	LOG.error("Failed with the following error: ", e.getMessage());
-        	e.printStackTrace();
-        	return new ProtocolOutput(new ProtocolStatus(page.getDocument().location(), STATUS_CODE.FAILED, e.getMessage()));
-        }
+		try {
+			Response response = loadPrevPage(pageNum, page);
+			return dealResponse(response);
+		} catch (PrevPageNotFoundException e) {
+			throw e;
+		} catch (PageBarNotFoundException e) {
+			throw e;
+		} catch (Throwable e) {
+			LOG.error("Failed with the following error: ", e.getMessage());
+			e.printStackTrace();
+			return new ProtocolOutput(new ProtocolStatus(page.getDocument().location(), STATUS_CODE.FAILED, e.getMessage()));
+		}
 	}
-	
+
 	public ProtocolOutput getProtocolOutputOfNextPage(int pageNum, WebPage page) throws PageBarNotFoundException {
 		try {
 			Response response = loadNextPage(pageNum, page);
-			return dealResponse(response); 
-		} catch(PageBarNotFoundException e) { 
-        	throw e;
-        } catch (Throwable e) {
+			return dealResponse(response);
+		} catch (PageBarNotFoundException e) {
+			throw e;
+		} catch (Throwable e) {
 			LOG.error("Failed with the following error: ", e);
 			return new ProtocolOutput(new ProtocolStatus(page.getDocument().location(), STATUS_CODE.FAILED, e.getMessage()));
 		}
@@ -144,36 +154,35 @@ public abstract class HttpBase extends PageHelper {
 	public ProtocolOutput getProtocolOutputOfLastPage(WebPage page) throws PageBarNotFoundException {
 		try {
 			Response response = loadLastPage(page);
-			return dealResponse(response); 
-		} catch(PageBarNotFoundException e) { 
-        	throw e;
-        }  catch (Throwable e) {
+			return dealResponse(response);
+		} catch (PageBarNotFoundException e) {
+			throw e;
+		} catch (Throwable e) {
 			LOG.error("Failed with the following error: ", e);
 			return new ProtocolOutput(new ProtocolStatus(page.getDocument().location(), STATUS_CODE.FAILED, e.getMessage()));
 		}
 	}
+
 	/** End get ProtocolOutput of current, prev, next, last page **/
-	
-	
-	public ProtocolOutput dealResponse (Response response) throws IOException {
+
+	public ProtocolOutput dealResponse(Response response) throws IOException {
 		if (response == null) {
 			return new ProtocolOutput(new ProtocolStatus("", STATUS_CODE.FAILED, "response is null"));
 		}
 		int code = response.code;
 		byte[] content = response.content;
 		URL u = response.url;
-		if (content == null) // there is a error here 
-			return null;
+		if (content == null) // there is a error here
+			return new ProtocolOutput(ProtocolStatusUtils.makeStatus(STATUS_CODE.FAILED, u.toString(), "content is null"));
 		InputStream in = new ByteArrayInputStream(content);
 
 		Document document = Jsoup.parse(in, response.charset, u.toString());
 
 		if (code == 200) { // got a good response
-//			String ip = new DNSCache().getAsString(u);
 			return new ProtocolOutput(document); // return it
 		} else if (code == 410) { // page is gone
-			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
-			        STATUS_CODE.GONE, "Http: " + code + " url=" + response.url.toString()));
+			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.GONE,
+			        "Http: " + code + " url=" + response.url.toString()));
 		} else if (code >= 300 && code < 400) { // handle redirect
 			String location = response.getHeader("Location");
 			// some broken servers, such as MS IIS, use lowercase header
@@ -206,32 +215,28 @@ public abstract class HttpBase extends PageHelper {
 			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(protocolStatusCode, u.toString()));
 		} else if (code == 400) { // bad request, mark as GONE
 			LOG.trace("400 Bad request: " + u);
-			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
-					STATUS_CODE.GONE, u.toString()));
+			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.GONE, u.toString()));
 		} else if (code == 401) { // requires authorization, but no valid
-								  // auth provided.
+			                      // auth provided.
 			LOG.trace("401 Authentication Required");
-			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
-					STATUS_CODE.ACCESS_DENIED, "Authentication required: " + u.toString()));
+			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.ACCESS_DENIED,
+			        "Authentication required: " + u.toString()));
 		} else if (code == 404) {
-			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
-					STATUS_CODE.NOTFOUND, u.toString()));
+			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.NOTFOUND, u.toString()));
 		} else if (code == 410) { // permanently GONE
-			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
-					STATUS_CODE.GONE, u.toString()));
+			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.GONE, u.toString()));
 		} else {
-			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(
-					STATUS_CODE.EXCEPTION, "Http code=" + code + ", url=" + u));
+			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.EXCEPTION, "Http code=" + code + ", url=" + u));
 		}
 	}
-	
+
 	public ProtocolOutput post(String u, NameValuePair[] data) throws IOException {
 		URL url = new URL(u);
 		Response response = postForResponse(url, data);
 		ProtocolOutput output = dealResponse(response);
 		return output;
 	}
-	
+
 	public boolean useProxy() {
 		return useProxy;
 	}
@@ -282,8 +287,8 @@ public abstract class HttpBase extends PageHelper {
 			throw new IOException("unzipBestEffort returned null");
 
 		if (LOG.isTraceEnabled()) {
-			LOG.trace("fetched " + compressed.length + " bytes of compressed content (expanded to "
-			        + content.length + " bytes) from " + url);
+			LOG.trace("fetched " + compressed.length + " bytes of compressed content (expanded to " + content.length + " bytes) from "
+			        + url);
 		}
 		return content;
 	}
@@ -300,23 +305,26 @@ public abstract class HttpBase extends PageHelper {
 			throw new IOException("inflateBestEffort returned null");
 
 		if (LOG.isTraceEnabled()) {
-			LOG.trace("fetched " + compressed.length + " bytes of compressed content (expanded to "
-			        + content.length + " bytes) from " + url);
+			LOG.trace("fetched " + compressed.length + " bytes of compressed content (expanded to " + content.length + " bytes) from "
+			        + url);
 		}
 		return content;
 	}
 
 	public abstract Response postForResponse(URL url, NameValuePair[] data) throws IOException;
-	
-	
+
 	/**
-	 * @param page 包含url, auth, website
-	 * URL url,
-	        boolean needAuth, String webiste
+	 * @param page
+	 *            包含url, auth, website URL url, boolean needAuth, String webiste
 	 */
 	public abstract Response getResponse(WebPage page) throws ProtocolException, IOException;
-	protected abstract Response loadPrevPage(int pageNum, final WebPage page) throws IOException, ProtocolException, PrevPageNotFoundException, PageBarNotFoundException;
-	protected abstract Response loadNextPage(int pageNum, final WebPage page) throws IOException, ProtocolException, PageBarNotFoundException;
+
+	protected abstract Response loadPrevPage(int pageNum, final WebPage page) throws IOException, ProtocolException,
+	        PrevPageNotFoundException, PageBarNotFoundException;
+
+	protected abstract Response loadNextPage(int pageNum, final WebPage page) throws IOException, ProtocolException,
+	        PageBarNotFoundException;
+
 	protected abstract Response loadLastPage(final WebPage page) throws IOException, ProtocolException, PageBarNotFoundException;
 
 }
