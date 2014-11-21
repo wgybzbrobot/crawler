@@ -28,6 +28,7 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 		
 		ClientResource cli = new ClientResource(CRAWLER_MASTER + MasterPath.SLAVE_RESOURCE_PATH );
 		Representation r = cli.put(map);
+		cli.release();
 		
 	    return null;
     }
@@ -40,6 +41,7 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 		
 		ClientResource cli = new ClientResource(CRAWLER_MASTER + MasterPath.SLAVE_RESOURCE_PATH );
 		Representation r = cli.put(map);
+		cli.release();
 	    return null;
     }
 	
@@ -62,7 +64,7 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
         }
 		Map<String, Object> job = new Gson().fromJson(json, Map.class);
 //		map.put("job", job);
-		
+		cli.release();
 		return list;
 	}
 
