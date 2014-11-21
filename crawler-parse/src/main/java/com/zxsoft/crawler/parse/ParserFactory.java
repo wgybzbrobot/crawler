@@ -13,9 +13,9 @@ import org.thinkingcloud.framework.util.StringUtils;
 
 import com.zxsoft.crawler.plugin.ParsePluginsReader;
 import com.zxsoft.crawler.plugin.PluginRuntimeException;
+import com.zxsoft.crawler.util.CrawlerConfiguration;
 
 
-//@Component
 public class ParserFactory {
 
     private static Logger LOG = LoggerFactory.getLogger(ParserFactory.class);
@@ -23,15 +23,14 @@ public class ParserFactory {
     private static WeakHashMap<String, Parser> parserCache = new WeakHashMap<String, Parser>();
     private static Set<Extension> extensions = new HashSet<Extension>();
 
-    private Configuration conf;
+    private static final Configuration conf;
     
     private static final String DEFAULT_PARSER_TYPE = "forum";
 
-    public void setConf(Configuration conf) {
-        this.conf = conf;
+    static {
+    	conf = CrawlerConfiguration.create();
     }
-
-//    @Cacheable("parser")
+    
     public synchronized Parser getParserByCategory(String category) throws ParserNotFoundException {
 
         if (StringUtils.isEmpty(category)) {
@@ -60,7 +59,7 @@ public class ParserFactory {
 
         try {
             Parser parser = (Parser) extension.getInstance();
-            parserCache.put(category, parser);
+//            parserCache.put(category, parser);
             return parser;
         } catch (PluginRuntimeException e) {
             LOG.warn("Cannot initial " + category + "Parser (cause: " + e.toString());
