@@ -1,4 +1,4 @@
-package com.zxsoft.crawler;
+package com.zxsoft.crawler.api;
 
 import java.util.Map;
 
@@ -8,9 +8,9 @@ import org.restlet.resource.Post;
 import org.restlet.resource.Put;
 import org.restlet.resource.ServerResource;
 
-import com.zxsoft.crawler.JobManager.JobType;
-import com.zxsoft.crawler.JobStatus.State;
 import com.zxsoft.crawler.api.Params;
+import com.zxsoft.crawler.api.JobManager.JobType;
+import com.zxsoft.crawler.api.JobStatus.State;
 
 public class JobResource extends ServerResource {
 	public static final String PATH = "jobs";

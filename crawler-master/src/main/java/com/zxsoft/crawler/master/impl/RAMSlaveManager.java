@@ -149,15 +149,21 @@ public class RAMSlaveManager implements SlaveManager {
 			WebResource webResource = client.resource(url);
 			Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 			String json = gson.toJson(args, Map.class);
+			ClientResponse response = null;
 			try {
-				webResource.type("application/json").put(ClientResponse.class, json);
+				response = webResource.type("application/json").put(ClientResponse.class, json);
 			} catch (ClientHandlerException e) {
 				LOG.error(e.getMessage());
 				LOG.error("URL为" + url + "的slave不能执行任务,他可能很忙,也可能挂了. 准备换一个slave试试...");
 				list(); // 重新获取每个slave状态
 				continue;
 			} finally {
-				client.destroy();
+				if (response != null) {
+					response.close();
+				}
+				if (client != null) {
+					client.destroy();
+				}
 			}
 			LOG.info("选中slave(" + url + ")执行任务");
 			return url;

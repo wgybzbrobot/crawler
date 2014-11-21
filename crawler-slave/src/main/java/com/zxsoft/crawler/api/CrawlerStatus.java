@@ -1,4 +1,4 @@
-package com.zxsoft.crawler;
+package com.zxsoft.crawler.api;
 
 public class CrawlerStatus {
 

@@ -4,7 +4,6 @@
 	<id>slave-dist</id>
 	<formats>
 		<format>dir</format>
-		<format>tar.gz</format>
 	</formats>
 	<dependencySets>
 		<dependencySet>
@@ -24,6 +23,7 @@
 			<outputDirectory>/conf</outputDirectory>
 			<includes>
 				<include>crawler-default.xml.template</include>
+				<include>dao.xml.template</include>
 				<include>log4j.xml</include>
 			</includes>
 		</fileSet>

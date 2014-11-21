@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package com.zxsoft.crawler;
+package com.zxsoft.crawler.api;
 
 import java.io.IOException;
 import java.util.ArrayList;

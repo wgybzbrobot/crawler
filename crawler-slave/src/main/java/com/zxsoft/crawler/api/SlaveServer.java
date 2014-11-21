@@ -1,13 +1,12 @@
-package com.zxsoft.crawler;
+package com.zxsoft.crawler.api;
 
 import java.util.List;
-
 import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zxsoft.crawler.JobStatus.State;
+import com.zxsoft.crawler.api.JobStatus.State;
 import com.zxsoft.crawler.slave.SlavePath;
 
 public class SlaveServer {

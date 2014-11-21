@@ -1,4 +1,4 @@
-package com.zxsoft.crawler;
+package com.zxsoft.crawler.api;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,8 +38,7 @@ public class NetworkSearchJob extends CrawlTool {
 		
 		WebPage page = new WebPage(keyword, listUrl, urlType);
 		
-		Configuration conf = getConf();
-		NetworkSearchParserController parserController = new NetworkSearchParserController(conf);
+		NetworkSearchParserController parserController = new NetworkSearchParserController();
 		Map<String, Object> map = new HashMap<String, Object>(); 
 		try {
 			FetchStatus status = parserController.parse(page);

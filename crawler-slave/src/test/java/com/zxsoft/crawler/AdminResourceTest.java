@@ -3,6 +3,8 @@ package com.zxsoft.crawler;
 import org.junit.Test;
 import org.restlet.resource.ClientResource;
 
+import com.zxsoft.crawler.api.AdminResource;
+
 public class AdminResourceTest {
 
 	private static String baseUrl = "http://localhost:8989/crawler/";

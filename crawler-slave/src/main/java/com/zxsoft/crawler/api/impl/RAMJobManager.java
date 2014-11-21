@@ -13,14 +13,14 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ReflectionUtils;
 
-import com.zxsoft.crawler.ConfResource;
-import com.zxsoft.crawler.CrawlTool;
-import com.zxsoft.crawler.JobManager;
-import com.zxsoft.crawler.JobStatus;
-import com.zxsoft.crawler.JobStatus.State;
-import com.zxsoft.crawler.NetworkInspectJob;
-import com.zxsoft.crawler.NetworkSearchJob;
-import com.zxsoft.crawler.SlaveApp;
+import com.zxsoft.crawler.api.ConfResource;
+import com.zxsoft.crawler.api.CrawlTool;
+import com.zxsoft.crawler.api.JobManager;
+import com.zxsoft.crawler.api.JobStatus;
+import com.zxsoft.crawler.api.NetworkInspectJob;
+import com.zxsoft.crawler.api.NetworkSearchJob;
+import com.zxsoft.crawler.api.SlaveApp;
+import com.zxsoft.crawler.api.JobStatus.State;
 
 public class RAMJobManager implements JobManager {
 	int CAPACITY = 100;

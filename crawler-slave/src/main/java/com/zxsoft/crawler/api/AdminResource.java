@@ -1,4 +1,4 @@
-package com.zxsoft.crawler;
+package com.zxsoft.crawler.api;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,8 +8,8 @@ import org.restlet.resource.ServerResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zxsoft.crawler.JobStatus.State;
 import com.zxsoft.crawler.api.Params;
+import com.zxsoft.crawler.api.JobStatus.State;
 
 public class AdminResource extends ServerResource {
   private static final Logger LOG = LoggerFactory.getLogger(AdminResource.class);

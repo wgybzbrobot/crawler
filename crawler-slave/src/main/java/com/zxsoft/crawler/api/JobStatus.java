@@ -1,11 +1,11 @@
-package com.zxsoft.crawler;
+package com.zxsoft.crawler.api;
 
 import java.io.Serializable;
 import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-import com.zxsoft.crawler.JobManager.JobType;
+import com.zxsoft.crawler.api.JobManager.JobType;
 
 public class JobStatus implements Serializable {
 	/**

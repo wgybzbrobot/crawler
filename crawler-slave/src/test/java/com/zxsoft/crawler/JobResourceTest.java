@@ -3,13 +3,14 @@ package com.zxsoft.crawler;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.Test;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 
-import com.zxsoft.crawler.JobManager.JobType;
 import com.zxsoft.crawler.api.Params;
+import com.zxsoft.crawler.api.JobManager.JobType;
 
 public class JobResourceTest {
 

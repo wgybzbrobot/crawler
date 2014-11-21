@@ -9,8 +9,8 @@ import java.util.TreeMap;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.zxsoft.crawler.ConfManager;
-import com.zxsoft.crawler.ConfResource;
+import com.zxsoft.crawler.api.ConfManager;
+import com.zxsoft.crawler.api.ConfResource;
 import com.zxsoft.crawler.util.CrawlerConfiguration;
 
 public class RAMConfManager implements ConfManager {

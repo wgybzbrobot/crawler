@@ -1,9 +1,9 @@
-package com.zxsoft.crawler;
+package com.zxsoft.crawler.api;
 
 import java.util.List;
 import java.util.Map;
 
-import com.zxsoft.crawler.JobStatus.State;
+import com.zxsoft.crawler.api.JobStatus.State;
 
 public interface JobManager {
 

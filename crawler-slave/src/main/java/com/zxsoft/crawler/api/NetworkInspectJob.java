@@ -1,4 +1,4 @@
-package com.zxsoft.crawler;
+package com.zxsoft.crawler.api;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -19,10 +19,7 @@ import com.zxsoft.crawler.storage.WebPage;
  */
 public class NetworkInspectJob extends CrawlTool {
 
-	/**
-	 * 
-	 */
-    private static final long serialVersionUID = -6300768337043076256L;
+	private static final long serialVersionUID = -6300768337043076256L;
     
 	private static Logger LOG = LoggerFactory.getLogger(NetworkInspectJob.class);
 	
@@ -34,7 +31,6 @@ public class NetworkInspectJob extends CrawlTool {
 	
 	@Override
     public Map<String, Object> run(Map<String, Object> args) throws Exception {
-		Configuration conf = getConf();
 		
 		String url = (String) args.get(Params.URL);
 		String urlType = (String) args.get(Params.PROXY_TYPE);
@@ -43,7 +39,7 @@ public class NetworkInspectJob extends CrawlTool {
 		try {
 			prevFetchTime = (long) args.get(Params.PREV_FETCH_TIME);
 		} catch(NullPointerException e) {
-			prevFetchTime = System.currentTimeMillis() - 48 * 60 * 60 * 1000/*conf.getLong("fetch.interval", 60 * 60 * 1000L)*/;
+			prevFetchTime = System.currentTimeMillis() - 48 * 60 * 60 * 1000;
 			LOG.warn(url + "任务没有上次抓取时间, 将使用程序设定:" + prevFetchTime);
 		} 
 		
@@ -52,7 +48,7 @@ public class NetworkInspectJob extends CrawlTool {
 		map.put("comment", comment);
 		map.put("starttime", new Date().toLocaleString());
 		try {
-			NetworkInspectParserController parseUtil = new NetworkInspectParserController(conf);
+			NetworkInspectParserController parseUtil = new NetworkInspectParserController();
 			WebPage page = new WebPage(url, urlType, prevFetchTime);
 			FetchStatus status = parseUtil.parse(page);
 			map.put("code", 2001);
@@ -62,12 +58,13 @@ public class NetworkInspectJob extends CrawlTool {
 		} catch (NullPointerException e) {
 			map.put("code", 5001);
 			map.put("message", e.getMessage());
+			e.printStackTrace();
 		} catch (ParserNotFoundException e) {
 			map.put("code", 5002);
 			map.put("message", e.getMessage());
+			e.printStackTrace();
 		} 
 		
-		LOG.info("URL[" + url + "], code[" + map.get("code") + "], count[" + map.get("count") + "], message[" + (String)map.get("message") + "]");
 	    return map;
     }
 }

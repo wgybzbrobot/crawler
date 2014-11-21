@@ -1,4 +1,4 @@
-package com.zxsoft.crawler;
+package com.zxsoft.crawler.api;
 
 import org.restlet.Application;
 import org.restlet.Restlet;
