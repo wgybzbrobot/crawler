@@ -83,24 +83,8 @@ public class HtmlUnit extends HttpBase {
 		request.setAdditionalHeader("Connection", "keep-alive");
 		
 		if (useProxy ) {
-			Proxy proxy = getProxy(page.getType());
-			if (proxy != null) {
-				request.setProxyHost(proxy.getIp());
-				request.setProxyPort(proxy.getPort());
-	
-				String username = proxy.getUsername() == null ? "" : proxy.getUsername();
-				String password = proxy.getPassword() == null ? "" : proxy.getPassword();
-				NTCredentials proxyCredentials = new NTCredentials(username,
-				        password, proxy.getIp(), "http");
-				request.setCredentials(proxyCredentials);
-				if ("SOCKS".equalsIgnoreCase(proxy.getType()))
-					request.setSocksProxy(true);
-				else
-					request.setSocksProxy(false);
-			}
-		}
-		if (page.isAuth()) {
-			
+			request.setProxyHost(proxyHost);
+			request.setProxyPort(proxyPort);
 		}
 		
 		htmlPage = client.getPage(request);

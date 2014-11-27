@@ -13,7 +13,7 @@
 	</property>
 	<property>
 		<name>http.proxy.port</name>
-		<value></value>
+		<value>28128</value>
 		<description></description>
 	</property>
 	<property>

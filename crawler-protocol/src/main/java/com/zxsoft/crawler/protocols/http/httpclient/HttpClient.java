@@ -73,6 +73,7 @@ public class HttpClient extends HttpBase {
 		headers.add(new Header("Accept-Encoding", "x-gzip, gzip, deflate"));
 		hostConf.getParams().setParameter("http.default-headers", headers);
 		if (useProxy) {
+			LOG.info("HttpClient use proxy " + proxyHost + ":" + proxyPort);
 			hostConf.setProxy(proxyHost, proxyPort);
 		}
 	}
@@ -84,8 +85,13 @@ public class HttpClient extends HttpBase {
 		Metadata headers = new Metadata();
 		byte[] content = null/* new byte[1024] */;
 
-		URL url = new URL(page.getBaseUrl());
-
+		URL url = null;
+		try {
+			url = new URL(page.getBaseUrl());
+		} catch (Exception e) {
+			throw new IOException("url: " + page.getBaseUrl());
+		}
+		
 		GetMethod get = new GetMethod(url.toString());
 		HttpMethodParams params = get.getParams();
 		params.makeLenient();
@@ -131,7 +137,7 @@ public class HttpClient extends HttpBase {
 				}
 			}
 		} catch (Exception e) {
-			LOG.info(e.getMessage() + ": " + url.toString());
+			LOG.warn(e.getMessage() + ": " + url.toString());
 		} finally {
 			get.releaseConnection();
 		}
