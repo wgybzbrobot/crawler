@@ -32,9 +32,10 @@ public class RestOutput implements Output {
 		if (StringUtils.isEmpty(url)) {
 			throw new NullPointerException("data.output.address not set");
 		}
+		LOG.info("data.output.address: " + url);
 	}
 	
-	public void write(RecordInfo info) /*throws OutputException*/ {
+	public void write(RecordInfo info) throws OutputException {
 		Assert.notNull(info);
 		List<RecordInfo> recordInfos = new LinkedList<RecordInfo>();
 		recordInfos.add(info);
@@ -49,9 +50,7 @@ public class RestOutput implements Output {
 		try {
 			response = webResource.type("application/json").post(ClientResponse.class, json);
 		} catch (ClientHandlerException e) {
-			if (e.getMessage().contains("java.net.ConnectException")) {
-				LOG.error("写数据失败, " + url + " 拒绝连接.");
-			}
+			throw new OutputException(e.getMessage());
 		} finally {
 			if (response != null) {
 				response.close();
@@ -63,7 +62,7 @@ public class RestOutput implements Output {
     }
 
 	public int write(List<RecordInfo> recordInfos) throws OutputException {
-		if (2 > 1) return recordInfos.size();
+//		if (2 > 1) return recordInfos.size();
 		
 		if (CollectionUtils.isEmpty(recordInfos)) return 0;
 		int realSize = recordInfos.size();
@@ -85,7 +84,8 @@ public class RestOutput implements Output {
 					response = webResource.type("application/json").post(ClientResponse.class, json);
 					String msg = response.getEntity(String.class);
 				} catch (ClientHandlerException e) {
-					throw new OutputException("不能写出数据," + e.getMessage());
+					LOG.error(e.getMessage());
+					throw new OutputException(e.getMessage());
 				} finally {
 					if (response != null) {
 						response.close();
@@ -106,13 +106,14 @@ public class RestOutput implements Output {
 				response = webResource.type("application/json").post(ClientResponse.class, json);
 				String msg = response.getEntity(String.class);
 			} catch(ClientHandlerException e) {
-				throw new OutputException("不能写出数据," + e.getMessage());
+				throw new OutputException(e.getMessage());
 			} finally {
 				if (response != null) {
 					response.close();
 				}
 			}
 		}catch (Exception e) {
+			throw new OutputException(e.getMessage());
 		} finally {
 			client.destroy();
 		}

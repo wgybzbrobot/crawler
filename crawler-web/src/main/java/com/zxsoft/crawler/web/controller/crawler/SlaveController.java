@@ -140,13 +140,13 @@ public class SlaveController {
 			model.addAttribute("preys", list);
 			jedis.close();
 		}
-		
+
 		List<ConfList> confLists = configService.getInspectConfLists(null);
 		model.addAttribute("confLists", confLists);
-		
+
 		List<ConfList> engines = dictService.getSearchEngines();
 		model.addAttribute("engines", engines);
-		
+
 		return "/crawler/preys";
 	}
 
@@ -154,8 +154,7 @@ public class SlaveController {
 
 	@ResponseBody
 	@RequestMapping(value = "ajax/addSearchJob", method = RequestMethod.POST)
-	public Map<String, Object> addSearchJob(
-	        @RequestParam(value = "keyword", required = false) String keyword,
+	public Map<String, Object> addSearchJob(@RequestParam(value = "keyword", required = false) String keyword,
 	        @RequestParam(value = "engineId", required = false) List<String> engineIds) {
 		Assert.hasLength(keyword);
 		Assert.notEmpty(engineIds);
@@ -171,15 +170,15 @@ public class SlaveController {
 	private static final String URLBASE = "urlbase";
 	private static final String REDIS_HOST;
 	private static final int REDIS_PORT;
-	
+
 	static {
 		ClassPathResource resource = new ClassPathResource("redis.properties");
 		Properties properties = new Properties();
 		try {
-	        properties.load(resource.getInputStream());
-        } catch (IOException e) {
-	        e.printStackTrace();
-        }
+			properties.load(resource.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		REDIS_HOST = properties.getProperty("redis.host");
 		REDIS_PORT = Integer.valueOf(properties.getProperty("redis.port"));
 
@@ -193,8 +192,7 @@ public class SlaveController {
 
 	@ResponseBody
 	@RequestMapping(value = "ajax/addInspectJob", method = RequestMethod.POST)
-	public Map<String, Object> addInspectJob(
-	        @RequestParam(value = "url", required = false) String url) {
+	public Map<String, Object> addInspectJob(@RequestParam(value = "url", required = false) String url) {
 		Assert.hasLength(url);
 		Map<String, Object> args = new HashMap<String, Object>();
 		ConfList confList = configService.getConfList(url);
@@ -213,9 +211,8 @@ public class SlaveController {
 		// 判断任务列表中是否已存在该任务
 
 		Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
-		double score = 1.0d / (System.currentTimeMillis() / 60000 + 	confList.getFetchinterval());
-		Prey prey = new Prey(site, url,  confList.getComment(), JobType.NETWORK_INSPECT.toString(),
-		        proxyType, confList.getFetchinterval());
+		double score = 1.0d / (System.currentTimeMillis() / 60000 + confList.getFetchinterval());
+		Prey prey = new Prey(site, url, confList.getComment(), JobType.NETWORK_INSPECT.toString(), proxyType, confList.getFetchinterval());
 		prey.setStart(System.currentTimeMillis());
 		jedis.zadd(URLBASE, score, prey.toString());
 		jedis.close();
@@ -225,7 +222,7 @@ public class SlaveController {
 		args.put(Params.PROXY_TYPE, prey.getProxyType());
 		args.put(Params.PREV_FETCH_TIME, System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000); // 设置上次抓取时间是3天前
 		args.put(Params.COMMENT, prey.getComment());
-		
+
 		jobService.addInsecptJob(args);
 
 		return args;
@@ -234,10 +231,10 @@ public class SlaveController {
 	/**
 	 * 查看某个爬虫正在运行或完成的任务
 	 */
-	@RequestMapping(value = "moreinfo/{state}/{ip}/{port}", method = RequestMethod.GET)
+	@SuppressWarnings("unchecked")
+    @RequestMapping(value = "moreinfo/{state}/{ip}/{port}", method = RequestMethod.GET)
 	public String moreinfoOfHistory(Model model, @PathVariable(value = "state") final String state,
-	        @PathVariable(value = "ip") final String ip,
-	        @PathVariable(value = "port") final String port) {
+	        @PathVariable(value = "ip") final String ip, @PathVariable(value = "port") final String port) {
 
 		if (!"running".equals(state) && !"history".equals(state)) {
 			return null;
@@ -247,14 +244,14 @@ public class SlaveController {
 		model.addAttribute("ip", ip);
 		model.addAttribute("port", port);
 
-		String url = "http://" + ip + ":" + port + "/" + SlavePath.PATH + "/"
-		        + SlavePath.JOB_RESOURCE_PATH + "?state=" + state;
+		String url = "http://" + ip + ":" + port + "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH + "?state=" + state;
 		Client client = Client.create();
 		WebResource webResource = client.resource(url);
 		List<JobStatus> res = new ArrayList<JobStatus>();
 		try {
 			String text = webResource.get(String.class);
-			res = new Gson().fromJson(text, List.class);
+			Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+			res = gson.fromJson(text, List.class);
 		} catch (ClientHandlerException e) {
 			e.printStackTrace();
 		} finally {

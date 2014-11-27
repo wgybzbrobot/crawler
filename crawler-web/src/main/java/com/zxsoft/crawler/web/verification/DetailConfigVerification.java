@@ -142,7 +142,6 @@ public class DetailConfigVerification extends ParseTool {
 						errors.add(error);
 					} else {
 						Elements masterContentEles = masterEles.select(detailConf.getContent());
-						System.out.println(masterEles.html());
 						if (CollectionUtils.isEmpty(masterContentEles)) {
 							Map<String, String> error = new HashMap<String, String>();
 							error.put("field", "content");

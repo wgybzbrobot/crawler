@@ -74,7 +74,7 @@ public final class NetworkInspectParserController extends ParseTool {
 					try {
 						update = Utils.formatDate(line.select(updateDom).first().text());
 						if (update != null && update.getTime() < page.getPrevFetchTime()) {
-							msg = "jie zhi时间" + new Date(page.getPrevFetchTime()).toLocaleString();
+							msg = "截止时间" + new Date(page.getPrevFetchTime()).toLocaleString();
 							continuePage = false;
 							break;
 						}
@@ -111,14 +111,14 @@ public final class NetworkInspectParserController extends ParseTool {
 				wp.setBaseUrl(curl);
 				wp.setAjax(false);// detail page use normal load
 				wp.setDocument(null);
+				
 				try {
-//					Parser _parser = parser.clone();
 					Parser parser = factory.getParserByCategory(listConf.getCategory());
 					FetchStatus _status = parser.parse(wp);
 					sum += _status.getCount();
-					LOG.info(_status.toString());
+					LOG.debug(_status.toString());
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOG.error(e.getMessage());
 				}
 				if (!continuePage) {
 					break;
@@ -142,7 +142,7 @@ public final class NetworkInspectParserController extends ParseTool {
 				pageNum++;
 			}
 		}
-		LOG.info("【" + listConf.getComment() + "】抓取结束, 共抓取数据数量:" + sum);
+		LOG.info("【" + listConf.getComment() + "】共抓取数据数量:" + sum + ", msg:" + msg);
 		return new FetchStatus(indexUrl, 21, Status.SUCCESS, sum, msg);
 	}
 }

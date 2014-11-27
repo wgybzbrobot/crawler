@@ -1,5 +1,6 @@
 package com.zxsoft.crawler.master;
 
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.CollectionUtils;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import com.google.gson.Gson;
 import com.zxsoft.crawler.api.Params;
@@ -80,15 +82,14 @@ public class MasterServer {
 //                        } catch (Exception e) {
 //	                        e.printStackTrace();
 //                        }
-						LOG.info("HeartBeatThread sleep " + heartbeat / 60000 + " minutes");
+						LOG.info("SlaveMonitorThread sleep " + heartbeat / 60000 + " minutes");
 			            TimeUnit.MILLISECONDS.sleep(heartbeat);
 		            } catch (InterruptedException e) {
 			            e.printStackTrace();
 		            }
-					
 				}
 			}
-		}).start();
+		}, "SlaveMonitorThread").start();
 		
 		// 任务队列管理
 		new Thread(new Runnable() {
@@ -96,7 +97,13 @@ public class MasterServer {
 			public void run() {
 				while (true) {
 					Jedis jedis = new Jedis(redisUrl, redisPort);
-					Set<String> strs = jedis.zrevrange(URLBASE, 0, 0);
+					Set<String> strs = null;
+					try {
+						strs = jedis.zrevrange(URLBASE, 0, 0);
+					} catch (JedisConnectionException e) {
+						LOG.error(e.getMessage());
+						continue;
+					}
 					if (CollectionUtils.isEmpty(strs)) {
 						LOG.warn("No records in redis urlbase.");
 						 try {
@@ -148,7 +155,7 @@ public class MasterServer {
 					jedis.close();
 				}
 			}
-		}).start();
+		}, "TaskSchedulerThread").start();
 		
 	}
 

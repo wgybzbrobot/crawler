@@ -28,7 +28,9 @@ public class UtilsTest {
             String s5 = "今天 13:40:01";
             String s6 = "发表于 昨天 11:25";
             String s7 = "发表于 半小时前";
+            String s8 = "www.zybus.com/dgmtkxnh/ 2014-11-10";
 //            Assert.isTrue(s4.equals(str2));
+            System.out.println(s8 + "\t\t" +  Utils.formatDate(s8));
             System.out.println(s7 + "\t\t" +  Utils.formatDate(s7));
             System.out.println(s6 + "\t\t" +  Utils.formatDate(s6));
             System.out.println(s5 + "\t\t" +  Utils.formatDate(s5));

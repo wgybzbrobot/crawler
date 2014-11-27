@@ -3,6 +3,7 @@ package com.zxsoft.crawler.web.service.crawler.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.jersey.api.client.WebResource;
@@ -11,7 +12,8 @@ import com.zxsoft.crawler.web.service.crawler.SlaveService;
 
 public class SlaveServiceImpl extends SimpleCrawlerServiceImpl implements SlaveService {
 
-	@Override
+	@SuppressWarnings("unchecked")
+    @Override
 	public List<Map<String, Object>> slaves() throws Exception {
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 
