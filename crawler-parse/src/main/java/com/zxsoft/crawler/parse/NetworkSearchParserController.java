@@ -2,7 +2,6 @@ package com.zxsoft.crawler.parse;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.SocketException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
@@ -10,13 +9,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
 
@@ -46,7 +43,7 @@ public final class NetworkSearchParserController extends ParseTool {
 		
 		ListConf listConf = confDao.getListConf(listUrl);
 		if (listConf == null) {
-			throw new NullPointerException("没有找到版块地址是" + page.getBaseUrl() + "的ConfList配置");
+			return new FetchStatus(listUrl, 43, Status.CONF_ERROR);
 		}
 		
 		String indexUrl = String.format(listUrl, URLEncoder.encode(keyword, "UTF-8"));
@@ -54,26 +51,17 @@ public final class NetworkSearchParserController extends ParseTool {
 		
 		String listDom = listConf.getListdom();
 		if (StringUtils.isEmpty(listDom)) {
-			LOG.error("列表DOM没有配置,无法获取列表信息:" + indexUrl);
-			status.setStatus(Status.CONF_ERROR);
-			status.setMessage("列表DOM没有配置,无法获取列表信息");
-			return status;
-		}
-		
-		if (listConf.isAuth()) { // need login
-			
+			return new FetchStatus(listUrl, 44, Status.CONF_ERROR);
 		}
 		
 		boolean ajax = listConf.isAjax();
-		HttpFetcher httpFetcher = new HttpFetcher(/*conf*/);
+		HttpFetcher httpFetcher = new HttpFetcher();
 		WebPage tempPage = page;
 		tempPage.setBaseUrl(indexUrl);
 		tempPage.setAjax(ajax);
 		ProtocolOutput output = httpFetcher.fetch(tempPage);
 		if (!output.getStatus().isSuccess()) {
-			status.setStatus(Status.PROTOCOL_FAILURE);
-			status.setMessage(output.getStatus().getMessage());
-			return status;
+			return new FetchStatus(indexUrl, 51, Status.PROTOCOL_FAILURE);
 		}
 		Document document = output.getDocument();
 		page.setDocument(document);
@@ -94,10 +82,7 @@ public final class NetworkSearchParserController extends ParseTool {
 		while (true) {
 			Elements list = document.select(listDom);
 			if (CollectionUtils.isEmpty(list)) {
-				LOG.error("列表DOM设置错误,无法获取列表信息" + indexUrl);
-				status.setStatus(Status.CONF_ERROR);
-				status.setMessage("列表DOM设置错误,无法获取列表信息");
-				return status;
+				return new FetchStatus(listUrl, 44, Status.CONF_ERROR);
 			}
 			Elements lines = list.first().select(listConf.getLinedom());
 
@@ -156,13 +141,8 @@ public final class NetworkSearchParserController extends ParseTool {
 			
 			 // 翻页
 			ProtocolOutput ptemp = fetchNextPage(pageNum.get(), tempPage);
-			if (ptemp ==null || !ptemp.getStatus().isSuccess()) {
+			if (!ptemp.getStatus().isSuccess()) {
 				LOG.debug("No next page, exit.");
-				break;
-			}
-			document = ptemp.getDocument();
-			if (document == null) {
-				LOG.debug("document == null, break");
 				break;
 			}
 

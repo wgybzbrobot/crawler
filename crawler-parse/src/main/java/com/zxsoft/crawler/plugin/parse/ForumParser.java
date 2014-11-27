@@ -1,5 +1,6 @@
 package com.zxsoft.crawler.plugin.parse;
 
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,10 +14,11 @@ import org.springframework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
 
+import com.zxsoft.crawler.dns.DNSCache;
 import com.zxsoft.crawler.parse.FetchStatus;
+import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.Parser;
-import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.storage.DetailConf;
@@ -38,17 +40,13 @@ public class ForumParser extends Parser {
 
 	private static Logger LOG = LoggerFactory.getLogger(ForumParser.class);
 
-//	private ThreadLocal<List<RecordInfo>> recordInfos = new ThreadLocal<List<RecordInfo>>() {
-//		protected List<RecordInfo> initialValue() {
-//			return new LinkedList<RecordInfo>();
-//		}
-//	};
 	private List<RecordInfo> recordInfos = new LinkedList<RecordInfo>();
 
 	public List<RecordInfo> getRecordInfos() {
 		return recordInfos;
 	}
-	
+	private String ip;
+
 	/**
 	 * give a thread page url, get the page html code, parse the main thread,
 	 * parse reply thread, parse subre
@@ -68,11 +66,13 @@ public class ForumParser extends Parser {
 		
 		Document mainDoc = _output.getDocument();
 		page.setDocument(mainDoc);
-
+		ip = DNSCache.getIp(new URL(mainUrl));
+		
 		/*
 		 * Parse Main-Thread
 		 */
 		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, System.currentTimeMillis());
+		info.setIp(ip);
 		String replyNumDom = detailConf.getReplyNum();
 		if (!StringUtils.isEmpty(replyNumDom) && !CollectionUtils.isEmpty(mainDoc.select(replyNumDom)))
 			info.setComment_count(Utils.extractNum(mainDoc.select(replyNumDom).first().text()));
@@ -176,7 +176,8 @@ public class ForumParser extends Parser {
 //            }
 			count = indexWriter.write(getRecordInfos());
 		} catch (OutputException e) {
-			return new FetchStatus(mainUrl, 61, Status.OUTPUT_FAILURE);
+			throw new OutputException(mainUrl + "data output failure");
+//			return new FetchStatus(mainUrl, 61, Status.OUTPUT_FAILURE);
 		}
 		return new FetchStatus(mainUrl, 21, Status.SUCCESS, count);
 	}
@@ -189,6 +190,7 @@ public class ForumParser extends Parser {
 		Elements replyEles = doc.select(detailConf.getReply());
 		for (Element element : replyEles) {
 			RecordInfo reply = new RecordInfo();
+			reply.setIp(ip);
 			reply.setOriginal_url(mainUrl);
 			reply.setUrl(currentUrl);
 			String id = save(reply, element, null, detailConf); // 保存回复
@@ -205,6 +207,7 @@ public class ForumParser extends Parser {
 			if (!CollectionUtils.isEmpty(subReplyEles)) {
 				for (Element ele : subReplyEles) {
 					RecordInfo subReply = new RecordInfo();
+					subReply.setIp(ip);
 					subReply.setOriginal_url(mainUrl);
 					subReply.setUrl(currentUrl);
 					saveSub(subReply, ele, parentId, detailConf);

@@ -1,5 +1,6 @@
 package com.zxsoft.crawler.plugin.parse;
 
+import java.net.URL;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
@@ -19,6 +20,7 @@ import org.thinkingcloud.framework.util.StringUtils;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.zxsoft.crawler.dns.DNSCache;
 import com.zxsoft.crawler.parse.FetchStatus;
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
@@ -38,12 +40,12 @@ import com.zxsoft.crawler.util.Utils;
 public class TieBaParser extends Parser {
 
 	private static Logger LOG = LoggerFactory.getLogger(TieBaParser.class);
-	private ThreadLocal<Long> prevFetchTime = new ThreadLocal<Long>();
-
+	private long prevFetchTime;
 	private List<RecordInfo> recordInfos = new LinkedList<RecordInfo>();
 
 	private String mainUrl;
 	private DetailConf detailConf;
+	private String ip;
 
 	public List<RecordInfo> getRecordInfos() {
 		return recordInfos;
@@ -53,7 +55,7 @@ public class TieBaParser extends Parser {
 		Assert.notNull(page, "Page is null");
 		ProtocolOutput _output = fetch(page);
 		mainUrl = page.getBaseUrl();
-		prevFetchTime.set(page.getPrevFetchTime());
+		prevFetchTime =page.getPrevFetchTime();
 		// ajax.set(page.isAjax());
 		if (!_output.getStatus().isSuccess())
 			return new FetchStatus(mainUrl, 51, Status.PROTOCOL_FAILURE);
@@ -66,10 +68,13 @@ public class TieBaParser extends Parser {
 			return new FetchStatus(mainUrl, 41, Status.CONF_ERROR);
 		}
 
+		ip = DNSCache.getIp(new URL(mainUrl));
+		
 		/*
 		 * Parse main thread
 		 */
 		RecordInfo info = new RecordInfo(page.getTitle(), page.getBaseUrl(), page.getFetchTime());
+		info.setIp(ip);
 		Document document = page.getDocument();
 		String replyNumDom = detailConf.getReplyNum();
 		if (StringUtils.hasLength(replyNumDom) && !CollectionUtils.isEmpty(document.select(replyNumDom))) {
@@ -173,7 +178,8 @@ public class TieBaParser extends Parser {
 		try {
 			indexWriter.write(getRecordInfos());
 		} catch (OutputException e) {
-			return new FetchStatus(mainUrl, 61, Status.OUTPUT_FAILURE, count);
+			throw new OutputException(mainUrl + "data output failure");
+//			return new FetchStatus(mainUrl, 61, Status.OUTPUT_FAILURE, count);
 		}
 
 		return new FetchStatus(mainUrl, 21, Status.SUCCESS, count);
@@ -199,12 +205,13 @@ public class TieBaParser extends Parser {
 			RecordInfo info = new RecordInfo();
 			info.setOriginal_url(mainUrl);
 			info.setUrl(currentUrl);
+			info.setIp(ip);
 
 			String json = element.attr("data-field");
 			String pid = extractPid(json);
 			info = save(info, element, tid, pid, page); // 保存回复
 
-			if (info.getTimestamp() != 0 && info.getTimestamp() < prevFetchTime.get())
+			if (info.getTimestamp() != 0 && info.getTimestamp() < prevFetchTime)
 				return false;
 			/*
 			 * 解析子回复
@@ -215,6 +222,7 @@ public class TieBaParser extends Parser {
 			String surl = "http://tieba.baidu.com/p/comment?tid=" + tid + "&pid=" + pid + "&pn=1&t=" + System.currentTimeMillis();
 
 			RecordInfo subReply = new RecordInfo();
+			subReply.setIp(ip);
 			subReply.setOriginal_url(mainUrl);
 			subReply.setUrl(currentUrl);
 			subReply.setOriginal_id(info.getId());

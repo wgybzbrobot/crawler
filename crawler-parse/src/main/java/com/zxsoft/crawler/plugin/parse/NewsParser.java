@@ -1,5 +1,6 @@
 package com.zxsoft.crawler.plugin.parse;
 
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
 
+import com.zxsoft.crawler.dns.DNSCache;
 import com.zxsoft.crawler.parse.FetchStatus;
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
@@ -34,6 +36,7 @@ public class NewsParser extends Parser {
 			return new LinkedList<RecordInfo>();
 		}
 	};
+	private String ip;
 
 	@Override
 	public FetchStatus parse(WebPage page) throws Exception {
@@ -53,8 +56,11 @@ public class NewsParser extends Parser {
 		if (detailConf == null) {
 			return new FetchStatus(mainUrl, 41, Status.CONF_ERROR);
 		}
+		
+		ip = DNSCache.getIp(new URL(mainUrl));
 
 		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, System.currentTimeMillis());
+		info.setIp(ip);
 		Elements contentEles = null;
 		if (StringUtils.isEmpty(detailConf.getContent()) && !CollectionUtils.isEmpty(contentEles = document.select(detailConf.getContent()))) {
 			Element contentEle = contentEles.first();
@@ -90,7 +96,8 @@ public class NewsParser extends Parser {
 		try {
 			indexWriter.write(threadLocalRecordInfos.get());
 		} catch (OutputException e) {
-			return new FetchStatus(mainUrl, 61, Status.OUTPUT_FAILURE);
+			throw new OutputException(mainUrl + "data output failure");
+//			return new FetchStatus(mainUrl, 61, Status.OUTPUT_FAILURE);
 		}
 
 		return new FetchStatus(mainUrl, 21, Status.SUCCESS, count);
