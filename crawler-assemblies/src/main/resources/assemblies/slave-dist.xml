@@ -22,16 +22,35 @@
 			<directory>src/main/resources</directory>
 			<outputDirectory>/conf</outputDirectory>
 			<includes>
-				<include>crawler-default.xml.template</include>
-				<include>dao.xml.template</include>
-				<include>log4j.xml</include>
+				<include>log4j.properties</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>${main.basedir}/crawler-parse/src/main/resources</directory>
+			<outputDirectory>/conf</outputDirectory>
+			<excludes>
+				<exclude>log4j.resources</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<directory>${main.basedir}/crawler-common/src/main/resources</directory>
+			<outputDirectory>/conf</outputDirectory>
+			<includes>
+				<include>crawler-default.xml</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>${main.basedir}/crawler-dao/src/main/resources</directory>
+			<outputDirectory>/conf</outputDirectory>
+			<includes>
+				<include>db.properties</include>
 			</includes>
 		</fileSet>
 		<fileSet>
 			<directory>src/main/bin</directory>
 			<outputDirectory>/bin</outputDirectory>
 			<includes>
-				<include>start.sh</include>
+				<include>slave.sh</include>
 			</includes>
 			<fileMode>0755</fileMode>
 		</fileSet>

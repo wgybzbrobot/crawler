@@ -11,6 +11,7 @@
 	<version>1.0.0</version>
 
 	<properties>
+		<main.basedir>${project.parent.basedir}</main.basedir>
 		<failIfNoTests>false</failIfNoTests>
 	</properties>
 

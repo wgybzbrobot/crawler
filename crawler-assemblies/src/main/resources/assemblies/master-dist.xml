@@ -23,15 +23,21 @@
 			<outputDirectory>/conf</outputDirectory>
 			<includes>
 				<include>slaves.ini</include>
-				<include>crawler-default.xml.template</include>
-				<include>log4j.xml</include>
+				<include>log4j.properties</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>${main.basedir}/crawler-common/src/main/resources</directory>
+			<outputDirectory>/conf</outputDirectory>
+			<includes>
+				<include>crawler-default.xml</include>
 			</includes>
 		</fileSet>
 		<fileSet>
 			<directory>src/main/bin</directory>
 			<outputDirectory>/bin</outputDirectory>
 			<includes>
-				<include>start.sh</include>
+				<include>master.sh</include>
 			</includes>
 			<fileMode>0755</fileMode>
 		</fileSet>
