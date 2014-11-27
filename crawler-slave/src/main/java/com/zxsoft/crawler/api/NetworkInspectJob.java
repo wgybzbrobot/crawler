@@ -63,7 +63,11 @@ public class NetworkInspectJob extends CrawlTool {
 			map.put("code", 5002);
 			map.put("message", e.getMessage());
 			e.printStackTrace();
-		} 
+		} catch (Exception e) {
+			map.put("code", 5005);
+			map.put("message", e.getMessage());
+			e.printStackTrace();
+		}
 		
 	    return map;
     }
