@@ -39,7 +39,7 @@ public class NetworkInspectJob extends CrawlTool {
 		try {
 			prevFetchTime = (long) args.get(Params.PREV_FETCH_TIME);
 		} catch(NullPointerException e) {
-			prevFetchTime = System.currentTimeMillis() - 48 * 60 * 60 * 1000;
+			prevFetchTime = System.currentTimeMillis() - 60 * 24 * 60 * 60 * 1000L; // 60th days ago
 			LOG.warn(url + "任务没有上次抓取时间, 将使用程序设定:" + prevFetchTime);
 		} 
 		
