@@ -8,7 +8,7 @@
 	</property>
 	<property>
 		<name>http.proxy.host</name>
-		<value></value>
+		<value>220.178.13.124</value>
 		<description></description>
 	</property>
 	<property>
