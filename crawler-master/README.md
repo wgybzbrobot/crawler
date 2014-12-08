@@ -27,7 +27,6 @@ Master根据Slave的正在执行任务个数评分：
 site    |网站地址   |http://www.sina.com.cn
 url     |版块地址   |http://roll.news.sina.com.cn/s/channel.php
 jobType |任务类型   |NETWORK_INSPECT或者NETWORK_SEARCH
-proxyType   |代理类型   |查看数据库proxy表
 fetchInterval   |抓取时间间隔 |单位分钟, 用于网络巡检NETWORK_INSPECT
 
 ## 2. 开发

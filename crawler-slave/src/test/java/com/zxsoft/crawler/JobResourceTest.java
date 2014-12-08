@@ -18,7 +18,6 @@ public class JobResourceTest {
 
 	@Test
 	public void testCreateNetworkInspectJob() throws IOException {
-
 		ClientResource client = new ClientResource(baseUrl);
 
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -26,13 +25,11 @@ public class JobResourceTest {
 		map.put(Params.JOB_TYPE, JobType.NETWORK_INSPECT.toString());
 
 		Map<String, Object> args = new HashMap<String, Object>();
-		args.put(Params.PROXY_TYPE, "001");
 		args.put(Params.Interval, 100 * 200 * 60 * 1000);
 
 		args.put(Params.URL, "http://tieba.baidu.com/f?ie=utf-8&kw=%E8%9A%8C%E5%9F%A0");
 		map.put(Params.ARGS, args);
 		client.put(map);
-
 	}
 
 	@Test
@@ -43,7 +40,6 @@ public class JobResourceTest {
 		map.put(Params.JOB_TYPE, JobType.NETWORK_INSPECT.toString());
 		Map<String, Object> args = new HashMap<String, Object>();
 		args.put(Params.URL, "http://roll.news.sina.com.cn/s/channel.php");
-		args.put(Params.PROXY_TYPE, "001");
 		args.put(Params.Interval, 20 * 60 * 1000);
 		map.put(Params.ARGS, args);
 		client.put(map);
@@ -59,7 +55,6 @@ public class JobResourceTest {
 
 		Map<String, Object> args = new HashMap<String, Object>();
 		args.put(Params.KEYWORD, "吸毒");
-		args.put(Params.PROXY_TYPE, "002");
 		// args.put(Params.ENGINE_URL, "sougou");
 		args.put(Params.ENGINE_URL, "http://www.baidu.com/s?wd=%s");
 		args.put(Params.Interval, 0L);
@@ -82,10 +77,6 @@ public class JobResourceTest {
 		System.out.println(client.get().getText());
 	}
 
-	public void testStop() {
-
-	}
-
 	@Test
 	public void testCreateWeiboSearchJob() {
 		ClientResource client = new ClientResource(baseUrl);
@@ -96,7 +87,6 @@ public class JobResourceTest {
 
 		Map<String, Object> args = new HashMap<String, Object>();
 		args.put(Params.KEYWORD, "吸毒");
-		args.put(Params.PROXY_TYPE, "002");
 		args.put(Params.ENGINE_URL, "baidu");
 		args.put(Params.Interval, 0L);
 

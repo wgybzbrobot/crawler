@@ -10,8 +10,6 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.sun.jersey.api.client.WebResource;
 import com.zxsoft.crawler.api.Machine;
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.master.MasterPath;
@@ -26,7 +24,7 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 		map.put(Params.JOB_TYPE, JOB_TYPE.NETWORK_INSPECT);
 		map.put(Params.ARGS, args);
 
-		try {
+//		try {
 	        new Thread() {
 	        	@Override
 	        	public void run() {
@@ -34,17 +32,10 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 	        		Representation r = cli.put(map);
 	        		cli.release();
 	        	};
-	        }.join(10000);
-        } catch (InterruptedException e) {
-	        e.printStackTrace();
-        }
-
-//		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-//		String json = gson.toJson(map, Map.class);
-//		com.sun.jersey.api.client.Client client = com.sun.jersey.api.client.Client.create();
-//		WebResource webResource = client.resource(CRAWLER_MASTER + MasterPath.SLAVE_RESOURCE_PATH);
-//		String text = webResource.put(String.class, json);
-//		client.destroy();
+	        }.start();
+//        } catch (InterruptedException e) {
+//	        e.printStackTrace();
+//        }
 
 		return null;
 	}

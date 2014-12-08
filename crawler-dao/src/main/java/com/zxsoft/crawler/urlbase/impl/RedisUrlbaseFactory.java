@@ -19,15 +19,9 @@ public class RedisUrlbaseFactory extends UrlbaseFactory {
 		page.setBaseUrl("http://tieba.baidu.com/f?kw=%B0%F6%B2%BA");
 		page.setAjax(false);
 		page.setPrevFetchTime(0);
-		page.setType("001");
 		page.setJobType(JOB_TYPE.NETWORK_INSPECT);
 		
 		pages.add(page);
-		
-//		RedisShardClient
-		
-		
-		
 		
 	    return pages;
     }

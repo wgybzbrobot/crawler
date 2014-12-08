@@ -27,7 +27,6 @@ public class TestNetworkInspectParserController {
 		String urlStr = "http://tieba.baidu.com/f?ie=utf-8&kw=%E8%9A%8C%E5%9F%A0";
 		WebPage page = new WebPage(urlStr, false);
 		page = new WebPage("test-title", urlStr, System.currentTimeMillis(), null);
-		page.setType("001");
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(2014, 9, 14);
 		page.setPrevFetchTime(calendar.getTimeInMillis());
@@ -43,7 +42,6 @@ public class TestNetworkInspectParserController {
 	public void testParseNuomi() throws ParserNotFoundException {
 		String urlStr = "http://www.nuomi.com/?cid=002540";
 		WebPage page  = new WebPage("title", urlStr, System.currentTimeMillis(), null);
-		page.setType("001");
 		page.setAjax(false);
 		
 		NetworkInspectParserController parserController = new NetworkInspectParserController();
@@ -57,7 +55,6 @@ public class TestNetworkInspectParserController {
 		page.setTitle("天涯杂谈");
 		page.setBaseUrl(urlStr);
 		page.setAjax(false);
-		page.setType("001");
 		NetworkInspectParserController parserController = new NetworkInspectParserController();
 		parserController.parse(page);
 		
@@ -65,7 +62,6 @@ public class TestNetworkInspectParserController {
 		page.setTitle("小米论坛");
 		page.setBaseUrl("http://bbs.xiaomi.cn");
 		page.setAjax(false);
-		page.setType("001");
 		parserController.parse(_page);
 	}
 	
@@ -78,7 +74,6 @@ public class TestNetworkInspectParserController {
 		long prev = now - interval;
 		System.out.println("prev:" + new Date(prev));
 		WebPage page = new WebPage("title", urlStr, System.currentTimeMillis(), null);
-		page.setType("001");
 		page.setAjax(false);
 		page.setPrevFetchTime(prev);
 		NetworkInspectParserController parserController = new NetworkInspectParserController();
@@ -91,7 +86,6 @@ public class TestNetworkInspectParserController {
 	public void testParseMop() throws ParserNotFoundException {
 		String urlStr = "http://dzh.mop.com/yuanchuang";
 		WebPage page = new WebPage(urlStr, false);
-		page.setType("001");
 		page.setPrevFetchTime(System.currentTimeMillis() - 4000 * 60 * 1000);
 		ProtocolOutput protocolOutput = httpFetcher.fetch(page);
 		Assert.notNull(protocolOutput);
@@ -99,7 +93,6 @@ public class TestNetworkInspectParserController {
 		Document document = protocolOutput.getDocument();
 		Assert.notNull(document);
 		page = new WebPage("title", urlStr, System.currentTimeMillis(), document);
-		page.setType("001");
 		page.setAjax(false);
 		page.setPrevFetchTime(System.currentTimeMillis() - 4000 * 60 * 1000);
 		
@@ -117,7 +110,6 @@ public class TestNetworkInspectParserController {
 		WebPage page = new WebPage(urlStr, true);
 		page = new WebPage("title", urlStr, System.currentTimeMillis(), null);
 		page.setAjax(true);
-		page.setType("001");
 		
 		NetworkInspectParserController parserController = new NetworkInspectParserController();
 		FetchStatus status = parserController.parse(page);

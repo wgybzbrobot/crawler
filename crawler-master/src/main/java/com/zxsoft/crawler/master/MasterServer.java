@@ -36,17 +36,12 @@ public class MasterServer {
 		this.port = port;
 		// Create a new Component.
 		component = new Component();
-
 		// Add a new HTTP server listening on port 8182.
 		component.getServers().add(Protocol.HTTP, port);
-
 		// Attach the application.
 		app = new MasterApp();
-
 		component.getDefaultHost().attach("/master", app);
-		
 		component.getContext().getParameters().add("maxThreads", "1000");
-		
 		MasterApp.server = this;
 
 	}
@@ -102,6 +97,11 @@ public class MasterServer {
 						strs = jedis.zrevrange(URLBASE, 0, 0);
 					} catch (JedisConnectionException e) {
 						LOG.error(e.getMessage());
+						try {
+	                        Thread.currentThread().sleep(10000);
+                        } catch (InterruptedException e1) {
+	                        e1.printStackTrace();
+                        }
 						continue;
 					}
 					if (CollectionUtils.isEmpty(strs)) {
@@ -140,7 +140,6 @@ public class MasterServer {
 					map.put(Params.JOB_TYPE, prey.getJobType());
 					Map<String, Object> args = new HashMap<String, Object>();
 					args.put(Params.URL, prey.getUrl());
-					args.put(Params.PROXY_TYPE, prey.getProxyType());
 					args.put(Params.PREV_FETCH_TIME, prevFetchTime);
 					args.put(Params.COMMENT, prey.getComment());
 					map.put(Params.ARGS, args);

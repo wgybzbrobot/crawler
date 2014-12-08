@@ -1,7 +1,6 @@
 package com.zxsoft.crawler.api.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,12 +14,11 @@ import org.apache.hadoop.util.ReflectionUtils;
 
 import com.zxsoft.crawler.api.ConfResource;
 import com.zxsoft.crawler.api.CrawlTool;
+import com.zxsoft.crawler.api.JobCode;
 import com.zxsoft.crawler.api.JobManager;
 import com.zxsoft.crawler.api.JobStatus;
-import com.zxsoft.crawler.api.NetworkInspectJob;
-import com.zxsoft.crawler.api.NetworkSearchJob;
-import com.zxsoft.crawler.api.SlaveApp;
 import com.zxsoft.crawler.api.JobStatus.State;
+import com.zxsoft.crawler.api.SlaveApp;
 
 public class RAMJobManager implements JobManager {
 	int CAPACITY = 100;
@@ -64,8 +62,8 @@ public class RAMJobManager implements JobManager {
 	private static Map<JobType, Class<? extends CrawlTool>> typeToClass = new HashMap<JobType, Class<? extends CrawlTool>>();
 
 	static {
-			typeToClass.put(JobType.NETWORK_INSPECT, NetworkInspectJob.class);
-			typeToClass.put(JobType.NETWORK_SEARCH, NetworkSearchJob.class);
+		typeToClass.put(JobType.NETWORK_INSPECT, NetworkInspectJob.class);
+		typeToClass.put(JobType.NETWORK_SEARCH, NetworkSearchJob.class);
 	}
 	
 	private void addFinishedStatus(JobStatus status) {
@@ -125,15 +123,15 @@ public class RAMJobManager implements JobManager {
 	}
 
 	@Override
-	public String create(String crawlId, JobType type, Map<String, Object> args)
+	public JobCode create(String crawlId, JobType jobType, Map<String, Object> args)
 	        throws Exception {
 		if (args == null)
-			args = Collections.emptyMap();
-		JobWorker worker = new JobWorker(crawlId, type, args);
+			return new JobCode(52, "parameters not support");
+		JobWorker worker = new JobWorker(crawlId, jobType, args);
 		String id = worker.getId();
 		exec.execute(worker);
 		exec.purge();
-		return id;
+		return new JobCode(23, "create job success");
 	}
 
 	@Override
@@ -165,14 +163,14 @@ public class RAMJobManager implements JobManager {
 
 	private class JobWorker implements Runnable {
 		String id;
-		JobType type;
+		JobType jobType;
 		String confId;
 		CrawlTool tool;
 		Map<String, Object> args;
 		JobStatus jobStatus;
 
 		@SuppressWarnings("unchecked")
-		JobWorker(String crawlId, JobType type, Map<String, Object> args)
+		JobWorker(String crawlId, JobType jobType, Map<String, Object> args)
 		        throws Exception {
 			if (confId == null) {
 				confId = ConfResource.DEFAULT_CONF;
@@ -182,14 +180,14 @@ public class RAMJobManager implements JobManager {
 			if (conf == null) {
 				throw new Exception("Unknown confId " + confId);
 			}
-			this.id = confId + "-" + type + "-" + hashCode();
-			this.type = type;
+			this.id = confId + "-" + jobType + "-" + hashCode();
+			this.jobType = jobType;
 			this.args = args;
 			if (crawlId != null) {
 				conf.set("CRAWL_ID", crawlId);
 				this.id = crawlId + "-" + this.id;
 			}
-			Class<? extends CrawlTool> clz = typeToClass.get(type);
+			Class<? extends CrawlTool> clz = typeToClass.get(jobType);
 			if (clz == null) {
 				Class<?> c = Class.forName((String) args.get("class"));
 				if (c instanceof Class) {
@@ -199,7 +197,7 @@ public class RAMJobManager implements JobManager {
 			
 			tool = ReflectionUtils.newInstance(clz, conf);
 			
-			jobStatus = new JobStatus(id, type, (String)args.get("comment"), args, State.IDLE, "idle");
+			jobStatus = new JobStatus(id, jobType, (String)args.get("comment"), args, State.IDLE, "idle");
 			jobStatus.tool = tool;
 		}
 

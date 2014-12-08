@@ -1,18 +1,22 @@
 package com.zxsoft.crawler.api;
 
 import java.util.Map;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.restlet.data.Form;
 import org.restlet.resource.Get;
-import org.restlet.resource.Post;
 import org.restlet.resource.Put;
 import org.restlet.resource.ServerResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.api.JobManager.JobType;
 import com.zxsoft.crawler.api.JobStatus.State;
 
 public class JobResource extends ServerResource {
+	
+	private static Logger LOG = LoggerFactory.getLogger(JobResource.class);
+	
 	public static final String PATH = "jobs";
 	public static final String DESCR = "任务管理";
 
@@ -58,11 +62,8 @@ public class JobResource extends ServerResource {
 		}
 
 		if (jid == null) {
-			
 			return SlaveApp.jobMgr.list(cid, State.ANY);
-			
 		} else {
-
 			if (cmd == null) {
 				return SlaveApp.jobMgr.get(cid, jid);
 			}
@@ -86,7 +87,6 @@ public class JobResource extends ServerResource {
 	 * <li>crawlId 爬虫编号(唯一标识)</li>
 	 * <li>jobType 任务类型</li>
 	 * <li>url 网址</li>
-	 * <li>urlType 网址类型, 不同类型的网址走不同的代理</li>
 	 * <li>prevFetchTime 上次抓取时间,可选配置</li>
 	 * </ol>
 	 */
@@ -94,6 +94,7 @@ public class JobResource extends ServerResource {
 	@SuppressWarnings("unchecked")
 	public Object create(Map<String, Object> args) throws Exception {
 		String cid = (String) args.get(Params.CRAWL_ID);
+		
 		String typeString = (String) args.get(Params.JOB_TYPE);
 		JobType jobType = JobType.valueOf(typeString.toUpperCase());
 
@@ -102,7 +103,13 @@ public class JobResource extends ServerResource {
 		if (map instanceof Map<?, ?>)
 			cmdArgs = (Map<String, Object>) map;
 
-		String jobId = SlaveApp.jobMgr.create(cid, jobType, cmdArgs);
-		return jobId;
+		JobCode jobCode = null;
+		try {
+			jobCode = SlaveApp.jobMgr.create(cid, jobType, cmdArgs);
+		} catch (RejectedExecutionException e) {
+			LOG.error(e.getMessage());
+			jobCode = new JobCode(53, e.getMessage());
+		}
+		return jobCode.toString();
 	}
 }

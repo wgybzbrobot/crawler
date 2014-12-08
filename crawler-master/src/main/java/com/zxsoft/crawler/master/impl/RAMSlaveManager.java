@@ -60,14 +60,12 @@ public class RAMSlaveManager implements SlaveManager {
 	@SuppressWarnings("fallthrough")
 	public List<SlaveStatus> list() throws Exception {
 		List<SlaveStatus> res = new ArrayList<SlaveStatus>();
-
 		List<Machine> machines = SlaveCache.machines;
-
 		ThreadPoolExecutor exec = new MyPoolExecutor(10, 100, 10, TimeUnit.SECONDS,
 		        new ArrayBlockingQueue<Runnable>(100));
 		List<Callable<SlaveStatus>> tasks = new ArrayList<Callable<SlaveStatus>>();
 		for (Machine machine : machines) {
-			String url = "http://" + machine.getIp() + ":" + machine.getPort() + "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH;
+//			String url = "http://" + machine.getIp() + ":" + machine.getPort() + "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH;
 			Vistor vistor = new Vistor(machine);
 			tasks.add(vistor);
 		}
@@ -78,10 +76,8 @@ public class RAMSlaveManager implements SlaveManager {
 				status.score = 0.0f;
 			} else {
 				status.score = 1.0f / (1.0f + status.runningNum);
-				
 				ScoredMachine sm = new ScoredMachine(status.machine, status.runningNum, status.score);
 				scheduler.addSlave(sm);
-				
 				LOG.info(status.machine.getId() + ":" + status.score);
 			}
 			res.add(status);
@@ -96,11 +92,9 @@ public class RAMSlaveManager implements SlaveManager {
 	
 	class Vistor implements Callable<SlaveStatus> {
 		private Machine machine;
-
 		public Vistor(Machine machine) {
 			this.machine = machine;
 		}
-
 		public SlaveStatus call() throws Exception {
 			String url = "http://" + machine.getIp() + ":" + machine.getPort() + "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH;
 			SlaveStatus slaveStatus = null;
@@ -166,10 +160,10 @@ public class RAMSlaveManager implements SlaveManager {
 				}
 			}
 			LOG.info("选中slave(" + url + ")执行任务");
-			return url;
+			return "{\"code:\":\"22\", \"slave\":" + url + ", \"msg\":\"success choose slave.\"}";
 		}
 		LOG.error("Oh My God! 所有slave都罢工了, 都不能执行任务.");
-		return null;
+		return "{\"code\":\"55\", \"slave\":\"\", \"msg\":\"no slaves work.\"}";
 	}
 
 	@Override

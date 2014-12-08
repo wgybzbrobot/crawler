@@ -44,7 +44,7 @@
 	<property>
 		<name>http.timeout</name>
 		<value>5000</value>
-		<description></description>
+		<description>http 请求超时时间</description>
 	</property>
 	<property>
 		<name>http.maxContent</name>

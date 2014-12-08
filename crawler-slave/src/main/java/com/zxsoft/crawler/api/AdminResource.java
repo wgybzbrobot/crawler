@@ -19,7 +19,6 @@ public class AdminResource extends ServerResource {
 
   @Get("json")
   public Object execute() throws Exception {
-//    String cmd = (String)getRequestAttributes().get(Params.CMD);
     String cmd = getQuery().getFirstValue(Params.CMD, true);
     
     if ("status".equalsIgnoreCase(cmd)) {

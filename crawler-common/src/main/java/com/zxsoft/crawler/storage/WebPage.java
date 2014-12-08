@@ -36,13 +36,6 @@ public class WebPage implements Serializable, Cloneable {
 	private boolean ajax;
 	private boolean auth;
 
-	/**
-	 * 代理类型
-	 * 
-	 * @see Proxy
-	 */
-	private String proxyType;
-
 	private ListConf ListConf;
 	
 	@Override
@@ -64,10 +57,9 @@ public class WebPage implements Serializable, Cloneable {
 		this.ajax = ajax;
 	}
 
-	public WebPage(String keyword, String listUrl, String urlType) {
+	public WebPage(String keyword, String listUrl) {
 		this.keyword = keyword;
 		this.listUrl = listUrl;
-		this.proxyType = urlType;
 	}
 
 	public WebPage(String baseUrl, long fetchTime, Document document) {
@@ -84,10 +76,9 @@ public class WebPage implements Serializable, Cloneable {
 		this.prevFetchTime = prevFetchTime;
 	}
 
-	public WebPage(String baseUrl, String proxyType, long prevFetchTime) {
+	public WebPage(String baseUrl, long prevFetchTime) {
 		super();
 		this.baseUrl = baseUrl;
-		this.proxyType = proxyType;
 		this.prevFetchTime = prevFetchTime;
 	}
 
@@ -139,13 +130,6 @@ public class WebPage implements Serializable, Cloneable {
 		this.jobType = jobType;
 	}
 
-	public String getType() {
-		return proxyType;
-	}
-
-	public void setType(String type) {
-		this.proxyType = type;
-	}
 
 	public boolean isAjax() {
 		return ajax;
