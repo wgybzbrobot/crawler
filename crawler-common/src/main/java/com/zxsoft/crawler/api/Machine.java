@@ -1,7 +1,8 @@
 package com.zxsoft.crawler.api;
 
-import java.util.Comparator;
-
+/**
+ * 说明Master或Slave所在机器的ip和port。
+ */
 public class Machine {
 	
 	private String id;

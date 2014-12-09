@@ -24,6 +24,7 @@ import com.google.gson.GsonBuilder;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.zxsoft.crawler.api.JobCode;
 import com.zxsoft.crawler.api.Machine;
 import com.zxsoft.crawler.master.SlaveCache;
 import com.zxsoft.crawler.master.SlaveManager;
@@ -65,7 +66,6 @@ public class RAMSlaveManager implements SlaveManager {
 		        new ArrayBlockingQueue<Runnable>(100));
 		List<Callable<SlaveStatus>> tasks = new ArrayList<Callable<SlaveStatus>>();
 		for (Machine machine : machines) {
-//			String url = "http://" + machine.getIp() + ":" + machine.getPort() + "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH;
 			Vistor vistor = new Vistor(machine);
 			tasks.add(vistor);
 		}
@@ -159,11 +159,12 @@ public class RAMSlaveManager implements SlaveManager {
 					client.destroy();
 				}
 			}
-			LOG.info("选中slave(" + url + ")执行任务");
-			return "{\"code:\":\"22\", \"slave\":" + url + ", \"msg\":\"success choose slave.\"}";
+			URL u = new URL(url);
+			LOG.info("选中slave(" + u.getHost() + ":" + u.getPort() + ")执行任务");
+			return new JobCode(22, "success choose slave", u.getHost() + ":" + u.getPort() ).toString();
 		}
 		LOG.error("Oh My God! 所有slave都罢工了, 都不能执行任务.");
-		return "{\"code\":\"55\", \"slave\":\"\", \"msg\":\"no slaves work.\"}";
+		return new JobCode(55, "no slaves work").toString();
 	}
 
 	@Override

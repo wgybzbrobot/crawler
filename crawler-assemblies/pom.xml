@@ -6,9 +6,7 @@
 		<artifactId>crawler</artifactId>
 		<version>1.0.0</version>
 	</parent>
-	<groupId>com.zxsoft.crawler</groupId>
 	<artifactId>crawler-assemblies</artifactId>
-	<version>1.0.0</version>
 
 	<properties>
 		<main.basedir>${project.parent.basedir}</main.basedir>

@@ -6,7 +6,7 @@
 	<!-- The Basics -->
 	<groupId>com.zxsoft.crawler</groupId>
 	<artifactId>crawler</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>Crawler Main</name>
 	<packaging>pom</packaging>
 	<properties>
