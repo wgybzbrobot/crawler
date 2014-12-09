@@ -1,6 +1,5 @@
 package com.zxsoft.crawler.master;
 
-import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +16,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.master.impl.RAMSlaveManager;
 import com.zxsoft.crawler.util.CrawlerConfiguration;
@@ -96,9 +96,9 @@ public class MasterServer {
 					try {
 						strs = jedis.zrevrange(URLBASE, 0, 0);
 					} catch (JedisConnectionException e) {
-						LOG.error(e.getMessage());
+						LOG.error(e.getMessage() + ", sleep 10s and try again.");
 						try {
-	                        Thread.currentThread().sleep(10000);
+	                        TimeUnit.SECONDS.sleep(10000);
                         } catch (InterruptedException e1) {
 	                        e1.printStackTrace();
                         }
@@ -115,7 +115,15 @@ public class MasterServer {
 						 continue;
 					}
 					String json = strs.toArray(new String[0])[0];
-					Prey prey = new Gson().fromJson(json, Prey.class);
+					
+					Prey prey = null;
+					try {
+						prey = new Gson().fromJson(json, Prey.class);
+					} catch (JsonSyntaxException e) {
+						LOG.warn(e.getLocalizedMessage() + ", will remove it from urlbase.");
+						jedis.zrem(URLBASE, json);
+						continue;
+					}
 					long interval = System.currentTimeMillis() - prey.getPrevFetchTime();
 					long realInterval = prey.getFetchinterval() * 60 * 1000L;
 					long prevFetchTime = prey.getPrevFetchTime();
