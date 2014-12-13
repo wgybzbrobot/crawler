@@ -5,7 +5,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.http.auth.NTCredentials;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -34,14 +33,12 @@ import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
-import com.zxsoft.proxy.Proxy;
 
 public class HtmlUnit extends HttpBase {
 
 	public static final Logger LOG = LoggerFactory.getLogger(HtmlUnit.class);
 
-	public HtmlUnit(Configuration conf) {
-		setConf(conf);
+	public HtmlUnit() {
 	}
 	
 	/**

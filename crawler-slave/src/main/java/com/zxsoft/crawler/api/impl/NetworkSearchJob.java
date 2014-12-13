@@ -3,7 +3,6 @@ package com.zxsoft.crawler.api.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -24,10 +23,6 @@ public class NetworkSearchJob extends CrawlTool {
 	private static Logger LOG = LoggerFactory.getLogger(NetworkSearchJob.class);
 
 	public NetworkSearchJob() {}
-	
-	public NetworkSearchJob(Configuration conf) {
-		setConf(conf);
-	}
 	
 	@Override
     public Map<String, Object> run(Map<String, Object> args) throws Exception {

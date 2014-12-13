@@ -11,7 +11,6 @@ public interface SlaveManager {
   
   /**
    * 创建任务
-   * @param slaveId 对应slave rest服务地址
    */
   public String create(Map<String, Object> map) throws Exception;
   

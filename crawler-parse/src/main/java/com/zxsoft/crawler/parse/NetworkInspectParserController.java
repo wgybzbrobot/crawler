@@ -2,6 +2,7 @@ package com.zxsoft.crawler.parse;
 
 import java.text.ParseException;
 import java.util.Date;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
+
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.storage.ListConf;
@@ -22,9 +24,10 @@ import com.zxsoft.crawler.util.Utils;
 public final class NetworkInspectParserController extends ParseTool {
 
 	private static Logger LOG = LoggerFactory.getLogger(NetworkInspectParserController.class);
-
 	private static final int _pageNum = 2;
 
+	public NetworkInspectParserController() {}
+	
 	public FetchStatus parse(WebPage page) throws ParserNotFoundException {
 		Assert.notNull(page);
 		String indexUrl = page.getBaseUrl();
@@ -118,7 +121,8 @@ public final class NetworkInspectParserController extends ParseTool {
 					sum += _status.getCount();
 					LOG.debug(_status.toString());
 				} catch (Exception e) {
-					LOG.error(e.getMessage());
+				    msg = e.getMessage();
+					LOG.error(msg);
 				}
 				if (!continuePage) {
 					break;

@@ -4,59 +4,25 @@
 	<parent>
 		<groupId>com.zxsoft.crawler</groupId>
 		<artifactId>crawler</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>crawler-assemblies</artifactId>
-
+	<name>crawler-assemblies</name>
+	<description>package</description>
 	<properties>
 		<main.basedir>${project.parent.basedir}</main.basedir>
 		<failIfNoTests>false</failIfNoTests>
 	</properties>
-
-
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<inherited>false</inherited>
+				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<rules>
-						<requireMavenVersion>
-							<version>[3.0.0,)</version>
-						</requireMavenVersion>
-						<requireJavaVersion>
-							<version>1.6</version>
-						</requireJavaVersion>
-					</rules>
+					<source>1.7</source>
+					<target>1.7</target>
+					<encoding>UTF-8</encoding>
 				</configuration>
-				<executions>
-					<execution>
-						<id>clean</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-						<phase>pre-clean</phase>
-					</execution>
-					<execution>
-						<id>default</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-						<phase>validate</phase>
-					</execution>
-					<execution>
-						<id>site</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-						<phase>pre-site</phase>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.rat</groupId>
-				<artifactId>apache-rat-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>

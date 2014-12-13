@@ -18,7 +18,6 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
-import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -46,9 +45,7 @@ public class HttpClient extends HttpBase {
 	private static org.apache.commons.httpclient.HttpClient client = new org.apache.commons.httpclient.HttpClient(connectionManager);
 	private int maxThreadsTotal = 30;
 
-	public void setConf(Configuration conf) {
-		super.setConf(conf);
-		this.maxThreadsTotal = conf.getInt("fetcher.threads.fetch", 10);
+	public HttpClient() {
 		configureClient();
 	}
 
@@ -89,7 +86,9 @@ public class HttpClient extends HttpBase {
 		try {
 			url = new URL(page.getBaseUrl());
 		} catch (Exception e) {
-			throw new IOException("url: " + page.getBaseUrl());
+//			throw new IOException("url: " + page.getBaseUrl());
+			LOG.error(e.getMessage());
+			return null;
 		}
 		
 		GetMethod get = new GetMethod(url.toString());

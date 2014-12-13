@@ -5,11 +5,11 @@
 	<parent>
 		<groupId>com.zxsoft.crawler</groupId>
 		<artifactId>crawler</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>crawler-master</artifactId>
 	<name>crawler-master</name>
-	<url>http://maven.apache.org</url>
+	<description>主控节点</description>
 	<properties>
 		<main.basedir>${project.parent.basedir}</main.basedir>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -34,7 +34,17 @@
 		<dependency>
 			<groupId>com.zxsoft.crawler</groupId>
 			<artifactId>crawler-common</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hadoop-core</artifactId>
+					<groupId>org.apache.hadoop</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jsoup</artifactId>
+					<groupId>org.jsoup</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>redis.clients</groupId>
@@ -46,15 +56,22 @@
 	</dependencies>
 	<build>
 		<plugins>
-		<plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3</version>
 				<configuration>
 					<excludes>
-						<exclude>**/*.properties</exclude>
+						<exclude>**/log4j.properties</exclude>
 						<exclude>slaves.ini</exclude>
 					</excludes>
+					<archive>
+					    <manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>com.zxsoft.crawler.master.MasterServer</mainClass>
+							<classpathPrefix>dependency-jars/</classpathPrefix>
+			            </manifest>
+					</archive>
 				</configuration>
 			</plugin>
 			<plugin>

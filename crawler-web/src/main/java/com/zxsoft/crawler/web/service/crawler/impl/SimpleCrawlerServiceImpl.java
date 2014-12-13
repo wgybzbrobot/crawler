@@ -3,7 +3,6 @@ package com.zxsoft.crawler.web.service.crawler.impl;
 import java.io.IOException;
 import java.util.Properties;
 
-//import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.io.ClassPathResource;
@@ -16,16 +15,6 @@ public abstract class SimpleCrawlerServiceImpl {
 	protected static String CRAWLER_MASTER;
 
 	static {
-//		Configuration conf = new Configuration();
-//		conf.addResource("master.xml");
-		/*try {
-			conf.addResource(resource.getInputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
-		
-//		ClassPathResource resource = new ClassPathResource("master.xml");
-
 		ClassPathResource resource = new ClassPathResource("master.properties");
 		Properties properties = new Properties();
 		try {

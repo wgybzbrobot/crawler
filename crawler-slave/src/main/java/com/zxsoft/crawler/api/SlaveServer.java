@@ -1,6 +1,7 @@
 package com.zxsoft.crawler.api;
 
 import java.util.List;
+
 import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.slf4j.Logger;
@@ -27,11 +28,11 @@ public class SlaveServer {
 
 		// Attach the application.
 		app = new SlaveApp();
-		
+
 		component.getDefaultHost().attach("/" + SlavePath.PATH, app);
-		
+
 		component.getContext().getParameters().set("maxThreads", "1000");
-		
+
 		SlaveApp.server = this;
 	}
 
@@ -78,6 +79,6 @@ public class SlaveServer {
 		int port = Integer.parseInt(args[0]);
 		SlaveServer server = new SlaveServer(port);
 		server.start();
-		
+
 	}
 }

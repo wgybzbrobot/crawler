@@ -93,19 +93,16 @@ public class JobResource extends ServerResource {
 	@Put("json")
 	@SuppressWarnings("unchecked")
 	public Object create(Map<String, Object> args) throws Exception {
-		String cid = (String) args.get(Params.CRAWL_ID);
-		
 		String typeString = (String) args.get(Params.JOB_TYPE);
 		JobType jobType = JobType.valueOf(typeString.toUpperCase());
-
 		Object map = args.get(Params.ARGS);
 		Map<String, Object> cmdArgs = null;
-		if (map instanceof Map<?, ?>)
+		if (map instanceof Map<?, ?>) {
 			cmdArgs = (Map<String, Object>) map;
-
+		}
 		JobCode jobCode = null;
 		try {
-			jobCode = SlaveApp.jobMgr.create(cid, jobType, cmdArgs);
+			jobCode = SlaveApp.jobMgr.create(jobType, cmdArgs);
 		} catch (RejectedExecutionException e) {
 			LOG.error(e.getMessage());
 			jobCode = new JobCode(53, e.getMessage());

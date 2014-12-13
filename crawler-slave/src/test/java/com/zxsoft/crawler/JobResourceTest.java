@@ -4,18 +4,48 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 
 import com.zxsoft.crawler.api.Params;
+import com.zxsoft.crawler.api.SlaveServer;
 import com.zxsoft.crawler.api.JobManager.JobType;
 
 public class JobResourceTest {
 
 	private static String baseUrl = "http://localhost:8989/slave/jobs";
-
+	private static SlaveServer server;
+	@BeforeClass
+    public static void before() throws Exception {
+        server = new SlaveServer(8989);
+        server.start();
+    }
+    
+    @AfterClass
+    public static void after() throws Exception {
+        if (!server.stop(false)) {
+            for (int i = 1; i < 15; i++) {
+                System.err.println("Waiting for jobs to complete - " + i + "s");
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                };
+                server.stop(false);
+                if (!server.isRunning()) {
+                    break;
+                }
+            }
+        }
+        if (server.isRunning()) {
+            System.err.println("Forcibly stopping server...");
+            server.stop(true);
+        }
+    }
+    
 	@Test
 	public void testCreateNetworkInspectJob() throws IOException {
 		ClientResource client = new ClientResource(baseUrl);
@@ -46,7 +76,7 @@ public class JobResourceTest {
 	}
 
 	@Test
-	public void testCreateNetworkSearchJob() {
+	public void testCreateNetworkSearchJob() throws IOException {
 		ClientResource client = new ClientResource(baseUrl);
 
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -60,7 +90,8 @@ public class JobResourceTest {
 		args.put(Params.Interval, 0L);
 
 		map.put(Params.ARGS, args);
-		Representation representation = client.put(map);
+		Representation r = client.put(map);
+		System.out.println(r.getText());
 	}
 
 	@Test
@@ -78,7 +109,7 @@ public class JobResourceTest {
 	}
 
 	@Test
-	public void testCreateWeiboSearchJob() {
+	public void testCreateWeiboSearchJob() throws IOException {
 		ClientResource client = new ClientResource(baseUrl);
 
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -92,5 +123,6 @@ public class JobResourceTest {
 
 		map.put(Params.ARGS, args);
 		Representation representation = client.put(map);
+		System.out.println(representation.getText());
 	}
 }

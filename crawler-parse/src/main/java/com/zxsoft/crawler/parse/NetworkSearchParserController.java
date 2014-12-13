@@ -20,12 +20,12 @@ import org.thinkingcloud.framework.util.StringUtils;
 import com.zxsoft.crawler.dns.DNSCache;
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.protocol.util.Md5Signatrue;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.store.OutputException;
-import com.zxsoft.crawler.util.Md5Signatrue;
 
 /**
  * 解析全网搜索，与网络巡检不同的是不用进入详细页

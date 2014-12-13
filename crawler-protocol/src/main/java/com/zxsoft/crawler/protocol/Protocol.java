@@ -19,7 +19,7 @@ package com.zxsoft.crawler.protocol;
 
 // Hadoop imports
 
-import org.apache.hadoop.conf.Configurable;
+//import org.apache.hadoop.conf.Configurable;
 //import org.apache.nutch.plugin.FieldPluggable;
 //import org.apache.nutch.storage.WebPage;
 //
@@ -28,7 +28,7 @@ import org.apache.hadoop.conf.Configurable;
 import com.zxsoft.crawler.storage.WebPage;
 
 /** A retriever of url content.  Implemented by protocol extensions. */
-public interface Protocol extends /*FieldPluggable,*/ Configurable {
+public interface Protocol /*extends*/ /*FieldPluggable,*/ /*Configurable*/ {
   /** The name of the extension point. */
   public final static String X_POINT_ID = Protocol.class.getName();
 

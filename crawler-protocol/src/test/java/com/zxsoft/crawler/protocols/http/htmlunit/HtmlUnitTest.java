@@ -2,7 +2,6 @@ package com.zxsoft.crawler.protocols.http.htmlunit;
 
 import java.io.IOException;
 
-import org.apache.hadoop.conf.Configuration;
 import org.jsoup.nodes.Document;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -15,7 +14,6 @@ import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocols.http.HttpBase;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.WebPage;
-import com.zxsoft.crawler.util.CrawlerConfiguration;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 
@@ -25,8 +23,7 @@ public class HtmlUnitTest {
 	
 	@BeforeClass
 	public static void setup() {
-		Configuration conf = CrawlerConfiguration.create();
-		 htmlUnit = new HtmlUnit(conf);
+		 htmlUnit = new HtmlUnit();
 		 httpFetcher = new HttpFetcher();
 	}
 	
@@ -40,26 +37,22 @@ public class HtmlUnitTest {
 		String url = "http://roll.sohu.com/";
 		WebPage page = new WebPage(url, true);
 		ProtocolOutput protocolOutput = htmlUnit.getProtocolOutput(page);
-		Assert.notNull(protocolOutput);
 		Document currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
-		LOG.info(currentDoc.html());
 	}
 	
 	@Test
 	public void testLoadLastPage() throws IOException, PageBarNotFoundException {
 		ProtocolOutput protocolOutput = httpFetcher.fetch(new WebPage("http://roll.news.sina.com.cn/s/channel.php", true));
-		Assert.notNull(protocolOutput);
 		Document currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
+		
 		WebPage page = new WebPage();
+		page.setAjax(true);
 		page.setDocument(currentDoc);
-		page.setAjax(false);
-		protocolOutput = htmlUnit.getProtocolOutputOfLastPage(page);
-		Assert.notNull(protocolOutput);
-		currentDoc = protocolOutput.getDocument();
-		Assert.notNull(currentDoc);
-		System.out.println(currentDoc.html());
+		protocolOutput = httpFetcher.fetchLastPage(page);
+		Document lastDoc = protocolOutput.getDocument();
+		Assert.notNull(lastDoc);
 	}
 	
 	@Test

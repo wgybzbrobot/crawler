@@ -29,7 +29,6 @@ public class AdminResource extends ServerResource {
       jobs.put("all", SlaveApp.jobMgr.list(null, State.ANY));
       jobs.put("running", SlaveApp.jobMgr.list(null, State.RUNNING));
       res.put("jobs", jobs);
-      res.put("confs", SlaveApp.confMgr.list());
       return res;
     } else if ("stop".equalsIgnoreCase(cmd)) {
       // stop

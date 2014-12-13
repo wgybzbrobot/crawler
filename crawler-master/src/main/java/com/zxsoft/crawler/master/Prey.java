@@ -28,7 +28,7 @@ public class Prey implements Serializable {
 	private String comment;
 	
 	/**
-	 * @see Params.JOB_TYPE, 默认是网络巡检
+	 * 任务类型, 默认是网络巡检
 	 */
 	private String jobType = SlaveManager.JobType.NETWORK_INSPECT.toString();
 	

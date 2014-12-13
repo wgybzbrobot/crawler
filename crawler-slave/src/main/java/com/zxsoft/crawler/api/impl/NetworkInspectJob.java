@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +24,6 @@ public class NetworkInspectJob extends CrawlTool {
 	private static Logger LOG = LoggerFactory.getLogger(NetworkInspectJob.class);
 	
 	public NetworkInspectJob () {}
-	
-	public NetworkInspectJob (Configuration conf) {
-		setConf(conf);
-	}
 	
 	@Override
     public Map<String, Object> run(Map<String, Object> args) throws Exception {

@@ -35,7 +35,7 @@ public class RecordInfo implements Serializable, Cloneable {
 	private long lasttime= 0;
 	private int server_id= 0;
 	private long identify_id= 0;
-	private String identify_md5= "";
+	private String identify_md5= "xiayun";
 	private String keyword= "";
 	private long first_time= 0;
 	private long update_time= 0;

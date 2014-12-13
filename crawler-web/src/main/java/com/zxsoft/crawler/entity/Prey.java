@@ -29,7 +29,7 @@ public class Prey implements Serializable {
 	private String url;
 	private String comment;
 	/**
-	 * @see Params.JOB_TYPE, 默认是网络巡检
+	 * 任务类型, 默认是网络巡检
 	 */
 	private String jobType = JobType.NETWORK_INSPECT.toString();
 	
@@ -66,7 +66,6 @@ public class Prey implements Serializable {
 	 * Only Constructor
 	 * @param site
 	 * @param url
-	 * @param urlType
 	 * @param fetchinterval
 	 * @param prevFetchTime
 	 */

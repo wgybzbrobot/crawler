@@ -55,9 +55,9 @@ public class UtilsTest {
     public void testIsNum() {
     	Assert.isTrue(Utils.isNum("3"));
     	Assert.isTrue(Utils.isNum("33"));
-    	Assert.isTrue(Utils.isNum("3njb"));
-    	Assert.isTrue(Utils.isNum(""));
-    	Assert.isTrue(Utils.isNum(null));
+    	Assert.isTrue(!Utils.isNum("3njb"));
+    	Assert.isTrue(!Utils.isNum(""));
+    	Assert.isTrue(!Utils.isNum(null));
     }
 
     @Test

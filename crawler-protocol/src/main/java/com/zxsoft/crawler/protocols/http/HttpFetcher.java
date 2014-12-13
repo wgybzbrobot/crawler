@@ -3,7 +3,6 @@ package com.zxsoft.crawler.protocols.http;
 import java.io.IOException;
 
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.StringUtils;
@@ -15,7 +14,6 @@ import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.protocols.http.htmlunit.HtmlUnit;
 import com.zxsoft.crawler.protocols.http.httpclient.HttpClient;
 import com.zxsoft.crawler.storage.WebPage;
-import com.zxsoft.crawler.util.CrawlerConfiguration;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 
@@ -27,10 +25,8 @@ public class HttpFetcher {
 	private static HttpBase httpClient;
 	
 	static {
-		Configuration conf = CrawlerConfiguration.create();
-		htmlUnit = new HtmlUnit(conf);
+		htmlUnit = new HtmlUnit();
 		httpClient = new HttpClient();
-		httpClient.setConf(conf);
 	}
 	
 
