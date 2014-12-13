@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="网络與情爬虫" xmlns="http://maven.apache.org/DECORATION/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
+	<bannerLeft>
+		<name>网络與情爬虫Crawler</name>
+	</bannerLeft>
+	<publishDate position="right" />
+	<version position="right" />
+	<skin>
+		<groupId>org.apache.maven.skins</groupId>
+		<artifactId>maven-stylus-skin</artifactId>
+		<version>1.2</version>
+	</skin>
+	<body>
+		<menu name="General">
+			<item name="概述" href="index.html" />
+			<item name="安装与配置" href="install.html"/>
+			<item name="开发" href="develop.html"/>
+		</menu>
+		<menu name="Crawler Master">
+			<item name="概述" href="crawler-master/index.html" />
+		</menu>
+		<menu name="Crawler Slave">
+			<item name="概述" href="crawler-slave/index.html" />
+		</menu>
+		<menu name="Crawler Web">
+			<item name="概述" href="crawler-web/index.html" />
+		</menu>
+	</body>
+</project>

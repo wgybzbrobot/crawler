@@ -206,20 +206,18 @@ public class SlaveController {
 			throw new NullPointerException("section is null, but conflist is not null: " + url);
 		Website website = section.getWebsite();
 		String site = website.getSite();
-		String proxyType = website.getSiteType().getType();
 
 		// 判断任务列表中是否已存在该任务
 
 		Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
 		double score = 1.0d / (System.currentTimeMillis() / 60000 + confList.getFetchinterval());
-		Prey prey = new Prey(site, url, confList.getComment(), JobType.NETWORK_INSPECT.toString(), proxyType, confList.getFetchinterval());
+		Prey prey = new Prey(site, url, confList.getComment(), JobType.NETWORK_INSPECT.toString(), confList.getFetchinterval());
 		prey.setStart(System.currentTimeMillis());
 		jedis.zadd(URLBASE, score, prey.toString());
 		jedis.close();
 
 		args.put(Params.URL, url);
 		args.put(Params.URL, prey.getUrl());
-		args.put(Params.PROXY_TYPE, prey.getProxyType());
 		args.put(Params.PREV_FETCH_TIME, System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000); // 设置上次抓取时间是3天前
 		args.put(Params.COMMENT, prey.getComment());
 

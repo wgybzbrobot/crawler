@@ -27,11 +27,11 @@ import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
+import com.zxsoft.crawler.protocol.util.Md5Signatrue;
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.store.OutputException;
-import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
 
 /**

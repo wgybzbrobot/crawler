@@ -11,8 +11,7 @@ public interface JobService {
 
 	/**
 	 * 添加网络巡检任务
-	 * @param url 所抓取的网站地址
-	 * @param args 其它参数
+	 * @param args 参数:版块地址，上次抓取时间 ...
 	 */
 	Map<String, Object> addInsecptJob( Map<String, Object> args);
 	

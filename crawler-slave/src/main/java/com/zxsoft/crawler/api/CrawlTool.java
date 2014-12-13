@@ -5,10 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
-
-public abstract class CrawlTool extends Configured  implements Serializable{
+public abstract class CrawlTool  implements Serializable {
 
 	/**
 	 * 
@@ -21,14 +18,6 @@ public abstract class CrawlTool extends Configured  implements Serializable{
 	public int numJobs;
 	public int currentJobNum;
 
-	/*private Configuration conf;
-	public Configuration getConf() {
-		return conf;
-	}
-	public void setConf(Configuration conf) {
-		this.conf = conf;
-	}*/
-	
 	public CrawlTool() {
 	}
 

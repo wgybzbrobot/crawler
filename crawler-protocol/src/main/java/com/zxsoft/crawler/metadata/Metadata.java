@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
+//import org.apache.hadoop.io.Text;
+//import org.apache.hadoop.io.Writable;
 
 
 /**
@@ -211,37 +211,37 @@ public class Metadata extends HttpHeaders {
     return buf.toString();
   }
 
-  public final void write(DataOutput out) throws IOException {
-    out.writeInt(size());
-    String[] values = null;
-    String[] names = names();
-    for (int i = 0; i < names.length; i++) {
-      Text.writeString(out, names[i]);
-      values = _getValues(names[i]);
-      int cnt = 0;
-      for (int j = 0; j < values.length; j++) {
-        if (values[j] != null)
-          cnt++;
-      }
-      out.writeInt(cnt);
-      for (int j = 0; j < values.length; j++) {
-        if (values[j] != null) {
-          Text.writeString(out, values[j]);
-        }
-      }
-    }
-  }
-
-  public final void readFields(DataInput in) throws IOException {
-    int keySize = in.readInt();
-    String key;
-    for (int i = 0; i < keySize; i++) {
-      key = Text.readString(in);
-      int valueSize = in.readInt();
-      for (int j = 0; j < valueSize; j++) {
-        add(key, Text.readString(in));
-      }
-    }
-  }
+//  public final void write(DataOutput out) throws IOException {
+//    out.writeInt(size());
+//    String[] values = null;
+//    String[] names = names();
+//    for (int i = 0; i < names.length; i++) {
+//      Text.writeString(out, names[i]);
+//      values = _getValues(names[i]);
+//      int cnt = 0;
+//      for (int j = 0; j < values.length; j++) {
+//        if (values[j] != null)
+//          cnt++;
+//      }
+//      out.writeInt(cnt);
+//      for (int j = 0; j < values.length; j++) {
+//        if (values[j] != null) {
+//          Text.writeString(out, values[j]);
+//        }
+//      }
+//    }
+//  }
+//
+//  public final void readFields(DataInput in) throws IOException {
+//    int keySize = in.readInt();
+//    String key;
+//    for (int i = 0; i < keySize; i++) {
+//      key = Text.readString(in);
+//      int valueSize = in.readInt();
+//      for (int j = 0; j < valueSize; j++) {
+//        add(key, Text.readString(in));
+//      }
+//    }
+//  }
 
 }

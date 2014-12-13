@@ -23,7 +23,6 @@ public interface Params {
   public static final String URL = "url";
   public static final String KEYWORD = "keyword";
   public static final String SITE = "site";
-  public static final String PROXY_TYPE = "proxyType";
   public static final String Interval = "interval";
   public static final String PREV_FETCH_TIME = "prevFetchTime";
   

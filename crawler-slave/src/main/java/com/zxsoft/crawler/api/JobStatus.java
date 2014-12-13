@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.zxsoft.crawler.api.JobManager.JobType;
 
 public class JobStatus implements Serializable {

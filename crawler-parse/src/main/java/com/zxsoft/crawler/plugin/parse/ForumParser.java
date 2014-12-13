@@ -21,11 +21,11 @@ import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
+import com.zxsoft.crawler.protocol.util.Md5Signatrue;
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.store.OutputException;
-import com.zxsoft.crawler.util.Md5Signatrue;
 import com.zxsoft.crawler.util.Utils;
 
 /**
@@ -151,7 +151,6 @@ public class ForumParser extends Parser {
 				while (true) {
 					if (_doc == null || StringUtils.isEmpty(currentUrl = _doc.location()))
 						break;
-					LOG.debug(currentUrl);
 					boolean isContinue = parsePage(prevFetchTime, _doc, mainUrl, currentUrl, detailConf);
 					if (!isContinue) {
 						break;
@@ -169,11 +168,6 @@ public class ForumParser extends Parser {
 
 		int count = 0;
 		try {
-//			List<RecordInfo> list = getRecordInfos();
-//			int i = 1;
-//			for (RecordInfo recordInfo : list) {
-//	            LOG.info(i++ + ": " + recordInfo.getContent());
-//            }
 			count = indexWriter.write(getRecordInfos());
 		} catch (OutputException e) {
 			throw new OutputException(mainUrl + "data output failure");

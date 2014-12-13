@@ -4,15 +4,18 @@
 	<parent>
 		<groupId>com.zxsoft.crawler</groupId>
 		<artifactId>crawler</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>crawler-protocol</artifactId>
 	<packaging>jar</packaging>
+	<name>crawler-protocol</name>
+	<description>下载网页</description>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.zxsoft.crawler</groupId>
 			<artifactId>crawler-dao</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
@@ -24,8 +27,18 @@
 			<artifactId>htmlunit</artifactId>
 			<version>2.14</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+			<version>1.5</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
+		</dependency>
 	</dependencies>
-		<build>
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -33,7 +46,8 @@
 				<version>2.3</version>
 				<configuration>
 					<excludes>
-						<exclude>**/*.properties</exclude>
+						<exclude>**/log4j.properties</exclude>
+						<exclude>**/protocol.properties</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

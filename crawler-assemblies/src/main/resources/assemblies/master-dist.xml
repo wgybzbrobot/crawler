@@ -22,15 +22,9 @@
 			<directory>src/main/resources</directory>
 			<outputDirectory>/conf</outputDirectory>
 			<includes>
+				<include>master.properties</include>
 				<include>slaves.ini</include>
 				<include>log4j.properties</include>
-			</includes>
-		</fileSet>
-		<fileSet>
-			<directory>${main.basedir}/crawler-common/src/main/resources</directory>
-			<outputDirectory>/conf</outputDirectory>
-			<includes>
-				<include>crawler-default.xml</include>
 			</includes>
 		</fileSet>
 		<fileSet>

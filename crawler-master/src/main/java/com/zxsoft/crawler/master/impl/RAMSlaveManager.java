@@ -24,6 +24,7 @@ import com.google.gson.GsonBuilder;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.zxsoft.crawler.api.JobCode;
 import com.zxsoft.crawler.api.Machine;
 import com.zxsoft.crawler.master.SlaveCache;
 import com.zxsoft.crawler.master.SlaveManager;
@@ -60,14 +61,11 @@ public class RAMSlaveManager implements SlaveManager {
 	@SuppressWarnings("fallthrough")
 	public List<SlaveStatus> list() throws Exception {
 		List<SlaveStatus> res = new ArrayList<SlaveStatus>();
-
 		List<Machine> machines = SlaveCache.machines;
-
 		ThreadPoolExecutor exec = new MyPoolExecutor(10, 100, 10, TimeUnit.SECONDS,
 		        new ArrayBlockingQueue<Runnable>(100));
 		List<Callable<SlaveStatus>> tasks = new ArrayList<Callable<SlaveStatus>>();
 		for (Machine machine : machines) {
-			String url = "http://" + machine.getIp() + ":" + machine.getPort() + "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH;
 			Vistor vistor = new Vistor(machine);
 			tasks.add(vistor);
 		}
@@ -78,10 +76,8 @@ public class RAMSlaveManager implements SlaveManager {
 				status.score = 0.0f;
 			} else {
 				status.score = 1.0f / (1.0f + status.runningNum);
-				
 				ScoredMachine sm = new ScoredMachine(status.machine, status.runningNum, status.score);
 				scheduler.addSlave(sm);
-				
 				LOG.info(status.machine.getId() + ":" + status.score);
 			}
 			res.add(status);
@@ -96,11 +92,9 @@ public class RAMSlaveManager implements SlaveManager {
 	
 	class Vistor implements Callable<SlaveStatus> {
 		private Machine machine;
-
 		public Vistor(Machine machine) {
 			this.machine = machine;
 		}
-
 		public SlaveStatus call() throws Exception {
 			String url = "http://" + machine.getIp() + ":" + machine.getPort() + "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH;
 			SlaveStatus slaveStatus = null;
@@ -165,11 +159,12 @@ public class RAMSlaveManager implements SlaveManager {
 					client.destroy();
 				}
 			}
-			LOG.info("选中slave(" + url + ")执行任务");
-			return url;
+			URL u = new URL(url);
+			LOG.info("选中slave(" + u.getHost() + ":" + u.getPort() + ")执行任务");
+			return new JobCode(22, "success choose slave", u.getHost() + ":" + u.getPort() ).toString();
 		}
 		LOG.error("Oh My God! 所有slave都罢工了, 都不能执行任务.");
-		return null;
+		return new JobCode(55, "no slaves work").toString();
 	}
 
 	@Override

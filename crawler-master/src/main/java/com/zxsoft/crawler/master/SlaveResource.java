@@ -23,11 +23,9 @@ public class SlaveResource extends ServerResource {
 	}
 
 	@Put("json")
-	@SuppressWarnings("unchecked")
 	public Object create(Map<String, Object> args) throws Exception {
 		String res = MasterApp.slaveMgr.create(args); 
 		return res;
-		
 	}
 
 }

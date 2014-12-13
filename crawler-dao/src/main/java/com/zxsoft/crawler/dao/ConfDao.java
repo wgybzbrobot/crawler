@@ -44,36 +44,8 @@ public class ConfDao extends BaseDao {
 	}
 
 	/**
-	 * @return 搜索引擎url
-	 */
-/*	public String getSearchEngine(String id) {
-		ObjectCache objectCache = ObjectCache.get("SearchEngine");
-		if (objectCache.getObject(id) != null) {
-			return (String) objectCache.getObject(id);
-		} else {
-			List<String> list = jdbcTemplate.query("select url from " + TABLE_SEARCH_ENGINE
-			        + " where id = ?", new Object[] { id }, new RowMapper<String>() {
-				@Override
-				public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-					return rs.getString("url");
-				}
-			});
-
-			if (CollectionUtils.isEmpty(list)) {
-				LOG.error("在表<" + TABLE_SEARCH_ENGINE + ">没有找到id为" + id + "的搜索引擎url值.");
-				return "";
-			}
-			
-			objectCache.setObject(id, list.get(0));
-			return list.get(0);
-		}
-	}*/
-
-	/**
 	 * 获取列表配置信息
-	 * 
 	 * @param url
-	 * @return
 	 */
 	public ListConf getListConf(String url) {
 		ObjectCache objectCache = ObjectCache.get("ListConf");
@@ -274,8 +246,4 @@ public class ConfDao extends BaseDao {
 		return "";
 	}
 
-//	public Section getSection(String indexUrl) {
-//		
-//	    return null;
-//    }
 }

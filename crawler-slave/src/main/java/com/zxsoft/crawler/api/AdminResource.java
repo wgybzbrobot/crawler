@@ -19,7 +19,6 @@ public class AdminResource extends ServerResource {
 
   @Get("json")
   public Object execute() throws Exception {
-//    String cmd = (String)getRequestAttributes().get(Params.CMD);
     String cmd = getQuery().getFirstValue(Params.CMD, true);
     
     if ("status".equalsIgnoreCase(cmd)) {
@@ -30,7 +29,6 @@ public class AdminResource extends ServerResource {
       jobs.put("all", SlaveApp.jobMgr.list(null, State.ANY));
       jobs.put("running", SlaveApp.jobMgr.list(null, State.RUNNING));
       res.put("jobs", jobs);
-      res.put("confs", SlaveApp.confMgr.list());
       return res;
     } else if ("stop".equalsIgnoreCase(cmd)) {
       // stop

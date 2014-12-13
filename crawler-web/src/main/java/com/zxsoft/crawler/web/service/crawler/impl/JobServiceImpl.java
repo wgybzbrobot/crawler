@@ -10,14 +10,15 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.sun.jersey.api.client.WebResource;
 import com.zxsoft.crawler.api.Machine;
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.master.MasterPath;
 import com.zxsoft.crawler.storage.WebPage.JOB_TYPE;
 import com.zxsoft.crawler.web.service.crawler.JobService;
 
+/**
+ * 创建<b>网络巡检任务</b>和<b>全网搜索任务</b>
+ */
 public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobService {
 
 	@Override
@@ -25,27 +26,20 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 		final Map<String, Object> map = new HashMap<String, Object>();
 		map.put(Params.JOB_TYPE, JOB_TYPE.NETWORK_INSPECT);
 		map.put(Params.ARGS, args);
-
 		try {
-	        new Thread() {
+	        Thread t = new Thread() {
 	        	@Override
 	        	public void run() {
 	        		ClientResource cli = new ClientResource(CRAWLER_MASTER + MasterPath.SLAVE_RESOURCE_PATH);
-	        		Representation r = cli.put(map);
+	        		cli.put(map);
 	        		cli.release();
 	        	};
-	        }.join(10000);
+	        };
+	        t.start();
+	        t.join(10000);
         } catch (InterruptedException e) {
 	        e.printStackTrace();
         }
-
-//		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-//		String json = gson.toJson(map, Map.class);
-//		com.sun.jersey.api.client.Client client = com.sun.jersey.api.client.Client.create();
-//		WebResource webResource = client.resource(CRAWLER_MASTER + MasterPath.SLAVE_RESOURCE_PATH);
-//		String text = webResource.put(String.class, json);
-//		client.destroy();
-
 		return null;
 	}
 
@@ -54,16 +48,17 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 		final Map<String, Object> map = new HashMap<String, Object>();
 		map.put(Params.JOB_TYPE, JOB_TYPE.NETWORK_SEARCH);
 		map.put(Params.ARGS, args);
-
 		try {
-			new Thread() {
+			Thread t = new Thread() {
 				@Override
 				public void run() {
 					ClientResource cli = new ClientResource(CRAWLER_MASTER + MasterPath.SLAVE_RESOURCE_PATH);
-					Representation r = cli.put(map);
+					cli.put(map);
 					cli.release();
 				}
-			}.join(10000);
+			};
+			t.start();
+			t.join(10000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -75,9 +70,7 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 	 */
 	@Override
 	public List<Map<String, Object>> jobs() {
-
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-
 		ClientResource cli = new ClientResource(CRAWLER_MASTER);
 		Representation r = cli.get();
 		String json = "";
@@ -86,8 +79,6 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 		} catch (IOException e) {
 			json = "[code:50001, msg:'" + e.getMessage() + "']";
 		}
-		Map<String, Object> job = new Gson().fromJson(json, Map.class);
-		// map.put("job", job);
 		cli.release();
 		return list;
 	}
@@ -100,10 +91,8 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 	 */
 	@Override
 	public Map<String, Object> job(String cid, String jid) {
-
 		String json = "";
 		Machine target = new Machine();
-
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> job = new Gson().fromJson(json, Map.class);
 		map.put("machine", target);
@@ -113,10 +102,8 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 
 	@Override
 	public Map<String, Object> job(String machineId, String cid, String jid) {
-
 		String json = "";
 		Machine target = new Machine();
-
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> job = new Gson().fromJson(json, Map.class);
 		map.put("machine", target);

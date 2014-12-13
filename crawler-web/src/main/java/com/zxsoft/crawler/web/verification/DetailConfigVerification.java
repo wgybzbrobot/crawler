@@ -21,7 +21,6 @@ import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.parse.ParseTool;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.storage.WebPage;
-import com.zxsoft.crawler.util.CrawlerConfiguration;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PageHelper;

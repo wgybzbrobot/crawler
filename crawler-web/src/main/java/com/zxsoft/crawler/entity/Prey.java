@@ -29,14 +29,9 @@ public class Prey implements Serializable {
 	private String url;
 	private String comment;
 	/**
-	 * @see Params.JOB_TYPE, 默认是网络巡检
+	 * 任务类型, 默认是网络巡检
 	 */
 	private String jobType = JobType.NETWORK_INSPECT.toString();
-	
-	/**
-	 * 代理类型
-	 */
-	private String proxyType;
 	
 	/**
 	 * 每隔fetchinteval(分钟)进行循环抓取
@@ -57,13 +52,12 @@ public class Prey implements Serializable {
 	 */
 	private int state = 1;
 
-	public Prey(String site, String url, String comment, String jobType, String proxyType, int fetchinterval) {
+	public Prey(String site, String url, String comment, String jobType, int fetchinterval) {
 	    super();
 	    this.site = site;
 	    this.url = url;
 	    this.comment = comment;
 	    this.jobType = jobType;
-	    this.proxyType = proxyType;
 	    this.fetchinterval = fetchinterval;
 	    this.prevFetchTime = System.currentTimeMillis();
 	    this.state = 1;
@@ -72,28 +66,25 @@ public class Prey implements Serializable {
 	 * Only Constructor
 	 * @param site
 	 * @param url
-	 * @param urlType
 	 * @param fetchinterval
 	 * @param prevFetchTime
 	 */
-	public Prey(String site, String url, String comment, String jobType, String proxyType, int fetchinterval, long prevFetchTime, int state) {
+	public Prey(String site, String url, String comment, String jobType, int fetchinterval, long prevFetchTime, int state) {
 	    super();
 	    this.site = site;
 	    this.url = url;
 	    this.comment = comment;
 	    this.jobType = jobType;
-	    this.proxyType = proxyType;
 	    this.fetchinterval = fetchinterval;
 	    this.prevFetchTime = prevFetchTime;
 	    this.state = state;
     }
-	public Prey(String site, String url, String comment, String jobType, String proxyType, int fetchinterval, long start, long prevFetchTime, int state) {
+	public Prey(String site, String url, String comment, String jobType, int fetchinterval, long start, long prevFetchTime, int state) {
 		super();
 		this.site = site;
 		this.url = url;
 		this.comment = comment;
 		this.jobType = jobType;
-		this.proxyType = proxyType;
 		this.start = start;
 		this.fetchinterval = fetchinterval;
 		this.prevFetchTime = prevFetchTime;
@@ -149,17 +140,6 @@ public class Prey implements Serializable {
 	public void setJobType(String jobType) {
 		this.jobType = jobType;
 	}
-
-
-	public String getProxyType() {
-		return proxyType;
-	}
-
-
-	public void setProxyType(String proxyType) {
-		this.proxyType = proxyType;
-	}
-
 
 	public int getFetchinterval() {
 		return fetchinterval;

@@ -2,23 +2,13 @@ package com.zxsoft.crawler.parse;
 
 import java.util.Calendar;
 import java.util.Date;
-
-import org.apache.hadoop.conf.Configuration;
-import org.jsoup.nodes.Document;
-import org.junit.Before;
 import org.junit.Test;
 import org.thinkingcloud.framework.util.Assert;
-
 import com.zxsoft.crawler.net.protocols.ProtocolException;
-import com.zxsoft.crawler.protocol.ProtocolOutput;
-import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.WebPage;
-import com.zxsoft.crawler.util.CrawlerConfiguration;
 
 public class TestNetworkInspectParserController {
 
-	private HttpFetcher httpFetcher;
-	
 	/**
 	 * 测试蚌埠吧
 	 */
@@ -27,46 +17,12 @@ public class TestNetworkInspectParserController {
 		String urlStr = "http://tieba.baidu.com/f?ie=utf-8&kw=%E8%9A%8C%E5%9F%A0";
 		WebPage page = new WebPage(urlStr, false);
 		page = new WebPage("test-title", urlStr, System.currentTimeMillis(), null);
-		page.setType("001");
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(2014, 9, 14);
 		page.setPrevFetchTime(calendar.getTimeInMillis());
 		
 		NetworkInspectParserController parserController = new NetworkInspectParserController();
 		parserController.parse(page);
-	}
-
-	/**
-	 * 测试糯米网
-	 */
-	@Test
-	public void testParseNuomi() throws ParserNotFoundException {
-		String urlStr = "http://www.nuomi.com/?cid=002540";
-		WebPage page  = new WebPage("title", urlStr, System.currentTimeMillis(), null);
-		page.setType("001");
-		page.setAjax(false);
-		
-		NetworkInspectParserController parserController = new NetworkInspectParserController();
-		parserController.parse(page);
-	}
-	
-	@Test
-	public void testParseTianYa() throws ParserNotFoundException {
-		String urlStr = "http://bbs.tianya.cn/list-free-1.shtml";
-		WebPage page = new WebPage();
-		page.setTitle("天涯杂谈");
-		page.setBaseUrl(urlStr);
-		page.setAjax(false);
-		page.setType("001");
-		NetworkInspectParserController parserController = new NetworkInspectParserController();
-		parserController.parse(page);
-		
-		WebPage _page = new WebPage();
-		page.setTitle("小米论坛");
-		page.setBaseUrl("http://bbs.xiaomi.cn");
-		page.setAjax(false);
-		page.setType("001");
-		parserController.parse(_page);
 	}
 	
 	@Test
@@ -78,35 +34,11 @@ public class TestNetworkInspectParserController {
 		long prev = now - interval;
 		System.out.println("prev:" + new Date(prev));
 		WebPage page = new WebPage("title", urlStr, System.currentTimeMillis(), null);
-		page.setType("001");
 		page.setAjax(false);
 		page.setPrevFetchTime(prev);
 		NetworkInspectParserController parserController = new NetworkInspectParserController();
 		parserController.parse(page);
-		
-		
 	}
-	
-	@Test
-	public void testParseMop() throws ParserNotFoundException {
-		String urlStr = "http://dzh.mop.com/yuanchuang";
-		WebPage page = new WebPage(urlStr, false);
-		page.setType("001");
-		page.setPrevFetchTime(System.currentTimeMillis() - 4000 * 60 * 1000);
-		ProtocolOutput protocolOutput = httpFetcher.fetch(page);
-		Assert.notNull(protocolOutput);
-		
-		Document document = protocolOutput.getDocument();
-		Assert.notNull(document);
-		page = new WebPage("title", urlStr, System.currentTimeMillis(), document);
-		page.setType("001");
-		page.setAjax(false);
-		page.setPrevFetchTime(System.currentTimeMillis() - 4000 * 60 * 1000);
-		
-		NetworkInspectParserController parserController = new NetworkInspectParserController();
-		parserController.parse(page);
-	}
-	
 	
 	/**
 	 * 新浪新闻
@@ -117,12 +49,10 @@ public class TestNetworkInspectParserController {
 		WebPage page = new WebPage(urlStr, true);
 		page = new WebPage("title", urlStr, System.currentTimeMillis(), null);
 		page.setAjax(true);
-		page.setType("001");
 		
 		NetworkInspectParserController parserController = new NetworkInspectParserController();
 		FetchStatus status = parserController.parse(page);
 		Assert.isTrue(status.getStatus() == FetchStatus.Status.SUCCESS);
-
 	}
 	
 }

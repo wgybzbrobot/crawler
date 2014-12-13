@@ -1,28 +1,27 @@
 package com.zxsoft.crawler.master;
 
-import java.net.SocketTimeoutException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.hadoop.conf.Configuration;
 import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.thinkingcloud.framework.io.ClassPathResource;
 import org.thinkingcloud.framework.util.CollectionUtils;
-
+import org.thinkingcloud.framework.util.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
-
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.master.impl.RAMSlaveManager;
-import com.zxsoft.crawler.util.CrawlerConfiguration;
 
 /**
- *
+ * 主控节点
  */
 public class MasterServer {
 	private static final Logger LOG = LoggerFactory.getLogger(MasterServer.class);
@@ -36,25 +35,42 @@ public class MasterServer {
 		this.port = port;
 		// Create a new Component.
 		component = new Component();
-
 		// Add a new HTTP server listening on port 8182.
 		component.getServers().add(Protocol.HTTP, port);
-
 		// Attach the application.
 		app = new MasterApp();
-
 		component.getDefaultHost().attach("/master", app);
-		
 		component.getContext().getParameters().add("maxThreads", "1000");
-		
 		MasterApp.server = this;
-
 	}
 
 	public boolean isRunning() {
 		return running;
 	}
+	
 	private static final String URLBASE = "urlbase";
+	private static final String REDIS_HOST;
+	private static final int REDIS_PORT;
+	private final long heartbeat = 3 * 60 * 1000; // default is 3 min
+	
+	static {
+		ClassPathResource resource = new ClassPathResource("master.properties");
+		Properties properties = new Properties();
+		try {
+			properties.load(resource.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		REDIS_HOST = properties.getProperty("redis.host");
+		REDIS_PORT = Integer.valueOf(properties.getProperty("redis.port"));
+
+		if (StringUtils.isEmpty(REDIS_HOST)) {
+			throw new NullPointerException("redis.properties中没有配置<redis.host>");
+		}
+		if (StringUtils.isEmpty(REDIS_HOST)) {
+			throw new NullPointerException("redis.properties中没有配置<redis.prot>");
+		}
+	}
 	
 	public void start() throws Exception {
 		LOG.info("Starting CrawlerServer on port " + port + "...");
@@ -65,11 +81,6 @@ public class MasterServer {
 		
 		SlaveManager slaveManager = new RAMSlaveManager();
 		slaveManager.list();
-		
-		Configuration conf = CrawlerConfiguration.create();
-		final long heartbeat = conf.getLong("heartbeat", 3 * 60 * 1000); // default is 3 min
-		final String redisUrl = conf.get("redis.host");
-		final int redisPort = conf.getInt("redis.port", 6379);
 		
 		// 监测slave
 		new Thread(new Runnable() {
@@ -96,12 +107,17 @@ public class MasterServer {
 			@Override
 			public void run() {
 				while (true) {
-					Jedis jedis = new Jedis(redisUrl, redisPort);
+					Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
 					Set<String> strs = null;
 					try {
 						strs = jedis.zrevrange(URLBASE, 0, 0);
 					} catch (JedisConnectionException e) {
-						LOG.error(e.getMessage());
+						LOG.error(e.getMessage() + ", sleep 10s and try again.");
+						try {
+	                        TimeUnit.SECONDS.sleep(10000);
+                        } catch (InterruptedException e1) {
+	                        e1.printStackTrace();
+                        }
 						continue;
 					}
 					if (CollectionUtils.isEmpty(strs)) {
@@ -115,7 +131,15 @@ public class MasterServer {
 						 continue;
 					}
 					String json = strs.toArray(new String[0])[0];
-					Prey prey = new Gson().fromJson(json, Prey.class);
+					
+					Prey prey = null;
+					try {
+						prey = new Gson().fromJson(json, Prey.class);
+					} catch (JsonSyntaxException e) {
+						LOG.warn(e.getLocalizedMessage() + ", will remove it from urlbase.");
+						jedis.zrem(URLBASE, json);
+						continue;
+					}
 					long interval = System.currentTimeMillis() - prey.getPrevFetchTime();
 					long realInterval = prey.getFetchinterval() * 60 * 1000L;
 					long prevFetchTime = prey.getPrevFetchTime();
@@ -140,7 +164,6 @@ public class MasterServer {
 					map.put(Params.JOB_TYPE, prey.getJobType());
 					Map<String, Object> args = new HashMap<String, Object>();
 					args.put(Params.URL, prey.getUrl());
-					args.put(Params.PROXY_TYPE, prey.getProxyType());
 					args.put(Params.PREV_FETCH_TIME, prevFetchTime);
 					args.put(Params.COMMENT, prey.getComment());
 					map.put(Params.ARGS, args);

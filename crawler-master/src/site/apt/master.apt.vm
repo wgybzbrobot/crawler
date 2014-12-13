@@ -1,0 +1,31 @@
+  ---
+  Cralwer Master
+  ---
+  ---
+  ${maven.build.timestamp}
+
+Cralwer Master
+  
+%{toc|section=1|fromDepth=0}  
+
+* {简介}
+
+  Cralwer Master从任务队列Redis中获取任务，根据评分分配任务给Slave进行抓取； 并监测Slave的运行状态。
+
+* {Structure}
+
+[./master.png] Master
+
+* {任务分配}
+
+  Master分发任务给Slave, 并监测Slave运行状态。
+  Master根据Slave的正在执行任务个数评分：
+
+----
+score=1.0/(1.0+runningCount)
+----
+
+  分母单位是minute，不是millisecond, 否则score排序不正确。
+  Master分配任务给score最大的Slave。
+
+

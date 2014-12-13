@@ -1,8 +1,7 @@
 package com.zxsoft.crawler.parse;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
-import org.jsoup.nodes.Document;
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +73,7 @@ public abstract class ParseTool {
 	protected ProtocolOutput fetchLastPage(WebPage page) {
 		try {
 			return httpFetcher.fetchLastPage(page);
-		} catch (PageBarNotFoundException e) {
+		} catch (PageBarNotFoundException  e) {
 			LOG.debug("Cannot get last page of " + page.getBaseUrl() + ", may be it has no last page.");
 		}
 		ProtocolStatus status = new ProtocolStatus();

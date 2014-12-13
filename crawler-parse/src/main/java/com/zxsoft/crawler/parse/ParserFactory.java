@@ -4,17 +4,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-
-import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
-
 import com.zxsoft.crawler.plugin.ParsePluginsReader;
 import com.zxsoft.crawler.plugin.PluginRuntimeException;
-import com.zxsoft.crawler.util.CrawlerConfiguration;
-
 
 public class ParserFactory {
 
@@ -22,19 +17,13 @@ public class ParserFactory {
 
     private static WeakHashMap<String, Parser> parserCache = new WeakHashMap<String, Parser>();
     private static Set<Extension> extensions = new HashSet<Extension>();
-
-    private static final Configuration conf;
     
     private static final String DEFAULT_PARSER_TYPE = "forum";
 
-    static {
-    	conf = CrawlerConfiguration.create();
-    }
-    
     public synchronized Parser getParserByCategory(String category) throws ParserNotFoundException {
 
         if (StringUtils.isEmpty(category)) {
-            category = conf.get("parser.type.defualt", DEFAULT_PARSER_TYPE);
+            category = DEFAULT_PARSER_TYPE;
         }
         
         if (parserCache.get(category) != null) {
@@ -69,7 +58,7 @@ public class ParserFactory {
 
     private void setExtensions() {
         ParsePluginsReader reader = new ParsePluginsReader();
-        Map<String, String> plugins = reader.parse(conf);
+        Map<String, String> plugins = reader.parse();
         for (String type : plugins.keySet()) {
             Extension extension = new Extension(type, plugins.get(type));
             extensions.add(extension);
