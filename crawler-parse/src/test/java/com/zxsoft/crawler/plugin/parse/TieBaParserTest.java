@@ -5,7 +5,7 @@ import java.util.Calendar;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.junit.Test;
-import org.springframework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.CollectionUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

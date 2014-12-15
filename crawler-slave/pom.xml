@@ -20,17 +20,14 @@
 		<dependency>
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet</artifactId>
-			<version>${restlet.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet.ext.jackson</artifactId>
-			<version>${restlet.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.zxsoft.crawler</groupId>
 			<artifactId>crawler-parse</artifactId>
-			<version>${crawler.parser.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -39,7 +36,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3</version>
 				<configuration>
 					<excludes>
 						<exclude>**/log4j.properties</exclude>
@@ -49,7 +45,6 @@
 
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4.1</version>
 				<dependencies>
 					<dependency>
 						<groupId>com.zxsoft.crawler</groupId>

@@ -7,7 +7,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Test;
-import org.springframework.util.CollectionUtils;
 
 public class ParseUtilTest {
 

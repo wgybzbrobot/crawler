@@ -15,29 +15,15 @@
 	</parent>
 
 	<properties>
-		<java-version>1.7</java-version>
+		<main.basedir>${project.parent.basedir}</main.basedir>
 		<org.springframework-version>3.2.10.RELEASE</org.springframework-version>
 		<org.aspectj-version>1.7.4</org.aspectj-version>
 		<restlet.version>2.0.5</restlet.version>
 		<jedis.version>2.6.0</jedis.version>
+		<servlet-api.version>2.5</servlet-api.version>
+		<jsp-api.version>2.2</jsp-api.version>
+		<jstl.version>1.2</jstl.version>
 	</properties>
-
-	<build>
-		<finalName>crawler-web</finalName>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<configuration>
-						<testFailureIgnore>true</testFailureIgnore>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-
-
-	</build>
 
 	<dependencies>
 		<dependency>
@@ -48,23 +34,10 @@
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-			<version>${jedis.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.zxsoft.crawler</groupId>
-			<artifactId>crawler-common</artifactId>
-			<version>${project.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>hadoop-core</artifactId>
-					<groupId>org.apache.hadoop</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.zxsoft.crawler</groupId>
 			<artifactId>crawler-parse</artifactId>
-			<version>${project.version}</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>commons-logging</artifactId>
@@ -75,12 +48,10 @@
 		<dependency>
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet</artifactId>
-			<version>${restlet.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet.ext.jackson</artifactId>
-			<version>${restlet.version}</version>
 		</dependency>
 		<!-- Spring -->
 		<dependency>
@@ -99,22 +70,6 @@
 			<artifactId>spring-test</artifactId>
 			<version>${org.springframework-version}</version>
 		</dependency>
-		<!-- AspectJ -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-aop</artifactId>
-			<version>${org.springframework-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>aopalliance</groupId>
-			<artifactId>aopalliance</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib-nodep</artifactId>
-			<version>2.2</version>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aspects</artifactId>
@@ -122,96 +77,83 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-instrument</artifactId>
+			<artifactId>spring-orm</artifactId>
 			<version>${org.springframework-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-instrument-tomcat</artifactId>
-			<version>${org.springframework-version}</version>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.1</version>
 		</dependency>
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjrt</artifactId>
-			<version>${org.aspectj-version}</version>
-		</dependency>
-
 		<!-- hibernate -->
+		<dependency>
+			<groupId>javax.transaction</groupId>
+			<artifactId>jta</artifactId>
+			<version>1.1</version>
+		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-annotations</artifactId>
 			<version>3.3.0.ga</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>commons-logging</artifactId>
-					<groupId>commons-logging</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>commons-collections</artifactId>
-					<groupId>commons-collections</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-commons-annotations</artifactId>
 			<version>3.3.0.ga</version>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-orm</artifactId>
-			<version>3.2.10.RELEASE</version>
-		</dependency>
-
-		<!-- @Inject -->
-		<dependency>
-			<groupId>javax.inject</groupId>
-			<artifactId>javax.inject</artifactId>
-			<version>1</version>
-		</dependency>
-
 		<!-- Servlet -->
 		<dependency>
-			<groupId>jsptags</groupId>
-			<artifactId>pager-taglib</artifactId>
-			<version>2.0</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-servlet-api</artifactId>
-			<version>7.0.30</version>
-			<scope>provided</scope>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>${servlet-api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet.jsp</groupId>
 			<artifactId>jsp-api</artifactId>
-			<version>2.1</version>
-			<scope>provided</scope>
+			<version>${jsp-api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet.jsp.jstl</groupId>
-			<artifactId>jstl-api</artifactId>
-			<version>1.2</version>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>${jstl.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.glassfish.web</groupId>
-			<artifactId>jstl-impl</artifactId>
-			<version>1.2</version>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>jsptags</groupId>
+			<artifactId>pager-taglib</artifactId>
+			<version>2.0</version>
 		</dependency>
 	</dependencies>
+	<build>
+		<finalName>crawler-web</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<testFailureIgnore>true</testFailureIgnore>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<webResources>
+						<resource>
+							<directory>${main.basedir}/crawler-dao/src/main/resources/</directory>
+							<includes>
+								<include>db.properties</include>
+							</includes>
+						</resource>
+						<resource>
+							<directory>${main.basedir}/crawler-protocol/src/main/resources/</directory>
+							<includes>
+								<include>protocol.properties</include>
+							</includes>
+						</resource>
+					</webResources>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

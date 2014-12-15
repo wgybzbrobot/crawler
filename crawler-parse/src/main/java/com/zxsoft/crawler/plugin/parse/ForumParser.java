@@ -10,7 +10,7 @@ import org.jsoup.select.Elements;
 import org.jsoup.select.Selector.SelectorParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
+import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
 

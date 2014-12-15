@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
+import org.thinkingcloud.framework.util.Assert;
 
 import com.zxsoft.crawler.api.CrawlTool;
 import com.zxsoft.crawler.api.Params;

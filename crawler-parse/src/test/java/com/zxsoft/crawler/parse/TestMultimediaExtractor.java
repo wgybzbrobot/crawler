@@ -7,10 +7,9 @@ import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 import org.junit.Test;
-import org.springframework.util.CollectionUtils;
+import org.thinkingcloud.framework.util.CollectionUtils;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;

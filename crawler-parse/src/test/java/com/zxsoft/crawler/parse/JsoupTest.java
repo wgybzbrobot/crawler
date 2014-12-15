@@ -6,7 +6,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.junit.Test;
-import org.springframework.util.Assert;
+import org.thinkingcloud.framework.util.Assert;
 
 public class JsoupTest {
 

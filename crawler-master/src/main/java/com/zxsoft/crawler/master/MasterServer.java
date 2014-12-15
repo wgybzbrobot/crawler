@@ -24,173 +24,178 @@ import com.zxsoft.crawler.master.impl.RAMSlaveManager;
  * 主控节点
  */
 public class MasterServer {
-	private static final Logger LOG = LoggerFactory.getLogger(MasterServer.class);
+        private static final Logger LOG = LoggerFactory.getLogger(MasterServer.class);
 
-	private Component component;
-	private MasterApp app;
-	private int port;
-	private boolean running;
+        private Component component;
+        private MasterApp app;
+        private int port;
+        private boolean running;
 
-	public MasterServer(int port) {
-		this.port = port;
-		// Create a new Component.
-		component = new Component();
-		// Add a new HTTP server listening on port 8182.
-		component.getServers().add(Protocol.HTTP, port);
-		// Attach the application.
-		app = new MasterApp();
-		component.getDefaultHost().attach("/master", app);
-		component.getContext().getParameters().add("maxThreads", "1000");
-		MasterApp.server = this;
-	}
+        public MasterServer(int port) {
+                this.port = port;
+                // Create a new Component.
+                component = new Component();
+                // Add a new HTTP server listening on port 8182.
+                component.getServers().add(Protocol.HTTP, port);
+                // Attach the application.
+                app = new MasterApp();
+                component.getDefaultHost().attach("/master", app);
+                component.getContext().getParameters().add("maxThreads", "1000");
+                MasterApp.server = this;
+        }
 
-	public boolean isRunning() {
-		return running;
-	}
-	
-	private static final String URLBASE = "urlbase";
-	private static final String REDIS_HOST;
-	private static final int REDIS_PORT;
-	private final long heartbeat = 3 * 60 * 1000; // default is 3 min
-	
-	static {
-		ClassPathResource resource = new ClassPathResource("master.properties");
-		Properties properties = new Properties();
-		try {
-			properties.load(resource.getInputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		REDIS_HOST = properties.getProperty("redis.host");
-		REDIS_PORT = Integer.valueOf(properties.getProperty("redis.port"));
+        public boolean isRunning() {
+                return running;
+        }
 
-		if (StringUtils.isEmpty(REDIS_HOST)) {
-			throw new NullPointerException("redis.properties中没有配置<redis.host>");
-		}
-		if (StringUtils.isEmpty(REDIS_HOST)) {
-			throw new NullPointerException("redis.properties中没有配置<redis.prot>");
-		}
-	}
-	
-	public void start() throws Exception {
-		LOG.info("Starting CrawlerServer on port " + port + "...");
-		component.start();
-		LOG.info("Started CrawlerServer on port " + port);
-		running = true;
-		MasterApp.started = System.currentTimeMillis();
-		
-		SlaveManager slaveManager = new RAMSlaveManager();
-		slaveManager.list();
-		
-		// 监测slave
-		new Thread(new Runnable() {
-			public void run() {
-				while (true) {
-					try {
-//						SlaveManager slaveManager = new RAMSlaveManager();
-//						try {
-//	                        slaveManager.list();
-//                        } catch (Exception e) {
-//	                        e.printStackTrace();
-//                        }
-						LOG.info("SlaveMonitorThread sleep " + heartbeat / 60000 + " minutes");
-			            TimeUnit.MILLISECONDS.sleep(heartbeat);
-		            } catch (InterruptedException e) {
-			            e.printStackTrace();
-		            }
-				}
-			}
-		}, "SlaveMonitorThread").start();
-		
-		// 任务队列管理
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (true) {
-					Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
-					Set<String> strs = null;
-					try {
-						strs = jedis.zrevrange(URLBASE, 0, 0);
-					} catch (JedisConnectionException e) {
-						LOG.error(e.getMessage() + ", sleep 10s and try again.");
-						try {
-	                        TimeUnit.SECONDS.sleep(10000);
-                        } catch (InterruptedException e1) {
-	                        e1.printStackTrace();
+        private static final String URLBASE = "urlbase";
+        private static final String REDIS_HOST;
+        private static final int REDIS_PORT;
+        private final long heartbeat = 3 * 60 * 1000; // default is 3 min
+
+        static {
+                ClassPathResource resource = new ClassPathResource("master.properties");
+                Properties properties = new Properties();
+                try {
+                        properties.load(resource.getInputStream());
+                } catch (IOException e) {
+                        e.printStackTrace();
+                }
+                REDIS_HOST = properties.getProperty("redis.host");
+                REDIS_PORT = Integer.valueOf(properties.getProperty("redis.port"));
+
+                if (StringUtils.isEmpty(REDIS_HOST)) {
+                        throw new NullPointerException("redis.properties中没有配置<redis.host>");
+                }
+                if (StringUtils.isEmpty(REDIS_HOST)) {
+                        throw new NullPointerException("redis.properties中没有配置<redis.prot>");
+                }
+        }
+
+        public void start() throws Exception {
+                LOG.info("Starting CrawlerServer on port " + port + "...");
+                component.start();
+                LOG.info("Started CrawlerServer on port " + port);
+                running = true;
+                MasterApp.started = System.currentTimeMillis();
+
+                SlaveManager slaveManager = new RAMSlaveManager();
+                slaveManager.list();
+
+                // 监测slave
+                new Thread(new Runnable() {
+                        public void run() {
+                                while (true) {
+                                        try {
+                                                SlaveManager slaveManager = new RAMSlaveManager();
+                                                try {
+                                                        slaveManager.list();
+                                                } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                }
+                                                LOG.info("SlaveMonitorThread sleep " + heartbeat / 60000 + " minutes");
+                                                TimeUnit.MILLISECONDS.sleep(heartbeat);
+                                        } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                        }
+                                }
                         }
-						continue;
-					}
-					if (CollectionUtils.isEmpty(strs)) {
-						LOG.warn("No records in redis urlbase.");
-						 try {
-	                        Thread.sleep(30000);
-                        } catch (InterruptedException e) {
-                        	LOG.error(e.getMessage());
-	                        e.printStackTrace();
+                }, "SlaveMonitorThread").start();
+
+                // 任务队列管理
+                new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                                while (true) {
+                                        synchronized (this) {
+
+                                                Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
+                                                Set<String> strs = null;
+                                                try {
+                                                        strs = jedis.zrevrange(URLBASE, 0, 0);
+                                                } catch (JedisConnectionException e) {
+                                                        LOG.error(e.getMessage() + ", sleep 10s then try again.");
+                                                        try {
+                                                                TimeUnit.SECONDS.sleep(10000);
+                                                        } catch (InterruptedException e1) {
+                                                                e1.printStackTrace();
+                                                        }
+                                                        continue;
+                                                }
+                                                if (CollectionUtils.isEmpty(strs)) {
+                                                        LOG.warn("No records in redis urlbase, sleep 30s then try again.");
+                                                        try {
+                                                                Thread.sleep(30000);
+                                                        } catch (InterruptedException e) {
+                                                                LOG.error(e.getMessage());
+                                                                e.printStackTrace();
+                                                        }
+                                                        continue;
+                                                }
+                                                String json = strs.toArray(new String[0])[0];
+
+                                                Prey prey = null;
+                                                try {
+                                                        prey = new Gson().fromJson(json, Prey.class);
+                                                } catch (JsonSyntaxException e) {
+                                                        LOG.warn(e.getLocalizedMessage()
+                                                                                        + ", will remove it from urlbase.");
+                                                        jedis.zrem(URLBASE, json);
+                                                        continue;
+                                                }
+                                                long interval = System.currentTimeMillis() - prey.getPrevFetchTime();
+                                                long realInterval = prey.getFetchinterval() * 60 * 1000L;
+                                                long prevFetchTime = prey.getPrevFetchTime();
+                                                if (interval >= realInterval) {
+                                                        jedis.zrem(URLBASE, json);
+                                                        // 将上次抓取时间设置为当前时间，供下次抓取使用
+                                                        prey.setPrevFetchTime(System.currentTimeMillis());
+                                                        double score = 1.0d / (System.currentTimeMillis() / 60000.0d + prey
+                                                                                        .getFetchinterval() * 1.0d);
+                                                        jedis.zadd(URLBASE, score, prey.toString());
+                                                } else {
+                                                        long wait = realInterval - interval;
+                                                        LOG.info("Sleep " + wait + " milliseconds");
+                                                        try {
+                                                                Thread.sleep(wait);
+                                                        } catch (InterruptedException e) {
+                                                                e.printStackTrace();
+                                                        }
+                                                        continue;
+                                                }
+                                                LOG.info("分发任务: " + prey.toString());
+                                                Map<String, Object> map = new HashMap<String, Object>();
+                                                map.put(Params.JOB_TYPE, prey.getJobType());
+                                                Map<String, Object> args = new HashMap<String, Object>();
+                                                args.put(Params.URL, prey.getUrl());
+                                                args.put(Params.PREV_FETCH_TIME, prevFetchTime);
+                                                args.put(Params.COMMENT, prey.getComment());
+                                                map.put(Params.ARGS, args);
+
+                                                SlaveManager slaveManager = new RAMSlaveManager();
+                                                try {
+                                                        slaveManager.create(map);
+                                                } catch (Exception e) {
+                                                        LOG.warn(e.getMessage());
+                                                        e.printStackTrace();
+                                                }
+                                                jedis.close();
+                                        }
+                                }
                         }
-						 continue;
-					}
-					String json = strs.toArray(new String[0])[0];
-					
-					Prey prey = null;
-					try {
-						prey = new Gson().fromJson(json, Prey.class);
-					} catch (JsonSyntaxException e) {
-						LOG.warn(e.getLocalizedMessage() + ", will remove it from urlbase.");
-						jedis.zrem(URLBASE, json);
-						continue;
-					}
-					long interval = System.currentTimeMillis() - prey.getPrevFetchTime();
-					long realInterval = prey.getFetchinterval() * 60 * 1000L;
-					long prevFetchTime = prey.getPrevFetchTime();
-					if (interval >= realInterval) {
-						jedis.zrem(URLBASE, prey.toString());
-						// 将上次抓取时间设置为当前时间，供下次抓取使用
-						prey.setPrevFetchTime(System.currentTimeMillis());
-						double score = 1.0d / (System.currentTimeMillis() / 60000.0d + prey.getFetchinterval() * 1.0d);
-						jedis.zadd(URLBASE, score, prey.toString());
-					} else {
-						long wait = realInterval - interval;
-						LOG.info("Sleep " + wait + " milliseconds");
-	                    try {
-	                        Thread.sleep(wait);
-                        } catch (InterruptedException e) {
-	                        e.printStackTrace();
-                        }
-	                    continue;
-					}
-					LOG.info("分发任务: " + prey.toString());
-					Map<String, Object> map = new HashMap<String, Object>();
-					map.put(Params.JOB_TYPE, prey.getJobType());
-					Map<String, Object> args = new HashMap<String, Object>();
-					args.put(Params.URL, prey.getUrl());
-					args.put(Params.PREV_FETCH_TIME, prevFetchTime);
-					args.put(Params.COMMENT, prey.getComment());
-					map.put(Params.ARGS, args);
+                }, "TaskSchedulerThread").start();
 
-					SlaveManager slaveManager = new RAMSlaveManager();
-					try {
-		                slaveManager.create(map);
-	                } catch (Exception e) {
-	                	LOG.warn(e.getMessage());
-		                e.printStackTrace();
-	                }
-					jedis.close();
-				}
-			}
-		}, "TaskSchedulerThread").start();
-		
-	}
+        }
 
-	public static void main(String[] args) throws Exception {
-		if (args.length == 0) {
-			System.err.println("Usage: CrawlerServer <port>");
-			System.exit(-1);
-		}
+        public static void main(String[] args) throws Exception {
+                if (args.length == 0) {
+                        System.err.println("Usage: CrawlerServer <port>");
+                        System.exit(-1);
+                }
 
-		int port = Integer.parseInt(args[0]);
-		MasterServer server = new MasterServer(port);
-		server.start();
-	}
+                int port = Integer.parseInt(args[0]);
+                MasterServer server = new MasterServer(port);
+                server.start();
+        }
 
 }

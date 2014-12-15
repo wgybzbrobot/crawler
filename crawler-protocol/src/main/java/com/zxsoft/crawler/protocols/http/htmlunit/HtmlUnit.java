@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-
-import org.apache.http.auth.NTCredentials;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -38,9 +36,6 @@ public class HtmlUnit extends HttpBase {
 
 	public static final Logger LOG = LoggerFactory.getLogger(HtmlUnit.class);
 
-	public HtmlUnit() {
-	}
-	
 	/**
 	 * <p>
 	 * Ajax download page.

@@ -164,7 +164,6 @@ public class Prey implements Serializable {
 	public String toString() {
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		String json = gson.toJson(this); 
-		json = json.replaceAll("\u003d", "=");
 		return json;
 	}
 }
