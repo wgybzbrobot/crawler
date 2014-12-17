@@ -53,211 +53,234 @@ import com.zxsoft.crawler.web.service.website.SectionService;
 @RequestMapping(MasterPath.SLAVE_RESOURCE_PATH)
 public class SlaveController {
 
-	private static Logger LOG = LoggerFactory.getLogger(SlaveController.class);
+        private static Logger LOG = LoggerFactory.getLogger(SlaveController.class);
 
-	@Autowired
-	private DictService dictService;
-	@Autowired
-	private ConfigService configService;
-	@Autowired
-	private SectionService sectionService;
+        @Autowired
+        private DictService dictService;
+        @Autowired
+        private ConfigService configService;
+        @Autowired
+        private SectionService sectionService;
 
-	@RequestMapping(method = RequestMethod.GET)
-	public String index(Model model) {
+        @RequestMapping(method = RequestMethod.GET)
+        public String index(Model model) {
 
-		SlaveService slaveService = new SlaveServiceImpl();
+                SlaveService slaveService = new SlaveServiceImpl();
 
-		Map<String, Object> map = new HashMap<String, Object>();
-		try {
-			map.put("slaves", slaveService.slaves());
-			map.put("msg", "正常");
-			map.put("code", "2000");
+                Map<String, Object> map = new HashMap<String, Object>();
+                try {
+                        map.put("slaves", slaveService.slaves());
+                        map.put("msg", "正常");
+                        map.put("code", "2000");
 
-		} catch (ClientHandlerException e) {
-			LOG.warn(e.getMessage());
-			map.put("msg", "无法连接到主控，可能没有启动.");
-			map.put("code", "5000");
-		} catch (Exception e) {
-			LOG.warn(e.getMessage(), e);
-			map.put("code", "5000");
-			map.put("msg", "无法连接到主控，可能没有启动.");
-		}
+                } catch (ClientHandlerException e) {
+                        LOG.warn(e.getMessage());
+                        map.put("msg", "无法连接到主控，可能没有启动.");
+                        map.put("code", "5000");
+                } catch (Exception e) {
+                        LOG.warn(e.getMessage(), e);
+                        map.put("code", "5000");
+                        map.put("msg", "无法连接到主控，可能没有启动.");
+                }
 
-		model.addAttribute("map", map);
+                model.addAttribute("map", map);
 
-		return "/crawler/list";
-	}
+                return "/crawler/list";
+        }
 
-	/**
-	 * 加载更多
-	 */
-	@ResponseBody
-	@RequestMapping(value = "list", method = RequestMethod.GET)
-	public Map<String, Object> slaves() {
+        /**
+         * 加载更多
+         */
+        @ResponseBody
+        @RequestMapping(value = "list", method = RequestMethod.GET)
+        public Map<String, Object> slaves() {
 
-		SlaveService slaveService = new SlaveServiceImpl();
+                SlaveService slaveService = new SlaveServiceImpl();
 
-		Map<String, Object> map = new HashMap<String, Object>();
-		try {
-			map.put("slaves", slaveService.slaves());
-			map.put("msg", "success");
-			map.put("code", "2000");
+                Map<String, Object> map = new HashMap<String, Object>();
+                try {
+                        map.put("slaves", slaveService.slaves());
+                        map.put("msg", "success");
+                        map.put("code", "2000");
 
-		} catch (ConnectException e) {
-			LOG.warn(e.getMessage(), e);
-			map.put("msg", "无法连接到主控，可能没有启动.");
-			map.put("code", "5000");
-		} catch (Exception e) {
-			LOG.warn(e.getMessage(), e);
-			map.put("code", "5000");
-			map.put("msg", "无法连接到主控，可能没有启动.");
-		}
+                } catch (ConnectException e) {
+                        LOG.warn(e.getMessage(), e);
+                        map.put("msg", "无法连接到主控，可能没有启动.");
+                        map.put("code", "5000");
+                } catch (Exception e) {
+                        LOG.warn(e.getMessage(), e);
+                        map.put("code", "5000");
+                        map.put("msg", "无法连接到主控，可能没有启动.");
+                }
 
-		return map;
-	}
+                return map;
+        }
 
-	@RequestMapping(value = "preys/{index}", method = RequestMethod.GET)
-	public String preys(@PathVariable(value = "index") int index, Model model) {
-		List<Prey> list = new LinkedList<Prey>();
-		Jedis jedis = new Jedis(REDIS_HOST, 6379);
-		long count = 0;
-		try {
-			count = jedis.zcard(URLBASE);
-			Set<String> set = jedis.zrevrange(URLBASE, 0, index - 1);
-			if (!CollectionUtils.isEmpty(set)) {
-				Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-				for (String str : set) {
-					Prey prey = gson.fromJson(str, Prey.class);
-					list.add(prey);
-				}
-			}
-		} catch (JedisConnectionException e) {
-			model.addAttribute("code", 5000);
-			model.addAttribute("msg", "Redis没有启动: " + REDIS_HOST + ":" + 6379);
-			e.printStackTrace();
-		} finally {
-			model.addAttribute("count", count);
-			model.addAttribute("preys", list);
-			jedis.close();
-		}
+        /**
+         * 过滤已配置版块
+         * 
+         * @param name
+         *                版块名称或地址
+         * @return
+         */
+        @ResponseBody
+        @RequestMapping(value = "ajax/preys", method = RequestMethod.POST)
+        public List<ConfList> preys(@RequestParam(value = "name", required = false) String name) {
 
-		List<ConfList> confLists = configService.getInspectConfLists(null);
-		model.addAttribute("confLists", confLists);
+                ConfList param1 = new ConfList();
+                param1.setUrl(name);
+                List<ConfList> confLists = configService.getInspectConfLists(param1);
 
-		List<ConfList> engines = dictService.getSearchEngines();
-		model.addAttribute("engines", engines);
+                ConfList param2 = new ConfList();
+                param2.setComment(name);
+                List<ConfList> confLists2 = configService.getInspectConfLists(param2);
 
-		return "/crawler/preys";
-	}
+                confLists.addAll(confLists2);
+                return confLists;
+        }
 
-	private JobService jobService = new JobServiceImpl();
+        @RequestMapping(value = "preys/{index}", method = RequestMethod.GET)
+        public String preys(@PathVariable(value = "index") int index, Model model) {
+                List<Prey> list = new LinkedList<Prey>();
+                Jedis jedis = new Jedis(REDIS_HOST, 6379);
+                long count = 0;
+                try {
+                        count = jedis.zcard(URLBASE);
+                        Set<String> set = jedis.zrevrange(URLBASE, 0, index - 1);
+                        if (!CollectionUtils.isEmpty(set)) {
+                                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                                for (String str : set) {
+                                        Prey prey = gson.fromJson(str, Prey.class);
+                                        list.add(prey);
+                                }
+                        }
+                } catch (JedisConnectionException e) {
+                        model.addAttribute("code", 5000);
+                        model.addAttribute("msg", "Redis没有启动: " + REDIS_HOST + ":" + 6379);
+                        e.printStackTrace();
+                } finally {
+                        model.addAttribute("count", count);
+                        model.addAttribute("preys", list);
+                        jedis.close();
+                }
 
-	@ResponseBody
-	@RequestMapping(value = "ajax/addSearchJob", method = RequestMethod.POST)
-	public Map<String, Object> addSearchJob(@RequestParam(value = "keyword", required = false) String keyword,
-	        @RequestParam(value = "engineId", required = false) List<String> engineIds) {
-		Assert.hasLength(keyword);
-		Assert.notEmpty(engineIds);
-		for (String engineId : engineIds) {
-			Map<String, Object> args = new HashMap<String, Object>();
-			args.put(Params.KEYWORD, keyword);
-			args.put(Params.ENGINE_URL, engineId);
-			jobService.addSearchJob(args);
-		}
-		return null;
-	}
+                List<ConfList> confLists = configService.getInspectConfLists(null);
+                model.addAttribute("confLists", confLists);
 
-	private static final String URLBASE = "urlbase";
-	private static final String REDIS_HOST;
-	private static final int REDIS_PORT;
+                List<ConfList> engines = dictService.getSearchEngines();
+                model.addAttribute("engines", engines);
 
-	static {
-		ClassPathResource resource = new ClassPathResource("redis.properties");
-		Properties properties = new Properties();
-		try {
-			properties.load(resource.getInputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		REDIS_HOST = properties.getProperty("redis.host");
-		REDIS_PORT = Integer.valueOf(properties.getProperty("redis.port"));
+                return "/crawler/preys";
+        }
 
-		if (StringUtils.isEmpty(REDIS_HOST)) {
-			throw new NullPointerException("redis.properties中没有配置<redis.host>");
-		}
-		if (StringUtils.isEmpty(REDIS_HOST)) {
-			throw new NullPointerException("redis.properties中没有配置<redis.prot>");
-		}
-	}
+        private JobService jobService = new JobServiceImpl();
 
-	@ResponseBody
-	@RequestMapping(value = "ajax/addInspectJob", method = RequestMethod.POST)
-	public Map<String, Object> addInspectJob(@RequestParam(value = "url", required = false) String url) {
-		Assert.hasLength(url);
-		Map<String, Object> args = new HashMap<String, Object>();
-		ConfList confList = configService.getConfList(url);
-		if (confList == null) {
-			args.put("msg", "noconflist");
-			return args;
-		}
+        @ResponseBody
+        @RequestMapping(value = "ajax/addSearchJob", method = RequestMethod.POST)
+        public Map<String, Object> addSearchJob(@RequestParam(value = "keyword", required = false) String keyword,
+                                        @RequestParam(value = "engineId", required = false) List<String> engineIds) {
+                Assert.hasLength(keyword);
+                Assert.notEmpty(engineIds);
+                for (String engineId : engineIds) {
+                        Map<String, Object> args = new HashMap<String, Object>();
+                        args.put(Params.KEYWORD, keyword);
+                        args.put(Params.ENGINE_URL, engineId);
+                        jobService.addSearchJob(args);
+                }
+                return null;
+        }
 
-		Section section = sectionService.getSectionByUrl(url);
-		if (section == null)
-			throw new NullPointerException("section is null, but conflist is not null: " + url);
-		Website website = section.getWebsite();
-		String site = website.getSite();
+        private static final String URLBASE = "urlbase";
+        private static final String REDIS_HOST;
+        private static final int REDIS_PORT;
 
-		// 判断任务列表中是否已存在该任务
+        static {
+                ClassPathResource resource = new ClassPathResource("redis.properties");
+                Properties properties = new Properties();
+                try {
+                        properties.load(resource.getInputStream());
+                } catch (IOException e) {
+                        e.printStackTrace();
+                }
+                REDIS_HOST = properties.getProperty("redis.host");
+                REDIS_PORT = Integer.valueOf(properties.getProperty("redis.port"));
 
-		Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
-		double score = 1.0d / (System.currentTimeMillis() / 60000 + confList.getFetchinterval());
-		Prey prey = new Prey(site, url, confList.getComment(), JobType.NETWORK_INSPECT.toString(), confList.getFetchinterval());
-		prey.setStart(System.currentTimeMillis());
-		jedis.zadd(URLBASE, score, prey.toString());
-		jedis.close();
+                if (StringUtils.isEmpty(REDIS_HOST)) {
+                        throw new NullPointerException("redis.properties中没有配置<redis.host>");
+                }
+                if (StringUtils.isEmpty(REDIS_HOST)) {
+                        throw new NullPointerException("redis.properties中没有配置<redis.prot>");
+                }
+        }
 
-		args.put(Params.URL, url);
-		args.put(Params.URL, prey.getUrl());
-		args.put(Params.PREV_FETCH_TIME, System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000); // 设置上次抓取时间是3天前
-		args.put(Params.COMMENT, prey.getComment());
+        @ResponseBody
+        @RequestMapping(value = "ajax/addInspectJob", method = RequestMethod.POST)
+        public Map<String, Object> addInspectJob(@RequestParam(value = "url", required = false) String url) {
+                Assert.hasLength(url);
+                Map<String, Object> args = new HashMap<String, Object>();
+                ConfList confList = configService.getConfList(url);
+                if (confList == null) {
+                        args.put("msg", "noconflist");
+                        return args;
+                }
 
-		jobService.addInsecptJob(args);
+                Section section = sectionService.getSectionByUrl(url);
+                if (section == null)
+                        throw new NullPointerException("section is null, but conflist is not null: " + url);
+                Website website = section.getWebsite();
+                String site = website.getSite();
 
-		return args;
-	}
+                // 判断任务列表中是否已存在该任务
 
-	/**
-	 * 查看某个爬虫正在运行或完成的任务
-	 */
-	@SuppressWarnings("unchecked")
-    @RequestMapping(value = "moreinfo/{state}/{ip}/{port}", method = RequestMethod.GET)
-	public String moreinfoOfHistory(Model model, @PathVariable(value = "state") final String state,
-	        @PathVariable(value = "ip") final String ip, @PathVariable(value = "port") final String port) {
+                Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
+                double score = 1.0d / (System.currentTimeMillis() / 60000 + confList.getFetchinterval());
+                Prey prey = new Prey(site, url, confList.getComment(), JobType.NETWORK_INSPECT.toString(), confList.getFetchinterval());
+                prey.setStart(System.currentTimeMillis());
+                jedis.zadd(URLBASE, score, prey.toString());
+                jedis.close();
 
-		if (!"running".equals(state) && !"history".equals(state)) {
-			return null;
-		}
+                args.put(Params.URL, url);
+                args.put(Params.URL, prey.getUrl());
+                args.put(Params.PREV_FETCH_TIME, System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000); // 设置上次抓取时间是3天前
+                args.put(Params.COMMENT, prey.getComment());
 
-		model.addAttribute("state", state);
-		model.addAttribute("ip", ip);
-		model.addAttribute("port", port);
+                jobService.addInsecptJob(args);
 
-		String url = "http://" + ip + ":" + port + "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH + "?state=" + state;
-		Client client = Client.create();
-		WebResource webResource = client.resource(url);
-		List<JobStatus> res = new ArrayList<JobStatus>();
-		try {
-			String text = webResource.get(String.class);
-			Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-			res = gson.fromJson(text, List.class);
-		} catch (ClientHandlerException e) {
-			e.printStackTrace();
-		} finally {
-			client.destroy();
-		}
+                return args;
+        }
 
-		model.addAttribute("list", res);
-		return "crawler/detail";
-	}
+        /**
+         * 查看某个爬虫正在运行或完成的任务
+         */
+        @SuppressWarnings("unchecked")
+        @RequestMapping(value = "moreinfo/{state}/{ip}/{port}", method = RequestMethod.GET)
+        public String moreinfoOfHistory(Model model, @PathVariable(value = "state") final String state,
+                                        @PathVariable(value = "ip") final String ip, @PathVariable(value = "port") final String port) {
+
+                if (!"running".equals(state) && !"history".equals(state)) {
+                        return null;
+                }
+
+                model.addAttribute("state", state);
+                model.addAttribute("ip", ip);
+                model.addAttribute("port", port);
+
+                String url = "http://" + ip + ":" + port + "/" + SlavePath.PATH + "/" + SlavePath.JOB_RESOURCE_PATH + "?state=" + state;
+                Client client = Client.create();
+                WebResource webResource = client.resource(url);
+                List<JobStatus> res = new ArrayList<JobStatus>();
+                try {
+                        String text = webResource.get(String.class);
+                        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                        res = gson.fromJson(text, List.class);
+                } catch (ClientHandlerException e) {
+                        e.printStackTrace();
+                } finally {
+                        client.destroy();
+                }
+
+                model.addAttribute("list", res);
+                return "crawler/detail";
+        }
 
 }

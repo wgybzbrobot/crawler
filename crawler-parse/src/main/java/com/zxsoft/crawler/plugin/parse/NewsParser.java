@@ -1,6 +1,7 @@
 package com.zxsoft.crawler.plugin.parse;
 
 import java.net.URL;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,6 +38,7 @@ public class NewsParser extends Parser {
 		}
 	};
 	private String ip;
+	private long monitorTime = new Date().getTime() / 1000L;
 
 	@Override
 	public FetchStatus parse(WebPage page) throws Exception {
@@ -59,7 +61,7 @@ public class NewsParser extends Parser {
 		
 		ip = DNSCache.getIp(new URL(mainUrl));
 
-		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, System.currentTimeMillis());
+		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, System.currentTimeMillis() / 1000L);
 		info.setIp(ip);
 		Elements contentEles = null;
 		if (StringUtils.isEmpty(detailConf.getContent()) && !CollectionUtils.isEmpty(contentEles = document.select(detailConf.getContent()))) {
@@ -88,6 +90,14 @@ public class NewsParser extends Parser {
 		if (!StringUtils.isEmpty(reviewNumDom) && !CollectionUtils.isEmpty(document.select(reviewNumDom))) {
 			String reviewNum = document.select(reviewNumDom).first().text();
 			info.setRead_count(Integer.valueOf(reviewNum));
+		}
+		String dateDom = detailConf.getDate();
+		if (!StringUtils.isEmpty(dateDom) && !CollectionUtils.isEmpty(document.select(dateDom))) {
+		        String str = document.select(dateDom).first().text();
+		        Date date = Utils.formatDate(str);
+		        if (date != null) {
+		                info.setTimestamp(date.getTime() / 1000L);
+		        }
 		}
 		info.setId(Md5Signatrue.generateMd5(info.getUrl()));
 		threadLocalRecordInfos.get().add(info);

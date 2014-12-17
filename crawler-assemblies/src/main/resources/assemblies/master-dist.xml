@@ -24,7 +24,7 @@
 			<includes>
 				<include>master.properties</include>
 				<include>slaves.ini</include>
-				<include>log4j.properties</include>
+				<include>log4j.xml</include>
 			</includes>
 		</fileSet>
 		<fileSet>

@@ -1,6 +1,7 @@
 package com.zxsoft.crawler.plugin.parse;
 
 import java.net.URL;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,6 +47,7 @@ public class ForumParser extends Parser {
 		return recordInfos;
 	}
 	private String ip;
+	private long monitorTime = new Date().getTime() / 1000L;
 
 	/**
 	 * give a thread page url, get the page html code, parse the main thread,
@@ -71,7 +73,7 @@ public class ForumParser extends Parser {
 		/*
 		 * Parse Main-Thread
 		 */
-		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, System.currentTimeMillis());
+		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, System.currentTimeMillis() / 1000);
 		info.setIp(ip);
 		String replyNumDom = detailConf.getReplyNum();
 		if (!StringUtils.isEmpty(replyNumDom) && !CollectionUtils.isEmpty(mainDoc.select(replyNumDom)))
@@ -100,7 +102,7 @@ public class ForumParser extends Parser {
 					String dateField = masterEle.select(dateDom).first().text();
 					if (!StringUtils.isEmpty(dateField)) {
 						try {
-							info.setTimestamp(Utils.formatDate(dateField).getTime());
+							info.setTimestamp(Utils.formatDate(dateField).getTime() / 1000L);
 						} catch (java.text.ParseException | NullPointerException e) {
 							LOG.error("Cannot parse date: " + dateField);
 						}
@@ -234,7 +236,7 @@ public class ForumParser extends Parser {
 		if (!StringUtils.isEmpty(replyDateDom) && !CollectionUtils.isEmpty(element.select(replyDateDom))) {
 			String dateField = element.select(replyDateDom).first().text();
 			try {
-				reply.setTimestamp(Utils.formatDate(dateField).getTime());
+				reply.setTimestamp(Utils.formatDate(dateField).getTime() / 1000L);
 			} catch (java.text.ParseException | NullPointerException e) {
 				LOG.error("Cannot parse date: " + dateField + " in page " + reply.getUrl());
 			}
@@ -243,6 +245,7 @@ public class ForumParser extends Parser {
 		String id = Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(), reply.getPic_url(), reply.getVoice_url(),
 		        reply.getVideo_url());
 		reply.setId(id);
+		reply.setLasttime(monitorTime);
 		getRecordInfos().add(reply);
 		return id;
 	}
@@ -271,7 +274,7 @@ public class ForumParser extends Parser {
 		if (!CollectionUtils.isEmpty(element.select(subReplyDate))) {
 			String dateField = element.select(subReplyDate).first().text();
 			try {
-				reply.setTimestamp(Utils.formatDate(dateField).getTime());
+				reply.setTimestamp(Utils.formatDate(dateField).getTime() / 1000);
 			} catch (java.text.ParseException e) {
 				LOG.error("Cannot parse date: " + dateField + " in page " + reply.getUrl());
 			}
@@ -280,6 +283,7 @@ public class ForumParser extends Parser {
 		String id = Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(), reply.getPic_url(), reply.getVoice_url(),
 		        reply.getVideo_url());
 		reply.setId(id);
+		reply.setLasttime(monitorTime);
 		getRecordInfos().add(reply);
 		return id;
 	}

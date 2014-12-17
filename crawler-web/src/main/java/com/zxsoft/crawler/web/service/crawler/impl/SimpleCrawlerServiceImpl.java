@@ -10,30 +10,30 @@ import org.thinkingcloud.framework.util.StringUtils;
 
 public abstract class SimpleCrawlerServiceImpl {
 
-	private static Logger LOG  = LoggerFactory.getLogger(SimpleCrawlerServiceImpl.class);
-	
-	protected static String CRAWLER_MASTER;
+        private static Logger LOG = LoggerFactory.getLogger(SimpleCrawlerServiceImpl.class);
 
-	static {
-		ClassPathResource resource = new ClassPathResource("master.properties");
-		Properties properties = new Properties();
-		try {
-	        properties.load(resource.getInputStream());
-        } catch (IOException e) {
-	        e.printStackTrace();
+        protected static String CRAWLER_MASTER;
+
+        static {
+                ClassPathResource resource = new ClassPathResource("master.properties");
+                Properties properties = new Properties();
+                try {
+                        properties.load(resource.getInputStream());
+                } catch (IOException e) {
+                        e.printStackTrace();
+                }
+                CRAWLER_MASTER = properties.getProperty("crawler.master.url");
+
+                if (StringUtils.isEmpty(CRAWLER_MASTER)) {
+                        throw new NullPointerException("爬虫主控URL地址未找到, master.properties中是否配置了<crawler.master.url>");
+                }
+
+                if (CRAWLER_MASTER.endsWith("/")) {
+                        CRAWLER_MASTER = CRAWLER_MASTER + "master/";
+                } else {
+                        CRAWLER_MASTER = CRAWLER_MASTER + "/master/";
+                }
+
+                LOG.info("Crawler master url:" + CRAWLER_MASTER);
         }
-		CRAWLER_MASTER = properties.getProperty("crawler.master.url");
-
-		if (StringUtils.isEmpty(CRAWLER_MASTER)) {
-			throw new NullPointerException("爬虫主控URL地址未找到, master.properties中是否配置了<crawler.master.url>");
-		}
-
-		if (CRAWLER_MASTER.endsWith("/")) {
-			CRAWLER_MASTER = CRAWLER_MASTER + "master/";
-		} else {
-			CRAWLER_MASTER = CRAWLER_MASTER + "/master/";
-		}
-		
-		LOG.info("Crawler master url:" + CRAWLER_MASTER);
-	}
 }

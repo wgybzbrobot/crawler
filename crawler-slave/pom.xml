@@ -38,7 +38,7 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
 					<excludes>
-						<exclude>**/log4j.properties</exclude>
+						<exclude>**/log4j.xml</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

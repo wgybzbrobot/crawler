@@ -74,6 +74,7 @@ public class RAMSlaveManager implements SlaveManager {
 			SlaveStatus status = future.get();
 			if (status.state == State.STOP)  {
 				status.score = 0.0f;
+				LOG.error(status.machine.toString() + "挂了.");
 			} else {
 				status.score = 1.0f / (1.0f + status.runningNum);
 				ScoredMachine sm = new ScoredMachine(status.machine, status.runningNum, status.score);

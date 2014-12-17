@@ -56,14 +56,14 @@
 								</c:when>
 								<c:otherwise>
 								<table style="text-align:left; font-size: 14px;">
-									<thead><tr><td style="width: 35px;">序号</td><td>版块</td><td>抓取时间</td><td>数量</td><td>消息</td></tr></thead>
+									<thead><tr><td style="width: 35px;">序号</td><td>版块</td><td>抓取时间</td><td>数量</td><td>消息</td><td>Status</td></tr></thead>
 									<c:forEach items="${list}" var="map" varStatus="status">
 										<tr>
 											<td style="width: 35px;"><span>${status.index + 1}</span></td>
 											<td style="width: 120px;"><span>
 												<c:choose>
-													<c:when test="${'NETWORK_INSPECT' eq map.type }"><a target="_blank" href="${map.result.url}" title="网络巡检">${map.result.comment}</a></c:when>
-													<c:when test="${'NETWORK_SEARCH' eq map.type }"><a target="_blank" href="${map.result.url}" title="全网搜索">${map.result.comment}</a></c:when>
+													<c:when test="${'NETWORK_INSPECT' eq map.type }"><a target="_blank" href="${map.result.url}" title="网络巡检">${map.comment}</a></c:when>
+													<c:when test="${'NETWORK_SEARCH' eq map.type }"><a target="_blank" href="${map.result.url}" title="全网搜索">${map.comment}</a></c:when>
 												</c:choose></span>
 											</td>
 											<td style="width: 150px;"><span title="开始抓取时间">${map.result.starttime}</span></td>
@@ -80,6 +80,7 @@
 												</c:choose> 
 												</span>
 											</td>
+											<td>${map.state }</td>
 										</tr>
 									</c:forEach>
 								</table>

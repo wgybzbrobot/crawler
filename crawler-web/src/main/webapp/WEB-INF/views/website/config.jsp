@@ -266,7 +266,7 @@
 									 	<input type="hidden" name="url" id="url" value="${section.url }" />
 									 	<input type="hidden" name="category" value="${section.category.id }" />
 									</div>
-									<div>
+								<%-- 	<div>
 										<label class="form-label" for="auth">是否需要登录</label>
 										<c:choose>
 											<c:when test="${confList.auth}">
@@ -277,7 +277,7 @@
 													checked="checked" /> 否
 											</c:otherwise>
 										</c:choose>
-									</div>
+									</div> --%>
 									<div>
 										<label class="form-label" for="ajax">是否Ajax加载</label>
 										<c:choose>
@@ -289,18 +289,18 @@
 													checked="checked" /> 否</c:otherwise>
 										</c:choose>
 									</div>
-									<div>
+									<%-- <div>
 										<label class="form-label" for="numThreads">线程数<span class="red">*</span></label> <input class="easyui-numberbox "
 											name="numThreads" data-options="required:true,min:1,precision:0,value:6" value="${confList.numThreads }" />
-									</div>
+									</div> --%>
 									<div>
 										<label class="form-label" for="fetchinterval">时间间隔(分钟)<span class="red">*</span></label> <input name="fetchinterval"
 											class="easyui-numberbox" data-options="required:true,min:1,precision:0" value="${confList.fetchinterval }" />
 									</div>
-									<div>
+									<%-- <div>
 										<label class="form-label" for="filterurl">过滤URL的正则表达式</label> <input name="filterurl" class="easyui-textbox "
 											value="${confList.filterurl }" />
-									</div>
+									</div> --%>
 								</div>
 								<div class="confdiv" style="float: right; text-align: right;">
 									<div>

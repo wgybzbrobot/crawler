@@ -36,16 +36,16 @@ public abstract class HttpBase extends PageHelper {
 	public static final int BUFFER_SIZE = 1024 * 1024;
 
 	/** Indicates if a proxy is used */
-	protected static boolean useProxy = false;
+	protected  boolean useProxy = false;
 	/** The proxy hostname. */
-	protected static String proxyHost = null;
+	protected  String proxyHost = null;
 
 	/** The proxy port. */
-	protected static int proxyPort = 8080;
+	protected  int proxyPort = 8080;
 
 	/** Indicates if a proxy is used */
 	/** The network timeout in millisecond */
-	protected static int timeout = 10000;
+	protected  int timeout = 10000;
 
 	/** The length limit for downloaded content, in bytes. */
 	protected int maxContent = 1024 * 1024 * 3;
@@ -73,10 +73,14 @@ public abstract class HttpBase extends PageHelper {
 	protected String charset = "utf-8";
 	protected String contentType;
 
-	static {
+	public void setup() {
 		Properties prop = new Properties();
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		LOG.info("Loading protocol.properites ...");
 		InputStream stream = loader.getResourceAsStream("protocol.properties");
+		if (stream == null) {
+		        LOG.error("Load protocol.properties failed.");
+		}
 		try {
 			prop.load(stream);
 		} catch (IOException e1) {
@@ -85,6 +89,7 @@ public abstract class HttpBase extends PageHelper {
 		}
 		proxyHost = prop.getProperty("http.proxy.host");
 		proxyPort = Integer.valueOf(prop.getProperty("http.proxy.port"));
+		LOG.info("proxy:" + proxyHost + ":" + proxyPort);
 		try {
 			useProxy = (proxyHost != null && proxyHost.length() > 0);
 		} catch (NumberFormatException e ) {
@@ -94,6 +99,7 @@ public abstract class HttpBase extends PageHelper {
 		}
 		try {
 			timeout = Integer.valueOf(prop.getProperty("http.timeout"));
+			LOG.info("http request timeout" + timeout);
 		} catch (NumberFormatException e ) {
 			LOG.warn("http.timeout set error, use default:" + timeout);
 		}

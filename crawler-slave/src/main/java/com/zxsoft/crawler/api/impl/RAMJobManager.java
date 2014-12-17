@@ -9,6 +9,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.zxsoft.crawler.api.CrawlTool;
 import com.zxsoft.crawler.api.JobCode;
 import com.zxsoft.crawler.api.JobManager;
@@ -16,11 +19,15 @@ import com.zxsoft.crawler.api.JobStatus;
 import com.zxsoft.crawler.api.JobStatus.State;
 import com.zxsoft.crawler.util.ReflectionUtils;
 
+/**
+ * 任务管理
+ *
+ */
 public class RAMJobManager implements JobManager {
 	int CAPACITY = 100;
 	ThreadPoolExecutor exec = new MyPoolExecutor(10, CAPACITY, 1, TimeUnit.HOURS,
 	        new ArrayBlockingQueue<Runnable>(CAPACITY));
-
+	private Logger LOG = LoggerFactory.getLogger(RAMJobManager.class);
 	private class MyPoolExecutor extends ThreadPoolExecutor {
 
 		public MyPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,
@@ -62,15 +69,6 @@ public class RAMJobManager implements JobManager {
 		typeToClass.put(JobType.NETWORK_SEARCH, NetworkSearchJob.class);
 	}
 	
-	private void addFinishedStatus(JobStatus status) {
-		synchronized (jobHistory) {
-			if (!jobHistory.offer(status)) {
-				jobHistory.poll();
-				jobHistory.add(status);
-			}
-		}
-	}
-
 	@Override
 	@SuppressWarnings("fallthrough")
 	public List<JobStatus> list(String crawlId, State state) throws Exception {
@@ -124,6 +122,7 @@ public class RAMJobManager implements JobManager {
 		if (args == null)
 			return new JobCode(52, "parameters not support");
 		JobWorker worker = new JobWorker(jobType, args);
+		LOG.debug("create job");
 		exec.execute(worker);
 		exec.purge();
 		return new JobCode(23, "create job success");
@@ -186,13 +185,20 @@ public class RAMJobManager implements JobManager {
 		@Override
 		public void run() {
 			try {
+			        LOG.debug("set job status");
 				jobStatus.state = State.RUNNING;
 				jobStatus.msg = "OK";
-				jobStatus.result = tool.run(args);
+				try {
+				        jobStatus.result = tool.run(args);
+				} catch (Exception e) {
+				        LOG.error(e.getMessage());
+				        e.printStackTrace();
+				}
 				jobStatus.state = State.FINISHED;
 			} catch (Exception e) {
 				e.printStackTrace();
-				jobStatus.msg = "ERROR: " + e.toString();
+				LOG.error(e.getMessage());
+				jobStatus.msg = "ERROR: " + e.getMessage();
 				jobStatus.state = State.FAILED;
 			}
 		}

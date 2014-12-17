@@ -21,16 +21,16 @@
 			<directory>src/main/resources</directory>
 			<outputDirectory>/conf</outputDirectory>
 			<includes>
-				<include>log4j.properties</include>
+				<include>log4j.xml</include>
 			</includes>
 		</fileSet>
-	<!-- 	<fileSet>
-			<directory>${main.basedir}/crawler-parse/src/main/resources</directory>
+		<fileSet>
+			<directory>${main.basedir}/crawler-protocol/src/main/resources</directory>
 			<outputDirectory>/conf</outputDirectory>
-			<excludes>
-				<exclude>log4j.resources</exclude>
-			</excludes>
-		</fileSet> -->
+			<includes>
+				<include>protocol.properties</include>
+			</includes>
+		</fileSet>
 		<fileSet>
 			<directory>${main.basedir}/crawler-dao/src/main/resources</directory>
 			<outputDirectory>/conf</outputDirectory>
