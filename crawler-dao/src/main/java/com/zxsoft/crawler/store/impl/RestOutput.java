@@ -35,7 +35,7 @@ public class RestOutput implements Output {
 		try {
 			prop.load(stream);
 		} catch (IOException e1) {
-			e1.printStackTrace();
+		        LOG.error("Load output.properties file failed.");
 		}
 		url = prop.getProperty("data.output.address");
 		if (StringUtils.isEmpty(url)) {

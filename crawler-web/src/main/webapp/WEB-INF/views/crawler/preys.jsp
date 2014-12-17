@@ -56,13 +56,36 @@ $(function() {
 			}
 		});
 	});
+	
+	$('#sectionFilter').keydown(function(e){
+		  if(e.keyCode==13){
+			  $.ajax({
+      			type : 'POST',
+      			url : '../ajax/preys',
+      			dataType : 'json',
+    			data: {name: $(this).val()},
+      			success: function(data) {
+      				if (data.length == 0) {
+      					$('div.right-panel ol').text('没有记录');
+      					return false;
+      				} else {
+      					$('div.right-panel ol').text('');
+      				}
+      				$('div.right-panel ol li').remove();
+      				$.each(data, function(i, val) {
+      					$('div.right-panel ol').append('<li style="line-height: 22px;">' + val.comment + '</li>');
+      				});
+      			}
+      		});
+		  }
+	});
 });
 </script>
 </head>
 <body>
 	<div class="right-panel" >
-		<div><input name="url" type="text" title="输入版块名称或网址搜索" /></div>
-		<div>
+		<div><input id="sectionFilter" name="url" type="text" title="输入版块名称或网址搜索" /></div>
+		<div style="height:92%; overflow-y:scroll;">
 			<ol>
 			<c:forEach items="${confLists}" var="confList" varStatus="status">
 				<li style="line-height: 22px;">

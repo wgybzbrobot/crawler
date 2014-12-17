@@ -46,6 +46,7 @@ public class HttpClient extends HttpBase {
 	private int maxThreadsTotal = 30;
 
 	public HttpClient() {
+	        setup();
 		configureClient();
 	}
 

@@ -26,7 +26,6 @@
 		<module>crawler-web</module>
 		<module>crawler-assemblies</module>
 		<module>crawler-project</module>
-		<module>crawler-dist</module>
 	</modules>
 	<organization>
 		<name>中新软件有限公司</name>
@@ -139,6 +138,11 @@
 	</build>
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>com.zxsoft.crawler</groupId>
+				<artifactId>crawler-assemblies</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>com.zxsoft.crawler</groupId>
 				<artifactId>crawler-common</artifactId>

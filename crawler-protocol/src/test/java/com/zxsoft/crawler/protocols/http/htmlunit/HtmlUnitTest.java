@@ -34,11 +34,13 @@ public class HtmlUnitTest {
 	@Test
 	public void testLoadCurrentPage() throws ProtocolException, IOException {
 //		String url = "http://roll.news.sina.com.cn/s/channel.php";
-		String url = "http://roll.sohu.com/";
+//		String url = "http://roll.sohu.com/";
+	        String url = "http://www.soubao.net/search/searchList.aspx?keyword=%D6%D0%B9%FA&startdate=2014-12-16&enddate=2014-12-16&timesel=nowday";
 		WebPage page = new WebPage(url, true);
 		ProtocolOutput protocolOutput = htmlUnit.getProtocolOutput(page);
 		Document currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
+		System.out.println(currentDoc);
 	}
 	
 	@Test

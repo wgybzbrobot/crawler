@@ -106,80 +106,90 @@ public class MasterServer {
                 new Thread(new Runnable() {
                         @Override
                         public void run() {
-                                while (true) {
-                                        synchronized (this) {
-
-                                                Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
-                                                Set<String> strs = null;
-                                                try {
-                                                        strs = jedis.zrevrange(URLBASE, 0, 0);
-                                                } catch (JedisConnectionException e) {
-                                                        LOG.error(e.getMessage() + ", sleep 10s then try again.");
+                                synchronized (this) {
+                                        boolean shouldSleep = false;
+                                        while (true) {
+                                                if (shouldSleep){
                                                         try {
-                                                                TimeUnit.SECONDS.sleep(10000);
-                                                        } catch (InterruptedException e1) {
-                                                                e1.printStackTrace();
-                                                        }
-                                                        continue;
-                                                }
-                                                if (CollectionUtils.isEmpty(strs)) {
-                                                        LOG.warn("No records in redis urlbase, sleep 30s then try again.");
-                                                        try {
-                                                                Thread.sleep(30000);
+                                                                TimeUnit.SECONDS.sleep(30);
                                                         } catch (InterruptedException e) {
                                                                 LOG.error(e.getMessage());
                                                                 e.printStackTrace();
+                                                        } finally {
+                                                                shouldSleep = false;
                                                         }
-                                                        continue;
                                                 }
-                                                String json = strs.toArray(new String[0])[0];
-
-                                                Prey prey = null;
+                                        
+                                                Jedis jedis = null;
                                                 try {
-                                                        prey = new Gson().fromJson(json, Prey.class);
-                                                } catch (JsonSyntaxException e) {
-                                                        LOG.warn(e.getLocalizedMessage()
-                                                                                        + ", will remove it from urlbase.");
-                                                        jedis.zrem(URLBASE, json);
-                                                        continue;
-                                                }
-                                                long interval = System.currentTimeMillis() - prey.getPrevFetchTime();
-                                                long realInterval = prey.getFetchinterval() * 60 * 1000L;
-                                                long prevFetchTime = prey.getPrevFetchTime();
-                                                if (interval >= realInterval) {
-                                                        jedis.zrem(URLBASE, json);
-                                                        // 将上次抓取时间设置为当前时间，供下次抓取使用
-                                                        prey.setPrevFetchTime(System.currentTimeMillis());
-                                                        double score = 1.0d / (System.currentTimeMillis() / 60000.0d + prey
-                                                                                        .getFetchinterval() * 1.0d);
-                                                        jedis.zadd(URLBASE, score, prey.toString());
-                                                } else {
-                                                        long wait = realInterval - interval;
-                                                        LOG.info("Sleep " + wait + " milliseconds");
+                                                        jedis = new Jedis(REDIS_HOST, REDIS_PORT);
+                                                        Set<String> strs = null;
+                                                        strs = jedis.zrevrange(URLBASE, 0, 0);
+
+                                                        if (CollectionUtils.isEmpty(strs)) {
+                                                                LOG.warn("No records in redis urlbase, sleep 30s then try again.");
+                                                                shouldSleep = true;
+                                                                continue;
+                                                        }
+                                                        String json = strs.toArray(new String[0])[0];
+
+                                                        Prey prey = null;
                                                         try {
-                                                                Thread.sleep(wait);
-                                                        } catch (InterruptedException e) {
+                                                                prey = new Gson().fromJson(json, Prey.class);
+                                                        } catch (JsonSyntaxException e) {
+                                                                LOG.warn(e.getLocalizedMessage() + ", will remove it from urlbase.");
+                                                                jedis.zrem(URLBASE, json);
+                                                                continue;
+                                                        }
+                                                        if (prey == null) {
+                                                                continue;
+                                                        }
+                                                        long interval = System.currentTimeMillis() - prey.getPrevFetchTime();
+                                                        long realInterval = prey.getFetchinterval() * 60 * 1000L;
+                                                        long prevFetchTime = prey.getPrevFetchTime();
+                                                        if (interval >= realInterval) {
+                                                                long res = jedis.zrem(URLBASE, json);
+                                                                if (res != 1L) {
+                                                                        LOG.error(json + " is not member of urlbase, cannot remove it. And it will not create job to slaves.");
+                                                                }
+                                                                // 将上次抓取时间设置为当前时间，供下次抓取使用
+                                                                prey.setPrevFetchTime(System.currentTimeMillis());
+                                                                double score = 1.0d / (System.currentTimeMillis() / 60000.0d + prey.getFetchinterval() * 1.0d);
+                                                                jedis.zadd(URLBASE, score, prey.toString());
+                                                        } else {
+                                                                long wait = realInterval - interval;
+                                                                LOG.info("Sleep " + wait + " milliseconds");
+                                                                try {
+                                                                        Thread.sleep(wait);
+                                                                } catch (InterruptedException e) {
+                                                                        e.printStackTrace();
+                                                                }
+                                                                continue;
+                                                        }
+                                                        LOG.info("分发任务: " + prey.toString());
+                                                        Map<String, Object> map = new HashMap<String, Object>();
+                                                        map.put(Params.JOB_TYPE, prey.getJobType());
+                                                        Map<String, Object> args = new HashMap<String, Object>();
+                                                        args.put(Params.URL, prey.getUrl());
+                                                        args.put(Params.PREV_FETCH_TIME, prevFetchTime);
+                                                        args.put(Params.COMMENT, prey.getComment());
+                                                        map.put(Params.ARGS, args);
+
+                                                        SlaveManager slaveManager = new RAMSlaveManager();
+                                                        try {
+                                                                slaveManager.create(map);
+                                                        } catch (Exception e) {
+                                                                LOG.warn(e.getMessage());
                                                                 e.printStackTrace();
                                                         }
-                                                        continue;
+                                                } catch (JedisConnectionException e) {
+                                                        LOG.error(e.getMessage() + ", cannot connect to redis, sleep 30s then try again.");
+                                                        shouldSleep = true;
+                                                } finally {
+                                                        if (jedis != null) {
+                                                                jedis.close();
+                                                        }
                                                 }
-                                                LOG.info("分发任务: " + prey.toString());
-                                                Map<String, Object> map = new HashMap<String, Object>();
-                                                map.put(Params.JOB_TYPE, prey.getJobType());
-                                                Map<String, Object> args = new HashMap<String, Object>();
-                                                args.put(Params.URL, prey.getUrl());
-                                                args.put(Params.PREV_FETCH_TIME, prevFetchTime);
-                                                args.put(Params.COMMENT, prey.getComment());
-                                                map.put(Params.ARGS, args);
-
-                                                SlaveManager slaveManager = new RAMSlaveManager();
-                                                try {
-                                                        slaveManager.create(map);
-                                                } catch (Exception e) {
-                                                        LOG.warn(e.getMessage());
-                                                        e.printStackTrace();
-                                                }
-                                                jedis.close();
                                         }
                                 }
                         }

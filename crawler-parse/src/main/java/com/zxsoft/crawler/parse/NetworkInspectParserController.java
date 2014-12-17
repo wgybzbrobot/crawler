@@ -26,14 +26,13 @@ public final class NetworkInspectParserController extends ParseTool {
 	private static Logger LOG = LoggerFactory.getLogger(NetworkInspectParserController.class);
 	private static final int _pageNum = 2;
 
-	public NetworkInspectParserController() {}
-	
 	public FetchStatus parse(WebPage page) throws ParserNotFoundException {
 		Assert.notNull(page);
 		String indexUrl = page.getBaseUrl();
-
+		LOG.debug("indexUrl: " + indexUrl);
 		ListConf listConf = confDao.getListConf(indexUrl);
 		if (listConf == null) {
+		        LOG.error("Cannot find listConf:" + listConf);
 			return new FetchStatus(indexUrl, 43, Status.CONF_ERROR);
 		}
 

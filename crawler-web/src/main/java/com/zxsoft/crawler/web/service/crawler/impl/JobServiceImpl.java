@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.zxsoft.crawler.api.Machine;
@@ -21,6 +23,8 @@ import com.zxsoft.crawler.web.service.crawler.JobService;
  */
 public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobService {
 
+        private static Logger LOG = LoggerFactory.getLogger(JobServiceImpl.class);
+        
 	@Override
 	public Map<String, Object> addInsecptJob(Map<String, Object> args) {
 		final Map<String, Object> map = new HashMap<String, Object>();
@@ -31,8 +35,14 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 	        	@Override
 	        	public void run() {
 	        		ClientResource cli = new ClientResource(CRAWLER_MASTER + MasterPath.SLAVE_RESOURCE_PATH);
-	        		cli.put(map);
-	        		cli.release();
+	        		try {
+	        		        Representation r = cli.put(map);
+	        		        LOG.info(r.getText());
+	        		} catch (Exception e) {
+	        		        e.printStackTrace();
+	        		} finally {
+	        		        cli.release();
+	        		}
 	        	};
 	        };
 	        t.start();

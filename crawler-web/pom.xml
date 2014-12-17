@@ -141,12 +141,15 @@
 					<webResources>
 						<resource>
 							<directory>${main.basedir}/crawler-dao/src/main/resources/</directory>
+							<targetPath>WEB-INF/classes/</targetPath>
 							<includes>
 								<include>db.properties</include>
+								<include>output.properties</include>
 							</includes>
 						</resource>
 						<resource>
 							<directory>${main.basedir}/crawler-protocol/src/main/resources/</directory>
+							<targetPath>WEB-INF/classes/</targetPath>
 							<includes>
 								<include>protocol.properties</include>
 							</includes>

@@ -21,15 +21,9 @@ public class HttpFetcher {
 	
 	private static Logger LOG = LoggerFactory.getLogger(HttpFetcher.class);
 
-	private static HttpBase htmlUnit;
-	private static HttpBase httpClient;
+	private static HttpBase htmlUnit = new HtmlUnit();
+	private static HttpBase httpClient = new HttpClient();
 	
-	static {
-		htmlUnit = new HtmlUnit();
-		httpClient = new HttpClient();
-	}
-	
-
 	public ProtocolOutput fetch(String url, NameValuePair[] data) throws IOException {
 		return httpClient.post(url, data);
 	}
