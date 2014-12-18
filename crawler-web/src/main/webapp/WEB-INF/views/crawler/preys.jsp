@@ -73,11 +73,55 @@ $(function() {
       				}
       				$('div.right-panel ol li').remove();
       				$.each(data, function(i, val) {
-      					$('div.right-panel ol').append('<li style="line-height: 22px;">' + val.comment + '</li>');
+      					$('div.right-panel ol').append('<li style="line-height: 22px;"><a  target="_blank" href="'+ val.url + '">' + val.comment + '</a></li>');
       				});
       			}
       		});
 		  }
+	});
+	$('#jobText').keydown(function(e){
+		  if(e.keyCode==13){
+			 $('#jobFilterForm').submit();
+		  }
+	});
+	$('a.delJob').click(function(e){
+		var comment = $(this).attr('comment');
+		var start = $(this).attr('start');
+		var $tr = $(this).parents('tr')[0];
+		$.ajax({
+   			type : 'POST',
+   			url : $(this).attr('href') ,
+   			dataType : 'json',
+ 			data: {comment: comment, start: start},
+   			success: function(data) {
+   				console.log(data);
+   				if (data.code == 1) {
+   					// $tr.remove();
+   					location.reload();
+   				} else {
+   					
+   				}
+   			}
+   		});
+	});
+	$('a.haltJob').click(function(e){
+		var comment = $(this).attr('comment');
+		var start = $(this).attr('start');
+		var $tr = $(this).parents('tr')[0];
+		$.ajax({
+   			type : 'POST',
+   			url : $(this).attr('href') ,
+   			dataType : 'json',
+ 			data: {comment: comment, start: start},
+   			success: function(data) {
+   				console.log(data);
+   				if (data.code == 1) {
+   					location.reload();
+   				} else {
+   					
+   				}
+   			}
+   		});
 	});
 });
 </script>
@@ -89,7 +133,7 @@ $(function() {
 			<ol>
 			<c:forEach items="${confLists}" var="confList" varStatus="status">
 				<li style="line-height: 22px;">
-					<a href="${confList.url}" onclick="return false;" title="点击添加网络巡检任务">${confList.comment }</a>
+					<a href="${confList.url}"  target="_blank" title="点击添加网络巡检任务">${confList.comment }</a>
 				</li>
 			</c:forEach>
 			</ol>
@@ -142,6 +186,9 @@ $(function() {
 		</div>
 		<div style="text-align: center;">
 			<div id="content">
+				<div>
+					<form id="jobFilterForm" action="<c:url value='/slaves/jobs' />" method="post">查询任务:<input id="jobText" name="job" type="text" value="${searchJobKey }" title="输入任务名称或网址后回车搜索" /></form>
+				</div>
 				<div>Redis任务队列总共有${count}个任务, 下面为您显示
 					<form id="preyForm" action="" style="display: inline;"><input style="width: 90px;" type="text" value="${fn:length(preys)}" title="输入个数后回车"/></form>个任务
 				</div>
@@ -184,14 +231,17 @@ $(function() {
 										type="both" value="${nextFetchTime}" pattern="yyyy-MM-dd HH:mm:ss" var="nextFetchTimef" />
 									${nextFetchTimef }
 							</span></td>
-							<td><span><a href="javascript:void(0);">删除</a></span> 
+							<td>
+								<span>
+									<a class="delJob" comment="${prey.comment }" start="${prey.start}" href="<c:url value='/slaves/ajax/job/delete' />" onclick="return false;">删除</a>
+								</span> 
 								<span><a>修改</a></span>
 								<span> <c:choose>
 										<c:when test="${prey.state eq 1 }">
-											<a href="javascript:void(0);">暂停</a>
+											<a  class="haltJob" comment="${prey.comment }" start="${prey.start}" href="<c:url value='/slaves/ajax/job/halt' />" onclick="return false;" title="处于执行状态,点击暂停">暂停</a>
 										</c:when>
 										<c:otherwise>
-											<a href="javascript:void(0);">执行</a>
+											<a class="haltJob" comment="${prey.comment }" start="${prey.start}" href="<c:url value='/slaves/ajax/job/halt' />" onclick="return false;" title="处于暂停状态,点击执行">执行</a>
 										</c:otherwise>
 									</c:choose>
 							</span></td>

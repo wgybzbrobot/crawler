@@ -148,6 +148,7 @@ public class MasterServer {
                                                         long realInterval = prey.getFetchinterval() * 60 * 1000L;
                                                         long prevFetchTime = prey.getPrevFetchTime();
                                                         if (interval >= realInterval) {
+                                                                
                                                                 long res = jedis.zrem(URLBASE, json);
                                                                 if (res != 1L) {
                                                                         LOG.error(json + " is not member of urlbase, cannot remove it. And it will not create job to slaves.");
