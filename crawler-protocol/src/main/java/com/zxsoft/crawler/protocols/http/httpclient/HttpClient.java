@@ -4,12 +4,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -18,6 +21,7 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
+import org.apache.tika.metadata.Metadata;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -26,13 +30,16 @@ import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
 
-import com.zxsoft.crawler.metadata.Metadata;
+
+
+
+//import com.zxsoft.crawler.metadata.Metadata;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocols.http.HttpBase;
 import com.zxsoft.crawler.storage.WebPage;
-import com.zxsoft.crawler.util.EncodingDetector;
 import com.zxsoft.crawler.util.Utils;
+import com.zxsoft.crawler.util.page.EncodingDetector;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PageHelper;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
@@ -46,7 +53,7 @@ public class HttpClient extends HttpBase {
 	private int maxThreadsTotal = 30;
 
 	public HttpClient() {
-	        setup();
+//	        setup();
 		configureClient();
 	}
 
@@ -73,6 +80,10 @@ public class HttpClient extends HttpBase {
 		if (useProxy) {
 			LOG.info("HttpClient use proxy " + proxyHost + ":" + proxyPort);
 			hostConf.setProxy(proxyHost, proxyPort);
+			if (!StringUtils.isEmpty(proxyUsername) && !StringUtils.isEmpty(proxyPassword)) {
+        			UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(proxyUsername, proxyPassword);
+        			client.getState().setProxyCredentials(AuthScope.ANY , credentials);
+			}
 		}
 	}
 
@@ -80,7 +91,7 @@ public class HttpClient extends HttpBase {
 	public Response getResponse(WebPage page) throws ProtocolException, IOException {
 
 		int code = -1;
-		Metadata headers = new Metadata();
+		Metadata metadata = new Metadata();
 		byte[] content = null/* new byte[1024] */;
 
 		URL url = null;
@@ -88,7 +99,7 @@ public class HttpClient extends HttpBase {
 			url = new URL(page.getBaseUrl());
 		} catch (Exception e) {
 //			throw new IOException("url: " + page.getBaseUrl());
-			LOG.error(e.getMessage());
+			LOG.error(e.getMessage(), e);
 			return null;
 		}
 		
@@ -103,10 +114,14 @@ public class HttpClient extends HttpBase {
 			code = client.executeMethod(get);
 			Header[] heads = get.getResponseHeaders();
 			for (int i = 0; i < heads.length; i++)
-				headers.set(heads[i].getName(), heads[i].getValue());
+				metadata.set(heads[i].getName(), heads[i].getValue());
 
-			String contentType = headers.get(Response.CONTENT_TYPE);
+			String contentType = metadata.get(Response.CONTENT_TYPE);
 			charset = EncodingDetector.parseCharacterEncoding(contentType, get.getResponseBody());
+			if (StringUtils.isEmpty(charset)) {
+			        charset = EncodingDetector.detect(get.getResponseBodyAsString(), metadata);
+			}
+			
 			long contentLength = Long.MAX_VALUE;
 			byte[] buffer = new byte[1024 * 1024];
 			int bufferFilled = 0;
@@ -121,6 +136,7 @@ public class HttpClient extends HttpBase {
 				content = out.toByteArray();
 			} catch (Exception e) {
 				if (code == 200) {
+				        LOG.error(e.getMessage(), e);
 				}
 			} finally {
 				if (in != null) {
@@ -129,7 +145,7 @@ public class HttpClient extends HttpBase {
 			}
 			if (content != null) {
 				// check if we have to uncompress it
-				String contentEncoding = headers.get(Response.CONTENT_ENCODING);
+				String contentEncoding = metadata.get(Response.CONTENT_ENCODING);
 				if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
 					content = processGzipEncoded(content, url);
 				} else if ("deflate".equals(contentEncoding)) {
@@ -137,12 +153,13 @@ public class HttpClient extends HttpBase {
 				}
 			}
 		} catch (Exception e) {
-			LOG.warn(e.getMessage() + ": " + url.toString());
+			LOG.error(e.getMessage() + ": " + url.toString());
+			e.printStackTrace();
 		} finally {
 			get.releaseConnection();
 		}
 
-		return new Response(url, code, headers, content, charset);
+		return new Response(url, code, metadata, content, charset);
 	}
 
 	@Override
@@ -187,7 +204,7 @@ public class HttpClient extends HttpBase {
 				content = out.toByteArray();
 			} catch (Exception e) {
 				if (code == 200) {
-
+				         LOG.error(e.getMessage(), e);
 				}
 			} finally {
 				if (in != null) {
@@ -214,30 +231,13 @@ public class HttpClient extends HttpBase {
 	protected Response loadPrevPage(int pageNum, final WebPage page) throws ProtocolException, IOException, PrevPageNotFoundException,
 	        PageBarNotFoundException {
 		Document currentDoc = page.getDocument();
-
-		// 从列表块中选
-		// ListConf listConf = page.getListConf();
-		// String listdom = listConf == null ? null : listConf.getListdom();
-		// Element listElement = null;
-		// if (!StringUtils.isEmpty(listConf)) {
-		// listElement = CollectionUtils.isEmpty(currentDoc.select(listdom)) ?
-		// null : currentDoc.select(listdom).first();
-		// }
 		Elements elements = null;
-
-		// if (listElement == null) {
 		elements = currentDoc.select("a:matchesOwn(上一页|上页|<上一页)");
-		// } else {
-		// elements = listElement.select("a:matchesOwn(上一页|上页|<上一页)");
-		// }
 		URL url = null;
 		if (!CollectionUtils.isEmpty(elements)) {
 			url = new URL(elements.first().absUrl("href"));
 		} else if (pageNum > 1) {
-			Element pagebar = getPageBar(currentDoc/*
-													 * listElement == null ?
-													 * currentDoc : listElement
-													 */);
+			Element pagebar = getPageBar(currentDoc);
 			if (pagebar != null) {
 				Elements achors = pagebar.getElementsByTag("a");
 				if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
@@ -252,8 +252,6 @@ public class HttpClient extends HttpBase {
 			url = PageHelper.calculatePrevPageUrl(currentDoc);
 		}
 		if (url != null) {
-			// LOG.info(currentDoc.location() + " Next Page url: " +
-			// url.toString());
 			WebPage np = page;
 			np.setBaseUrl(url.toExternalForm());
 			return getResponse(page);
@@ -265,22 +263,8 @@ public class HttpClient extends HttpBase {
 	@Override
 	protected Response loadNextPage(int pageNum, final WebPage page) throws ProtocolException, IOException, PageBarNotFoundException {
 		Document currentDoc = page.getDocument();
-
-		// 从列表块中选
-		// ListConf listConf = page.getListConf();
-		// String listdom = listConf == null ? null : listConf.getListdom();
-		// Element listElement = null;
-		// if (!StringUtils.isEmpty(listConf)) {
-		// listElement = CollectionUtils.isEmpty(currentDoc.select(listdom)) ?
-		// null : currentDoc.select(listdom).first();
-		// }
 		Elements elements = null;
-
-		// if (listElement != null) {
-		// elements = listElement.select("a:matchesOwn(下一页|下页|下一页>)");
-		// } else {
 		elements = currentDoc.select("a:matchesOwn(下一页|下页|下一页>)");
-		// }
 
 		if (!CollectionUtils.isEmpty(elements)) {
 			WebPage np = page;
@@ -292,23 +276,12 @@ public class HttpClient extends HttpBase {
 
 			return getResponse(np);
 		} else {
-			/*
-			 * Find the position of current page url from page bar, get next
-			 * achor as the next page url. However, there is a problem. It's not
-			 * very accurate, some url cannot find from page bar, because it
-			 * changed when load it.
-			 */
-			Element pagebar = getPageBar(currentDoc/*
-													 * listElement == null ?
-													 * currentDoc : listElement
-													 */);
+			Element pagebar = getPageBar(currentDoc);
 			if (pagebar != null) {
 				Elements achors = pagebar.getElementsByTag("a");
 				if (pagebar != null || !CollectionUtils.isEmpty(achors)) {
 					for (int i = 0; i < achors.size(); i++) {
 						if (Utils.isNum(achors.get(i).text()) && Integer.valueOf(achors.get(i).text().trim()) == pageNum + 1) {
-							// LOG.info(currentDoc.location() +
-							// "Prev Page url: " + url.toString());
 							WebPage np = page;
 							np.setBaseUrl(achors.get(i).absUrl("href"));
 							return getResponse(np);
@@ -330,20 +303,8 @@ public class HttpClient extends HttpBase {
 			return getResponse(np);
 		}
 
-		// 从列表块中选
-		// ListConf listConf = page.getListConf();
-		// String listdom = listConf == null ? null : listConf.getListdom();
-		// Element listElement = null;
-		// if (!StringUtils.isEmpty(listConf)) {
-		// listElement = CollectionUtils.isEmpty(currentDoc.select(listdom)) ?
-		// null : currentDoc.select(listdom).first();
-		// }
-
 		// 1. get all links from page bar
-		Element pagebar = getPageBar(currentDoc/*
-												 * listElement == null ?
-												 * currentDoc : listElement
-												 */);
+		Element pagebar = getPageBar(currentDoc);
 		if (pagebar == null)
 			return null;
 		Elements links = pagebar.getElementsByTag("a");

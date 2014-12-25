@@ -123,6 +123,7 @@
 					<version>3.3</version>
 					<configuration>
 						<locales>zh_CN</locales>
+						<stagingDirectory>/tmp/stage</stagingDirectory>
 					</configuration>
 				</plugin>
 				<plugin>

@@ -134,7 +134,7 @@ header {
 #menu li a {
 	/* color: #fff;
 	font-size: 15px; */
-		background: #333;
+	background: #333;
 	color: #fff;
 	display: block;
 	padding: 7px 8px;
@@ -143,14 +143,14 @@ header {
 }
 
 #menu li a:HOVER {
-		color: #069;
-	border:#c5c5c5;
+	color: #069;
+	border: #c5c5c5;
 	font-size: 15px;
 }
 
 #menu ul {
 	display: none;
-		position: absolute;
+	position: absolute;
 	margin-left: 0px;
 	list-style: none;
 	padding: 0px;
@@ -158,7 +158,7 @@ header {
 }
 
 #menu ul li {
-		width: 100px;
+	width: 100px;
 	float: left;
 }
 
@@ -230,21 +230,19 @@ table.maintable td {
 	font-size: 10px;
 }
 
-/* .highlight {
-	font-weight: bold;
-	color: #ff0000;
-	background-color: #49635a;
+#loading {
+	left: 40%;
+	position: absolute;
+	z-index: 999;
+	display: none;
+	border: 1px solid #e3e3e3;
+	text-align: left;
+	font-size: 20px;
+	background-color: #67CF22;
+	 -webkit-animation: stretchdelay 1.2s infinite ease-in-out;
+  	animation: stretchdelay 1.2s infinite ease-in-out;
+  	
+	top: 50%;
+	left: 50%;
+	-moz-border-radius: 20px;
 }
-
-.dialog-box {
-	margin: 10px;
-}
-
-#minMax {
-	width: 1000px;
-	position: relative;
-	min-height: 100%;
-	height: auto !important;
-	height: 100%;
-	margin: 0 auto;
-} */

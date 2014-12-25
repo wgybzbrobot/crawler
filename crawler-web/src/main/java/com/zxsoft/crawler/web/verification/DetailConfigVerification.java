@@ -19,6 +19,8 @@ import org.thinkingcloud.framework.util.StringUtils;
 
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.parse.ParseTool;
+import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
+import com.zxsoft.crawler.plugin.parse.ext.SourceExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
@@ -69,7 +71,7 @@ public class DetailConfigVerification extends ParseTool {
 					info.put("reviewNum", reviewNum);
 				}
 			}
-
+			// 转发数
 			if (!StringUtils.isEmpty(detailConf.getForwardNum())) {
 				Elements forwardNumEles = document.select(detailConf.getForwardNum());
 				if (CollectionUtils.isEmpty(forwardNumEles)) {
@@ -82,6 +84,19 @@ public class DetailConfigVerification extends ParseTool {
 					        .extractNum(forwardNumEles.first().text()));
 					info.put("forwardNum", forwardNum);
 				}
+			}
+			// 来源
+			if (!StringUtils.isEmpty(detailConf.getSources())) {
+			        Elements sourcesEles = document.select(detailConf.getSources());
+			        if (CollectionUtils.isEmpty(sourcesEles)) {
+			                Map<String, String> error = new HashMap<String, String>();
+			                error.put("field", "sources");
+			                error.put("msg", "获取来源失败");
+			                errors.add(error);
+			        } else {
+			                String sources = SourceExtractor.extract(sourcesEles.first().text());
+			                info.put("sources", sources);
+			        }
 			}
 
 			Element pagebar = null;
@@ -121,16 +136,13 @@ public class DetailConfigVerification extends ParseTool {
 						if (CollectionUtils.isEmpty(masterDateEles)) {
 							Map<String, String> error = new HashMap<String, String>();
 							error.put("field", "date");
-							error.put("msg", "获取发布时间失败");
+							error.put("msg", "没有获取到发布时间的节点");
 							errors.add(error);
 						} else {
-							try {
-								Date date = Utils.formatDate(masterDateEles.first().text());
-								String releasedate = date != null ? date.toLocaleString() : "";
-								info.put("releasedate", releasedate);
-							} catch (ParseException e) {
-								info.put("releasedate", "无法获取发布时间, 原因:" + e.getMessage());
-							}
+						        String _text = masterDateEles.first().text();
+							Date date = DateExtractor.extract(_text);
+							String releasedate = date != null ? date.toLocaleString() : "";
+							info.put("releasedate", "节点内容是" + _text + ", 时间是" + releasedate);
 						}
 					}
 
@@ -162,10 +174,9 @@ public class DetailConfigVerification extends ParseTool {
 				if (CollectionUtils.isEmpty(replyEles)) {
 					Map<String, String> error = new HashMap<String, String>();
 					error.put("field", "reply");
-					error.put("msg", "获取回复信息失败");
+					error.put("msg", "没有得到回复DOM节点");
 					errors.add(error);
 				} else {
-					info.put("curReplyNum", replyEles.size());
 					List<Map<String, String>> replies = new ArrayList<Map<String, String>>();
 					int count1 = 0, count2 = 0, count3 = 0;
 					for (int i = 1; i < replyEles.size(); i++) {
@@ -182,17 +193,10 @@ public class DetailConfigVerification extends ParseTool {
 						if (CollectionUtils.isEmpty(replyDateEles)) {
 							count2++;
 						} else {
-							try {
-								if (Utils.formatDate(replyDateEles.first().text()) == null) {
-									reply.put("replyDate", "");
-								} else {
-									reply.put("replyDate",
-									        Utils.formatDate(replyDateEles.first().text())
-									                .toString());
-								}
-							} catch (ParseException e) {
-								e.printStackTrace();
-							}
+						        String _text = replyDateEles.first().text();
+						        Date date = DateExtractor.extract(_text);
+						        String releasedate = date != null ? date.toLocaleString() : "";
+						        reply.put("replyDate", "节点内容是" + _text + ", 时间是" + releasedate);
 						}
 
 						Elements replyContentEles = replyEle.select(detailConf.getReplyContent());
@@ -222,7 +226,8 @@ public class DetailConfigVerification extends ParseTool {
 						error.put("msg", "获取回复内容失败");
 						errors.add(error);
 					}
-					// info.put("回复", replies);
+					 info.put("replies", replies);
+					 info.put("curReplyNum", replies.size());
 				}
 			}
 		}

@@ -16,7 +16,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.util.StringUtils;
 
 import com.google.gson.JsonObject;
@@ -45,6 +44,7 @@ public class Utils {
 		return host.getProtocol() + "://" + host.getHost();
 	}
 
+	
 	/**
 	 * 格式化日期
 	 * @throws ParseException 

@@ -18,6 +18,7 @@ public interface WebsiteService {
 	
 	void save(Website website);
 	Website getWebsite(String id);
+	void deleteWebsite(String id);
 	List<Auth> getAuths(String id);
 	void saveAuth(Auth auth);
 	Auth getAuth(String id);

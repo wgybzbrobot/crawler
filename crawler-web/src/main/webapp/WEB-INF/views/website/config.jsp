@@ -59,8 +59,8 @@
 					html += '<tr>';
 					html += '<td class="link">' + (i+1) + '</td>';
 					html += '<td><a class="link" target="_blank" href="' + item.url + '">' + item.title + '</a></td>';
-					html += '<td>' + (item.update == null ? '' : new Date(item.update).toLocaleString()) + '</td>';
-					html += '<td>' + item.synopsis + '</td>';
+					html += '<td>' + (item.update == null ? '没有获取到' : new Date(item.update).toLocaleString()) + '</td>';
+					html += '<td>' + (item.synopsis == null ? '' : item.synopsis) + '</td>';
 					html += '</tr>';
 				});
 				html += '</table>';
@@ -156,13 +156,25 @@
 						html += '<p><strong>回复数:</strong>' + data.info.replyNum + '</p>';
 						html += '<p><strong>浏览数:</strong>' + data.info.reviewNum + '</p>';
 						html += '<p><strong>转发数:</strong>' + data.info.forwardNum + '</p>';
+						html += '<p><strong>来源:</strong>' + data.info.sources + '</p>';
 						if (data.info.pagebar != '') {
 							html += '<p><strong>分页栏:</strong>' + $.parseHTML(data.info.pagebar)[0].data + '</p>';
 						}
 						html += '<p><strong>作者:</strong>' + data.info.author + '</p>';
 						html += '<p><strong>发布时间:</strong>' + data.info.releasedate + '</p>';
 						html += '<p><strong>主内容:</strong>' + data.info.masterContent + '</p>';
-						html += '<p><strong>当前页回复数(可能包含主帖):</strong>' + data.info.curReplyNum + '</p>';
+						html += '<p><strong>当前页回复数(可能包含主帖):</strong>' + data.info.curReplyNum == undefined ? 0 : data.info.curReplyNum+ '</p>';
+						
+						if (data.info.replies != undefined) {
+							html += '当前页的回复：';
+							$.each(data.info.replies, function(i, val) {
+								html += '<p style="border:1px solid;">'
+											+ '<span title="序号" style="color:#ff2233;">' + (i+1) + '</span>' 
+											+ '<span title="回复人" style="color:#006699">' + val.replyAuthor  + '</span>'
+											+ '<span title="回复时间" style="color:#2233ff">' + val.replyDate  + '</span>'
+											+ '<span title="内容">' + val.replyContent +   '</span></p>';
+							});
+						}
 					}
 					html += '</div></div>';
 					
@@ -211,6 +223,7 @@
 </script>
 </head>
 <body>
+	<div id="loading" >正在验证...</div>
 	<div id="body">
 		<div>
 			<a class="linkbutton" href="javascript:history.go(-1);">返回</a>
@@ -400,7 +413,7 @@
 												<label class="form-label" for="replyAuthor">作者DOM </label> <input name="replyAuthor" class="easyui-textbox" />  
 											</div>
 											<div>
-												<label class="form-label" for="replyDate">发布时间DOM</label> <input name="replyDate" class="easyui-textbox" />  
+												<label class="form-label" for="replyDate">回复时间DOM</label> <input name="replyDate" class="easyui-textbox" />  
 											</div>
 											<div>
 												<label class="form-label" for="replyContent">内容DOM </label> <input name="replyContent" class="easyui-textbox" />  
@@ -415,7 +428,7 @@
 												<label class="form-label" for="subReplyAuthor">作者DOM</label> <input name="subReplyAuthor" class="easyui-textbox" />  
 											</div>
 											<div>
-												<label class="form-label" for="subReplyDate">发布时间DOM</label> <input name="subReplyDate" class="easyui-textbox" />  
+												<label class="form-label" for="subReplyDate">回复时间DOM</label> <input name="subReplyDate" class="easyui-textbox" />  
 											</div>
 											<div>
 												<label class="form-label" for="subReplyContent">内容DOM</label> <input name="subReplyContent" class="easyui-textbox" />  
@@ -513,7 +526,7 @@
 														class="easyui-textbox" /> 
 												</div>
 												<div>
-													<label class="form-label" for="replyDate">发布时间DOM</label> <input name="replyDate" value="${confDetail.replyDate}"
+													<label class="form-label" for="replyDate">回复时间DOM</label> <input name="replyDate" value="${confDetail.replyDate}"
 														class="easyui-textbox" />
 												</div>
 												<div>
@@ -532,7 +545,7 @@
 														class="easyui-textbox" />
 												</div>
 												<div>
-													<label class="form-label" for="subReplyDate">发布时间DOM</label> <input name="subReplyDate" value="${confDetail.subReplyDate}"
+													<label class="form-label" for="subReplyDate">回复时间DOM</label> <input name="subReplyDate" value="${confDetail.subReplyDate}"
 														class="easyui-textbox" />
 												</div>
 												<div>
@@ -612,7 +625,7 @@
 								<label class="form-label" for="replyAuthor">作者DOM </label> <input name="replyAuthor" class="easyui-textbox" />  
 							</div>
 							<div>
-								<label class="form-label" for="replyDate">发布时间DOM</label> <input name="replyDate" class="easyui-textbox" />  
+								<label class="form-label" for="replyDate">回复时间DOM</label> <input name="replyDate" class="easyui-textbox" />  
 							</div>
 							<div>
 								<label class="form-label" for="replyContent">内容DOM </label> <input name="replyContent" class="easyui-textbox" />  

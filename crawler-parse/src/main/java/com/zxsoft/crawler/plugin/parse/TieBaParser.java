@@ -25,6 +25,7 @@ import com.zxsoft.crawler.parse.FetchStatus;
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.Parser;
+import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.protocol.util.Md5Signatrue;
@@ -350,7 +351,7 @@ public class TieBaParser extends Parser {
 			if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyDate()))) {
 				String dateField = element.select(detailConf.getSubReplyDate()).first().text();
 				try {
-					Date dateTemp = Utils.formatDate(dateField);
+					Date dateTemp = DateExtractor.extract(dateField);
 					reply.setTimestamp(dateTemp.getTime());
 				} catch (Exception e) {
 					e.printStackTrace();

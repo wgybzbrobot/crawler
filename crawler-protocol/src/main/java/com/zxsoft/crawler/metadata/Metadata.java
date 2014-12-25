@@ -24,9 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-//import org.apache.hadoop.io.Text;
-//import org.apache.hadoop.io.Writable;
-
 
 /**
  * A multi-valued metadata container.

@@ -16,6 +16,16 @@
 		<description>资讯解析器</description>
 	</plugin>
 	<plugin>
+		<type>blog</type>
+		<class>com.zxsoft.crawler.plugin.parse.BlogParser</class>
+		<description>博客解析器</description>
+	</plugin>
+	<plugin>
+		<type>news</type>
+		<class>com.zxsoft.crawler.plugin.parse.NewsParser</class>
+		<description>资讯解析器</description>
+	</plugin>
+	<plugin>
 		<type>sinaweibosearch</type>
 		<class>com.zxsoft.crawler.plugin.parse.SinaWeiboSearchParser</class>
 		<description>新浪微博搜索解析器</description>

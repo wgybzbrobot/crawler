@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
@@ -13,6 +15,7 @@ import com.mysql.jdbc.Driver;
 @SuppressWarnings("deprecation")
 public abstract class BaseDao {
 
+        private static Logger LOG = LoggerFactory.getLogger(BaseDao.class);
 	protected static final String TABLE_CONF_LIST = "conf_list";
 	protected static final String TABLE_CONF_DETAIL = "conf_detail";
 	protected static final String TABLE_SEARCH_ENGINE = "search_engine";
@@ -40,6 +43,7 @@ public abstract class BaseDao {
 		String url = prop.getProperty("db.url");
 		String username = prop.getProperty("db.username");
 		String password = prop.getProperty("db.password");
+		LOG.info("rule database address: " + url);
 		SimpleDriverDataSource dataSource = new SimpleDriverDataSource(driver, url, username, password);
 		jdbcTemplate = new JdbcTemplate(dataSource);
 	}

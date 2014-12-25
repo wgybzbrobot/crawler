@@ -13,13 +13,14 @@ import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
 
 import com.zxsoft.crawler.parse.FetchStatus.Status;
+import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
 
 /**
- * Control which parser to parse the page.
+ * 调用相应的解析器解析网页
  */
 public final class NetworkInspectParserController extends ParseTool {
 
@@ -32,7 +33,7 @@ public final class NetworkInspectParserController extends ParseTool {
 		LOG.debug("indexUrl: " + indexUrl);
 		ListConf listConf = confDao.getListConf(indexUrl);
 		if (listConf == null) {
-		        LOG.error("Cannot find listConf:" + listConf);
+		        LOG.error("没有找到列表页配置: " + indexUrl);
 			return new FetchStatus(indexUrl, 43, Status.CONF_ERROR);
 		}
 
@@ -73,26 +74,18 @@ public final class NetworkInspectParserController extends ParseTool {
 			for (Element line : lines) {
 				Date update = null;
 				if (!StringUtils.isEmpty(updateDom) && !CollectionUtils.isEmpty(line.select(updateDom))) {
-					try {
-						update = Utils.formatDate(line.select(updateDom).first().text());
-						if (update != null && update.getTime() < page.getPrevFetchTime()) {
-							msg = "截止时间" + new Date(page.getPrevFetchTime()).toLocaleString();
-							continuePage = false;
-							break;
-						}
-						hasUpdate = true;
-					} catch (ParseException e) {
-						LOG.warn("Cannot parse date: " + update);
+					update = DateExtractor.extract(line.select(updateDom).first().html());
+					if (update != null && update.getTime() < page.getPrevFetchTime()) {
+						msg = "截止时间" + new Date(page.getPrevFetchTime()).toLocaleString();
+						continuePage = false;
+						break;
 					}
+					hasUpdate = true;
 				}
 
 				Date releasedate = null; // NOTE:有些列表页面可能没有发布时间
 				if (!StringUtils.isEmpty(listConf.getDatedom()) && !CollectionUtils.isEmpty(line.select(listConf.getDatedom()))) {
-					try {
-						releasedate = Utils.formatDate(line.select(listConf.getDatedom()).first().text());
-					} catch (ParseException e) {
-						LOG.warn("Cannot parse date: " + update);
-					}
+					releasedate = DateExtractor.extract(line.select(listConf.getDatedom()).first().text());
 				}
 
 				if (CollectionUtils.isEmpty(line.select(urlDom)) || StringUtils.isEmpty(line.select(urlDom).first().absUrl("href")))

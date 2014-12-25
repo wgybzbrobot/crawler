@@ -7,13 +7,16 @@
 <title>网站配置</title>
 <script type="text/javascript">
 	$(function() {
+		$('li.site-li').hover(function() {
+			$(this).find('span.edit').toggle();
+		});
 		$('#addWebsiteBtn').click(function(e) {
 			$('div.form-wrapper-title').text('添加网站');
 			$('#websiteForm').form('clear');
 			$('div.form-wrapper').show();
 		});
 		$('a.form-wrapper-close').click(function() {
-			$('#savemessage').text('');
+			$('#retmsg').text('');
 			$('div.form-wrapper').hide();
 		});
 
@@ -37,7 +40,7 @@
 			},
 			success : function(data) {
 				if (data == 'success') {
-					$('#savemessage').text('保存成功, 2秒后自动刷新页面');
+					$('#retmsg').text('保存成功, 2秒后自动刷新页面');
 					setTimeout(function() {
 						location.reload();
 					}, 2000);
@@ -45,12 +48,32 @@
 			}
 		});
 	}
+	/**
+	 * 删除网站
+	 */
+	function delWebsite() {
+		$.messager.confirm('Confirm','确定删除吗?',function(r){
+		    if (r){
+		    	$('#websiteForm').form('submit', {
+					url : 'website/ajax/delete',
+					success : function(data) {
+						if (data == 'success') {
+							$('#retmsg').text('删除成功, 2秒后自动刷新页面');
+							setTimeout(function() {
+								location.reload();
+							}, 2000);
+						}
+					}
+				});
+		    }
+		});
+	}
 </script>
 </head>
 <body>
 	<div id="body">
 		<div style="padding-left: 43px;">
-			<form id="searchForm" action="website" method="get" style="display:inline; margin-right: 14px;">
+			<form id="searchForm" action="website" method="post" style="display:inline; margin-right: 14px;">
 				<input value="${website.comment }" name="comment" class="easyui-searchbox" data-options="prompt:'输入网站名称进行搜索',searcher:doSearch" style="width: 200px" />
 			</form>
 			<a id="addWebsiteBtn" class="linkbutton" href="javascript:void(0);">添加网站</a>
@@ -59,7 +82,7 @@
 			<a class="form-wrapper-close" href="javascript:;"></a>
 			<div class="form-wrapper-title">编辑网站详细信息</div>
 			<div class="form-wrapper-center">
-				<form id="websiteForm" method="post" action="website/add" data-options="novalidate:true">
+				<form id="websiteForm" method="post"  data-options="novalidate:true">
 					<div>
 					<input type="hidden" name="id">
 						<label class="form-label" for="site">首页地址</label> <input class="easyui-validatebox form-input" type="text"
@@ -85,10 +108,11 @@
 						</select>
 					</div>
 					<div>
-						<input class="form-btn" type="button" onclick="return submitForm();" value="保存" />
+						<input style="width:160px;" class="form-btn" type="button" onclick="return submitForm();" value="保存" />
+						<input style="width:160px;" class="form-btn" type="button" onclick="return delWebsite();" value="删除" />
 					</div>
 					<div>
-						<span id="savemessage"></span>
+						<span id="retmsg"></span>
 					</div>
 				</form>
 			</div>
@@ -97,39 +121,16 @@
 			<ul>
 				<c:forEach items="${page.res}" var="web">
 					<li class="site-li">
-						<a href="section?websiteId=${web.id}" title="${web.site}" class="easyui-tooltip" data-options="
-		                    hideEvent: 'none',
-		                    content: function(){
-		                        return $('#toolbar${web.id}');
-		                    },
-		                    onShow: function(){
-		                        var t = $(this);
-		                        t.tooltip('tip').focus().unbind().bind('blur',function(){
-		                            t.tooltip('hide');
-		                        });
-		                    }
-		                ">${web.comment }</a></li>
-					<div style="display:none">
-				        <div id="toolbar${web.id}" >
-							<span style="font-size: 6px; ">${web.region}</span>
-				            <a href="website/moreinfo/${web.id}" onclick="return false" id="${web.id}" class="moreinfo linkbutton" >编辑</a>
-				            <c:choose>
-				            	<c:when test="${web.status eq 'close'}">
-				            		<span style="font-size: 6px; ">已禁用</span>
-				            	</c:when>
-				            	<c:otherwise>
-						            <span style="font-size: 6px; ">已启用</span>
-				            	</c:otherwise>
-				            </c:choose>
-				        </div>
-				    </div>
+						<span class="edit" style="display: none;"><a href="website/moreinfo/${web.id}" onclick="return false;" id="${web.id}" class="moreinfo"  style="font-size: 8px;color:#bbE3F9;">编辑</a></span>
+						<a href="section?websiteId=${web.id}" title="${web.comment}" >${web.comment }</a>
+					</li>
 				</c:forEach>
 			</ul>
-			<c:if test="${page.count > 50}">
+			<%-- <c:if test="${page.count > 50}">
 				<div class="website-more" id="website_more">
 					<a href="javascript:void(0)"><span>加载更多</span></a>
 				</div>
-			</c:if>
+			</c:if> --%>
 
 		</div>
 	</div>

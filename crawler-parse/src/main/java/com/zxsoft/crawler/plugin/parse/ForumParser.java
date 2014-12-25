@@ -1,6 +1,7 @@
 package com.zxsoft.crawler.plugin.parse;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,6 +21,7 @@ import com.zxsoft.crawler.parse.FetchStatus;
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.Parser;
+import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.protocol.util.Md5Signatrue;
@@ -30,11 +32,13 @@ import com.zxsoft.crawler.store.OutputException;
 import com.zxsoft.crawler.util.Utils;
 
 /**
+ * 论坛类解析器
+ * <p>逻辑:
  * <ol>
- * <li>1. 解析主帖</li>
- * <li>2. 若从最后一页抓取，则调转到最后一页</li>
- * <li>3. 解析当前页</li>
- * <li>4. 翻页</li>
+ * <li>解析主帖</li>
+ * <li>若从最后一页抓取，则调转到最后一页, 倒序集合</li>
+ * <li>解析页面</li>
+ * <li>翻页, 解析页面</li>
  * </ol>
  */
 public class ForumParser extends Parser {
@@ -50,16 +54,17 @@ public class ForumParser extends Parser {
 	private long monitorTime = new Date().getTime() / 1000L;
 
 	/**
-	 * give a thread page url, get the page html code, parse the main thread,
-	 * parse reply thread, parse subre
+	 * 解析页面入口
 	 */
 	public FetchStatus parse(WebPage page) throws Exception {
 		Assert.notNull(page, "Page is null");
 		String mainUrl = page.getBaseUrl();
 		long prevFetchTime = page.getPrevFetchTime();
 		DetailConf detailConf = confDao.getDetailConf(page.getListUrl(), Utils.getHost(mainUrl));
-		if (detailConf == null)
+		if (detailConf == null) {
+		        LOG.error("没有详细页配置: " + mainUrl);
 			return new FetchStatus(mainUrl, 41, Status.CONF_ERROR);
+		}
 
 		ProtocolOutput _output = fetch(page);
 		if (!_output.getStatus().isSuccess()) {
@@ -71,7 +76,7 @@ public class ForumParser extends Parser {
 		ip = DNSCache.getIp(new URL(mainUrl));
 		
 		/*
-		 * Parse Main-Thread
+		 * 解析主贴
 		 */
 		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, System.currentTimeMillis() / 1000);
 		info.setIp(ip);
@@ -99,13 +104,10 @@ public class ForumParser extends Parser {
 			if (info.getTimestamp() == 0) {
 				String dateDom = detailConf.getDate();
 				if (!StringUtils.isEmpty(dateDom) && !CollectionUtils.isEmpty(masterEle.select(dateDom))) {
-					String dateField = masterEle.select(dateDom).first().text();
+					String dateField = masterEle.select(dateDom).first().outerHtml();
+					
 					if (!StringUtils.isEmpty(dateField)) {
-						try {
-							info.setTimestamp(Utils.formatDate(dateField).getTime() / 1000L);
-						} catch (java.text.ParseException | NullPointerException e) {
-							LOG.error("Cannot parse date: " + dateField);
-						}
+						info.setTimestamp(DateExtractor.extractInSecs(dateField));
 					}
 				}
 			}
@@ -117,7 +119,7 @@ public class ForumParser extends Parser {
 		}
 		
 		/*
-		 * Parse reply-thread
+		 * 解析回复
 		 */
 		Document _doc = mainDoc;
 		String currentUrl = mainUrl, newPageUrl = ""/* , currentPageText = "" */;
@@ -140,8 +142,8 @@ public class ForumParser extends Parser {
 				currentUrl = newPageUrl;
 			} while (!StringUtils.isEmpty(newPageUrl));
 
-		} else { // parse from last page
-			WebPage np = page.clone(); // jump to last page
+		} else { // 从最后一夜
+			WebPage np = page.clone(); // 跳转到最后一页
 			page.setDocument(_doc);
 			page.setBaseUrl(_doc.location());
 			_output = fetchLastPage(np);
@@ -184,6 +186,7 @@ public class ForumParser extends Parser {
 	private boolean parsePage(long prevFetchTime, Document doc, String mainUrl, String currentUrl, DetailConf detailConf)
 	        throws SelectorParseException {
 		Elements replyEles = doc.select(detailConf.getReply());
+		Collections.reverse(replyEles);
 		for (Element element : replyEles) {
 			RecordInfo reply = new RecordInfo();
 			reply.setIp(ip);
@@ -235,11 +238,7 @@ public class ForumParser extends Parser {
 		String replyDateDom = detailConf.getReplyDate();
 		if (!StringUtils.isEmpty(replyDateDom) && !CollectionUtils.isEmpty(element.select(replyDateDom))) {
 			String dateField = element.select(replyDateDom).first().text();
-			try {
-				reply.setTimestamp(Utils.formatDate(dateField).getTime() / 1000L);
-			} catch (java.text.ParseException | NullPointerException e) {
-				LOG.error("Cannot parse date: " + dateField + " in page " + reply.getUrl());
-			}
+			reply.setTimestamp(DateExtractor.extractInSecs(dateField));
 		}
 		reply.setOriginal_id(parentId);
 		String id = Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(), reply.getPic_url(), reply.getVoice_url(),
@@ -273,11 +272,7 @@ public class ForumParser extends Parser {
 		String subReplyDate = detailConf.getSubReplyDate();
 		if (!CollectionUtils.isEmpty(element.select(subReplyDate))) {
 			String dateField = element.select(subReplyDate).first().text();
-			try {
-				reply.setTimestamp(Utils.formatDate(dateField).getTime() / 1000);
-			} catch (java.text.ParseException e) {
-				LOG.error("Cannot parse date: " + dateField + " in page " + reply.getUrl());
-			}
+			reply.setTimestamp(DateExtractor.extractInSecs(dateField));
 		}
 		reply.setOriginal_id(parentId);
 		String id = Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(), reply.getPic_url(), reply.getVoice_url(),

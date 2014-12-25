@@ -207,17 +207,3 @@ label.error {
 	width: 48%;
 }
 
-
-#loading {
-	display:none;
-	width: 100px;
-	height: 100px;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	line-height: 56px;
-	padding-left: 60px;
-	background: url(img/loading.gif) no-repeat 10px 50%;
-	z-index: 9999;
-	-moz-border-radius: 20px;
-}

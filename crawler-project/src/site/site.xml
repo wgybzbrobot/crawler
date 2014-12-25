@@ -19,12 +19,17 @@
 		</menu>
 		<menu name="Crawler Master">
 			<item name="概述" href="crawler-master/index.html" />
+			<item name="接口定义" href="crawler-master/develop.html" />
 		</menu>
 		<menu name="Crawler Slave">
 			<item name="概述" href="crawler-slave/index.html" />
+			<item name="接口定义" href="crawler-slave/interface.html" />
+			<item name="开发" href="crawler-slave/develop.html" />
+			<item name="任务管理设计" href="crawler-slave/job.html" />
 		</menu>
 		<menu name="Crawler Web">
 			<item name="概述" href="crawler-web/index.html" />
+			<item name="开发" href="crawler-web/develop.html" />
 		</menu>
 	</body>
 </project>

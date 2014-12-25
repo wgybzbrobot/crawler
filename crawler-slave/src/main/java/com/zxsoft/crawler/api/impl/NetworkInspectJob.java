@@ -15,7 +15,7 @@ import com.zxsoft.crawler.parse.ParserNotFoundException;
 import com.zxsoft.crawler.storage.WebPage;
 
 /**
- * 网络巡检
+ * 网络巡检任务
  */
 public class NetworkInspectJob extends CrawlTool {
 
@@ -30,7 +30,6 @@ public class NetworkInspectJob extends CrawlTool {
         public Map<String, Object> run(Map<String, Object> args) throws Exception {
                 String url = (String) args.get(Params.URL);
                 String comment = (String) args.get(Params.COMMENT);
-                LOG.debug("job : " + comment + url);
                 long prevFetchTime = 0;
                 try {
                         prevFetchTime = (long) args.get(Params.PREV_FETCH_TIME);
@@ -48,7 +47,6 @@ public class NetworkInspectJob extends CrawlTool {
                 try {
                         NetworkInspectParserController parseUtil = new NetworkInspectParserController();
                         WebPage page = new WebPage(url, prevFetchTime);
-                        LOG.debug(page.getBaseUrl());
                         FetchStatus status = parseUtil.parse(page);
                         map.put("code", 2001);
                         map.put("count", status.getCount());

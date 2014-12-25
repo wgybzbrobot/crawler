@@ -40,7 +40,7 @@ public class SlaveController {
                         map.put("code", "2000");
 
                 } catch (ClientHandlerException e) {
-                        LOG.warn(e.getMessage());
+                        LOG.warn(e.getMessage(), e);
                         map.put("msg", "无法连接到主控，可能没有启动.");
                         map.put("code", "5000");
                 } catch (Exception e) {

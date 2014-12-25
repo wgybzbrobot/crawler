@@ -49,16 +49,17 @@ public class HttpFetcher {
 				protocolOutput = httpClient.getProtocolOutput(page);
 			}
 		} catch (ProtocolException e) {
-			String msg = "Fetch " + url + " failed with the following error:" + e.getMessage();
+			String msg = "Fetch " + url + " failed with protocol exception: " + e.getMessage();
 			protocolOutput.setStatus(new ProtocolStatus(url, STATUS_CODE.FAILED, msg));
 		} catch (IOException e) {
-			String msg = "Fetch " + url + " failed with the following error:" + e.getMessage();
+			String msg = "Fetch " + url + " failed with io exception: " + e.getMessage();
 			protocolOutput.setStatus(new ProtocolStatus(url, STATUS_CODE.FAILED, msg));
 			LOG.error(msg);
-		} finally {
-			if (!protocolOutput.getStatus().isSuccess()) {
-//				LOG.info(url);
-			}
+		} catch (Exception e) {
+		        String msg = "Fetch " + url + " failed with the following exception:" + e.getMessage();
+                        protocolOutput.setStatus(new ProtocolStatus(url, STATUS_CODE.FAILED, msg));
+		        LOG.error(msg, e);
+                }finally {
 			return protocolOutput;
 		}
 	}

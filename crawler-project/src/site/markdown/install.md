@@ -62,9 +62,27 @@ $ vim conf/log4j.properties # 配置日志, 运行稳定时将root > level debug
 $ sh bin/master.sh   # 启动Master, 默认port是9999
 ```
 
+## 部署
 
----
-配置安装完成后，完成整个爬虫部署。
+**机器要求:**
+1. 爬虫运行机器操作启动是linux, 支持ssh登陆
+2. 主控和Web部署在一台机器, 内存大于2G.
+3. Slave机器内存大于1G, 若小于1G, 需要调整爬虫启动脚本中的java运行环境
+3. 操作机器是linux, 安装python版本>2.7, 安装fabic
+4. 下载python脚本
+	-  [Master部署脚本](./master.py)
+	-  [Slave部署脚本](./slave.py)
+	-  [WebUI部署脚本](./webui.py)
+	
+这里提供一个部署例子.
+
+部署到机器192.168.3.21/22/23.
+
+
+
+
+
+
 
 
 

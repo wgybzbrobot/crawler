@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,6 +16,7 @@ import org.thinkingcloud.framework.util.NetUtils;
 import org.thinkingcloud.framework.util.StringUtils;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.DefaultCredentialsProvider;
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
@@ -46,7 +48,6 @@ public class HtmlUnit extends HttpBase {
 	private HtmlPage htmlPage;
 
 	private void setUp() {
-//		client = new WebClient(BrowserVersion.FIREFOX_24);
 		client.getOptions().setJavaScriptEnabled(true);
 		client.getOptions().setCssEnabled(false);
 		client.getOptions().setRedirectEnabled(true);
@@ -56,7 +57,11 @@ public class HtmlUnit extends HttpBase {
 		client.getOptions().setPrintContentOnFailingStatusCode(false);
 		client.waitForBackgroundJavaScript(5000);
 		client.waitForBackgroundJavaScriptStartingBefore(2000);
-//		client.getCookieManager().setCookiesEnabled(true);//开启cookie管理
+		client.getCookieManager().setCookiesEnabled(true);//开启cookie管理
+		if (!StringUtils.isEmpty(proxyUsername) && !StringUtils.isEmpty(proxyPassword)) {
+		  final DefaultCredentialsProvider credentialsProvider = (DefaultCredentialsProvider) client.getCredentialsProvider();
+		  credentialsProvider.addCredentials(proxyUsername, proxyPassword);
+		}
 		
 	}
 	/**
@@ -77,6 +82,8 @@ public class HtmlUnit extends HttpBase {
 		if (useProxy ) {
 			request.setProxyHost(proxyHost);
 			request.setProxyPort(proxyPort);
+//			 final DefaultCredentialsProvider credentialsProvider = (DefaultCredentialsProvider) client.getCredentialsProvider();
+//	                  credentialsProvider.addCredentials(proxyUsername, proxyPassword);
 		}
 		
 		htmlPage = client.getPage(request);

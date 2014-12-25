@@ -29,7 +29,9 @@ public class UtilsTest {
             String s6 = "发表于 昨天 11:25";
             String s7 = "发表于 半小时前";
             String s8 = "www.zybus.com/dgmtkxnh/ 2014-11-10";
-//            Assert.isTrue(s4.equals(str2));
+            String s9 =  "<div class=\"tip\">2014-12-22 8:57:16&nbsp;&nbsp;&nbsp;来源：安徽财经网&nbsp;&nbsp;";
+            
+            System.out.println(s9 + "\t\t" +  Utils.formatDate(s9));
             System.out.println(s8 + "\t\t" +  Utils.formatDate(s8));
             System.out.println(s7 + "\t\t" +  Utils.formatDate(s7));
             System.out.println(s6 + "\t\t" +  Utils.formatDate(s6));

@@ -5,19 +5,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
+
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.tika.metadata.Metadata;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.StringUtils;
-import com.zxsoft.crawler.metadata.Metadata;
+
+//import com.zxsoft.crawler.metadata.Metadata;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.ProtocolStatus;
-import com.zxsoft.crawler.protocol.ProtocolStatusUtils;
 import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
+import com.zxsoft.crawler.protocol.ProtocolStatusUtils;
 import com.zxsoft.crawler.protocol.util.DeflateUtils;
 import com.zxsoft.crawler.protocol.util.GZIPUtils;
 import com.zxsoft.crawler.protocols.http.htmlunit.HtmlUnit;
@@ -36,16 +39,20 @@ public abstract class HttpBase extends PageHelper {
 	public static final int BUFFER_SIZE = 1024 * 1024;
 
 	/** Indicates if a proxy is used */
-	protected  boolean useProxy = false;
+	protected static   boolean useProxy = false;
 	/** The proxy hostname. */
-	protected  String proxyHost = null;
+	protected  static String proxyHost = null;
 
 	/** The proxy port. */
-	protected  int proxyPort = 8080;
+	protected  static  int proxyPort = 8080;
+	
+	protected static  String proxyUsername;
+	protected static  String proxyPassword;
+	
 
 	/** Indicates if a proxy is used */
 	/** The network timeout in millisecond */
-	protected  int timeout = 10000;
+	protected static   int timeout = 10000;
 
 	/** The length limit for downloaded content, in bytes. */
 	protected int maxContent = 1024 * 1024 * 3;
@@ -73,7 +80,8 @@ public abstract class HttpBase extends PageHelper {
 	protected String charset = "utf-8";
 	protected String contentType;
 
-	public void setup() {
+//	public void setup() {
+	static {
 		Properties prop = new Properties();
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 		LOG.info("Loading protocol.properites ...");
@@ -89,7 +97,9 @@ public abstract class HttpBase extends PageHelper {
 		}
 		proxyHost = prop.getProperty("http.proxy.host");
 		proxyPort = Integer.valueOf(prop.getProperty("http.proxy.port"));
-		LOG.info("proxy:" + proxyHost + ":" + proxyPort);
+		proxyUsername =  prop.getProperty("http.proxy.username");
+		proxyPassword =  prop.getProperty("http.proxy.password");
+//		LOG.info("proxy:" + proxyHost + ":" + proxyPort);
 		try {
 			useProxy = (proxyHost != null && proxyHost.length() > 0);
 		} catch (NumberFormatException e ) {
@@ -99,7 +109,7 @@ public abstract class HttpBase extends PageHelper {
 		}
 		try {
 			timeout = Integer.valueOf(prop.getProperty("http.timeout"));
-			LOG.info("http request timeout" + timeout);
+			LOG.info("http request timeout: " + timeout);
 		} catch (NumberFormatException e ) {
 			LOG.warn("http.timeout set error, use default:" + timeout);
 		}
@@ -219,6 +229,7 @@ public abstract class HttpBase extends PageHelper {
 		} else if (code == 410) { // permanently GONE
 			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.GONE, u.toString()));
 		} else {
+		        LOG.error(u + " return code: " +  code + ". " + document.html());
 			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.EXCEPTION, "Http code=" + code + ", url=" + u));
 		}
 	}

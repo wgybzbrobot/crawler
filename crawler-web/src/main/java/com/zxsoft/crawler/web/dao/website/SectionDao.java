@@ -22,5 +22,7 @@ public interface SectionDao {
 	void delete(String id);
 
 	void saveOrUpdate(Section section);
+
+        void delete(Section section);
 	
 }

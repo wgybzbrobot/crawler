@@ -19,6 +19,8 @@ import com.zxsoft.crawler.parse.FetchStatus;
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.Parser;
+import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
+import com.zxsoft.crawler.plugin.parse.ext.SourceExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.util.Md5Signatrue;
 import com.zxsoft.crawler.storage.DetailConf;
@@ -76,8 +78,10 @@ public class NewsParser extends Parser {
 			info.setNickname(document.select(authorDom).first().text());
 		}
 		String sourcesDom = detailConf.getSources();
-		if (!StringUtils.isEmpty(sourcesDom) && !CollectionUtils.isEmpty(document.select(sourcesDom))) 
-			info.setSource_name(document.select(sourcesDom).first().text());
+		if (!StringUtils.isEmpty(sourcesDom) && !CollectionUtils.isEmpty(document.select(sourcesDom)))  {
+		        String text = document.select(sourcesDom).first().text();
+	                info.setSource_name(SourceExtractor.extract(text));
+		}
 		String replyNumDom = detailConf.getReplyNum();
 		if (!StringUtils.isEmpty(replyNumDom) && !CollectionUtils.isEmpty(document.select(replyNumDom)))
 			info.setComment_count(Integer.valueOf(document.select(replyNumDom).first().text()));
@@ -93,11 +97,8 @@ public class NewsParser extends Parser {
 		}
 		String dateDom = detailConf.getDate();
 		if (!StringUtils.isEmpty(dateDom) && !CollectionUtils.isEmpty(document.select(dateDom))) {
-		        String str = document.select(dateDom).first().text();
-		        Date date = Utils.formatDate(str);
-		        if (date != null) {
-		                info.setTimestamp(date.getTime() / 1000L);
-		        }
+		        String str = document.select(dateDom).first().html();
+	                info.setTimestamp(DateExtractor.extractInSecs(str));
 		}
 		info.setId(Md5Signatrue.generateMd5(info.getUrl()));
 		threadLocalRecordInfos.get().add(info);
@@ -106,7 +107,7 @@ public class NewsParser extends Parser {
 		try {
 			indexWriter.write(threadLocalRecordInfos.get());
 		} catch (OutputException e) {
-			throw new OutputException(mainUrl + "data output failure");
+			throw new OutputException(mainUrl + "数据输出失败.");
 //			return new FetchStatus(mainUrl, 61, Status.OUTPUT_FAILURE);
 		}
 

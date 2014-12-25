@@ -48,7 +48,7 @@ public class HtmlUnitTest {
 		ProtocolOutput protocolOutput = httpFetcher.fetch(new WebPage("http://roll.news.sina.com.cn/s/channel.php", true));
 		Document currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
-		
+		System.out.println(currentDoc);
 		WebPage page = new WebPage();
 		page.setAjax(true);
 		page.setDocument(currentDoc);

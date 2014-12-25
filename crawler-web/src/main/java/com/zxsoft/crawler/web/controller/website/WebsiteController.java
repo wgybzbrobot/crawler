@@ -39,7 +39,7 @@ public class WebsiteController {
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String index(@ModelAttribute("website") Website website, Model model) {
-		Page<Website> page = websiteServiceImpl.getWebsite(website, 1, 50);
+		Page<Website> page = websiteServiceImpl.getWebsite(website, 1, 100);
 		model.addAttribute("page", page);
 		
 		if (website != null)
@@ -49,6 +49,11 @@ public class WebsiteController {
 		model.addAttribute("siteTypes", siteTypes);
 		
 		return "website/index";
+	}
+	
+	@RequestMapping(method = RequestMethod.POST)
+	public String search(@ModelAttribute("website") Website website, Model model) {
+	        return index(website, model);
 	}
 
 	/**
@@ -66,7 +71,7 @@ public class WebsiteController {
 	}
 
 	/**
-	 * 修改或新增
+	 * 新增或修改网站
 	 */
 	@ResponseBody
 	@RequestMapping(value = "ajax/add", method = RequestMethod.POST)
@@ -84,6 +89,16 @@ public class WebsiteController {
 		website.setStatus(status);
 		websiteServiceImpl.save(website);
 		return "success";
+	}
+
+	/**
+	 * 删除网站
+	 */
+	@ResponseBody
+	@RequestMapping(value = "ajax/delete", method = RequestMethod.POST)
+	public String delete(@RequestParam(value = "id", required = false) String id,  Model model) {
+	        websiteServiceImpl.deleteWebsite(id);
+	        return "success";
 	}
 
 	/**

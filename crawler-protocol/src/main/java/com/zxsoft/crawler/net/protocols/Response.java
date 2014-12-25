@@ -3,10 +3,10 @@ package com.zxsoft.crawler.net.protocols;
 // JDK imports
 import java.net.URL;
 
+import org.apache.tika.metadata.Metadata;
 // Nutch imports
-
 import com.zxsoft.crawler.metadata.HttpHeaders;
-import com.zxsoft.crawler.metadata.Metadata;
+//import com.zxsoft.crawler.metadata.Metadata;
 
 public class Response extends HttpHeaders {
 

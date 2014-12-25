@@ -66,7 +66,10 @@
 													<c:when test="${'NETWORK_SEARCH' eq map.type }"><a target="_blank" href="${map.result.url}" title="全网搜索">${map.comment}</a></c:when>
 												</c:choose></span>
 											</td>
-											<td style="width: 150px;"><span title="开始抓取时间">${map.result.starttime}</span></td>
+											<jsp:useBean id="dateValue" class="java.util.Date"/>
+											<jsp:setProperty name="dateValue" property="time" value="${map.result.starttime}"/>
+											<fmt:formatDate var="newdate" value="${dateValue}" pattern="MM/dd/yyyy HH:mm"/>
+											<td style="width: 150px;"><span title="开始抓取时间">${newdate}</span></td>
 											<td style="width: 45px;"><span style="margin: 0 12px 0 0;" title="抓取数量"><fmt:formatNumber var="count" type="number" value="${map.result.count}"  pattern="#"/>${count}</span></td>
 											<td>
 												<span title="${map.result.message }">

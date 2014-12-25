@@ -19,10 +19,10 @@ public interface WebsiteDao {
 	 */
 	@Transactional
 	Page<Website> getWebsites(Website website, int pageNo, int pageSize);
-	Website getWebsite(String site);
+	Website getWebsite(String id);
 	void addWebsite(Website website);
 	void addWebsites(List<Website> websites);
-
+        void deleteWebsite(Website website);
 	/**
 	 * @param id webiste id
 	 */
@@ -34,4 +34,5 @@ public interface WebsiteDao {
 	Auth getAuth(String id);
 	void addAuth(Auth auth);
 	void deleteAuth(String id);
+
 }
