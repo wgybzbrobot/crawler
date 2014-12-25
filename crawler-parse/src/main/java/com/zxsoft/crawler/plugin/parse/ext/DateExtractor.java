@@ -28,12 +28,8 @@ public class DateExtractor {
         public static Date extract(String text)  {
                 Date date = null;
                 try {
-                        if (text.contains("<") && text.contains(">")) {
-                                Nldp nldp = new Nldp(text);
-                                date = nldp.extractDate();
-                        } /*else {
-                                date = Utils.formatDate(text);
-                        }*/
+                        Nldp nldp = new Nldp(text);
+                        date = nldp.extractDate();
                 } catch (Exception e) {
                         LOG.error("解析时间失败:" + text, e);
                 }

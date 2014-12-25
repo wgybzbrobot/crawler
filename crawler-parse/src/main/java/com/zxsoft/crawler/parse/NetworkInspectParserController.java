@@ -1,6 +1,5 @@
 package com.zxsoft.crawler.parse;
 
-import java.text.ParseException;
 import java.util.Date;
 
 import org.jsoup.nodes.Document;
@@ -17,7 +16,6 @@ import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.WebPage;
-import com.zxsoft.crawler.util.Utils;
 
 /**
  * 调用相应的解析器解析网页

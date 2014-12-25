@@ -16,13 +16,14 @@ public class Nldp {
         }
         
         private void preHandle() {
-                String reg = "href=\"(\\w+(-\\w+)*)(\\.(\\w+(-\\w+)*))*(\\?\\S*)?";
+                String reg = "href=\"(\\w+(-\\w+)*)(\\.(\\w+(-\\w+)*))*(\\?\\S*)?\"";
                 text = text.replaceAll(reg, "").replaceAll("[\\s+ | &nbsp;]", "");
         }
         
         public Date extractDate() {
                 
                 preHandle();
+                System.out.println(text);
                 ANTLRInputStream ais = new ANTLRInputStream(text);
                 DateExtractorLexer lexer = new DateExtractorLexer(ais);
                 CommonTokenStream tokenStream = new CommonTokenStream(lexer);
