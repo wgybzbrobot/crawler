@@ -139,7 +139,7 @@ public class DetailConfigVerification extends ParseTool {
 							error.put("msg", "没有获取到发布时间的节点");
 							errors.add(error);
 						} else {
-						        String _text = masterDateEles.first().text();
+						        String _text = masterDateEles.first().html();
 							Date date = DateExtractor.extract(_text);
 							String releasedate = date != null ? date.toLocaleString() : "";
 							info.put("releasedate", "节点内容是" + _text + ", 时间是" + releasedate);
@@ -193,7 +193,7 @@ public class DetailConfigVerification extends ParseTool {
 						if (CollectionUtils.isEmpty(replyDateEles)) {
 							count2++;
 						} else {
-						        String _text = replyDateEles.first().text();
+						        String _text = replyDateEles.first().html();
 						        Date date = DateExtractor.extract(_text);
 						        String releasedate = date != null ? date.toLocaleString() : "";
 						        reply.put("replyDate", "节点内容是" + _text + ", 时间是" + releasedate);

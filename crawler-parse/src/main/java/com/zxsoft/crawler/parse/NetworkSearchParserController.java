@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
 
+import com.zxisl.nldp.Nldp;
 import com.zxsoft.crawler.dns.DNSCache;
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
@@ -77,8 +78,8 @@ public final class NetworkSearchParserController extends ParseTool {
                 String ip = "";
                 try {
                         ip = DNSCache.getIp(new URL(indexUrl));
-                } catch (UnknownHostException e1) {
-                        e1.printStackTrace();
+                } catch (UnknownHostException e) {
+                        LOG.warn(e.getMessage(), e);
                 }
 
                 while (true) {
@@ -113,18 +114,11 @@ public final class NetworkSearchParserController extends ParseTool {
                                 }
                                 /** 日期 */
                                 long date = 0L;
-                                /*
-                                 * if (!StringUtils.isEmpty(dateDom) &&
-                                 * !CollectionUtils
-                                 * .isEmpty(line.select(listConf.getDatedom())))
-                                 * { String str =
-                                 * line.select(listConf.getDatedom
-                                 * ()).first().text(); try {
-                                 * 
-                                 * date = Utils.formatDate(str).getTime(); }
-                                 * catch (ParseException e) {
-                                 * e.printStackTrace(); } }
-                                 */
+
+                                if (!StringUtils.isEmpty(dateDom) && !CollectionUtils.isEmpty(line.select(listConf.getDatedom()))) {
+                                        String str = line.select(listConf.getDatedom()).first().html();
+                                        date = new Nldp(str).extractDateInMillis();
+                                }
 
                                 RecordInfo info = new RecordInfo(title, curl, System.currentTimeMillis() / 1000L);
                                 info.setId(Md5Signatrue.generateMd5(curl));

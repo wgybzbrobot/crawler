@@ -349,7 +349,7 @@ public class TieBaParser extends Parser {
 			reply.setVideo_url("");
 
 			if (!CollectionUtils.isEmpty(element.select(detailConf.getSubReplyDate()))) {
-				String dateField = element.select(detailConf.getSubReplyDate()).first().text();
+				String dateField = element.select(detailConf.getSubReplyDate()).first().html();
 				try {
 					Date dateTemp = DateExtractor.extract(dateField);
 					reply.setTimestamp(dateTemp.getTime());

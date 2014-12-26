@@ -95,7 +95,7 @@ public class BlogParser extends Parser {
                         if (info.getTimestamp() == 0) {
                                 String dateDom = detailConf.getDate();
                                 if (!StringUtils.isEmpty(dateDom) && !CollectionUtils.isEmpty(masterEle.select(dateDom))) {
-                                        String dateField = masterEle.select(dateDom).first().outerHtml();
+                                        String dateField = masterEle.select(dateDom).first().html();
                                         if (!StringUtils.isEmpty(dateField)) {
                                                 info.setTimestamp(DateExtractor.extractInSecs(dateField));
                                         }

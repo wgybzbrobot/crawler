@@ -83,7 +83,7 @@ public final class NetworkInspectParserController extends ParseTool {
 
 				Date releasedate = null; // NOTE:有些列表页面可能没有发布时间
 				if (!StringUtils.isEmpty(listConf.getDatedom()) && !CollectionUtils.isEmpty(line.select(listConf.getDatedom()))) {
-					releasedate = DateExtractor.extract(line.select(listConf.getDatedom()).first().text());
+					releasedate = DateExtractor.extract(line.select(listConf.getDatedom()).first().html());
 				}
 
 				if (CollectionUtils.isEmpty(line.select(urlDom)) || StringUtils.isEmpty(line.select(urlDom).first().absUrl("href")))

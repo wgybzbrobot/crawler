@@ -8,7 +8,7 @@
 		</layout>
 	</appender>
 	<appender name="FILE" class="org.apache.log4j.rolling.RollingFileAppender">
-		<param name="file" value="logs/slave.log" />
+		<param name="file" value="~/slavelogs/slave.log" />
 		<param name="append" value="false" />
 		<rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
 			<param name="FileNamePattern" value="logs/slave.log.%d{yyyy-MM-dd}.tar.gz" />
