@@ -48,8 +48,9 @@ public class WebsiteDaoImpl implements WebsiteDao {
                                 sb.append(" and a.comment like :comment");
                                 params.put("comment", "%" + website.getComment() + "%");
                         }
-
                 }
+                
+                sb.append(" order by a.comment ");
 
                 HibernateCallback<Page<Website>> action = HibernateCallbackUtil.getCallbackWithPage(sb, params, null, pageNo, pageSize);
 

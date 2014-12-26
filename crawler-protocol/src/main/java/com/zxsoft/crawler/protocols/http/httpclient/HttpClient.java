@@ -1,8 +1,10 @@
 package com.zxsoft.crawler.protocols.http.httpclient;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -21,6 +23,8 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
+import org.apache.commons.io.input.CloseShieldInputStream;
+import org.apache.tika.io.IOUtils;
 import org.apache.tika.metadata.Metadata;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -33,13 +37,18 @@ import org.thinkingcloud.framework.util.StringUtils;
 
 
 
+
+
+
+
+
 //import com.zxsoft.crawler.metadata.Metadata;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
+import com.zxsoft.crawler.protocol.util.EncodingDetector;
 import com.zxsoft.crawler.protocols.http.HttpBase;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
-import com.zxsoft.crawler.util.page.EncodingDetector;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PageHelper;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
@@ -98,7 +107,6 @@ public class HttpClient extends HttpBase {
 		try {
 			url = new URL(page.getBaseUrl());
 		} catch (Exception e) {
-//			throw new IOException("url: " + page.getBaseUrl());
 			LOG.error(e.getMessage(), e);
 			return null;
 		}
@@ -117,31 +125,20 @@ public class HttpClient extends HttpBase {
 				metadata.set(heads[i].getName(), heads[i].getValue());
 
 			String contentType = metadata.get(Response.CONTENT_TYPE);
-			charset = EncodingDetector.parseCharacterEncoding(contentType, get.getResponseBody());
+			charset = EncodingDetector.detect(contentType);
 			if (StringUtils.isEmpty(charset)) {
 			        charset = EncodingDetector.detect(get.getResponseBodyAsString(), metadata);
 			}
 			
-			long contentLength = Long.MAX_VALUE;
-			byte[] buffer = new byte[1024 * 1024];
-			int bufferFilled = 0;
-			int totalRead = 0;
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			InputStream in = get.getResponseBodyAsStream();
 			try {
-				while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1 && totalRead + bufferFilled <= contentLength) {
-					totalRead += bufferFilled;
-					out.write(buffer, 0, bufferFilled);
-				}
-				content = out.toByteArray();
+			        content = IOUtils.toByteArray(in);
 			} catch (Exception e) {
 				if (code == 200) {
 				        LOG.error(e.getMessage(), e);
 				}
 			} finally {
-				if (in != null) {
-					in.close();
-				}
+				if (in != null) 	in.close();
 			}
 			if (content != null) {
 				// check if we have to uncompress it

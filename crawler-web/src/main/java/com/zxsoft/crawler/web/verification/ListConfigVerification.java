@@ -79,7 +79,7 @@ public class ListConfigVerification extends ParseTool {
                                                 Elements lineElements = listElement.select(listConf.getLinedom());
                                                 if (CollectionUtils.isEmpty(lineElements) || lineElements.size() < 3) {
                                                         errors.put("linedom", "获取列表行失败");
-                                                        LOG.info(listElement.html());
+//                                                        LOG.info(listElement.html());
                                                 } else {
                                                         int i = 0;
                                                         int updateErrorCount = 0;
