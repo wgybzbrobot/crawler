@@ -41,9 +41,9 @@ public class SlaveServer {
 	}
 
 	public void start() throws Exception {
-		LOG.info("Starting CrawlerServer on port " + port + "...");
+		LOG.info("Starting SlaveNode on port " + port + "...");
 		component.start();
-		LOG.info("Started CrawlerServer on port " + port);
+		LOG.info("Started SlaveNode on port " + port);
 		running = true;
 		SlaveApp.started = System.currentTimeMillis();
 	}

@@ -1,8 +1,4 @@
-from fabric.api import env
-from fabric.api import run
-from fabric.api import put
-from fabric.api import get
-from fabric.api import cd
+from fabric.api import env, parallel, task, run, put, get, cd
 
 env.hosts=['192.168.3.21',
         '192.168.3.22',
@@ -10,33 +6,33 @@ env.hosts=['192.168.3.21',
 env.user='user2'
 env.password='fljWO2AZfOtVocSHmJo3IA=='
 
-
-def uname():
-    run('uname -a')
-
 ###################
 # slave
 ###################
-def ls():
-    run('ls crawler-slave/conf')
 
+@task
+@parallel
 def push():
     code_dir='~'
     with cd(code_dir):
         put('crawler-slave.tar.gz', '')
         run('tar -zxf crawler-slave.tar.gz')
         run('rm crawler-slave.tar.gz')
-        run('cd crawler-slave/conf')
-        run('ls')
 
+@task
+@parallel
 def start():
-    with cd('~/crawler-slave/'):
-        run("nohup sh bin/slave.sh start >& /dev/null < /dev/null &", pty=False)
+    with cd('~'):
+        run("nohup sh crawler-slave/bin/slave.sh start >& /dev/null < /dev/null &", pty=False)
 
+@task
+@parallel
 def stop():
     with cd('~/crawler-slave/'):
         run('sh bin/slave.sh stop')
 
+@task
+@parallel
 def delete():
     run('rm -r crawler-slave')
 

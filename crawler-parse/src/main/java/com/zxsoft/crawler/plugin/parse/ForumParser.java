@@ -51,7 +51,7 @@ public class ForumParser extends Parser {
 		return recordInfos;
 	}
 	private String ip;
-	private long monitorTime = new Date().getTime() / 1000L;
+	private long monitorTime = new Date().getTime();
 
 	/**
 	 * 解析页面入口
@@ -107,7 +107,7 @@ public class ForumParser extends Parser {
 					String dateField = masterEle.select(dateDom).first().html();
 					
 					if (!StringUtils.isEmpty(dateField)) {
-						info.setTimestamp(DateExtractor.extractInSecs(dateField));
+						info.setTimestamp(DateExtractor.extractInMilliSecs(dateField));
 					}
 				}
 			}
@@ -238,7 +238,7 @@ public class ForumParser extends Parser {
 		String replyDateDom = detailConf.getReplyDate();
 		if (!StringUtils.isEmpty(replyDateDom) && !CollectionUtils.isEmpty(element.select(replyDateDom))) {
 			String dateField = element.select(replyDateDom).first().text();
-			reply.setTimestamp(DateExtractor.extractInSecs(dateField));
+			reply.setTimestamp(DateExtractor.extractInMilliSecs(dateField));
 		}
 		reply.setOriginal_id(parentId);
 		String id = Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(), reply.getPic_url(), reply.getVoice_url(),
@@ -272,7 +272,7 @@ public class ForumParser extends Parser {
 		String subReplyDate = detailConf.getSubReplyDate();
 		if (!CollectionUtils.isEmpty(element.select(subReplyDate))) {
 			String dateField = element.select(subReplyDate).first().text();
-			reply.setTimestamp(DateExtractor.extractInSecs(dateField));
+			reply.setTimestamp(DateExtractor.extractInMilliSecs(dateField));
 		}
 		reply.setOriginal_id(parentId);
 		String id = Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(), reply.getPic_url(), reply.getVoice_url(),

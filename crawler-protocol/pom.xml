@@ -15,17 +15,18 @@
 		<dependency>
 			<groupId>com.zxsoft.crawler</groupId>
 			<artifactId>crawler-dao</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>commons-logging</artifactId>
+					<groupId>commons-logging</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-	<!-- 	<dependency>
-			<groupId>com.googlecode.json-simple</groupId>
-			<artifactId>json-simple</artifactId>
-			<version>1.1.1</version>
-		</dependency> -->
 		<dependency>
-    <groupId>net.sourceforge.jchardet</groupId>
-    <artifactId>jchardet</artifactId>
-    <version>1.0</version>
-</dependency>
+			<groupId>net.sourceforge.jchardet</groupId>
+			<artifactId>jchardet</artifactId>
+			<version>1.0</version>
+		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.htmlunit</groupId>
 			<artifactId>htmlunit</artifactId>
@@ -33,14 +34,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tika</groupId>
-			<artifactId>tika-parsers</artifactId>
+			<artifactId>tika-core</artifactId>
 			<version>1.5</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>commons-compress</artifactId>
-					<groupId>org.apache.commons</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>commons-httpclient</groupId>
@@ -56,6 +51,7 @@
 				<configuration>
 					<excludes>
 						<exclude>**/log4j.properties</exclude>
+						<exclude>**/log4j.xml</exclude>
 						<exclude>**/protocol.properties</exclude>
 					</excludes>
 				</configuration>

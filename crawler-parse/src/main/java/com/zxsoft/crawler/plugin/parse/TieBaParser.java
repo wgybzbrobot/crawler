@@ -47,7 +47,7 @@ public class TieBaParser extends Parser {
 	private String mainUrl;
 	private DetailConf detailConf;
 	private String ip;
-	private long monitorTime = new Date().getTime() / 1000L;
+	private long monitorTime = new Date().getTime();
 	public List<RecordInfo> getRecordInfos() {
 		return recordInfos;
 	}

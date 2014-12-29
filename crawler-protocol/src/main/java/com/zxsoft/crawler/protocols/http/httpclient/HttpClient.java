@@ -1,12 +1,9 @@
 package com.zxsoft.crawler.protocols.http.httpclient;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import org.apache.commons.httpclient.Header;
@@ -33,16 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.util.StringUtils;
-
-
-
-
-
-
-
-
-
-//import com.zxsoft.crawler.metadata.Metadata;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocol.util.EncodingDetector;
@@ -126,13 +113,13 @@ public class HttpClient extends HttpBase {
 
 			String contentType = metadata.get(Response.CONTENT_TYPE);
 			charset = EncodingDetector.detect(contentType);
-			if (StringUtils.isEmpty(charset)) {
-			        charset = EncodingDetector.detect(get.getResponseBodyAsString(), metadata);
-			}
 			
 			InputStream in = get.getResponseBodyAsStream();
 			try {
 			        content = IOUtils.toByteArray(in);
+			        if (StringUtils.isEmpty(charset)) {
+			                charset = EncodingDetector.detect(content);
+			        }
 			} catch (Exception e) {
 				if (code == 200) {
 				        LOG.error(e.getMessage(), e);

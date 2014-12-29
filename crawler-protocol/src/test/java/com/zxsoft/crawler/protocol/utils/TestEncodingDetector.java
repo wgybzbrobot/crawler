@@ -9,6 +9,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.tika.io.IOUtils;
 import org.junit.Test;
 
 import com.zxsoft.crawler.protocol.util.EncodingDetector;
@@ -28,9 +29,10 @@ public class TestEncodingDetector {
                         EncodingDetector detector = new EncodingDetector();
                         client.executeMethod(get);
                         InputStream is = get.getResponseBodyAsStream();
-                        detector.detect(is);
+                       String encoding =  EncodingDetector.detect(IOUtils.toByteArray(is));
+//                        detector.detect(is);
+                       System.out.println(url + " Charset: " + encoding + get.getResponseBodyAsString());
                         get.releaseConnection();
-                        System.out.println(url + " Charset: " + detector.getCharset());
                 }
 
         }

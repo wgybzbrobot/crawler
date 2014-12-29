@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.zxisl.nldp.Nldp;
-import com.zxsoft.crawler.util.Utils;
 
 public class DateExtractor {
 
@@ -37,10 +36,10 @@ public class DateExtractor {
                 return date;
         }
         
-        public static long extractInSecs(String text) {
+        public static long extractInMilliSecs(String text) {
                 Date date = extract(text);
                 if (date != null) {
-                        return date.getTime() / 1000L;
+                        return date.getTime() ;
                 }
                 return 0L;
         }

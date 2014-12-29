@@ -7,8 +7,12 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.commons.codec.binary.Hex;
 import org.thinkingcloud.framework.util.StringUtils;
 
+/**
+ * MD5生成器
+ * @author xiayun
+ *
+ */
 public class Md5Signatrue {
-
 	
 	public static String generateMd5(String... args) {
 
@@ -38,7 +42,7 @@ public class Md5Signatrue {
 	}
 
 	public static void main(String[] args) {
-		String md5 = "80adc5f6fe7c1b63ae667d06c127fbea";
+		String md5 = "8ed1d16b21830467335ac1700af045cf";
 		String currentUrl = "http://tieba.baidu.com/p/2511412975?pn=33";
 		String author = "妖孽半世倾尘";
 		String contentString = "吼吼。。。我其实是贞子";

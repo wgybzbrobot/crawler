@@ -73,9 +73,9 @@ public class MasterServer {
         }
 
         public void start() throws Exception {
-                LOG.info("Starting CrawlerServer on port " + port + "...");
+                LOG.info("Starting MasterNode on port " + port + "...");
                 component.start();
-                LOG.info("Started CrawlerServer on port " + port);
+                LOG.info("Started MasterNode on port " + port);
                 running = true;
                 MasterApp.started = System.currentTimeMillis();
 

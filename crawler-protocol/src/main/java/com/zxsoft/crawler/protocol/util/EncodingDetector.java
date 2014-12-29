@@ -3,16 +3,18 @@ package com.zxsoft.crawler.protocol.util;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.Charset;
 
-import org.apache.tika.io.IOUtils;
 import org.apache.tika.metadata.Metadata;
 import org.mozilla.intl.chardet.HtmlCharsetDetector;
 import org.mozilla.intl.chardet.nsDetector;
 import org.mozilla.intl.chardet.nsICharsetDetectionObserver;
 import org.mozilla.intl.chardet.nsPSMDetector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.thinkingcloud.framework.util.StringUtils;
+
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 
 /**
  * 获取网页编码
@@ -22,6 +24,8 @@ import org.thinkingcloud.framework.util.StringUtils;
  */
 public class EncodingDetector {
 
+        private static Logger LOG = LoggerFactory.getLogger(EncodingDetector.class);
+        
         private static final String DEFAULT_CHARSET = "gb2312";
 
         public boolean found = false;
@@ -34,7 +38,7 @@ public class EncodingDetector {
         public static void main(String[] args) throws Exception {
                 String[] strs = { "http://bbs.ahwang.cn/forum-156-1.html" };
                 HtmlCharsetDetector.main(strs);
-                new URL("").openStream();
+//                new URL("").openStream();
         }
 
         public static String detect(String contentType) {
@@ -55,25 +59,57 @@ public class EncodingDetector {
                 return (encoding.trim());
         }
 
+        /**
+         * 使用tika
+         * @param text
+         * @param metadata
+         * @return
+         */
+        @Deprecated
         public static String detect(String text, Metadata metadata) {
                 String charset = "";
-                org.apache.tika.detect.EncodingDetector encodingDetector = new org.apache.tika.parser.html.HtmlEncodingDetector();
-                InputStream input = IOUtils.toInputStream(text);
-                Charset _charset = null;
-                try {
-                        _charset = encodingDetector.detect(input, metadata);
-                        input.close();
-                } catch (IOException e) {
-                        e.printStackTrace();
-                }
-                if (_charset != null) {
-                        charset = _charset.displayName();
-                } else {
+//                org.apache.tika.detect.EncodingDetector encodingDetector = new org.apache.tika.parser.html.HtmlEncodingDetector();
+//                InputStream input = IOUtils.toInputStream(text);
+//                Charset _charset = null;
+//                try {
+//                        _charset = encodingDetector.detect(input, metadata);
+//                        input.close();
+//                } catch (IOException e) {
+//                        e.printStackTrace();
+//                }
+//                if (_charset != null) {
+//                        charset = _charset.displayName();
+//                } else {
                         charset = DEFAULT_CHARSET;
-                }
+//                }
                 return charset;
         }
 
+        /**
+         * 使用icu, 若confidence小于70, 则任务探测不准确,返回默认编码.
+         * @param content
+         * @return
+         */
+        public static String detect(byte[] content) {
+                
+                CharsetDetector detector = new CharsetDetector();
+                detector.setText(content);
+                CharsetMatch charsetMatch = detector.detect();
+                int confidence = charsetMatch.getConfidence();
+                LOG.debug("confidence: " + charsetMatch.getConfidence());
+                if (confidence < 70) {
+                        LOG.info("Detect encoding confidence(" + confidence + ", encoding: " + charsetMatch.getName() + ") is less than 70, use default_charset:" + DEFAULT_CHARSET);
+                        return DEFAULT_CHARSET;
+                }
+                LOG.debug("name: " + charsetMatch.getName());
+                return charsetMatch.getName();
+        }
+        
+        /**
+         * 使用Mozilla的探测方法
+         * @param is
+         * @throws IOException
+         */
         public void detect(InputStream is) throws IOException {
                 // Initalize the nsDetector() ;
                 int lang = nsPSMDetector.ALL;

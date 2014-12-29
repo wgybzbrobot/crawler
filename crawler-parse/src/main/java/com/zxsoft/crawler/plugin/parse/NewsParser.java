@@ -40,7 +40,7 @@ public class NewsParser extends Parser {
 		}
 	};
 	private String ip;
-	private long monitorTime = new Date().getTime() / 1000L;
+	private long monitorTime = new Date().getTime();
 
 	@Override
 	public FetchStatus parse(WebPage page) throws Exception {
@@ -98,7 +98,7 @@ public class NewsParser extends Parser {
 		String dateDom = detailConf.getDate();
 		if (!StringUtils.isEmpty(dateDom) && !CollectionUtils.isEmpty(document.select(dateDom))) {
 		        String str = document.select(dateDom).first().html();
-	                info.setTimestamp(DateExtractor.extractInSecs(str));
+	                info.setTimestamp(DateExtractor.extractInMilliSecs(str));
 		}
 		info.setId(Md5Signatrue.generateMd5(info.getUrl()));
 		threadLocalRecordInfos.get().add(info);

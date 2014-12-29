@@ -21,9 +21,9 @@
 			<version>2.1.2</version>
 		</dependency>
 		<dependency>
-			<groupId>org.antlr</groupId>
-			<artifactId>antlr4</artifactId>
-			<version>4.3</version>
+			<groupId>com.zxisl</groupId>
+			<artifactId>nldp</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 

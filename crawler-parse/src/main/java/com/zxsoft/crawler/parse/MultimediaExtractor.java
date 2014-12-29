@@ -20,8 +20,14 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.zxsoft.crawler.util.Utils;
 
+/**
+ * 解析图片、音频、视频
+ * @author xiayun
+ *
+ */
 public class MultimediaExtractor {
 
+        private static final int URL_MAX_LENGTH = 500;
 	private static WebClient webClient = new WebClient();
 	private static HtmlPage htmlPage;
 
@@ -35,7 +41,7 @@ public class MultimediaExtractor {
 
 	/**
 	 * 抽取视频URL地址
-	 * 
+	 * @param url
 	 */
 	public Map<String, String> extractVideo(String url) {
 		Map<String, String> videoMap = new HashedMap();
@@ -75,18 +81,29 @@ public class MultimediaExtractor {
 		return null;
 	}
 
+	/**
+	 * 抽取图片url, url.length < 500
+	 * @param element
+	 * @param urlfiter
+	 * @return
+	 */
 	public static String extractImgUrl(Element element, String urlfiter) {
 		Elements imgs = element.select("img");
 		StringBuilder imgUrlSb = new StringBuilder();
 		if (!StringUtils.isEmpty(urlfiter)) {
 			for (Element img : imgs) {
 				String src = img.attr("abs:src");
-				if (src.matches(urlfiter))
+				if (imgUrlSb.length() + src.length() > URL_MAX_LENGTH ) 
+				        break;
+				if (!src.matches(urlfiter))
 					imgUrlSb.append(src);
 			}
 		} else {
 			for (Element img : imgs) {
-				imgUrlSb.append(img.attr("abs:src"));
+			        String src = img.attr("abs:src");
+			        if (imgUrlSb.length() + src.length()> URL_MAX_LENGTH ) 
+                                        break;
+				imgUrlSb.append(src);
 			}
 		}
 		return imgUrlSb.toString();

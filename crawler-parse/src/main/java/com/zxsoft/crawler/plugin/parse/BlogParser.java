@@ -97,7 +97,7 @@ public class BlogParser extends Parser {
                                 if (!StringUtils.isEmpty(dateDom) && !CollectionUtils.isEmpty(masterEle.select(dateDom))) {
                                         String dateField = masterEle.select(dateDom).first().html();
                                         if (!StringUtils.isEmpty(dateField)) {
-                                                info.setTimestamp(DateExtractor.extractInSecs(dateField));
+                                                info.setTimestamp(DateExtractor.extractInMilliSecs(dateField));
                                         }
                                 }
                         }
