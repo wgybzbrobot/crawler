@@ -31,8 +31,8 @@ def pushWebUI():
         put('crawler-web.war', '~/apache-tomcat-7.0.56/webapps/')
 
 def startTomcat():
-    with cd('~/apache-tomcat-7.0.56/'):
-        run("nohup sh bin/startup.sh >& /dev/null < /dev/null &", pty=False)
+    with cd('~'):
+        run("nohup sh apache-tomcat-7.0.56/bin/startup.sh >& /dev/null < /dev/null &", pty=False)
 
 ## bakeup log file
 

@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,10 +43,17 @@ import com.zxsoft.crawler.web.service.website.ConfigService;
 import com.zxsoft.crawler.web.service.website.DictService;
 import com.zxsoft.crawler.web.service.website.SectionService;
 
+/**
+ * 任务接口
+ * @author xiayun
+ *
+ */
 @Controller
 @RequestMapping(MasterPath.SLAVE_RESOURCE_PATH)
 public class JobController {
 
+        private static Logger LOG = LoggerFactory.getLogger(JobController.class);
+        
         private JobService jobService = new JobServiceImpl();
         @Autowired
         private SectionService sectionService;
@@ -297,6 +306,9 @@ public class JobController {
         public Map<String, Object> addInspectJob(@RequestParam(value = "url", required = false) String url) {
                 Assert.hasLength(url);
                 Map<String, Object> args = new HashMap<String, Object>();
+                if (url.endsWith("/")) {
+                        url = url.substring(0, url.lastIndexOf("/"));
+                }
                 ConfList confList = configService.getConfList(url);
                 if (confList == null) {
                         args.put("msg", "noconflist");
@@ -308,28 +320,53 @@ public class JobController {
                         throw new NullPointerException("section is null, but conflist is not null: " + url);
                 Website website = section.getWebsite();
                 String site = website.getSite();
-
-                // 判断任务列表中是否已存在该任务
-
+                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
-                double score = 1.0d / (System.currentTimeMillis() / 60000 + confList.getFetchinterval());
-                Prey prey = new Prey(site, url, confList.getComment(), JobType.NETWORK_INSPECT.toString(), confList.getFetchinterval());
-                prey.setStart(System.currentTimeMillis());
-                jedis.zadd(URLBASE, score, prey.toString());
-                jedis.close();
-
-                args.put(Params.URL, url);
-                args.put(Params.URL, prey.getUrl());
-                args.put(Params.PREV_FETCH_TIME, System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000); // 设置上次抓取时间是3天前
-                args.put(Params.COMMENT, prey.getComment());
-
-                jobService.addInsecptJob(args);
-
+                Prey prey = null;
+                // 判断任务列表中是否已存在该任务
+                long count = 0, begin = 0, end = 100;
+                try {
+                        count = jedis.zcard(URLBASE);
+                        while (begin < count) {
+                                Set<String> set = jedis.zrevrange(URLBASE, begin, end);
+                                if (CollectionUtils.isEmpty(set)) break;
+                                for (String str : set) {
+                                        Prey _prey = gson.fromJson(str, Prey.class);
+                                        String json = _prey.toString();
+                                        if (json.contains(String.valueOf(url))) {
+                                                args.put("msg", "jobexist");
+                                                break;
+                                        }
+                                }
+                                begin = end;
+                                end = end + 100;
+                        }
+                        if (args.get("msg") != null) {
+                                // 添加任务
+                                double score = 1.0d / (System.currentTimeMillis() / 60000 + confList.getFetchinterval());
+                                prey = new Prey(site, url, confList.getComment(), JobType.NETWORK_INSPECT.toString(), confList.getFetchinterval());
+                                prey.setStart(System.currentTimeMillis());
+                                LOG.info("添加任务:" + prey.toString());
+                                jedis.zadd(URLBASE, score, prey.toString());
+                        }
+                } catch (JedisConnectionException e) {
+                        args.put("msg", e.getMessage());
+                        e.printStackTrace();
+                } finally {
+                        jedis.close();
+                }
+                if (prey != null) {
+                        args.put(Params.URL, url);
+                        args.put(Params.URL, prey.getUrl());
+                        args.put(Params.PREV_FETCH_TIME, System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000); // 设置上次抓取时间是3天前
+                        args.put(Params.COMMENT, prey.getComment());
+                        jobService.addInsecptJob(args);
+                }
                 return args;
         }
 
         /**
-         * 过滤已配置版块
+         * 查找已配置版块
          * 
          * @param name
          *                版块名称或地址

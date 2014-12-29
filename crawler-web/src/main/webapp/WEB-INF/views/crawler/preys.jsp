@@ -7,11 +7,13 @@
 <title>爬虫监控</title>
 <script type="text/javascript">
 function addInspectJob() {
+	$("#submitInspectJob").val('添加');
 	$('div.form-wrapper-center form').form('clear');
 	$('#addInspectJobDialog').show();
 	$('div.message').text('');
 }
 function addSearchJob() {
+	$("#submitSearchJob").val('添加');
 	$('div.form-wrapper-center form').form('clear');
 	$('#addSearchJobDialog').show();
 	$('div.message').text('');
@@ -25,20 +27,37 @@ $(function() {
 	});
 	
 	$("#submitInspectJob").click(function(e) {
+		if ($(this).val() != '添加' || !$('#addInspectJobForm').form('validate')) {
+			return ;
+		}
+		$(this).val('正在添加中...');
 		$('#addInspectJobForm').form('submit', {
 			success: function (data) {
 				data = $.parseJSON(data);
 				if (data.msg == 'noconflist') {
 					$('div.message').text('该版块没有配置, 不能执行任务');
+					$("#submitInspectJob").val('添加');
+					return false;
+				} else if (data.msg == 'jobexist') {
+					$('div.message').text('该版块已添加成任务, 不能再次添加');
+					$("#submitInspectJob").val('添加');
+					return false;
+				} else if (data.msg != '') {
+					$('div.message').text('该版块已添加成任务, 不能再次添加');
+					$("#submitInspectJob").val('添加');
 					return false;
 				}
 				alert('添加成功');
 				$('div.form-wrapper').hide();
 				location.reload();
-			}
+			},
 		});
 	});
 	$("#submitSearchJob").click(function(e) {
+		if ($(this).val() != '添加' || !$('#addSearchJobForm').form('validate')) {
+			return ;
+		}
+		$(this).val('正在添加中...');
 		$('#addSearchJobForm').form('submit', {
 			url: '../ajax/addSearchJob',
 			onSubmit: function() {

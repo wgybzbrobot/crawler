@@ -244,5 +244,6 @@ a:active,a:hover {
 	background-color: #fff;
 }
 
-.right-panel ul li {
+table tr:HOVER {
+	background: #e3e3e3;
 }

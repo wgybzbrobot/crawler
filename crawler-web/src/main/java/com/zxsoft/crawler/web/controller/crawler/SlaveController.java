@@ -24,6 +24,11 @@ import com.zxsoft.crawler.slave.SlavePath;
 import com.zxsoft.crawler.web.service.crawler.SlaveService;
 import com.zxsoft.crawler.web.service.crawler.impl.SlaveServiceImpl;
 
+/**
+ * slave节点访问资源
+ * @author xiayun
+ *
+ */
 @Controller
 @RequestMapping(MasterPath.SLAVE_RESOURCE_PATH)
 public class SlaveController {

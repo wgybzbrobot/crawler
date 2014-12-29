@@ -27,12 +27,12 @@ def push():
 
 def start():
     #run('cd ~/crawler-master-1.0.0/bin && sh start.sh', pty=True)
-    with cd('~/crawler-master/'):
-        run("nohup sh bin/master.sh start >& /dev/null < /dev/null &", pty=False)
+    with cd('~'):
+        run("nohup sh crawler-master/bin/master.sh start >& /dev/null < /dev/null &", pty=False)
 
 def stop():
-    with cd('~/crawler-master/'):
-        run("sh bin/master.sh stop")
+    with cd('~'):
+        run("sh crawler-master/bin/master.sh stop")
 
 def delete():
     run("rm -r crawler-master")
