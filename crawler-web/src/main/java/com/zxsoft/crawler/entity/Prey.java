@@ -59,7 +59,7 @@ public class Prey implements Serializable {
 	    this.comment = comment;
 	    this.jobType = jobType;
 	    this.fetchinterval = fetchinterval;
-	    this.prevFetchTime = System.currentTimeMillis();
+//	    this.prevFetchTime = System.currentTimeMillis();
 	    this.state = 1;
     }
 	/**

@@ -42,8 +42,8 @@ $(function() {
 					$('div.message').text('该版块已添加成任务, 不能再次添加');
 					$("#submitInspectJob").val('添加');
 					return false;
-				} else if (data.msg != '') {
-					$('div.message').text('该版块已添加成任务, 不能再次添加');
+				} else if (data.msg == 'jedisconnectionexception') {
+					$('div.message').text('无法连接redis');
 					$("#submitInspectJob").val('添加');
 					return false;
 				}
@@ -142,13 +142,32 @@ $(function() {
    			}
    		});
 	});
+	/*
+	 * 异步请求,查看url是否已在任务队列中
+	 */
+	var arr = $('#ruleConfigedJobList li a');
+	$.each(arr, function(i, val) {
+		$.ajax({
+   			type : 'POST',
+   			url : $('#ruleConfigedJobList').attr('url'),
+   			dataType : 'json',
+   			data: {url: val.href},
+   			success: function(data) {
+   				console.log(data);
+   				if (data == true) {
+   					val.style.color='#ff0000';
+					console.log('ture');   					
+   				}
+   			}
+   		});
+	});
 });
 </script>
 </head>
 <body>
 	<div class="right-panel" >
 		<div><input id="sectionFilter" name="url" type="text" title="输入版块名称或网址搜索" /></div>
-		<div style="height:92%; overflow-y:scroll;">
+		<div id="ruleConfigedJobList" style="height:92%; overflow-y:scroll;" url="<c:url value='/slaves/ajax/jobExist' />">
 			<ol>
 			<c:forEach items="${confLists}" var="confList" varStatus="status">
 				<li style="line-height: 22px;">

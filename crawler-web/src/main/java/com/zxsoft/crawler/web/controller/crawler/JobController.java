@@ -87,7 +87,7 @@ public class JobController {
 
         /**
          * 列出任务种子
-         * @param index
+         * @param index 个数
          * @param model
          * @return
          */
@@ -323,7 +323,42 @@ public class JobController {
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
                 Prey prey = null;
-                // 判断任务列表中是否已存在该任务
+                try {
+                        // 判断任务列表中是否已存在该任务
+                        boolean exist = jobExist(url);
+                        if (exist) {
+                                args.put("msg", "jobexist");
+                        } else {
+                                // 添加任务
+                                double score = 1.0d / (System.currentTimeMillis() / 60000 );
+                                prey = new Prey(site, url, confList.getComment(), JobType.NETWORK_INSPECT.toString(), confList.getFetchinterval());
+                                prey.setStart(System.currentTimeMillis());
+                                LOG.info("添加任务:" + prey.toString());
+                                jedis.zadd(URLBASE, score, prey.toString());
+                        }
+                } catch (JedisConnectionException e) {
+                        args.put("msg", "jedisconnectionexception");
+                        e.printStackTrace();
+                } finally {
+                        jedis.close();
+                }
+                return args;
+        }
+        
+        /**
+         * 判断url任务是否已在redis队列中
+         * @param url
+         * @return
+         */
+        @ResponseBody
+        @RequestMapping(value = "ajax/jobExist", method = RequestMethod.POST)
+        public boolean jobExist(@RequestParam(value = "url", required = false) String url) {
+                Assert.hasLength(url);
+                if (url.endsWith("/")) {
+                        url = url.substring(0, url.lastIndexOf("/"));
+                }
+                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
                 long count = 0, begin = 0, end = 100;
                 try {
                         count = jedis.zcard(URLBASE);
@@ -334,36 +369,20 @@ public class JobController {
                                         Prey _prey = gson.fromJson(str, Prey.class);
                                         String json = _prey.toString();
                                         if (json.contains(String.valueOf(url))) {
-                                                args.put("msg", "jobexist");
-                                                break;
+                                                return true;
                                         }
                                 }
                                 begin = end;
                                 end = end + 100;
                         }
-                        if (args.get("msg") != null) {
-                                // 添加任务
-                                double score = 1.0d / (System.currentTimeMillis() / 60000 + confList.getFetchinterval());
-                                prey = new Prey(site, url, confList.getComment(), JobType.NETWORK_INSPECT.toString(), confList.getFetchinterval());
-                                prey.setStart(System.currentTimeMillis());
-                                LOG.info("添加任务:" + prey.toString());
-                                jedis.zadd(URLBASE, score, prey.toString());
-                        }
                 } catch (JedisConnectionException e) {
-                        args.put("msg", e.getMessage());
-                        e.printStackTrace();
+                        LOG.error(e.getMessage());
                 } finally {
                         jedis.close();
                 }
-                if (prey != null) {
-                        args.put(Params.URL, url);
-                        args.put(Params.URL, prey.getUrl());
-                        args.put(Params.PREV_FETCH_TIME, System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000); // 设置上次抓取时间是3天前
-                        args.put(Params.COMMENT, prey.getComment());
-                        jobService.addInsecptJob(args);
-                }
-                return args;
+                return false;
         }
+        
 
         /**
          * 查找已配置版块
