@@ -169,9 +169,9 @@
 							html += '当前页的回复：';
 							$.each(data.info.replies, function(i, val) {
 								html += '<p style="border:1px solid;">'
-											+ '<span title="序号" style="color:#ff2233;">' + (i+1) + '</span>' 
-											+ '<span title="回复人" style="color:#006699">' + val.replyAuthor  + '</span>'
-											+ '<span title="回复时间" style="color:#2233ff">' + val.replyDate  + '</span>'
+											+ '<span title="序号" style="color:#ff2233;">' + (i+1) + ' </span> ' 
+											+ '<span title="回复人" style="color:#00ff00">' + val.replyAuthor  + ' </span> '
+											+ '<span title="回复时间" style="color:#2233ff">' + val.replyDate  + ' </span> '
 											+ '<span title="内容">' + val.replyContent +   '</span></p>';
 							});
 						}

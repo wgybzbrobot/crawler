@@ -111,7 +111,7 @@ public class ListConfigVerification extends ParseTool {
                                                                         } else {
                                                                                 update = DateExtractor.extract(dateElements.first().html());
                                                                                 if (update == null) {
-                                                                                        LOG.warn("没有获取到时间: " + dateElements.first().outerHtml());
+                                                                                        LOG.warn("没有获取到时间: " + dateElements.first().html());
                                                                                 }
                                                                         }
                                                                 }

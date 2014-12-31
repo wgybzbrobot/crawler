@@ -37,10 +37,10 @@ public class JobStatus implements Serializable {
 		this.msg = msg;
 	}
 
-	public String toString() {
-		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-		String json = gson.toJson(this); 
-		return json;
-	}
+//	public String toString() {
+//		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+//		String json = gson.toJson(this); 
+//		return json;
+//	}
 
 }

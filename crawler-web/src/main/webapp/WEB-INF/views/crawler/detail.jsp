@@ -56,7 +56,7 @@
 								</c:when>
 								<c:otherwise>
 								<table style="text-align:left; font-size: 14px;">
-									<thead><tr><td style="width: 35px;">序号</td><td>版块</td><td>抓取时间</td><td>数量</td><td>消息</td><td>Status</td></tr></thead>
+									<thead><tr><td style="width: 35px;">序号</td><td>版块</td><td>抓取时间</td><td>数量</td><td>消息</td><td>Status</td><td>State</td></tr></thead>
 									<c:forEach items="${list}" var="map" varStatus="status">
 										<tr>
 											<td style="width: 35px;"><span>${status.index + 1}</span></td>
@@ -83,6 +83,7 @@
 												</c:choose> 
 												</span>
 											</td>
+											<td>${map.result.status }</td>
 											<td>${map.state }</td>
 										</tr>
 									</c:forEach>
