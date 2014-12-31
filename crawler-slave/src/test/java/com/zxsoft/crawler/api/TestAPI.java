@@ -28,7 +28,7 @@ public class TestAPI {
 			for (int i = 1; i < 15; i++) {
 				System.err.println("Waiting for jobs to complete - " + i + "s");
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(20000);
 				} catch (Exception e) {
 				};
 				server.stop(false);
@@ -46,17 +46,16 @@ public class TestAPI {
 	@Test
 	public void testJobAPI() throws Exception {
 		ClientResource cli = new ClientResource(baseUrl + JobResource.PATH);
-		
+		JacksonRepresentation<Map<String,Object>> jr = null;
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put(Params.CRAWL_ID, "test");
 		map.put(Params.JOB_TYPE, JobType.NETWORK_INSPECT);
 		Map<String, Object> args = new HashMap<String, Object>();
-		args.put(Params.URL, "http://bbs.tianya.cn/list-free-1.shtml");
-		args.put(Params.COMMENT, "天涯杂谈");
-		map.put(Params.ARGS, args);
-	    JacksonRepresentation<Map<String,Object>> jr =
-	    	      new JacksonRepresentation<Map<String,Object>>(map);
-	    System.out.println(cli.put(jr).getText());
+//		args.put(Params.URL, "http://bbs.tianya.cn/list-free-1.shtml");
+//		args.put(Params.COMMENT, "天涯杂谈");
+//		map.put(Params.ARGS, args);
+//	    jr =  new JacksonRepresentation<Map<String,Object>>(map);
+//	    System.out.println(cli.put(jr).getText());
 	    	    
 		args.put(Params.URL, "http://roll.news.sina.com.cn/s/channel.php");
 		args.put(Params.COMMENT, "新浪新闻滚动");
@@ -64,10 +63,10 @@ public class TestAPI {
 		jr = new JacksonRepresentation<Map<String,Object>>(map);
 		System.out.println(cli.put(jr).getText());
 		
-		args.put(Params.URL, "http://boxun.eggpain.tk/rolling.shtml");
-		args.put(Params.COMMENT, "博讯滚动新闻");
-		map.put(Params.ARGS, args);
-		jr = new JacksonRepresentation<Map<String,Object>>(map);
-		System.out.println(cli.put(jr).getText());
+//		args.put(Params.URL, "http://boxun.eggpain.tk/rolling.shtml");
+//		args.put(Params.COMMENT, "博讯滚动新闻");
+//		map.put(Params.ARGS, args);
+//		jr = new JacksonRepresentation<Map<String,Object>>(map);
+//		System.out.println(cli.put(jr).getText());
 	}
 }

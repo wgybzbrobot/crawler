@@ -184,22 +184,26 @@ public class RAMJobManager implements JobManager {
 
 		@Override
 		public void run() {
+		        LOG.info(jobStatus.toString());
 			try {
 			        LOG.debug("set job status");
 				jobStatus.state = State.RUNNING;
 				jobStatus.msg = "OK";
-				try {
+//				try {
 				        jobStatus.result = tool.run(args);
-				} catch (Exception e) {
-				        LOG.error(e.getMessage());
-				        e.printStackTrace();
-				}
+//				} catch (Exception e) {
+//				        LOG.error(e.getMessage());
+//				        e.printStackTrace();
+//				}
 				jobStatus.state = State.FINISHED;
 			} catch (Exception e) {
 				e.printStackTrace();
 				LOG.error(e.getMessage());
 				jobStatus.msg = "ERROR: " + e.getMessage();
 				jobStatus.state = State.FAILED;
+			}
+			if (jobStatus.result != null && !"SUCCESS".equals(jobStatus.result.get("status"))) {
+			        LOG.info(jobStatus.toString());
 			}
 		}
 	}
