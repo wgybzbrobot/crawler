@@ -34,6 +34,7 @@ def stop():
 @task
 @parallel
 def delete():
+    stop()
     run('rm -r crawler-slave')
 
 ## backup log file

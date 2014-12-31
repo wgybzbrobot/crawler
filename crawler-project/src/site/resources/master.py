@@ -31,6 +31,7 @@ def start():
         run("nohup sh crawler-master/bin/master.sh start >& /dev/null < /dev/null &", pty=False)
 
 def stop():
+    delete();
     with cd('~'):
         run("sh crawler-master/bin/master.sh stop")
 
