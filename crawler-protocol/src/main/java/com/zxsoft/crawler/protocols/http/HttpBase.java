@@ -77,7 +77,7 @@ public abstract class HttpBase extends PageHelper {
 	protected int code;
 	protected Metadata headers = new Metadata();
 	protected byte[] content = null;
-	protected String charset;
+	protected String charset = "utf-8";
 	protected String contentType;
 
 //	public void setup() {

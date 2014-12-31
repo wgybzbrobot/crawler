@@ -102,41 +102,6 @@ public class HtmlUnit extends HttpBase {
 		}
 
 		content = htmlPage.asXml().getBytes(charset);
-		// Limit download size
-//		long contentLength = Long.MAX_VALUE;
-//		InputStream in = response.getContentAsStream();
-//		try {
-//			byte[] buffer = new byte[HttpBase.BUFFER_SIZE];
-//			int bufferFilled = 0;
-//			int totalRead = 0;
-//			ByteArrayOutputStream out = new ByteArrayOutputStream();
-//			while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1
-//			        && totalRead + bufferFilled <= contentLength) {
-//				totalRead += bufferFilled;
-//				out.write(buffer, 0, bufferFilled);
-//			}
-//			content = out.toByteArray();
-//		} catch (Exception e) {
-//			if (code == 200)
-//				throw new IOException(e.toString());
-//		} finally {
-//			if (in != null) {
-//				in.close();
-//			}
-//			// request.close();
-//		}
-//		
-//		// Extract gzip, x-gzip and deflate content
-//		if (content != null) {
-//			// check if we have to uncompress it
-//			String contentEncoding = headers.get(Response.CONTENT_ENCODING);
-//			if (contentEncoding != null && HtmlUnit.LOG.isTraceEnabled())
-//				if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
-//					content = processGzipEncoded(content, url);
-//				} else if ("deflate".equals(contentEncoding)) {
-//					content = processDeflateEncoded(content, url);
-//				}
-//		}
 	}
 
 	/**

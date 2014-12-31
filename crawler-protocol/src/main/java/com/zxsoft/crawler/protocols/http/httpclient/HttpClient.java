@@ -94,7 +94,7 @@ public class HttpClient extends HttpBase {
 		try {
 			url = new URL(page.getBaseUrl());
 		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
+			LOG.warn(e.getMessage(), e);
 			return null;
 		}
 		
@@ -104,7 +104,7 @@ public class HttpClient extends HttpBase {
 		params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 		params.setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
 		params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
-
+		String _charset = "";
 		try {
 			code = client.executeMethod(get);
 			Header[] heads = get.getResponseHeaders();
@@ -112,14 +112,17 @@ public class HttpClient extends HttpBase {
 				metadata.set(heads[i].getName(), heads[i].getValue());
 
 			String contentType = metadata.get(Response.CONTENT_TYPE);
-			charset = EncodingDetector.detect(contentType);
-			
+//			charset = EncodingDetector.detect(contentType);
+//			if (!StringUtils.isEmpty(charset)) {
+//			      LOG.debug("使用contenttype得到编码:" + charset);  
+//			}
 			InputStream in = get.getResponseBodyAsStream();
 			try {
 			        content = IOUtils.toByteArray(in);
-			        if (StringUtils.isEmpty(charset)) {
-			                charset = EncodingDetector.detect(content);
-			        }
+//			        if (StringUtils.isEmpty(charset)) {
+			                _charset = EncodingDetector.detect(contentType, content);
+//			                LOG.debug("使用icu得到编码:" + _charset);
+//			        }
 			} catch (Exception e) {
 				if (code == 200) {
 				        LOG.error(e.getMessage(), e);
@@ -143,7 +146,7 @@ public class HttpClient extends HttpBase {
 			get.releaseConnection();
 		}
 
-		return new Response(url, code, metadata, content, charset);
+		return new Response(url, code, metadata, content, _charset);
 	}
 
 	@Override
@@ -156,7 +159,8 @@ public class HttpClient extends HttpBase {
 		params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 		params.setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
 		params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
-
+		
+		String _charset = "";
 		try {
 			code = client.executeMethod(post);
 			// post.getResponseBodyAsString();
@@ -174,18 +178,15 @@ public class HttpClient extends HttpBase {
 			for (int i = 0; i < heads.length; i++)
 				headers.set(heads[i].getName(), heads[i].getValue());
 
-			long contentLength = Long.MAX_VALUE;
+			String contentType = headers.get(Response.CONTENT_TYPE);
+//                        charset = EncodingDetector.detect(contentType);
 			InputStream in = post.getResponseBodyAsStream();
-			byte[] buffer = new byte[1024 * 1024];
-			int bufferFilled = 0;
-			int totalRead = 0;
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			try {
-				while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1 && totalRead + bufferFilled <= contentLength) {
-					totalRead += bufferFilled;
-					out.write(buffer, 0, bufferFilled);
-				}
-				content = out.toByteArray();
+			        content = IOUtils.toByteArray(in);
+//                                if (StringUtils.isEmpty(charset)) {
+                                        _charset = EncodingDetector.detect(contentType, content);
+//                                        LOG.debug("使用icu得到编码:" + charset);
+//                                }
 			} catch (Exception e) {
 				if (code == 200) {
 				         LOG.error(e.getMessage(), e);
@@ -208,7 +209,7 @@ public class HttpClient extends HttpBase {
 		} finally {
 			post.releaseConnection();
 		}
-		return new Response(url, code, headers, content, charset);
+		return new Response(url, code, headers, content, _charset);
 	}
 
 	@Override
@@ -302,7 +303,7 @@ public class HttpClient extends HttpBase {
 		for (Element ele : links) {
 			String v = ele.text();
 			if ("18255266882".equals(v)) {
-				System.out.println(ele);
+				continue;
 			}
 			if (Utils.isNum(v) && Integer.valueOf(v) > i) { // get max num
 				i = Integer.valueOf(v);

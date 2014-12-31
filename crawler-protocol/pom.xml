@@ -22,11 +22,19 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
+		
+		<!-- 探测网页编码 -->
+		<!-- <dependency>
 			<groupId>net.sourceforge.jchardet</groupId>
 			<artifactId>jchardet</artifactId>
 			<version>1.0</version>
+		</dependency> -->
+		<dependency>
+			<groupId>com.googlecode.juniversalchardet</groupId>
+			<artifactId>juniversalchardet</artifactId>
+			<version>1.0.3</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>net.sourceforge.htmlunit</groupId>
 			<artifactId>htmlunit</artifactId>
