@@ -40,7 +40,7 @@ public class NewsParser extends Parser {
 		}
 	};
 	private String ip;
-	private long monitorTime = new Date().getTime();
+//	private long monitorTime = new Date().getTime();
 
 	@Override
 	public FetchStatus parse(WebPage page) throws Exception {
@@ -63,7 +63,7 @@ public class NewsParser extends Parser {
 		
 		ip = DNSCache.getIp(new URL(mainUrl));
 
-		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, System.currentTimeMillis() / 1000L);
+		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl);
 		info.setIp(ip);
 		Elements contentEles = null;
 		if (StringUtils.isEmpty(detailConf.getContent()) && !CollectionUtils.isEmpty(contentEles = document.select(detailConf.getContent()))) {

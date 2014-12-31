@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration debug="true"
+	xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.EnhancedPatternLayout">
+			<param name="ConversionPattern" value="%d{ISO8601} [%t] %5p %c [Line:%L] - %m%n" />
+		</layout>
+	</appender>      
+	<logger name="com.zxsoft.crawler.protocols">
+		<level value="debug" />
+	</logger>
+	<logger name="com.springframework.jdbc">
+		<level value="warn" />
+	</logger>
+	<logger name="org.apache">
+		<level value="warn" />
+	</logger>
+	<logger name="httpclient">
+		<level value="warn" />
+	</logger>
+	<root>
+		<priority value="debug" />
+		<appender-ref ref="STDOUT" />
+	</root>
+</log4j:configuration>

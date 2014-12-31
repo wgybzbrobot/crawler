@@ -120,7 +120,7 @@ public final class NetworkSearchParserController extends ParseTool {
                                         date = new Nldp(str).extractDateInMillis();
                                 }
 
-                                RecordInfo info = new RecordInfo(title, curl, System.currentTimeMillis() / 1000L);
+                                RecordInfo info = new RecordInfo(title, curl);
                                 info.setId(Md5Signatrue.generateMd5(curl));
                                 info.setIp(ip);
                                 info.setTimestamp(date);

@@ -27,7 +27,7 @@ public class TestNetworkInspectParserController {
 	
 	@Test
 	public void testParseZhongAn() throws ParserNotFoundException {
-		String urlStr = "http://bbs.anhuinews.com/forum.php?mod=forumdisplay&fid=319&filter=lastpost&orderby=lastpost";
+		String urlStr = "http://bbs.aqnews.com.cn/forumdisplay.php?fid=46";
 		long now = System.currentTimeMillis();
 		long interval = 20 * 24 * 60 * 60 * 1000L;
 		System.out.println(interval);
@@ -37,7 +37,8 @@ public class TestNetworkInspectParserController {
 		page.setAjax(false);
 		page.setPrevFetchTime(prev);
 		NetworkInspectParserController parserController = new NetworkInspectParserController();
-		parserController.parse(page);
+		FetchStatus fetchStatus = parserController.parse(page);
+		System.out.println(fetchStatus.toString());
 	}
 	
 	/**

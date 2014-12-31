@@ -47,7 +47,7 @@ public class TieBaParser extends Parser {
 	private String mainUrl;
 	private DetailConf detailConf;
 	private String ip;
-	private long monitorTime = new Date().getTime();
+//	private long monitorTime = new Date().getTime();
 	public List<RecordInfo> getRecordInfos() {
 		return recordInfos;
 	}
@@ -74,7 +74,7 @@ public class TieBaParser extends Parser {
 		/*
 		 * Parse main thread
 		 */
-		RecordInfo info = new RecordInfo(page.getTitle(), page.getBaseUrl(), page.getFetchTime() / 1000L);
+		RecordInfo info = new RecordInfo(page.getTitle(), page.getBaseUrl());
 		info.setIp(ip);
 		Document document = page.getDocument();
 		String replyNumDom = detailConf.getReplyNum();
@@ -210,8 +210,8 @@ public class TieBaParser extends Parser {
 			String json = element.attr("data-field");
 			String pid = extractPid(json);
 			info = save(info, element, tid, pid, page); // 保存回复
-
-			if (info.getTimestamp() != 0 && info.getTimestamp() < prevFetchTime)
+			// 由于时间的误差，将抓取时间拓展１分钟
+			if (info.getTimestamp() != 0 && info.getTimestamp() + 60000L < prevFetchTime)
 				return false;
 			/*
 			 * 解析子回复
@@ -261,7 +261,7 @@ public class TieBaParser extends Parser {
 
 		info.setId(Md5Signatrue.generateMd5(info.getNickname(), info.getContent(), info.getPic_url(), info.getVoice_url(),
 		        info.getVideo_url()));
-		info.setLasttime(monitorTime);
+		info.setLasttime(new Date().getTime());
 		getRecordInfos().add(info);
 		return info;
 	}
@@ -361,7 +361,7 @@ public class TieBaParser extends Parser {
 
 			reply.setId(Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(), reply.getPic_url(), reply.getVoice_url(),
 			        reply.getVideo_url()));
-			reply.setLasttime(monitorTime);
+			reply.setLasttime(new Date().getTime());
 			getRecordInfos().add(reply);
 		}
 	}

@@ -69,7 +69,7 @@ public class BlogParser extends Parser {
                 /*
                  * 解析博主的博客内容
                  */
-                RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, System.currentTimeMillis() / 1000);
+                RecordInfo info = new RecordInfo(page.getTitle(), mainUrl);
                 info.setIp(ip);
                 String replyNumDom = detailConf.getReplyNum();
                 if (!StringUtils.isEmpty(replyNumDom) && !CollectionUtils.isEmpty(mainDoc.select(replyNumDom)))

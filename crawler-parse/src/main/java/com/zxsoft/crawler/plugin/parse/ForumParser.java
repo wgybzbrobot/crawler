@@ -2,7 +2,6 @@ package com.zxsoft.crawler.plugin.parse;
 
 import java.net.URL;
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -51,7 +50,7 @@ public class ForumParser extends Parser {
 		return recordInfos;
 	}
 	private String ip;
-	private long monitorTime = new Date().getTime();
+//	private long monitorTime = new Date().getTime();
 
 	/**
 	 * 解析页面入口
@@ -78,7 +77,7 @@ public class ForumParser extends Parser {
 		/*
 		 * 解析主贴
 		 */
-		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl, System.currentTimeMillis() / 1000);
+		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl);
 		info.setIp(ip);
 		String replyNumDom = detailConf.getReplyNum();
 		if (!StringUtils.isEmpty(replyNumDom) && !CollectionUtils.isEmpty(mainDoc.select(replyNumDom)))
@@ -105,7 +104,6 @@ public class ForumParser extends Parser {
 				String dateDom = detailConf.getDate();
 				if (!StringUtils.isEmpty(dateDom) && !CollectionUtils.isEmpty(masterEle.select(dateDom))) {
 					String dateField = masterEle.select(dateDom).first().html();
-					
 					if (!StringUtils.isEmpty(dateField)) {
 						info.setTimestamp(DateExtractor.extractInMilliSecs(dateField));
 					}
@@ -172,9 +170,13 @@ public class ForumParser extends Parser {
 
 		int count = 0;
 		try {
+		        List<RecordInfo> list = getRecordInfos();
+		        for (RecordInfo recordInfo : list) {
+                                System.out.println(recordInfo);
+                        }
 			count = indexWriter.write(getRecordInfos());
 		} catch (OutputException e) {
-			throw new OutputException(mainUrl + "data output failure");
+			throw new OutputException(mainUrl + " 数据输出失败.");
 //			return new FetchStatus(mainUrl, 61, Status.OUTPUT_FAILURE);
 		}
 		return new FetchStatus(mainUrl, 21, Status.SUCCESS, count);
@@ -192,8 +194,10 @@ public class ForumParser extends Parser {
 			reply.setIp(ip);
 			reply.setOriginal_url(mainUrl);
 			reply.setUrl(currentUrl);
-			String id = save(reply, element, null, detailConf); // 保存回复
-			if (reply.getTimestamp() != 0 && reply.getTimestamp() < prevFetchTime)
+			 // 保存回复
+			String id = save(reply, element, null, detailConf);
+			// 由于时间的误差，将抓取时间拓展１分钟
+			if (reply.getTimestamp() != 0 && reply.getTimestamp() + 60000L < prevFetchTime)
 				return false;
 			if (id == null)
 				continue;
@@ -237,14 +241,14 @@ public class ForumParser extends Parser {
 		}
 		String replyDateDom = detailConf.getReplyDate();
 		if (!StringUtils.isEmpty(replyDateDom) && !CollectionUtils.isEmpty(element.select(replyDateDom))) {
-			String dateField = element.select(replyDateDom).first().text();
+			String dateField = element.select(replyDateDom).first().html();
 			reply.setTimestamp(DateExtractor.extractInMilliSecs(dateField));
 		}
 		reply.setOriginal_id(parentId);
 		String id = Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(), reply.getPic_url(), reply.getVoice_url(),
 		        reply.getVideo_url());
 		reply.setId(id);
-		reply.setLasttime(monitorTime);
+		reply.setLasttime(System.currentTimeMillis());
 		getRecordInfos().add(reply);
 		return id;
 	}
@@ -278,7 +282,7 @@ public class ForumParser extends Parser {
 		String id = Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(), reply.getPic_url(), reply.getVoice_url(),
 		        reply.getVideo_url());
 		reply.setId(id);
-		reply.setLasttime(monitorTime);
+		reply.setLasttime(System.currentTimeMillis());
 		getRecordInfos().add(reply);
 		return id;
 	}
