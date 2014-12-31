@@ -20,6 +20,7 @@ import com.zxsoft.crawler.storage.Section;
 public class ConfDao extends BaseDao {
 
 	private Logger LOG = LoggerFactory.getLogger(ConfDao.class);
+	private static final int TIMEOUT = 60;
 
 	/**
 	 * 获取登录帐号
@@ -48,12 +49,14 @@ public class ConfDao extends BaseDao {
 	 * @param url
 	 */
 	public ListConf getListConf(String url) {
-		ObjectCache objectCache = ObjectCache.get("ListConf");
+		ObjectCache objectCache = ObjectCache.get("ListConf", TIMEOUT);
 
 		if (objectCache.getObject(url) != null) {
+		        LOG.debug("Find ListConf in Cache");
 			return (ListConf) objectCache.getObject(url);
-			// if not foudn in cache, get ListConf from database
 		} else {
+		        // if not foudn in cache, get ListConf from database
+		        LOG.debug("Do not find ListConf in Cache, will get ListConf from database.");
 			LOG.debug("Getting list config:" + url);
 			List<ListConf> list = getJdbcTemplate().query("select * from conf_list where url = ?",
 			        new Object[] { url }, new RowMapper<ListConf>() {
@@ -82,7 +85,7 @@ public class ConfDao extends BaseDao {
 
 	public ListConf getListConfByCategory(final String category) {
 
-		ObjectCache objectCache = ObjectCache.get("ListConf");
+		ObjectCache objectCache = ObjectCache.get("ListConf", TIMEOUT);
 
 		if (objectCache.getObject(category) != null) {
 			return (ListConf) objectCache.getObject(category);
@@ -141,7 +144,7 @@ public class ConfDao extends BaseDao {
 	 * @param host 详细页的Host
 	 */
 	public DetailConf getDetailConf(String listUrl, String host) {
-		ObjectCache objectCache = ObjectCache.get("DetailConf");
+		ObjectCache objectCache = ObjectCache.get("DetailConf", TIMEOUT);
 
 		if (objectCache.getObject(host) != null) {
 			return (DetailConf) objectCache.getObject(host);
@@ -184,7 +187,7 @@ public class ConfDao extends BaseDao {
 	}
 	
 	public DetailConf getDetailConf(String host) {
-		ObjectCache objectCache = ObjectCache.get("DetailConf");
+		ObjectCache objectCache = ObjectCache.get("DetailConf", TIMEOUT);
 
 		if (objectCache.getObject(host) != null) {
 			return (DetailConf) objectCache.getObject(host);

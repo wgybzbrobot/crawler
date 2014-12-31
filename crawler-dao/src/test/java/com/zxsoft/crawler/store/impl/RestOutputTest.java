@@ -23,7 +23,7 @@ public class RestOutputTest {
 	
 	@Test
 	public void testWrite() throws OutputException /*throws OutputException*/ {
-		RecordInfo info = new RecordInfo("Test", "http://test.org", System.currentTimeMillis() / 1000L);
+		RecordInfo info = new RecordInfo("Test", "http://test.org");
 		output.write(info);
 	}
 	
@@ -32,7 +32,7 @@ public class RestOutputTest {
 		Client client = Client.create();
 		WebResource webResource = client.resource("http://192.168.32.11:8900/sentiment/index");
 		
-		RecordInfo info = new RecordInfo("Test", "http://test.org", System.currentTimeMillis() / 1000L);
+		RecordInfo info = new RecordInfo("Test", "http://test.org");
 		info.setIdentify_md5("xiayun");
 		List<RecordInfo> recordInfos = new ArrayList<RecordInfo>();
 		recordInfos.add(info);
