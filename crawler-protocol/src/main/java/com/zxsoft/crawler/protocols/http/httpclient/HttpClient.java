@@ -1,6 +1,5 @@
 package com.zxsoft.crawler.protocols.http.httpclient;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -63,7 +62,9 @@ public class HttpClient extends HttpBase {
 		params.setSoTimeout(timeout);
 		params.setSendBufferSize(BUFFER_SIZE);
 		params.setReceiveBufferSize(BUFFER_SIZE);
-		params.setMaxTotalConnections(maxThreadsTotal);
+		 params.setDefaultMaxConnectionsPerHost(32);
+	        params.setMaxTotalConnections(256);
+//		params.setMaxTotalConnections(maxThreadsTotal);
 		client.getParams().setConnectionManagerTimeout(timeout);
 		HostConfiguration hostConf = client.getHostConfiguration();
 		ArrayList<Header> headers = new ArrayList<Header>();

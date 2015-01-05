@@ -37,7 +37,7 @@ import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
  */
 public abstract class HttpBase extends PageHelper {
 
-	public static final int BUFFER_SIZE = 1024 * 1024;
+	public static final int BUFFER_SIZE = 8 * 1024;
 
 	/** Indicates if a proxy is used */
 	protected static   boolean useProxy = false;
