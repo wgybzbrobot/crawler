@@ -13,9 +13,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thinkingcloud.framework.util.CollectionUtils;
-import org.thinkingcloud.framework.util.StringUtils;
 
+import com.zxisl.commons.utils.CollectionUtils;
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.parse.ParseTool;
 import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;

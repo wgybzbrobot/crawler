@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.stereotype.Repository;
-import org.thinkingcloud.framework.util.StringUtils;
 import org.thinkingcloud.framework.web.utils.HibernateCallbackUtil;
 
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.entity.ConfDetailId;
 import com.zxsoft.crawler.entity.ConfList;

@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.thinkingcloud.framework.util.Assert;
 
+import com.zxisl.commons.utils.Assert;
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.entity.Section;

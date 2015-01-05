@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.thinkingcloud.framework.util.CollectionUtils;
-import org.thinkingcloud.framework.util.StringUtils;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.zxisl.commons.utils.CollectionUtils;
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.entity.Account;
 import com.zxsoft.crawler.entity.Category;
 import com.zxsoft.crawler.entity.ConfDetail;

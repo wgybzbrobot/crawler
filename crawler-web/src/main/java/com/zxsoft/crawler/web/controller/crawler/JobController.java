@@ -18,10 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.thinkingcloud.framework.io.ClassPathResource;
-import org.thinkingcloud.framework.util.Assert;
-import org.thinkingcloud.framework.util.CollectionUtils;
-import org.thinkingcloud.framework.util.StringUtils;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Response;
@@ -30,6 +26,10 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.zxisl.commons.io.ClassPathResource;
+import com.zxisl.commons.utils.Assert;
+import com.zxisl.commons.utils.CollectionUtils;
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.entity.Prey;

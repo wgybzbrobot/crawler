@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
-import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.zxisl.commons.utils.Assert;
 import com.zxsoft.crawler.entity.Auth;
 import com.zxsoft.crawler.entity.SiteType;
 import com.zxsoft.crawler.entity.Website;

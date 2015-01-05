@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.thinkingcloud.framework.util.Assert;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.zxisl.commons.utils.Assert;
 import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.entity.SiteType;
 import com.zxsoft.crawler.entity.Website;

@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.zxisl.commons.utils.CollectionUtils;
 import com.zxsoft.crawler.entity.Section;
 import com.zxsoft.crawler.web.dao.website.SectionDao;
 import com.zxsoft.crawler.web.service.website.SectionService;

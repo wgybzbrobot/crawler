@@ -5,8 +5,9 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thinkingcloud.framework.io.ClassPathResource;
-import org.thinkingcloud.framework.util.StringUtils;
+
+import com.zxisl.commons.io.ClassPathResource;
+import com.zxisl.commons.utils.StringUtils;
 
 public abstract class SimpleCrawlerServiceImpl {
 

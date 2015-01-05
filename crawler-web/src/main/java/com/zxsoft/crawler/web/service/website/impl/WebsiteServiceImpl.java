@@ -7,9 +7,9 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thinkingcloud.framework.util.CollectionUtils;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.zxisl.commons.utils.CollectionUtils;
 import com.zxsoft.crawler.entity.Auth;
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.entity.ConfList;

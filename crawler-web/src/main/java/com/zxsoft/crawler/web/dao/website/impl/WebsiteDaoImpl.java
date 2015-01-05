@@ -9,10 +9,10 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.thinkingcloud.framework.util.StringUtils;
 import org.thinkingcloud.framework.web.utils.HibernateCallbackUtil;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.entity.Auth;
 import com.zxsoft.crawler.entity.Website;
 import com.zxsoft.crawler.web.dao.website.WebsiteDao;

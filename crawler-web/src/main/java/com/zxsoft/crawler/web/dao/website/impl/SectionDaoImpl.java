@@ -13,10 +13,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.stereotype.Repository;
-import org.thinkingcloud.framework.util.StringUtils;
 import org.thinkingcloud.framework.web.utils.HibernateCallbackUtil;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.entity.Section;
 import com.zxsoft.crawler.web.dao.website.SectionDao;
