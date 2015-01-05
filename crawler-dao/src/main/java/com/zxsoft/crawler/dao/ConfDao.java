@@ -8,10 +8,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
-import org.thinkingcloud.framework.cache.ObjectCache;
-import org.thinkingcloud.framework.util.CollectionUtils;
-import org.thinkingcloud.framework.util.NetUtils;
 
+import com.zxisl.commons.cache.ObjectCache;
+import com.zxisl.commons.utils.CollectionUtils;
+import com.zxisl.commons.utils.NetUtils;
 import com.zxsoft.crawler.storage.Account;
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.ListConf;

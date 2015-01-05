@@ -4,6 +4,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zxisl.commons.utils.NetUtils;
+
 public class TestNetUtils {
 
 	Logger LOG = LoggerFactory.getLogger(TestNetUtils.class);

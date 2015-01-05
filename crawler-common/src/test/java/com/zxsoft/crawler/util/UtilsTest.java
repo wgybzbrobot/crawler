@@ -1,7 +1,8 @@
 package com.zxsoft.crawler.util;
 
 import org.junit.Test;
-import org.thinkingcloud.framework.util.Assert;
+
+import com.zxisl.commons.utils.Assert;
 
 public class UtilsTest {
 

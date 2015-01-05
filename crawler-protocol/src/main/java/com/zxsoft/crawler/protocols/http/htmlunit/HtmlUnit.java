@@ -11,9 +11,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thinkingcloud.framework.util.CollectionUtils;
-import org.thinkingcloud.framework.util.NetUtils;
-import org.thinkingcloud.framework.util.StringUtils;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.DefaultCredentialsProvider;
@@ -26,6 +23,9 @@ import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
+import com.zxisl.commons.utils.CollectionUtils;
+import com.zxisl.commons.utils.NetUtils;
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocols.http.HttpBase;
@@ -288,19 +288,19 @@ public class HtmlUnit extends HttpBase {
 		Document document = Jsoup.parse(pageXml, host);
 
 		// 从列表块中选分页栏
-		ListConf listConf = page.getListConf();
-		String listdom = listConf == null ? null : listConf.getListdom();
-		Element listElement = null;
-		if (!StringUtils.isEmpty(listConf)) {
-			listElement = CollectionUtils.isEmpty(document.select(listdom)) ? null : document.select(listdom).first();
-		}
+//		ListConf listConf = page.getListConf();
+//		String listdom = listConf == null ? null : listConf.getListdom();
+//		Element listElement = null;
+//		if (!StringUtils.isEmpty(listConf)) {
+//			listElement = CollectionUtils.isEmpty(document.select(listdom)) ? null : document.select(listdom).first();
+//		}
 		
 		Elements elements = document.select("a:matchesOwn(尾页|末页|最后一页|最末页)");
 		HtmlAnchor lastAnchor = null;
 		if (!CollectionUtils.isEmpty(elements)) {
 			lastAnchor = htmlPage.getAnchorByText(elements.first().text());
 		} else {
-			Element pagebar = getPageBar(listElement == null ? document : listElement);
+			Element pagebar = getPageBar(/*listElement == null ? */document /*: listElement*/);
 			if (pagebar == null)
 				return null;
 			Elements links = pagebar.getElementsByTag("a");
@@ -316,7 +316,6 @@ public class HtmlUnit extends HttpBase {
 					}
 				}
 				lastAnchor = htmlPage.getAnchorByText(el.text());
-
 			}
 		}
 

@@ -5,8 +5,8 @@ import java.io.IOException;
 import org.apache.commons.httpclient.NameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thinkingcloud.framework.util.StringUtils;
 
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.ProtocolStatus;

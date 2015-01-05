@@ -12,8 +12,8 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.tika.io.IOUtils;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
-import org.thinkingcloud.framework.util.Assert;
 
+import com.zxisl.commons.utils.Assert;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.util.EncodingDetector;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;

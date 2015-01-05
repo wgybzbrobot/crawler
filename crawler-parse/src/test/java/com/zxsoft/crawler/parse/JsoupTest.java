@@ -6,7 +6,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.junit.Test;
-import org.thinkingcloud.framework.util.Assert;
+
+import com.zxisl.commons.utils.Assert;
 
 public class JsoupTest {
 

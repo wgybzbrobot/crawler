@@ -13,10 +13,10 @@ import org.jsoup.nodes.Document;
 //import org.mozilla.intl.chardet.nsPSMDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thinkingcloud.framework.util.StringUtils;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
+import com.zxisl.commons.utils.StringUtils;
 
 /**
  * 获取网页编码

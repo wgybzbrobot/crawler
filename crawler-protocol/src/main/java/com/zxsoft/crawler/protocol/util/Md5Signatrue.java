@@ -5,7 +5,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Hex;
-import org.thinkingcloud.framework.util.StringUtils;
+
+import com.zxisl.commons.utils.StringUtils;
 
 /**
  * MD5生成器

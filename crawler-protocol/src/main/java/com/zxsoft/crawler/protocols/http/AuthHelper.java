@@ -7,9 +7,9 @@ import java.util.WeakHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thinkingcloud.framework.util.CollectionUtils;
-import org.thinkingcloud.framework.util.NetUtils;
 
+import com.zxisl.commons.utils.CollectionUtils;
+import com.zxisl.commons.utils.NetUtils;
 import com.zxsoft.crawler.dao.BaseDao;
 import com.zxsoft.crawler.dao.ConfDao;
 import com.zxsoft.crawler.storage.DetailConf;

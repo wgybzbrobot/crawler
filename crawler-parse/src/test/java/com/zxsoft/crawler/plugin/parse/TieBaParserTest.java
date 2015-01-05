@@ -5,12 +5,12 @@ import java.util.Calendar;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.junit.Test;
-import org.thinkingcloud.framework.util.CollectionUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.zxisl.commons.utils.CollectionUtils;
 import com.zxsoft.crawler.parse.Parser;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.WebPage;

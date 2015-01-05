@@ -2,8 +2,10 @@ package com.zxsoft.crawler.parse;
 
 import java.util.Calendar;
 import java.util.Date;
+
 import org.junit.Test;
-import org.thinkingcloud.framework.util.Assert;
+
+import com.zxisl.commons.utils.Assert;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.storage.WebPage;
 
@@ -27,9 +29,9 @@ public class TestNetworkInspectParserController {
 	
 	@Test
 	public void testParseZhongAn() throws ParserNotFoundException {
-		String urlStr = "http://bbs.aqnews.com.cn/forumdisplay.php?fid=46";
+		String urlStr = "http://bbs.ahwang.cn/forum-156-1.html";
 		long now = System.currentTimeMillis();
-		long interval = 20 * 24 * 60 * 60 * 1000L;
+		long interval = 20 * 24 * 60 * 60 * 1000L; // 20days
 		System.out.println(interval);
 		long prev = now - interval;
 		System.out.println("prev:" + new Date(prev));

@@ -2,7 +2,7 @@ package com.zxsoft.crawler.util;
 
 import java.net.URLDecoder;
 
-import org.thinkingcloud.framework.util.StringUtils;
+import com.zxisl.commons.utils.StringUtils;
 
 public class URLNormalizer {
 

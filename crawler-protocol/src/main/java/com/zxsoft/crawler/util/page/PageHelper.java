@@ -9,9 +9,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thinkingcloud.framework.util.Assert;
-import org.thinkingcloud.framework.util.CollectionUtils;
 
+import com.zxisl.commons.utils.Assert;
+import com.zxisl.commons.utils.CollectionUtils;
 import com.zxsoft.crawler.util.Utils;
 
 public class PageHelper {

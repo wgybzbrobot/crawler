@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import org.thinkingcloud.framework.util.CollectionUtils;
+import com.zxisl.commons.utils.CollectionUtils;
 
 /**
  * Store cookies.

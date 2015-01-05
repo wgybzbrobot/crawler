@@ -3,8 +3,9 @@ package com.zxsoft.crawler.dns;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import org.thinkingcloud.framework.cache.ObjectCache;
-import org.thinkingcloud.framework.util.StringUtils;
+
+import com.zxisl.commons.cache.ObjectCache;
+import com.zxisl.commons.utils.StringUtils;
 
 public class DNSCache {
 

@@ -7,10 +7,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thinkingcloud.framework.util.Assert;
-import org.thinkingcloud.framework.util.CollectionUtils;
-import org.thinkingcloud.framework.util.StringUtils;
 
+import com.zxisl.commons.utils.Assert;
+import com.zxisl.commons.utils.CollectionUtils;
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
@@ -63,20 +63,29 @@ public final class NetworkInspectParserController extends ParseTool {
 			}
 
 			Elements lines = list.first().select(lineDom);
-			if ((!hasUpdate && pageNum > _pageNum) || pageNum > _pageNum + 1) {
+			if (!hasUpdate && pageNum > _pageNum) {
 				continuePage = false;
-				msg = "抓完设定的页数" + _pageNum;
+				msg = "没有获取列表页中记录的更新时间，抓完设定的页数" + _pageNum;
 				break;
+			} else if (pageNum > _pageNum + 1) {
+			        continuePage = false;
+                                msg = "抓完设定的页数" + (_pageNum + 1);
+                                break;
 			}
-			LOG.info("【" + listConf.getComment() + "】thread count in " + pageNum + " page: " + lines.size());
+			
+			LOG.info("【" + listConf.getComment() + "】第" + pageNum + "页,　记录数: " + lines.size());
+			int count = 0;
 			for (Element line : lines) {
 				Date update = null;
 				if (!StringUtils.isEmpty(updateDom) && !CollectionUtils.isEmpty(line.select(updateDom))) {
 					update = DateExtractor.extract(line.select(updateDom).first().html());
-					if (update != null && update.getTime() < page.getPrevFetchTime()) {
-						msg = "截止时间" + new Date(page.getPrevFetchTime()).toLocaleString();
-						continuePage = false;
-						break;
+					if (update != null && update.getTime() + 60000L < page.getPrevFetchTime()) {
+					        if (count > 5) {
+        						msg = "截止时间" + new Date(page.getPrevFetchTime()).toLocaleString();
+        						continuePage = false;
+        						break;
+					        }
+					        count++;
 					}
 					hasUpdate = true;
 				}
@@ -109,7 +118,7 @@ public final class NetworkInspectParserController extends ParseTool {
 					Parser parser = factory.getParserByCategory(listConf.getCategory());
 					FetchStatus _status = parser.parse(wp);
 					sum += _status.getCount();
-					LOG.debug(_status.toString());
+//					LOG.debug(_status.toString());
 				} catch (Exception e) {
 				    msg = e.getMessage();
 					LOG.error(msg);
