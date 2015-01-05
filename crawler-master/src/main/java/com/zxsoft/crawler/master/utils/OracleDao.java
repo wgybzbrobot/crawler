@@ -22,7 +22,6 @@ public class OracleDao extends BaseDao {
 
         private static final String VIEW_SELECT_TASK_EXECUTE_LIST = "SELECT_TASK_EXECUTE_LIST";
         private static final String TABLE_JHRW_RWLB = "JHRW_RWLB";
-        private static final String TABLE_JHRW_RWZX = "JHRW_RWZX";
         private static final JdbcTemplate oracleJdbcTemplate;
         static {
                 OracleDriver driver = null;

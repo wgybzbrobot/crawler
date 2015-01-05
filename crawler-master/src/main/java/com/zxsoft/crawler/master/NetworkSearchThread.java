@@ -23,9 +23,12 @@ public final class NetworkSearchThread implements Runnable {
         private static Logger LOG = LoggerFactory.getLogger(NetworkSearchThread.class);
         
         /**
-         * 读取周期 10秒
+         * 读取周期
          */
-        private static final int READ_INTERVAL = 10;
+        private  int readInterval;
+        public NetworkSearchThread(int readInterval) {
+                this.readInterval = readInterval;
+        }
 
         @Override
         public void run() {
@@ -44,7 +47,7 @@ public final class NetworkSearchThread implements Runnable {
                                         Object obj = slaveResource.create(map);
                                         LOG.info((String)obj);
                                 } catch (Exception e) {
-                                        LOG.error("", e);
+                                        LOG.error("创建从数据库中获取全网搜索的任务失败", e);
                                 }
                         }
                 }
@@ -70,7 +73,7 @@ public final class NetworkSearchThread implements Runnable {
                         }
                         
                         try {
-                                TimeUnit.SECONDS.sleep(READ_INTERVAL);
+                                TimeUnit.SECONDS.sleep(readInterval);
                         } catch (InterruptedException e) {
                                 e.printStackTrace();
                         }

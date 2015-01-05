@@ -57,6 +57,9 @@ public class MysqlDao extends BaseDao {
          * @return
          */
         public String getSearchEngineUrl(String comment) {
+                if (StringUtils.isEmpty(comment)) {
+                        return null;
+                }
                 ObjectCache objectCache = ObjectCache.get("ListConf", TIMEOUT);
                 String url = "";
                 if (objectCache.getObject(comment) != null) {
@@ -73,7 +76,7 @@ public class MysqlDao extends BaseDao {
                                         }
                                 });
                         if (CollectionUtils.isEmpty(list) || StringUtils.isEmpty(list.get(0))) {
-                                LOG.error("在表<" + TABLE_CONF_LIST + ">没有找到comment为" + comment + "的记录.");
+                                LOG.error("在表<" + TABLE_CONF_LIST + ">没有找到comment为<" + comment + ">的记录.");
                                 return null;
                         } else {
                                 url = list.get(0);

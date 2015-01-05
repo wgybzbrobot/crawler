@@ -15,6 +15,11 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.IPUtil;
 
+/**
+ * 访问oracle数据库
+ * @author xiayun
+ *
+ */
 public class OracleDao {
 
         private static Logger LOG = LoggerFactory.getLogger(OracleDao.class);
@@ -79,10 +84,8 @@ public class OracleDao {
          * @return
          */
         public int updateTaskExecuteStatus() {
-//                int num = oracleJdbcTemplate.update("update " + TABLE_JHRW_RWZX + " set ZT=2, ZSZT=1 where jqh=?", 3354);
-//                return num;
-                oracleJdbcTemplate.execute("select * from " + TABLE_JHRW_RWZX + " limit 0, 20");
-                return 0;
+                int num = oracleJdbcTemplate.update("update " + TABLE_JHRW_RWZX + " set ZT=2, ZSZT=1 where jqh=?", machineId);
+                return num;
         }
 
         /**

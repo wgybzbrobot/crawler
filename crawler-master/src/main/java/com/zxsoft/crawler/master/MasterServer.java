@@ -1,6 +1,7 @@
 package com.zxsoft.crawler.master;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -199,8 +200,18 @@ public class MasterServer {
                         }
                 }, "TaskSchedulerThread").start();
 
+                int realInterval = 10;
+                try {
+                        Properties prop = new Properties();
+                        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                        InputStream stream = loader.getResourceAsStream("oracle.properties");
+                        prop.load(stream);
+                        realInterval = Integer.valueOf( prop.getProperty("read.seconds.interval", "10"));
+                } catch (Exception e) {
+                        LOG.warn("从oracle.properties中读取read.seconds.interval失败", e);
+                }
                 
-                new Thread( new NetworkSearchThread(), "NetworkSearchJobManager").start();
+                new Thread( new NetworkSearchThread(realInterval), "NetworkSearchJobSchedular").start();
                 
                 
         }

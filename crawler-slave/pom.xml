@@ -14,7 +14,6 @@
 	<properties>
 		<main.basedir>${project.parent.basedir}</main.basedir>
 		<restlet.version>2.0.5</restlet.version>
-		<crawler.parser.version>1.0.0-SNAPSHOT</crawler.parser.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -60,7 +59,7 @@
 					<tarLongFileMode>gnu</tarLongFileMode>
 					<appendAssemblyId>false</appendAssemblyId>
 					<attach>false</attach>
-					<finalName>${project.artifactId}-${project.version}</finalName>
+					<finalName>${project.artifactId}</finalName>
 					<descriptorRefs>
 						<descriptorRef>slave-dist</descriptorRef>
 					</descriptorRefs>

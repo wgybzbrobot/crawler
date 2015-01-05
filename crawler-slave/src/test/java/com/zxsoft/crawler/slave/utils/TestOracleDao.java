@@ -7,6 +7,7 @@ public class TestOracleDao {
         @Test
         public void test() {
                 OracleDao dao = new OracleDao();
-                dao.updateTaskExecuteStatus();
+                int num = dao.updateTaskExecuteStatus();
+                System.out.println(num);
         }
 }
