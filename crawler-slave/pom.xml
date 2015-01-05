@@ -29,6 +29,10 @@
 			<groupId>com.zxsoft.crawler</groupId>
 			<artifactId>crawler-parse</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>oracle.jdbc</groupId>
+			<artifactId>ojdbc</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -2,6 +2,11 @@ package com.zxsoft.crawler.master.impl;
 
 import com.zxsoft.crawler.api.Machine;
 
+/**
+ * 描述评分的slave机器节点
+ * @author xiayun
+ *
+ */
 public class ScoredMachine implements Comparable<ScoredMachine>{
 	protected float score;
 	protected int runningCount;

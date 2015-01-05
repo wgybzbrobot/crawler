@@ -22,8 +22,10 @@
 			<directory>src/main/resources</directory>
 			<outputDirectory>/conf</outputDirectory>
 			<includes>
-				<include>master.properties</include>
+				<include>redis.properties</include>
 				<include>slaves.ini</include>
+				<include>oracle.properties</include>
+				<include>mysql.properties</include>
 				<include>log4j.xml</include>
 			</includes>
 		</fileSet>

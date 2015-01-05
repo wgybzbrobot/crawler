@@ -15,8 +15,8 @@
 	</properties>
 	<distributionManagement>
 		<site>
-			<id>site-id</id>
-			<url>scp://192.168.3.21:8080/</url>
+			<id>siteid</id>
+			<url>scp://127.0.0.1:8080/manager/html/deploy</url>
 		</site>
 	</distributionManagement>
 	<build>
@@ -24,7 +24,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
-
 			</plugin>
 		</plugins>
 

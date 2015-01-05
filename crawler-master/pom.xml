@@ -40,6 +40,19 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.30</version>
+		</dependency>
+		<dependency>
+			<groupId>oracle.jdbc</groupId>
+			<artifactId>ojdbc</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -50,7 +63,9 @@
 					<excludes>
 						<exclude>**/log4j.xml</exclude>
 						<exclude>**/slaves.ini</exclude>
-						<exclude>**/master.properties</exclude>
+						<exclude>**/redis.properties</exclude>
+						<exclude>**/oracle.properties</exclude>
+						<exclude>**/mysql.properties</exclude>
 					</excludes>
 					<archive>
 						<manifest>
@@ -65,7 +80,7 @@
 				<artifactId>maven-site-plugin</artifactId>
 				<configuration>
 					<outputDirectory>${main.basedir}/crawler-project/target/site/${project.artifactId}</outputDirectory>
-					</configuration>
+				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>

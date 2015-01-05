@@ -23,7 +23,7 @@
 		<appender-ref ref="FILE" />
 	</logger>
 	<logger name="com.springframework.jdbc">
-		<level value="info" />
+		<level value="debug" />
 		<appender-ref ref="FILE" />
 	</logger>
 	<logger name="org.apache.commons.httpclient">
@@ -31,7 +31,7 @@
 		<appender-ref ref="FILE" />
 	</logger>
 	<root>
-		<priority value="info" />
+		<priority value="debug" />
 		<appender-ref ref="STDOUT" />
 	</root>
 </log4j:configuration>

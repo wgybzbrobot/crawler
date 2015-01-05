@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thinkingcloud.framework.util.Assert;
 
+import com.zxisl.commons.utils.Assert;
 import com.zxsoft.crawler.api.CrawlTool;
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.parse.FetchStatus;

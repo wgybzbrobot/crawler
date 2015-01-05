@@ -6,17 +6,20 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
 import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thinkingcloud.framework.io.ClassPathResource;
-import org.thinkingcloud.framework.util.CollectionUtils;
-import org.thinkingcloud.framework.util.StringUtils;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.zxisl.commons.io.ClassPathResource;
+import com.zxisl.commons.utils.CollectionUtils;
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.master.impl.RAMSlaveManager;
 
@@ -51,10 +54,10 @@ public class MasterServer {
         private static final String URLBASE = "urlbase";
         private static final String REDIS_HOST;
         private static final int REDIS_PORT;
-        private final long heartbeat = 3 * 60 * 1000; // default is 3 min
+        private final long heartbeat = 3 * 60 * 1000L; // default is 3 min
 
         static {
-                ClassPathResource resource = new ClassPathResource("master.properties");
+                ClassPathResource resource = new ClassPathResource("redis.properties");
                 Properties properties = new Properties();
                 try {
                         properties.load(resource.getInputStream());
@@ -196,6 +199,10 @@ public class MasterServer {
                         }
                 }, "TaskSchedulerThread").start();
 
+                
+                new Thread( new NetworkSearchThread(), "NetworkSearchJobManager").start();
+                
+                
         }
 
         public static void main(String[] args) throws Exception {

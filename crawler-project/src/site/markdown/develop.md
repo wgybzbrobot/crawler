@@ -5,6 +5,30 @@
 任务类型分为网络巡检(`NETWOR_INSPECT`)、全网搜索(`NETWORK_SEARCH`)，
 这两种任务类型的抓取控制分别定义为`NetworkInspectParserController`、`NetworkSearchParserController`。
 
+## 网络巡检
+
+
+## 全网搜索
+Master启动后
+1. 读取视图`SELECT_TASK_EXECUTE_LIST`（读取一次），全部读取
+2. 读取任务列表`JHRW_RWLB`（循环读取），
+
+[Master创建全网搜索任务接口定义](crawler-master/interface.html)
+
+Slave启动后，将任务执行表`JHRW_RWZX`中机器号为自身的且ZT字段置为２，ZSZT置为１．（执行一次）
+
+分发任务给Slave，Slave接受到任务后，
+1. 将任务列表`JHRW_RWLB`中对应任务记录删除
+2. 将任务执行表`JHRW_RWZX`中对应任务记录的机器号字段置为本机器
+
+Slave执行完任务后，
+1. 如果执行成功，将任务执行表`JHRW_RWZX`中对应任务记录ZT字段置为２，ZSZT置为２.
+2.  如果执行失败，将任务执行表`JHRW_RWZX`中对应任务记录ZT字段置为２，ZSZT置为1.
+
+
+
+
+
 ## 任务队列
 用Redis zset 创建任务队列，评分：
 > score=1.0/(currentTime+fetchInterval)

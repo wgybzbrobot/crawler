@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.zxsoft.crawler.api.JobStatus.State;
 import com.zxsoft.crawler.slave.SlavePath;
+import com.zxsoft.crawler.slave.utils.DbService;
 
 public class SlaveServer {
 	private static final Logger LOG = LoggerFactory.getLogger(SlaveServer.class);
@@ -46,6 +47,9 @@ public class SlaveServer {
 		LOG.info("Started SlaveNode on port " + port);
 		running = true;
 		SlaveApp.started = System.currentTimeMillis();
+		
+		DbService dbService = new DbService();
+		dbService.updateExecuteTaskStatus();
 	}
 
 	public boolean canStop() throws Exception {
@@ -79,6 +83,5 @@ public class SlaveServer {
 		int port = Integer.parseInt(args[0]);
 		SlaveServer server = new SlaveServer(port);
 		server.start();
-
 	}
 }
