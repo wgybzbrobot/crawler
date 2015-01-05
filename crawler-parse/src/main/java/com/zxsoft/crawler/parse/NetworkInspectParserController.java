@@ -16,6 +16,7 @@ import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.WebPage;
+import com.zxsoft.crawler.store.OutputException;
 
 /**
  * 调用相应的解析器解析网页
@@ -54,7 +55,7 @@ public final class NetworkInspectParserController extends ParseTool {
 		String urlDom = listConf.getUrldom();
 		boolean hasUpdate = false, continuePage = true;
 		int sum = 0, pageNum = 1;
-
+		Status status = Status.SUCCESS;
 		String msg = "";
 		while (true) {
 			Elements list = document.select(listDom);
@@ -63,13 +64,14 @@ public final class NetworkInspectParserController extends ParseTool {
 			}
 
 			Elements lines = list.first().select(lineDom);
+			// 没有更新日期时
 			if (!hasUpdate && pageNum > _pageNum) {
 				continuePage = false;
-				msg = "没有获取列表页中记录的更新时间，抓完设定的页数" + _pageNum;
+				msg = StringUtils.concat(msg, "没有获取列表页中记录的更新时间，抓完设定的页数" + _pageNum + ", 若数量为0,则可能配置有误.");
 				break;
-			} else if (pageNum > _pageNum + 1) {
+			} else if (pageNum > _pageNum + 1) { // 有更新日期
 			        continuePage = false;
-                                msg = "抓完设定的页数" + (_pageNum + 1);
+                                msg += "抓完设定的页数" + (_pageNum + 1);
                                 break;
 			}
 			
@@ -81,7 +83,7 @@ public final class NetworkInspectParserController extends ParseTool {
 					update = DateExtractor.extract(line.select(updateDom).first().html());
 					if (update != null && update.getTime() + 60000L < page.getPrevFetchTime()) {
 					        if (count > 5) {
-        						msg = "截止时间" + new Date(page.getPrevFetchTime()).toLocaleString();
+        						msg += "截止时间" + new Date(page.getPrevFetchTime()).toLocaleString();
         						continuePage = false;
         						break;
 					        }
@@ -118,9 +120,13 @@ public final class NetworkInspectParserController extends ParseTool {
 					Parser parser = factory.getParserByCategory(listConf.getCategory());
 					FetchStatus _status = parser.parse(wp);
 					sum += _status.getCount();
-//					LOG.debug(_status.toString());
-				} catch (Exception e) {
-				    msg = e.getMessage();
+					msg = StringUtils.concat(msg, _status.getMessage());
+				} catch (OutputException e) {
+			                msg = StringUtils.concat(msg, e.getMessage());
+                                        LOG.error(msg);
+                                        status = Status.OUTPUT_FAILURE;
+				}catch (Exception e) {
+				        msg = StringUtils.concat(msg, e.getMessage());
 					LOG.error(msg);
 				}
 				if (!continuePage) {
@@ -146,6 +152,6 @@ public final class NetworkInspectParserController extends ParseTool {
 			}
 		}
 		LOG.info("【" + listConf.getComment() + "】共抓取数据数量:" + sum + ", msg:" + msg);
-		return new FetchStatus(indexUrl, 21, Status.SUCCESS, sum, msg);
+		return new FetchStatus(indexUrl, 21, status, sum, msg);
 	}
 }

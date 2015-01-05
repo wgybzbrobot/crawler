@@ -94,16 +94,14 @@ public final class NetworkSearchParserController extends ParseTool {
                         List<RecordInfo> infos = new LinkedList<RecordInfo>();
 
                         for (Element line : lines) {
-
-                                if (CollectionUtils.isEmpty(line.select(listConf.getUrldom()))
-                                                                || StringUtils.isEmpty(line.select(listConf.getUrldom()).first()
-                                                                                                .absUrl("href")))
+                                Elements _urls = line.select(listConf.getUrldom());
+                                if (CollectionUtils.isEmpty(_urls) || StringUtils.isEmpty(_urls.first().absUrl("href")))
                                         continue;
 
                                 sum.incrementAndGet();
 
                                 /** 链接地址 */
-                                String curl = line.select(urlDom).first().absUrl("href");
+                                String curl = _urls.first().absUrl("href");
                                 /** 标题 */
                                 String title = line.select(urlDom).first().text();
                                 /** 简介 */
@@ -123,6 +121,7 @@ public final class NetworkSearchParserController extends ParseTool {
                                 RecordInfo info = new RecordInfo(title, curl);
                                 info.setId(Md5Signatrue.generateMd5(curl));
                                 info.setIp(ip);
+                                info.setContent(synopsis);
                                 info.setTimestamp(date);
                                 LOG.info(title);
                                 infos.add(info);
@@ -133,6 +132,7 @@ public final class NetworkSearchParserController extends ParseTool {
                                 status.setStatus(FetchStatus.Status.SUCCESS);
                         } catch (OutputException e) {
                                 status.setStatus(FetchStatus.Status.OUTPUT_FAILURE);
+                                status.setMessage("写数据出去失败");
                                 LOG.error("无法写数据出去" + e.getMessage(), e);
                         }
 
