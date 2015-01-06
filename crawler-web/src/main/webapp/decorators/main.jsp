@@ -61,7 +61,12 @@
 		</div>
 		<div id="navigation">
 			<ul id="menu">
-				<li><a id="website" href="<c:url value='/website' />">网站配置</a></li>
+				<li><a href="javascript:void(0);">网站管理</a>
+					<ul>
+						<li><a id="website" href="<c:url value='/website' />">网站配置</a></li>
+						<li><a id="website" href="<c:url value='/section/search' />">版块搜索</a></li>
+					</ul>
+				</li>
 				<li>&nbsp;&nbsp;&nbsp;</li>
 				<li><a href="javascript:void(0);">爬虫监控</a>
 					<ul>

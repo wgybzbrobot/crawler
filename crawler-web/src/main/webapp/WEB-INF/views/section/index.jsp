@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html charset=utf-8">
 <html>
 <head>
-<title>版块配置</title>
+<title>版块查询</title>
 <script type="text/javascript">
 	$(function() {
 		$('.addNewSectionBtn').click(function() {
@@ -74,36 +74,10 @@
 			}
 		});
 	}
-
-	function doSearch(value) {
-		console.log('search ' + value);
-		$.ajax({
-			type : 'GET',
-			url : 'section/ajax/list',
-			dataType : 'json',
-			data: {comment: value},
-			success : function(data) {
-				if ('success' == data) {
-					
-				}
-			},
-			error : function(xhr, status, error) {
-			}
-		});
-	}
 </script>
 </head>
 <body>
 	<div id="body">
-		<div style="padding:4px 0 4px 22px ;">
-			<a class="linkbutton" href='javascript:history.go(-1);'>返回</a>
-<%-- 			<a class="linkbutton" href='<c:url value="/website"/>'>返回</a> --%>
-			<h2>
-				<a href="${website.site }" target="_blank">${website.comment}</a>
-			</h2>
-			<a class="addNewSectionBtn linkbutton" href="javascript:void(0);">添加版块</a>
-		</div>
-
 		<div class="form-wrapper" style="display: none;">
 			<a class="form-wrapper-close" href="javascript:void(0);"></a>
 			<div class="form-wrapper-title">添加版块</div>
@@ -129,9 +103,6 @@
 							<c:forEach items="${categories }" var="category">
 								<option value="${category.id }">${category.comment }</option>
 							</c:forEach>
-							<%-- <c:if test="${fn:contains(website.site, 'baidu.com')}">
-								<option value="tieba">百度贴吧</option>
-							</c:if> --%>
 						</select>
 					</div>
 					<div>
@@ -143,26 +114,43 @@
 				</form>
 			</div>
 		</div>
+				<div style="padding:4px 0 4px 22px ;">
+						<form id="searchForm" action="<c:url value="/section/search" />" method="post" style="display:inline; margin-right: 14px;" onkeydown="if(event.keyCode==13){return false;}">
+							版块名称:<input value="${section.comment }" name="comment" style="width: 150px" />
+							版块类别:<select name="category.id"  >
+													<option value=""></option>
+												<c:forEach items="${categories }" var="category">
+													<c:choose>
+													<c:when test="${category.id eq section.category.id }">
+															<option value="${category.id }" selected="selected">${category.comment }</option>
+													</c:when>
+													<c:otherwise>
+														<option value="${category.id }">${category.comment }</option>
+													</c:otherwise>
+													</c:choose>
+												</c:forEach>
+											</select>
+							创建人:<input value="${section.account.username }" name="account.username" style="width: 150px" />
+											<input type="submit" value="搜索" />
+						</form>
+				</div>
 		<c:choose>
 			<c:when test="${page.count == 0}">
 				<div class="none-data">
-					此网站没有版块，点击<a href="javascript:void(0)" class="addNewSectionBtn">添加</a>
+					没有版块
 				</div>
 			</c:when>
 			<c:otherwise>
-				<div style="padding:4px 0 4px 22px ;">
-					<input class="easyui-searchbox" data-options="prompt:'输入版块名称',searcher:doSearch" style="width: 200px" />
-				</div>
 				<div id="content">
 					<ul>
-						<c:forEach items="${page.res}" var="section">
+						<c:forEach items="${page.res}" var="section" varStatus="status">
 							<li class="section-li">
 								<h3>
-									<span><a href='<c:url value="config?sectionId=${section.id}" />'>${section.comment}</a></span>
+									<span><a href='<c:url value="config?sectionId=${section.id}"/>' >${section.comment}</a></span>
 									</h3>
 									<span>[${section.category.comment}]</span>
+									<span title="创建者">[${section.account.username}]</span>
 									<div class="editmore">
-										<span title="创建者">[${section.account.username}]</span>
 										<span><a id="${section.id }" idx="${section.url}" class="moreinfo" href="javascript:void(0);" title="修改版块信息">&nbsp;编辑&nbsp;|</a></span>
 										<span><a href="javascript:void(0);" idx="${section.id }" class="addSectionBtn" title="创建与【${section.comment}】相同规则的版块">&nbsp;创建版块&nbsp;|</a></span>
 										<span><a href="javascript:void(0);" idx="${section.id }" class="deleteSectionBtn" title="删除此版块">&nbsp;删除</a></span>
@@ -172,17 +160,14 @@
 							</li>
 						</c:forEach>
 					</ul>
-					<c:if test="${page.count > 50}">
+					<%-- <c:if test="${page.count > 50}">
 						<div class="section-more" id="section_more">
 							<a href="javascript:void(0)"><span>加载更多</span></a>
 						</div>
-					</c:if>
+					</c:if> --%>
 
 				</div>
 			</c:otherwise>
 		</c:choose>
 	</div>
-<%-- 	<div class="right-promotion">
-		<c:import url="/website/auth/${website.id}" charEncoding="utf-8" />
-	</div> --%>
 </body>

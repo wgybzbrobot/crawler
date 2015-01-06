@@ -80,6 +80,7 @@
 				<input value="${website.comment }" name="comment" class="easyui-searchbox" data-options="prompt:'输入网站名称进行搜索',searcher:doSearch" style="width: 200px" />
 			</form>
 			<a id="addWebsiteBtn" class="linkbutton" href="javascript:void(0);">添加网站</a>
+			<a id="addWebsiteBtn" class="linkbutton" href='<c:url value="/section/search"/>'>查找版块</a>
 		</div>
 		<div class="form-wrapper" style="display: none; height: 290px;">
 			<a class="form-wrapper-close" href="javascript:;"></a>

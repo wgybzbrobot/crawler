@@ -44,20 +44,44 @@ public class SectionController {
         @Autowired
         private DictService dictService;
 
+        /**
+         * 
+         * @param websiteId
+         * @param model
+         * @return
+         */
         @RequestMapping(method = RequestMethod.GET)
         public String index(@RequestParam(value = "websiteId", required = false) String websiteId, Model model) {
-                Website website = websiteService.getWebsite(websiteId);
-                model.addAttribute("website", website);
-
                 List<Category> categories = dictService.getCategories();
                 model.addAttribute("categories", categories);
-
+                Website website = websiteService.getWebsite(websiteId);
+                model.addAttribute("website", website);
                 Section section = new Section();
                 section.setWebsite(website);
                 Page<Section> page = sectionService.getSections(section, 1, Page.DEFAULT_PAGE_SIZE);
                 model.addAttribute("page", page);
-
                 return "website/section";
+        }
+
+        /**
+         * 搜索
+         * 
+         * @return
+         */
+        @RequestMapping(value = "search", method = RequestMethod.GET)
+        public String toSearch(Model model) {
+                return search(null, model);
+        }
+
+        @RequestMapping(value = "search", method = RequestMethod.POST)
+        public String search(Section section, Model model) {
+                List<Category> categories = dictService.getCategories();
+                model.addAttribute("categories", categories);
+                if (section == null) section = new Section();
+                Page<Section> page = sectionService.getSections(section, 1, Page.DEFAULT_PAGE_SIZE);
+                model.addAttribute("page", page);
+                model.addAttribute("section", section);
+                return "section/index";
         }
 
         /**
@@ -126,6 +150,13 @@ public class SectionController {
                 return map;
         }
 
+        /**
+         * 删除版块
+         * 
+         * @param id
+         * @param model
+         * @return
+         */
         @ResponseBody
         @RequestMapping(value = "ajax/delete/{id}", method = RequestMethod.GET)
         public String delete(@PathVariable(value = "id") String id, Model model) {

@@ -45,13 +45,25 @@ public class SectionDaoImpl implements SectionDao {
                                 sb.append(" and a.url like :url ");
                                 params.put("url", "%" + section.getUrl().trim() + "%");
                         }
-                        if (!StringUtils.isEmpty(section.getCategory())) {
-                                sb.append(" and a.category.comment =:category ");
-                                params.put("category", section.getCategory().getComment());
+                        if (!StringUtils.isEmpty(section.getComment())) {
+                                sb.append(" and a.comment like :comment");
+                                params.put("comment", "%" + section.getComment() + "%");
                         }
-                        if (section.getWebsite() != null) {
+                        if (section.getCategory() != null) {
+                                if ( !StringUtils.isEmpty(section.getCategory().getId())) {
+                                        sb.append(" and a.category.id =:cateId");
+                                        params.put("cateId", section.getCategory().getId());
+                                }
+                        }
+                        if (section.getWebsite() != null ) {
                                 sb.append(" and a.website.id =:id");
                                 params.put("id", section.getWebsite().getId());
+                        }
+                        if (section.getAccount() !=null ) {
+                                if (!StringUtils.isEmpty(section.getAccount().getUsername())) {
+                                        sb.append(" and a.account.username =:username");
+                                        params.put("username", section.getAccount().getUsername());
+                                }
                         }
                 }
 

@@ -14,8 +14,8 @@ public interface SectionDao {
 	Section getSection(String id);
 
 	/**
-	 * 查找版块
-	 */
+	 * 版块的搜索接口
+         */
 	Page<Section> getSections(Section section, int pageNo, int pageSize);
 	
 
