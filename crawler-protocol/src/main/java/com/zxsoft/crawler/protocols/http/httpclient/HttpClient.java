@@ -2,6 +2,7 @@ package com.zxsoft.crawler.protocols.http.httpclient;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -58,8 +59,8 @@ public class HttpClient extends HttpBase {
 		Protocol https = new Protocol("https", factory, 443);
 		Protocol.registerProtocol("https", https);
 		HttpConnectionManagerParams params = connectionManager.getParams();
-		params.setConnectionTimeout(timeout);
-		params.setSoTimeout(timeout);
+		params.setConnectionTimeout(timeout); // 连接时间
+		params.setSoTimeout(30000); // 设置socket timeout, 读数据的时间
 		params.setSendBufferSize(BUFFER_SIZE);
 		params.setReceiveBufferSize(BUFFER_SIZE);
 		 params.setDefaultMaxConnectionsPerHost(32);
@@ -141,9 +142,11 @@ public class HttpClient extends HttpBase {
 					content = processDeflateEncoded(content, url);
 				}
 			}
+		} catch(SocketException e) {
+		        code = -2;
+		        LOG.error(e.getMessage() + ": " + url.toString(), e);
 		} catch (Exception e) {
-			LOG.error(e.getMessage() + ": " + url.toString());
-			e.printStackTrace();
+			LOG.error(e.getMessage() + ": " + url.toString(), e);
 		} finally {
 			get.releaseConnection();
 		}

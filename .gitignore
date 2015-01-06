@@ -4,6 +4,7 @@ target
 .project
 .springBeans
 logs
+*.pyc
 *.log
 *.class
 *.jar

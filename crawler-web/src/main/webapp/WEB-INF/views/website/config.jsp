@@ -126,6 +126,7 @@
 		
 		$("a[id^='testConfDetail']").on('click', function(e) {
 			e.preventDefault();
+			$('#loading').show();
 			var index = $(this).attr('id').split('testConfDetail')[1];
 			
 			$('label.error').text('');
@@ -137,6 +138,7 @@
 					return $(this).form('enableValidation').form('validate');
 				},
 				success : function(data) {
+					$('#loading').hide();
 					data = $.parseJSON(data);
 					$('#confdetail' + index).find('label').css('border', 'none');
 					$('#confdetail' + index).find('label').attr('title', '');
@@ -146,13 +148,13 @@
 							$('#confdetail' + index).find('label[for=' + val.field + ']').attr('title', val.msg);
 						});
 					}
+					
+					if ($.isEmptyObject(data.info)) {
+						return false;
+					}
 					var html = '<div class="conftable">';
 					html += '<div>';
 					if (data.info != undefined){
-						/* $.each(data.info, function(i, val) {
-							val = $.parseHTML(val);
-							html += '<p><strong>' + i + ':</strong>' + val + '</p>';
-						}); */
 						html += '<p><strong>回复数:</strong>' + data.info.replyNum + '</p>';
 						html += '<p><strong>浏览数:</strong>' + data.info.reviewNum + '</p>';
 						html += '<p><strong>转发数:</strong>' + data.info.forwardNum + '</p>';
@@ -180,6 +182,13 @@
 					
 					$("#message div.form-wrapper-center").html(html);
 					$('#message').show();  
+				},
+				error: function() {
+					console.log('failekdd');
+					$('#loading').hide();
+					$.messager.show({title:'验证结果', msg:'验证失败', timeout:5000,
+		                showType:'show', style:{ right:'',top:document.body.scrollTop+document.documentElement.scrollTop, bottom:''}
+		            });
 				}
 			});
 		}); 
@@ -227,7 +236,7 @@
 	<div id="body">
 		<div>
 			<a class="linkbutton" href="javascript:history.go(-1);">返回</a>
-			<h2><a href="${section.url }" target="_blank">${section.comment }</a></h2>
+			<h2><a href="${section.website.site }" target="_blank">${section.website.comment }</a> --<a href="${section.url }" target="_blank">${section.comment }</a></h2>
 			<c:if test="${!empty confList }">
 				<a id="addSectionBtn" class="linkbutton" href="javascript:void(0);">以此规则添加版块</a>
 			</c:if>

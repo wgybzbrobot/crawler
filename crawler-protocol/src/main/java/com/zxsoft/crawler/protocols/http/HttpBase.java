@@ -53,7 +53,7 @@ public abstract class HttpBase extends PageHelper {
 
 	/** Indicates if a proxy is used */
 	/** The network timeout in millisecond */
-	protected static   int timeout = 10000;
+	protected static   int timeout = 20000;
 
 	/** The length limit for downloaded content, in bytes. */
 	protected int maxContent = 1024 * 1024 * 3;
@@ -229,6 +229,8 @@ public abstract class HttpBase extends PageHelper {
 			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.NOTFOUND, u.toString()));
 		} else if (code == 410) { // permanently GONE
 			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.GONE, u.toString()));
+		} else if (code == -2) {
+		        return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.CONNECTION_RESET, u.toString()));
 		} else {
 		        LOG.error(u + " return code: " +  code + ". " + document.html());
 			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.EXCEPTION, "Http code=" + code + ", url=" + u));

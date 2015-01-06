@@ -105,6 +105,7 @@ public class DetailConfigVerification extends ParseTool {
 				LOG.warn(e.getMessage());
 			}
 			String pagebarText = pagebar == null ? "" : pagebar.html();
+//			pagebarText = "";
 			info.put("pagebar", pagebarText);
 
 			/*
@@ -195,7 +196,7 @@ public class DetailConfigVerification extends ParseTool {
 						        String _text = replyDateEles.first().html();
 						        Date date = DateExtractor.extract(_text);
 						        String releasedate = date != null ? date.toLocaleString() : "";
-						        reply.put("replyDate", "节点内容是" + _text + ", 时间是" + releasedate);
+						        reply.put("replyDate", "节点内容是  " + _text + ", 时间是  " + releasedate);
 						}
 
 						Elements replyContentEles = replyEle.select(detailConf.getReplyContent());

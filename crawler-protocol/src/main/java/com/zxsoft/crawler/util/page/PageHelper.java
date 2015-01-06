@@ -2,6 +2,9 @@ package com.zxsoft.crawler.util.page;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoup.nodes.Document;
@@ -12,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.zxisl.commons.utils.Assert;
 import com.zxisl.commons.utils.CollectionUtils;
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.util.Utils;
 
 public class PageHelper {
@@ -32,7 +36,32 @@ public class PageHelper {
 			Elements siblingEles = eles.first().siblingElements();
 			Element parentEle = eles.first().parent();
 
-			Element element = eles.last()/*first()*/;
+//			Element element = eles.last();
+			Element element = null;
+			
+			for (Element ele : eles) {
+//			        Elements _eles = eles.first().siblingElements();
+			        Elements _eles = ele.siblingElements();
+			        if (!CollectionUtils.isEmpty(_eles)) {
+			                List<Integer> nums = new LinkedList<Integer>();
+			                for (Element _ele : _eles) {
+			                        if (StringUtils.isNum(_ele.text())) {
+			                                nums.add(Integer.valueOf(_ele.text()));
+			                        }
+			                }
+			                Collections.sort(nums);
+			                Integer[] arr = nums.toArray(new Integer[0]);
+			                
+			                if (_eles.size() > 2 && arr.length > 2) {
+//			                        element = eles.first();
+			                        element = ele;
+			                        break;
+			                }
+			        }
+                        }
+			
+			if (element == null) element = eles.last();
+			
 			/** test if  element's parent only have one anchor **/
 			int count = 0;
 			while (count++ < 20) { 
@@ -82,8 +111,13 @@ public class PageHelper {
 						siblingTxt = element.nextElementSibling().text();
 						if (Utils.isNum(siblingTxt)
 						        /*&& "a".equals(element.nextElementSibling().tagName())*/
-						        && Integer.valueOf(eleTxt) + 1 == Integer.valueOf(siblingTxt)) {
-							return element.parent();
+						        ) {
+						        try {
+						                if (Integer.valueOf(eleTxt) + 1 == Integer.valueOf(siblingTxt))
+						                        return element.parent();
+						        } catch (Exception e) { // 有时获取到的siblingTxt值大于Integer.MAX_VALUE
+						                return null;
+						        }
 						}
 					} else if (element.previousElementSibling() != null) {
 						siblingTxt = element.previousElementSibling().text();
