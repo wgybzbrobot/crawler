@@ -96,7 +96,8 @@
 <body>
 	<div id="body">
 		<div style="padding:4px 0 4px 22px ;">
-			<a class="linkbutton" href='<c:url value="/website"/>'>返回</a>
+			<a class="linkbutton" href='javascript:history.go(-1);'>返回</a>
+<%-- 			<a class="linkbutton" href='<c:url value="/website"/>'>返回</a> --%>
 			<h2>
 				<a href="${website.site }" target="_blank">${website.comment}</a>
 			</h2>

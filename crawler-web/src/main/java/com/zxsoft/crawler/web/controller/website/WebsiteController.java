@@ -4,23 +4,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.codec.binary.Base64;
-import org.hibernate.Hibernate;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mvc.extensions.ajax.AjaxUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.request.WebRequest;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.zxisl.commons.utils.Assert;
+import com.zxsoft.crawler.code.Code;
 import com.zxsoft.crawler.entity.Auth;
 import com.zxsoft.crawler.entity.SiteType;
 import com.zxsoft.crawler.entity.Website;
@@ -81,13 +79,15 @@ public class WebsiteController {
 	        @RequestParam(value = "sitetype", required = false) String type,
 	        @RequestParam(value = "region", required = false) String region,
 	        @RequestParam(value = "status", required = false) String status,  Model model) {
-
+	        type = "001";
 		SiteType siteType = new SiteType(type);
 		Website website = new Website(site, siteType, comment);
 		website.setId(id);
 		website.setRegion(region);
 		website.setStatus(status);
-		websiteServiceImpl.save(website);
+	        int code = websiteServiceImpl.save(website);
+	        if (code == Code.RECORD_EXIST)
+	                return "urlExist";
 		return "success";
 	}
 

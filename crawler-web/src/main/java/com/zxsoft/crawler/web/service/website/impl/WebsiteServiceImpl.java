@@ -3,16 +3,14 @@ package com.zxsoft.crawler.web.service.website.impl;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thinkingcloud.framework.web.utils.Page;
 
 import com.zxisl.commons.utils.CollectionUtils;
+import com.zxsoft.crawler.code.Code;
 import com.zxsoft.crawler.entity.Auth;
-import com.zxsoft.crawler.entity.ConfDetail;
-import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.entity.Section;
 import com.zxsoft.crawler.entity.Website;
 import com.zxsoft.crawler.web.dao.website.WebsiteDao;
@@ -37,8 +35,17 @@ public class WebsiteServiceImpl implements WebsiteService {
         }
 
         @Override
-        public void save(Website website) {
+        public int save(Website website) {
+                Website site = new Website();
+                site.setSite(website.getSite());
+                Page<Website> page = websiteDao.getWebsites(site, 1, 1);
+                if (page != null && page.getRes() != null && page.getRes().size() > 0){
+                        return Code.RECORD_EXIST;
+                }
+                
                 websiteDao.addWebsite(website);
+                
+                return Code.SAVE_SUCCESS;
         }
 
         @Override

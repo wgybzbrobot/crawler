@@ -32,6 +32,7 @@
 		$('#searchForm').submit();
 	}
 	function submitForm() {
+		$('#retmsg').text('');
 		$('#websiteForm').form('submit', {
 			url : 'website/ajax/add',
 			onSubmit : function(param) {
@@ -44,6 +45,8 @@
 					setTimeout(function() {
 						location.reload();
 					}, 2000);
+				} else if (data == 'urlExist') {
+					$('#retmsg').text('网址已经存在, 请检查');
 				}
 			}
 		});
@@ -78,7 +81,7 @@
 			</form>
 			<a id="addWebsiteBtn" class="linkbutton" href="javascript:void(0);">添加网站</a>
 		</div>
-		<div class="form-wrapper" style="display: none;">
+		<div class="form-wrapper" style="display: none; height: 290px;">
 			<a class="form-wrapper-close" href="javascript:;"></a>
 			<div class="form-wrapper-title">编辑网站详细信息</div>
 			<div class="form-wrapper-center">
@@ -96,17 +99,17 @@
 						<label class="form-label" for="region">区域:</label><span>境内</span><input type="radio" name="region" value="境内"
 							checked="checked">&nbsp;&nbsp;&nbsp;<span>境外</span><input type="radio" name="region" value="境外">
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<label class="form-label" for="status">状态:</label><span>启用</span><input type="radio" name="status" value="open"
+							<label class="form-label" for="status">状态:</label><span>启用</span><input type="radio"  name="status" value="open"
 							checked="checked">&nbsp;&nbsp;&nbsp;<span>禁用</span><input type="radio" name="status" value="close">
 					</div>
-					<div>
+				<%-- 	<div>
 						<label class="form-label" for="sitetype">访问代理类型</label> <select class="easyui-validatebox form-input"
 							name="sitetype">
 							<c:forEach items="${siteTypes}" var="siteType">
 								<option value="${siteType.type}">${siteType.comment}</option>
 							</c:forEach>
 						</select>
-					</div>
+					</div> --%>
 					<div>
 						<input style="width:160px;" class="form-btn" type="button" onclick="return submitForm();" value="保存" />
 						<input style="width:160px;" class="form-btn" type="button" onclick="return delWebsite();" value="删除" />

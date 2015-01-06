@@ -16,7 +16,7 @@ public interface WebsiteService {
 	Page<Website> getWebsite(final Website website, int pageNo, int pageSize);
 	void addWebsite(Website website);
 	
-	void save(Website website);
+	int save(Website website);
 	Website getWebsite(String id);
 	void deleteWebsite(String id);
 	List<Auth> getAuths(String id);
