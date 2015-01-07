@@ -12,76 +12,89 @@ import com.zxsoft.crawler.slave.SlavePath;
 import com.zxsoft.crawler.slave.utils.DbService;
 
 public class SlaveServer {
-	private static final Logger LOG = LoggerFactory.getLogger(SlaveServer.class);
+        private static final Logger LOG = LoggerFactory.getLogger(SlaveServer.class);
 
-	private Component component;
-	private SlaveApp app;
-	private int port;
-	private boolean running;
+        private Component component;
+        private SlaveApp app;
+        private int port;
+        private boolean running;
 
-	public SlaveServer(int port) {
-		this.port = port;
-		// Create a new Component.
-		component = new Component();
+        private static boolean enableGetNetworkSearchTaskFromDb = false;
 
-		// Add a new HTTP server listening on port 8182.
-		component.getServers().add(Protocol.HTTP, port);
+        public static boolean enableGetNetworkSearchTaskFromDb() {
+                return enableGetNetworkSearchTaskFromDb;
+        }
 
-		// Attach the application.
-		app = new SlaveApp();
+        public SlaveServer(int port) {
+                this.port = port;
+                // Create a new Component.
+                component = new Component();
 
-		component.getDefaultHost().attach("/" + SlavePath.PATH, app);
+                // Add a new HTTP server listening on port 8182.
+                component.getServers().add(Protocol.HTTP, port);
 
-		component.getContext().getParameters().set("maxThreads", "1000");
+                // Attach the application.
+                app = new SlaveApp();
 
-		SlaveApp.server = this;
-	}
+                component.getDefaultHost().attach("/" + SlavePath.PATH, app);
 
-	public boolean isRunning() {
-		return running;
-	}
+                component.getContext().getParameters().set("maxThreads", "1000");
 
-	public void start() throws Exception {
-		LOG.info("Starting SlaveNode on port " + port + "...");
-		component.start();
-		LOG.info("Started SlaveNode on port " + port);
-		running = true;
-		SlaveApp.started = System.currentTimeMillis();
-		
-		DbService dbService = new DbService();
-		dbService.updateExecuteTaskStatus();
-	}
+                SlaveApp.server = this;
+        }
 
-	public boolean canStop() throws Exception {
-		List<JobStatus> jobs = SlaveApp.jobMgr.list(null, State.RUNNING);
-		if (!jobs.isEmpty()) {
-			return false;
-		}
-		return true;
-	}
+        public boolean isRunning() {
+                return running;
+        }
 
-	public boolean stop(boolean force) throws Exception {
-		if (!running) {
-			return true;
-		}
-		if (!canStop() && !force) {
-			LOG.warn("Running jobs - can't stop now.");
-			return false;
-		}
-		LOG.info("Stopping NutchServer on port " + port + "...");
-		component.stop();
-		LOG.info("Stopped NutchServer on port " + port);
-		running = false;
-		return true;
-	}
+        public void start() throws Exception {
+                LOG.info("Starting SlaveNode on port " + port + "...");
+                component.start();
+                LOG.info("Started SlaveNode on port " + port);
+                running = true;
+                SlaveApp.started = System.currentTimeMillis();
 
-	public static void main(String[] args) throws Exception {
-		if (args.length == 0) {
-			System.err.println("Usage: CrawlerServer <port>");
-			System.exit(-1);
-		}
-		int port = Integer.parseInt(args[0]);
-		SlaveServer server = new SlaveServer(port);
-		server.start();
-	}
+                if (enableGetNetworkSearchTaskFromDb) {
+                        DbService dbService = new DbService();
+                        dbService.updateExecuteTaskStatus();
+                }
+        }
+
+        public boolean canStop() throws Exception {
+                List<JobStatus> jobs = SlaveApp.jobMgr.list(null, State.RUNNING);
+                if (!jobs.isEmpty()) {
+                        return false;
+                }
+                return true;
+        }
+
+        public boolean stop(boolean force) throws Exception {
+                if (!running) {
+                        return true;
+                }
+                if (!canStop() && !force) {
+                        LOG.warn("Running jobs - can't stop now.");
+                        return false;
+                }
+                LOG.info("Stopping NutchServer on port " + port + "...");
+                component.stop();
+                LOG.info("Stopped NutchServer on port " + port);
+                running = false;
+                return true;
+        }
+
+        public static void main(String[] args) throws Exception {
+                if (args.length == 0) {
+                        System.err.println("Usage: CrawlerServer <port> [enableSearchTask]");
+                        System.exit(-1);
+                }
+                if (args.length == 2) {
+                        if ("enableSearchTask".equals(args[1])) {
+                                enableGetNetworkSearchTaskFromDb = true;
+                        }
+                }
+                int port = Integer.parseInt(args[0]);
+                SlaveServer server = new SlaveServer(port);
+                server.start();
+        }
 }

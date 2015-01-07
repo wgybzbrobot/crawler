@@ -201,17 +201,21 @@ public class MasterServer {
                 }, "TaskSchedulerThread").start();
 
                 int realInterval = 10;
+                boolean searchTaskExecutable = false;
                 try {
                         Properties prop = new Properties();
                         ClassLoader loader = Thread.currentThread().getContextClassLoader();
                         InputStream stream = loader.getResourceAsStream("oracle.properties");
                         prop.load(stream);
                         realInterval = Integer.valueOf( prop.getProperty("read.seconds.interval", "10"));
+                        searchTaskExecutable = true;
                 } catch (Exception e) {
                         LOG.warn("从oracle.properties中读取read.seconds.interval失败", e);
+                        LOG.warn("将不会从数据库中读取全网搜索任务, 但可以调用接口执行全网搜索任务.", e);
                 }
-                
-                new Thread( new NetworkSearchThread(realInterval), "NetworkSearchJobSchedular").start();
+                if (searchTaskExecutable) {
+                        new Thread( new NetworkSearchThread(realInterval), "NetworkSearchJobSchedular").start();
+                }
                 
                 
         }
