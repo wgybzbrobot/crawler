@@ -1,12 +1,17 @@
 package com.zxsoft.crawler.protocols.http;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.ProtocolStatus;
@@ -33,14 +38,21 @@ public class HttpFetcher {
 		ProtocolOutput protocolOutput = new ProtocolOutput();
 		String url = page.getBaseUrl();
 		
-		if (StringUtils.isEmpty(url) || !url.matches("^(https|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
-			LOG.error("Error: not match url regular expression: " + url);
-			ProtocolStatus status = new ProtocolStatus();
-			status.setMessage(url + "不是网络地址.");
-			status.setCode(STATUS_CODE.INVALID_URL);
-			protocolOutput = new ProtocolOutput(null, status);
-			return protocolOutput;
-		}
+		try {
+                        URL u= new URL(url);
+                        try {
+                                url = URIUtil.encodePathQuery(url, "UTF-8");
+                                page.setBaseUrl(url);
+                        } catch (URIException e) {
+                        }
+                } catch (MalformedURLException e1) {
+                        LOG.error("Error: not match url regular expression: " + url);
+                        ProtocolStatus status = new ProtocolStatus();
+                        status.setMessage(url + "不是网络地址.");
+                        status.setCode(STATUS_CODE.INVALID_URL);
+                        protocolOutput = new ProtocolOutput(null, status);
+                        return protocolOutput;
+                }
 		
 		try {
 			if (page.isAjax()) {
