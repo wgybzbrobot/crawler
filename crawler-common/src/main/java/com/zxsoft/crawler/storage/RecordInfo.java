@@ -67,12 +67,14 @@ public class RecordInfo implements Serializable, Cloneable {
 
         public RecordInfo(String title, String url) {
                 this.lasttime = System.currentTimeMillis();
+                this.first_time = this.lasttime;
                 this.title = title;
                 this.url = url;
         }
 
         public RecordInfo() {
                 this.lasttime = System.currentTimeMillis();
+                this.first_time = this.lasttime;
         }
 
         public String toString() {
