@@ -28,6 +28,7 @@
 									<div>没有任务</div>
 								</c:when>
 								<c:otherwise>
+									<div>当前系统时间:${currentTime}</div>
 									<ul>
 										<c:forEach items="${list}" var="map" varStatus="status">
 										<li class="section-li">

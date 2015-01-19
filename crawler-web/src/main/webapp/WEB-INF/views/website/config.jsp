@@ -228,6 +228,15 @@
 				}
 			});
 		});
+		$('input[name=ajax]:radio').change(
+			    function(){
+			        $('#page input[name=ajax]').attr('value', this.value);
+			    }
+			);          
+		
+		$('input[name=testUrl]').blur(function(){
+			$('form.detailPageForm input[name=url]').attr('value', this.value);
+		});
 	});
 </script>
 </head>
@@ -236,10 +245,16 @@
 	<div id="body">
 		<div>
 			<a class="linkbutton" href="javascript:history.go(-1);">返回</a>
-			<h2><a href="${section.website.site }" target="_blank">${section.website.comment }</a> --<a href="${section.url }" target="_blank">${section.comment }</a></h2>
+			<h2><a href="${section.website.site }" target="_blank">${section.website.comment }</a> --
+			<form action='<c:url value="/website/ajax/loadPage" />' method="POST" target="_blank" id="page" style="display: inline;">
+				<input type="text" name="url" value="${section.url }"  hidden="hidden" />
+				<input type="text" name="ajax" value="false"  hidden="hidden" />
+				<input type="submit" value="${section.comment }" class="input-link" />
+			</form></h2>
 			<c:if test="${!empty confList }">
 				<a id="addSectionBtn" class="linkbutton" href="javascript:void(0);">以此规则添加版块</a>
 			</c:if>
+			<a href="${section.url }" target="_blank">网址</a>
 		</div>
 		<div id="message">
 			<a class="form-wrapper-close" href="javascript:;"></a>
@@ -353,8 +368,8 @@
 							</form>
 						</div>
 						<div style="text-align: center; padding: 5px;">
-							<a href="javascript:void(0)" class="easyui-linkbutton" id="testConfList">验证</a> <a
-								href="javascript:void(0)" class="easyui-linkbutton" id="saveConfList">保存</a>
+							<a href="javascript:void(0)" class="easyui-linkbutton" id="testConfList">验证</a> 
+							<a href="javascript:void(0)" class="easyui-linkbutton" id="saveConfList">保存</a><br />
 						</div>
 					</div>
 				</div>
@@ -370,7 +385,7 @@
 										<div><input name="id.listurl" type="hidden" value="${section.url }" /></div>
 										<div>
 											<label class="form-label" for="testUrl">测试页URL地址<span class="red">*</span>
-											</label> <input name="testUrl" type="text" class="easyui-validatebox" data-options="required:true, validType:'url'" />
+											</label> <input name="testUrl" type="text" />
 										</div>
 										<div>
 											<label class="form-label" for="host">域名<span class="red">*</span>
@@ -449,6 +464,12 @@
 							<div style="text-align: center; padding: 5px">
 								<a href="javascript:void(0)" class="easyui-linkbutton" id="testConfDetail1">验证</a> 
 								<a href="javascript:void(0)" class="easyui-linkbutton" id="saveConfDetail1">保存</a>
+								<br />
+								<form action='<c:url value="/website/ajax/loadPage" />' method="POST" target="_blank" class="detailPageForm" style="display: inline;">
+									<input type="text" name="url" value=""  hidden="hidden" />
+									<input type="text" name="ajax" value="false"  hidden="hidden" />
+									<input type="submit" value="下载详细页面" class="downloadpage easyui-linkbutton" />
+								</form>
 							</div>
 						</div>
 					</div>
@@ -465,8 +486,8 @@
 												<input name="oldHost" type="hidden" value="${confDetail.id.host }" />
 											</div>
 											<div>
-												<label class="form-label" for="testUrl">测试页URL地址<span class="red">*</span></label><input name="testUrl"
-													class="easyui-textbox" data-options="required:true, validType:'url'" />
+												<label class="form-label" for="testUrl">测试页URL地址<span class="red">*</span></label>
+												<input name="testUrl" />
 											</div>
 											<div>
 												<label class="form-label" for="host">域名<span class="red">*</span></label><input name="id.host"
@@ -568,6 +589,12 @@
 								<div style="text-align: center; padding: 5px">
 									<a href="javascript:void(0)" class="easyui-linkbutton" id="testConfDetail${status.count }">验证</a> <a
 										href="javascript:void(0)" class="easyui-linkbutton" id="saveConfDetail${status.count }">保存</a>
+										<br />
+										<form action='<c:url value="/website/ajax/loadPage" />' method="POST" target="_blank" class="detailPageForm" style="display: inline;">
+											<input type="text" name="url" value=""  hidden="hidden" />
+											<input type="text" name="ajax" value="false"  hidden="hidden" />
+											<input type="submit" value="下载详细页面" class="easyui-linkbutton" />
+										</form>
 								</div>
 							</div>
 						</div>
@@ -661,6 +688,12 @@
 				<div style="text-align: center; padding: 5px">
 					<a href="javascript:void(0)" class="easyui-linkbutton" id="testConfDetailx">验证</a> 
 					<a href="javascript:void(0)" class="easyui-linkbutton" id="saveConfDetailx">保存</a>
+					<br />
+					<form action='<c:url value="/website/ajax/loadPage" />' method="POST" target="_blank" class="detailPageForm" style="display: inline;">
+						<input type="text" name="url" value=""  hidden="hidden" />
+						<input type="text" name="ajax" value="false"  hidden="hidden" />
+						<input type="submit" value="下载详细页面" class="easyui-linkbutton" />
+					</form>
 				</div>
 				</div>
 			</div>

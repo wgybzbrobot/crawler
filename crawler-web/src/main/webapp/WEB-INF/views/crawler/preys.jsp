@@ -224,6 +224,7 @@ $(function() {
 		</div>
 		<div style="text-align: center;">
 			<div id="content">
+				<div>当前系统时间:${currentTime }</div>
 				<div>
 					<form id="jobFilterForm" action="<c:url value='/slaves/jobs' />" method="post">查询任务:<input id="jobText" name="job" type="text" value="${searchJobKey }" title="输入任务名称或网址后回车搜索" /></form>
 				</div>

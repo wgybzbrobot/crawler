@@ -32,7 +32,7 @@
 			<b> <%=exception.getClass()%>:<%=exception.getMessage()%></b>
 		</p>
 		<p>
-			With the following stack trace:
+<%-- 			With the following stack trace: <%=exception.printStackTrace() %> --%>
 		</p>
 		<pre>
 </pre>

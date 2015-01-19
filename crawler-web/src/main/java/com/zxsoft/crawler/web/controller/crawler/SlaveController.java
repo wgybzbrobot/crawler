@@ -2,9 +2,11 @@ package com.zxsoft.crawler.web.controller.crawler;
 
 import java.net.ConnectException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -115,6 +117,7 @@ public class SlaveController {
                 }
 
                 model.addAttribute("list", res);
+                model.addAttribute("currentTime", new Date().toLocaleString());
                 return "crawler/detail";
         }
 

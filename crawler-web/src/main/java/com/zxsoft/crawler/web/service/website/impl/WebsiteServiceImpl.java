@@ -1,6 +1,9 @@
 package com.zxsoft.crawler.web.service.website.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thinkingcloud.framework.web.utils.Page;
 
 import com.zxisl.commons.utils.CollectionUtils;
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.code.Code;
 import com.zxsoft.crawler.entity.Auth;
+import com.zxsoft.crawler.entity.Location;
 import com.zxsoft.crawler.entity.Section;
 import com.zxsoft.crawler.entity.Website;
+import com.zxsoft.crawler.web.dao.website.DictDao;
 import com.zxsoft.crawler.web.dao.website.WebsiteDao;
 import com.zxsoft.crawler.web.service.website.SectionService;
 import com.zxsoft.crawler.web.service.website.WebsiteService;
@@ -22,6 +28,9 @@ public class WebsiteServiceImpl implements WebsiteService {
 
         @Autowired
         private WebsiteDao websiteDao;
+        
+        @Autowired
+        private DictDao dictDao;
 
         @Override
         public Page<Website> getWebsite(Website website, int pageNo, int pageSize) {
@@ -39,7 +48,7 @@ public class WebsiteServiceImpl implements WebsiteService {
                 Website site = new Website();
                 site.setSite(website.getSite());
                 Page<Website> page = websiteDao.getWebsites(site, 1, 1);
-                if (page != null && page.getRes() != null && page.getRes().size() > 0){
+                if (StringUtils.isEmpty(website.getId()) && page != null && page.getRes() != null && page.getRes().size() > 0){
                         return Code.RECORD_EXIST;
                 }
                 
@@ -50,11 +59,6 @@ public class WebsiteServiceImpl implements WebsiteService {
 
         @Override
         public Website getWebsite(String id) {
-                
-                
-                
-                
-                
                 return websiteDao.getWebsite(id);
         }
 

@@ -239,10 +239,18 @@ table.maintable td {
 	text-align: left;
 	font-size: 20px;
 	background-color: #67CF22;
-	 -webkit-animation: stretchdelay 1.2s infinite ease-in-out;
-  	animation: stretchdelay 1.2s infinite ease-in-out;
-  	
+	-webkit-animation: stretchdelay 1.2s infinite ease-in-out;
+	animation: stretchdelay 1.2s infinite ease-in-out;
 	top: 50%;
 	left: 50%;
 	-moz-border-radius: 20px;
+}
+
+.input-link {
+	display: inline;
+	border: none;
+	background-color: #fff;
+	cursor: pointer;
+	color: #0000ff;
+	font-size: 18px;
 }

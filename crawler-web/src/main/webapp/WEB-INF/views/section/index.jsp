@@ -146,7 +146,7 @@
 						<c:forEach items="${page.res}" var="section" varStatus="status">
 							<li class="section-li">
 								<h3>
-									<span><a href='<c:url value="config?sectionId=${section.id}"/>' >${section.comment}</a></span>
+									<span><a href='<c:url value="/config?sectionId=${section.id}"/>' >${section.comment}</a></span>
 									</h3>
 									<span>[${section.category.comment}]</span>
 									<span title="创建者">[${section.account.username}]</span>

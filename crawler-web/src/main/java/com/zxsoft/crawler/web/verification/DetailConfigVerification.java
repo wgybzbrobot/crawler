@@ -19,7 +19,7 @@ import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.parse.ParseTool;
 import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
-import com.zxsoft.crawler.plugin.parse.ext.SourceExtractor;
+import com.zxsoft.crawler.plugin.parse.ext.ExtExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
@@ -52,7 +52,7 @@ public class DetailConfigVerification extends ParseTool {
 					error.put("msg", "获取回复数失败");
 					errors.add(error);
 				} else {
-					String replyNum = String.valueOf(Utils.extractNum(replyNumEles.first().text()));
+					String replyNum = String.valueOf(ExtExtractor.extractReplyNum(replyNumEles.first().text()));
 					info.put("replyNum", replyNum);
 				}
 			}
@@ -65,8 +65,7 @@ public class DetailConfigVerification extends ParseTool {
 					error.put("msg", "获取浏览数失败");
 					errors.add(error);
 				} else {
-					String reviewNum = String
-					        .valueOf(Utils.extractNum(reviewNumEles.first().text()));
+					String reviewNum = String.valueOf(ExtExtractor.extractReadNum(reviewNumEles.first().text()));
 					info.put("reviewNum", reviewNum);
 				}
 			}
@@ -93,7 +92,7 @@ public class DetailConfigVerification extends ParseTool {
 			                error.put("msg", "获取来源失败");
 			                errors.add(error);
 			        } else {
-			                String sources = SourceExtractor.extract(sourcesEles.first().text());
+			                String sources = ExtExtractor.extractSource(sourcesEles.first().text());
 			                info.put("sources", sources);
 			        }
 			}
@@ -171,6 +170,7 @@ public class DetailConfigVerification extends ParseTool {
 			 */
 			if (!StringUtils.isEmpty(detailConf.getReply())) {
 				Elements replyEles = document.select(detailConf.getReply());
+				System.out.println(document.html());
 				if (CollectionUtils.isEmpty(replyEles)) {
 					Map<String, String> error = new HashMap<String, String>();
 					error.put("field", "reply");

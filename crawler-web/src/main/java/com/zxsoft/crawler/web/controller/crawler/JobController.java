@@ -1,6 +1,7 @@
 package com.zxsoft.crawler.web.controller.crawler;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -121,6 +122,8 @@ public class JobController {
 
                 List<ConfList> engines = dictService.getSearchEngines();
                 model.addAttribute("engines", engines);
+                
+                model.addAttribute("currentTime", new Date().toLocaleString());
 
                 return "/crawler/preys";
         }
@@ -133,6 +136,7 @@ public class JobController {
         @RequestMapping(value = "jobs", method = RequestMethod.POST)
         public String  jobs(@RequestParam(value = "job", required = false) String job, Model model) {
                 List<Prey> list = new LinkedList<Prey>();
+                model.addAttribute("currentTime", new Date().toLocaleString());
                 model.addAttribute("searchJobKey", job);
                 if (StringUtils.isEmpty(job)) {
                         return jobs(20, model);
@@ -320,7 +324,6 @@ public class JobController {
                         throw new NullPointerException("section is null, but conflist is not null: " + url);
                 Website website = section.getWebsite();
                 String site = website.getSite();
-                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
                 Prey prey = null;
                 try {
@@ -367,10 +370,17 @@ public class JobController {
                                 if (CollectionUtils.isEmpty(set)) break;
                                 for (String str : set) {
                                         Prey _prey = gson.fromJson(str, Prey.class);
-                                        String json = _prey.toString();
-                                        if (json.contains(String.valueOf(url))) {
+//                                        String json = _prey.toString();
+                                        String _url = _prey.getUrl();
+                                        if (_url.endsWith("/")) {
+                                                _url = _url.substring(0, _url.lastIndexOf("/"));
+                                        }
+                                        if (url.equals(_url)) {
                                                 return true;
                                         }
+//                                        if (json.contains(String.valueOf(url))) {
+//                                                return true;
+//                                        }
                                 }
                                 begin = end;
                                 end = end + 100;

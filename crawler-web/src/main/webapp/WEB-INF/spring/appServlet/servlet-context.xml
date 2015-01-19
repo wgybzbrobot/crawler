@@ -42,11 +42,4 @@
 
 	<task:annotation-driven />
 
-<!-- 	<bean id="jdbcDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://192.168.6.111:3306/carson?useUnicode=true&amp;characterEncoding=UTF-8" />
-		<property name="username" value="root" />
-		<property name="password" value="zxsoft0#" />
-	</bean> -->
-
 </beans:beans>

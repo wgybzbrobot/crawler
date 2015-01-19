@@ -7,6 +7,61 @@
 <title>网站配置</title>
 <script type="text/javascript">
 	$(function() {
+		/*
+		  * 省市区联动
+		  */
+		  $.ajax({
+				type : 'GET',
+				url : 'dict/location/ajax/0',
+				dataType : 'json',
+				success : function(province) {
+					 $.each(province, function (index, val) { 
+			              var option = "<option value='" + val.id + "'>" + val.name + "</option>";
+			              $("#selProvince").append(option);
+			          });
+				}
+			});
+          $("#selProvince").change(function () {
+              var selValue = $(this).val(); 
+              $("#selCity option:gt(0)").remove();
+              $("#selDistrict option:gt(0)").remove(); 
+              $.ajax({
+  				type : 'GET',
+  				url : 'dict/location/ajax/' + selValue,
+  				dataType : 'json',
+  				success : function(city) {
+  					 $.each(city, function (index, val) { 
+  		                      var option = "<option value='" + val.id + "'>" + val.name + "</option>";
+  		                      $("#selCity").append(option);
+  		              });
+  				}
+  			});
+          });
+          $("#selCity").change(function () {
+              var selValue = $(this).val();
+              $("#selDistrict option:gt(0)").remove(); 
+              $.ajax({
+    				type : 'GET',
+    				url : 'dict/location/ajax/' + selValue,
+    				dataType : 'json',
+    				success : function(areas) {
+    					   $.each(areas, function (index, val) {
+    			                      var option = "<option value='" + val.id + "'>" + val.name + "</option>";
+    			                      $("#selDistrict").append(option);
+   			              }); 
+    				}
+    			});
+          }); 
+		
+          $("input[name=region]").change(function () {
+        	  if (this.value == 1) {
+        		  $('#location').css('visibility', 'visible');
+        	  } else {
+	        	  $('#location').css('visibility', 'hidden');
+        	  }
+          });
+		
+		
 		$('li.site-li').hover(function() {
 			$(this).find('span.edit').toggle();
 		});
@@ -23,6 +78,39 @@
 		$('a.moreinfo').click(function(e) {
 			$('div.form-wrapper-title').text('编辑网站');
 			$('div.form-wrapper').show();
+			$('#websiteForm').form({
+				onLoadSuccess: function(data) {
+					console.log(data);
+					if (data.provinceId != null) {
+						 $.ajax({
+				  				type : 'GET',
+				  				url : 'dict/location/ajax/' + data.provinceId,
+				  				dataType : 'json',
+				  				success : function(city) {
+				  					$.each(city, function (index, val) { 
+			  		                      var option = "<option value='" + val.id + "'>" + val.name + "</option>";
+			  		                      $("#selCity").append(option);
+			  		              	});
+				  					$("#selCity").val(data.cityId);
+				  				}
+				  			});
+						 if (data.cityId != 'null') {
+							 $.ajax({
+					  				type : 'GET',
+					  				url : 'dict/location/ajax/' + data.cityId,
+					  				dataType : 'json',
+					  				success : function(city) {
+					  					$.each(city, function (index, val) { 
+				  		                      var option = "<option value='" + val.id + "'>" + val.name + "</option>";
+				  		                      $("#selDistrict").append(option);
+				  		              	});
+					  					$("#selDistrict").val(data.areaId);
+					  				}
+					  			});
+						 }
+					}
+				}
+			});
 			$('#websiteForm').form('load', 'website/ajax/moreinfo/' + $(this).attr('id'));
 			return false;
 		});
@@ -82,7 +170,7 @@
 			<a id="addWebsiteBtn" class="linkbutton" href="javascript:void(0);">添加网站</a>
 			<a id="addWebsiteBtn" class="linkbutton" href='<c:url value="/section/search"/>'>查找版块</a>
 		</div>
-		<div class="form-wrapper" style="display: none; height: 290px;">
+		<div class="form-wrapper" style="display: none; height: 320px; width:445px;">
 			<a class="form-wrapper-close" href="javascript:;"></a>
 			<div class="form-wrapper-title">编辑网站详细信息</div>
 			<div class="form-wrapper-center">
@@ -97,9 +185,19 @@
 							name="comment" data-options="required:true" />
 					</div>
 					<div>
-						<label class="form-label" for="region">区域:</label><span>境内</span><input type="radio" name="region" value="境内"
-							checked="checked">&nbsp;&nbsp;&nbsp;<span>境外</span><input type="radio" name="region" value="境外">
-							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<label class="form-label" for="region">区域:</label><span>境内</span><input type="radio" name="region" value="1"
+							checked="checked">&nbsp;&nbsp;&nbsp;<span>境外</span><input type="radio" name="region" value="0">
+							<div id="location">
+								<select id="selProvince" name="provinceId">
+							        <option value="0">--请选择省份--</option>
+							    </select>
+							    <select id="selCity" name="cityId">
+							        <option value="0">--请选择城市--</option>
+							    </select>
+							    <select id="selDistrict" name="areaId">
+							        <option value="0">--请选择区/县--</option>
+							    </select>
+							</div>
 							<label class="form-label" for="status">状态:</label><span>启用</span><input type="radio"  name="status" value="open"
 							checked="checked">&nbsp;&nbsp;&nbsp;<span>禁用</span><input type="radio" name="status" value="close">
 					</div>

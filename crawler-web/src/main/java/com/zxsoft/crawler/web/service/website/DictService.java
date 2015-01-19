@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.zxsoft.crawler.entity.Category;
 import com.zxsoft.crawler.entity.ConfList;
+import com.zxsoft.crawler.entity.Location;
 import com.zxsoft.crawler.entity.SiteType;
 
 /**
@@ -19,4 +20,10 @@ public interface DictService {
 	List<SiteType> getSiteTypes();
 	
 	List<ConfList> getSearchEngines();
+	
+	/**
+         * 获取网站所在地
+         * <p> 省份 -> 城市 -> 区域
+         */
+        public List<Location> getLocation(int id);
 }

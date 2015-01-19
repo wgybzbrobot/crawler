@@ -24,111 +24,140 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "website", catalog = "crawler")
 public class Website implements java.io.Serializable {
 
-	/**
+        /**
 	 * 
 	 */
-	private static final long serialVersionUID = -5354652608097154552L;
-	private String id;
-	private String site;
-	private SiteType siteType;
-	private String comment;
-	private String region;
-	private String status;
-	private Set<Section> sections = new HashSet<Section>(0);
-	private Set<Auth> auths = new HashSet<Auth>(0);
+        private static final long serialVersionUID = -5354652608097154552L;
+        private String id;
+        private String site;
+        private SiteType siteType;
+        private String comment;
+        private String region;
+        private String status;
+        private Integer provinceId;
+        private Integer cityId;
+        private Integer areaId;
+        private Set<Section> sections = new HashSet<Section>(0);
+        private Set<Auth> auths = new HashSet<Auth>(0);
 
-	public Website() {
-	}
+        public Website() {
+        }
 
-	public Website(String site, SiteType siteType, String comment) {
-		this.site = site;
-		this.siteType = siteType;
-		this.comment = comment;
-	}
+        public Website(String site, SiteType siteType, String comment) {
+                this.site = site;
+                this.siteType = siteType;
+                this.comment = comment;
+        }
 
-	public Website(String site, SiteType siteType, 
-	        String comment, String region, Set<Section> sections) {
-		this.site = site;
-		this.siteType = siteType;
-		this.comment = comment;
-		this.region = region;
-		this.sections = sections;
-	}
+        public Website(String site, SiteType siteType, String comment, String region, Set<Section> sections) {
+                this.site = site;
+                this.siteType = siteType;
+                this.comment = comment;
+                this.region = region;
+                this.sections = sections;
+        }
 
-	@Id
-	@GenericGenerator(name = "generator", strategy = "uuid.hex")
-	@GeneratedValue(generator = "generator")
-	@Column(name = "id", unique = true, nullable = false, length = 150)
-	public String getId() {
-		return id;
-	}
+        @Id
+        @GenericGenerator(name = "generator", strategy = "uuid.hex")
+        @GeneratedValue(generator = "generator")
+        @Column(name = "id", unique = true, nullable = false, length = 150)
+        public String getId() {
+                return id;
+        }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+        public void setId(String id) {
+                this.id = id;
+        }
 
-	@Column(name = "site", unique = true, nullable = false, length = 150)
-	public String getSite() {
-		return this.site;
-	}
+        @Column(name = "site", unique = true, nullable = false, length = 150)
+        public String getSite() {
+                return this.site;
+        }
 
-	public void setSite(String site) {
-		this.site = site;
-	}
+        public void setSite(String site) {
+                this.site = site;
+        }
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "type", nullable = false)
-	public SiteType getSiteType() {
-		return this.siteType;
-	}
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "type", nullable = false)
+        public SiteType getSiteType() {
+                return this.siteType;
+        }
 
-	public void setSiteType(SiteType siteType) {
-		this.siteType = siteType;
-	}
+        public void setSiteType(SiteType siteType) {
+                this.siteType = siteType;
+        }
 
-	@Column(name = "comment", nullable = false, length = 100)
-	public String getComment() {
-		return this.comment;
-	}
+        @Column(name = "comment", nullable = false, length = 100)
+        public String getComment() {
+                return this.comment;
+        }
 
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+        public void setComment(String comment) {
+                this.comment = comment;
+        }
 
-	@Column(name = "region", length = 45)
-	public String getRegion() {
-		return this.region;
-	}
+        @Column(name = "region", length = 45)
+        public String getRegion() {
+                return this.region;
+        }
 
-	public void setRegion(String region) {
-		this.region = region;
-	}
+        public void setRegion(String region) {
+                this.region = region;
+        }
 
-	@Column(name="status", length = 45)
-	public String getStatus() {
-		return status;
-	}
+        @Column(name = "status", length = 45)
+        public String getStatus() {
+                return status;
+        }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+        public void setStatus(String status) {
+                this.status = status;
+        }
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "website")
-	public Set<Section> getSections() {
-		return this.sections;
-	}
+        @Column(name = "provinceId")
+        public Integer getProvinceId() {
+                return provinceId;
+        }
 
-	public void setSections(Set<Section> sections) {
-		this.sections = sections;
-	}
+        public void setProvinceId(Integer provinceId) {
+                this.provinceId = provinceId;
+        }
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "website")
-	public Set<Auth> getAuths() {
-		return auths;
-	}
+        @Column(name = "cityId")
+        public Integer getCityId() {
+                return cityId;
+        }
 
-	public void setAuths(Set<Auth> auths) {
-		this.auths = auths;
-	}
+        public void setCityId(Integer cityId) {
+                this.cityId = cityId;
+        }
+
+        @Column(name = "areaId")
+        public Integer getAreaId() {
+                return areaId;
+        }
+
+        public void setAreaId(Integer areaId) {
+                this.areaId = areaId;
+        }
+
+        @OneToMany(fetch = FetchType.LAZY, mappedBy = "website")
+        public Set<Section> getSections() {
+                return this.sections;
+        }
+
+        public void setSections(Set<Section> sections) {
+                this.sections = sections;
+        }
+
+        @OneToMany(fetch = FetchType.LAZY, mappedBy = "website")
+        public Set<Auth> getAuths() {
+                return auths;
+        }
+
+        public void setAuths(Set<Auth> auths) {
+                this.auths = auths;
+        }
 
 }
