@@ -276,7 +276,7 @@ $(function() {
 								</span> 
 								<span><a>修改</a></span>
 								<span> <c:choose>
-										<c:when test="${prey.state eq 1 }">
+										<c:when test="${prey.state eq 'JOB_EXCUTING' }">
 											<a  class="haltJob" comment="${prey.comment }" start="${prey.start}" href="<c:url value='/slaves/ajax/job/halt' />" onclick="return false;" title="处于执行状态,点击暂停">暂停</a>
 										</c:when>
 										<c:otherwise>

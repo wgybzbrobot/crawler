@@ -14,6 +14,7 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.IPUtil;
+import com.zxsoft.crawler.api.SlaveServer;
 
 /**
  * 访问oracle数据库
@@ -26,31 +27,35 @@ public class OracleDao {
 
         private static final String TABLE_JHRW_RWLB = "JHRW_RWLB";
         private static final String TABLE_JHRW_RWZX = "JHRW_RWZX";
-        private static final JdbcTemplate oracleJdbcTemplate;
+        private static  JdbcTemplate oracleJdbcTemplate;
         private static String machineId;
 
         static {
-                OracleDriver driver = new OracleDriver();
-                Properties prop = new Properties();
-                ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                InputStream stream = loader.getResourceAsStream("oracle.properties");
-                try {
-                        prop.load(stream);
-                } catch (IOException e) {
-                        LOG.error("加载oracle.properties失败", e);
-                }
-                String url = prop.getProperty("db.url");
-                String username = prop.getProperty("db.username");
-                String password = prop.getProperty("db.password");
-                LOG.info("oracle database address: " + url);
-                SimpleDriverDataSource dataSource = new SimpleDriverDataSource(driver, url, username, password);
-                oracleJdbcTemplate = new JdbcTemplate(dataSource);
-
-                List<String> ips = IPUtil.getIPv4();
-                if (!CollectionUtils.isEmpty(ips)) {
-                        String str = ips.get(0);
-                        machineId = str.replaceAll("\\.", "");
-                        LOG.info(machineId);
+                if (SlaveServer.enableGetNetworkSearchTaskFromDb()) {
+                        OracleDriver driver = new OracleDriver();
+                        Properties prop = new Properties();
+                        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                        InputStream stream = loader.getResourceAsStream("oracle.properties");
+                        try {
+                                prop.load(stream);
+                        } catch(NullPointerException e) {
+                                LOG.error("没有找到oracle.properties, 将无法从数据库中获取全网搜索任务.");
+                        } catch (IOException e) {
+                                LOG.error("加载oracle.properties失败", e);
+                        }
+                        String url = prop.getProperty("db.url");
+                        String username = prop.getProperty("db.username");
+                        String password = prop.getProperty("db.password");
+                        LOG.info("oracle database address: " + url);
+                        SimpleDriverDataSource dataSource = new SimpleDriverDataSource(driver, url, username, password);
+                        oracleJdbcTemplate = new JdbcTemplate(dataSource);
+        
+                        List<String> ips = IPUtil.getIPv4();
+                        if (!CollectionUtils.isEmpty(ips)) {
+                                String str = ips.get(0);
+                                machineId = str.replaceAll("\\.", "");
+                                LOG.info(machineId);
+                        }
                 }
         }
 

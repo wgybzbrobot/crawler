@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.resource.ClientResource;
 
-import com.zxsoft.crawler.api.JobManager.JobType;
 
 public class TestAPI {
 
@@ -50,23 +49,20 @@ public class TestAPI {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put(Params.CRAWL_ID, "test");
 		map.put(Params.JOB_TYPE, JobType.NETWORK_INSPECT);
+		
 		Map<String, Object> args = new HashMap<String, Object>();
-//		args.put(Params.URL, "http://bbs.tianya.cn/list-free-1.shtml");
-//		args.put(Params.COMMENT, "天涯杂谈");
-//		map.put(Params.ARGS, args);
-//	    jr =  new JacksonRepresentation<Map<String,Object>>(map);
-//	    System.out.println(cli.put(jr).getText());
-	    	    
-		args.put(Params.URL, "http://roll.news.sina.com.cn/s/channel.php");
-		args.put(Params.COMMENT, "新浪新闻滚动");
+		args.put(Params.URL, "http://tieba.baidu.com/f?ie=utf-8&kw=%E8%9A%8C%E5%9F%A0");
+		args.put(Params.PREV_FETCH_TIME, System.currentTimeMillis() - 24 * 60 * 60 * 1000L);
+		args.put(Params.COMMENT, "百度贴吧蚌埠吧");
+		args.put(Params.SOURCE_ID, "aHR0cDovL3RpZWJhLmJhaWR1LmNvbS9mP2llPXV0Zi04Jmt3PSVFOCU5QSU4QyVFNSU5RiVBMA==");
+		args.put(Params.COUNTRY_CODE, Params.COUNTRY_DOMESTIC);
+		args.put(Params.PROVINCE_CODE, 110000);
+		args.put(Params.CITY_CODE, 110100);
+		args.put(Params.SERVER_ID, 6103);
+		args.put(Params.SOURCE_TYPE, JobType.NETWORK_INSPECT.getValue());
+		
 		map.put(Params.ARGS, args);
 		jr = new JacksonRepresentation<Map<String,Object>>(map);
 		System.out.println(cli.put(jr).getText());
-		
-//		args.put(Params.URL, "http://boxun.eggpain.tk/rolling.shtml");
-//		args.put(Params.COMMENT, "博讯滚动新闻");
-//		map.put(Params.ARGS, args);
-//		jr = new JacksonRepresentation<Map<String,Object>>(map);
-//		System.out.println(cli.put(jr).getText());
 	}
 }

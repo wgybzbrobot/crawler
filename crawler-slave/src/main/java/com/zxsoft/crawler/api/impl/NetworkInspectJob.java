@@ -1,5 +1,6 @@
 package com.zxsoft.crawler.api.impl;
 
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,7 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.zxsoft.crawler.api.CrawlTool;
+import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.api.Params;
+import com.zxsoft.crawler.dns.DNSCache;
+import com.zxsoft.crawler.parse.LocationUtils;
 import com.zxsoft.crawler.parse.NetworkInspectParserController;
 import com.zxsoft.crawler.parse.FetchStatus;
 import com.zxsoft.crawler.parse.ParserNotFoundException;
@@ -28,25 +32,55 @@ public class NetworkInspectJob extends CrawlTool {
 
         @Override
         public Map<String, Object> run(Map<String, Object> args) throws Exception {
+
+                /*
+                 * 读取并检查参数
+                 */
                 String url = (String) args.get(Params.URL);
-                String comment = (String) args.get(Params.COMMENT);
                 long prevFetchTime = 0;
                 try {
                         prevFetchTime = (long) args.get(Params.PREV_FETCH_TIME);
                 } catch (NullPointerException e) {
-                        // 60 days ago
-                        prevFetchTime = System.currentTimeMillis() - 60 * 24 * 60 * 60 * 1000L;
-                        LOG.warn(url + "任务没有上次抓取时间, 将使用程序设定:" + prevFetchTime);
-                } catch (Exception  e) {
+                        prevFetchTime = System.currentTimeMillis() - 30 * 24 * 60 * 60 * 1000L; // 30
+                                                                                                // days
+                                                                                                // ago
+                        LOG.warn("任务没有上次抓取时间, 将使用程序设定:" + prevFetchTime);
+                } catch (Exception e) {
                         LOG.error(e.getMessage());
                 }
+
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("url", url);
-                map.put("comment", comment);
+                map.put("comment", (String) args.get(Params.COMMENT));
                 map.put("starttime", new Date().getTime());
+
+                /*
+                 * 传入参数
+                 */
+                int region = (Integer) args.get(Params.COUNTRY_CODE);
+                int provinceId = (Integer) args.get(Params.PROVINCE_CODE);
+                int cityId = (Integer) args.get(Params.CITY_CODE);
+                int locationCode = 0;
+                int source_id = (Integer) args.get(Params.SOURCE_ID);
+                int server_id = (Integer) args.get(Params.SERVER_ID);
+                int source_type = (Integer) args.get(Params.SOURCE_TYPE);
+
+                /*
+                 * 通过ip查询location, location_code
+                 */
+                String ip = "", location = "";
+                try {
+                        ip = DNSCache.getIp(new URL(url));
+                        location = LocationUtils.getLocation(ip);
+                        locationCode = LocationUtils.getLocationCode(ip);
+                } catch (Exception e) {
+                        LOG.warn(e.getMessage());
+                }
+
                 try {
                         NetworkInspectParserController parseUtil = new NetworkInspectParserController();
-                        WebPage page = new WebPage(url, prevFetchTime);
+                        WebPage page = new WebPage(url, prevFetchTime, region, provinceId, cityId, locationCode, location, ip,
+                                                        JobType.NETWORK_INSPECT, source_id, server_id, source_type);
                         FetchStatus status = parseUtil.parse(page);
                         map.put("code", 2001);
                         map.put("count", status.getCount());

@@ -37,7 +37,7 @@ public class WebsiteController {
 
         @RequestMapping(method = RequestMethod.GET)
         public String index(@ModelAttribute("website") Website website, Model model) {
-                Page<Website> page = websiteServiceImpl.getWebsite(website, 1, 100);
+                Page<Website> page = websiteServiceImpl.getWebsite(website, 1, 150);
                 model.addAttribute("page", page);
 
                 if (website != null)
@@ -73,10 +73,10 @@ public class WebsiteController {
         @ResponseBody
         @RequestMapping(value = "ajax/add", method = RequestMethod.POST)
         public String save(@RequestParam(value = "site", required = false) String site,
-                                        @RequestParam(value = "id", required = false) String id,
+                                        @RequestParam(value = "id", required = false) Integer id,
                                         @RequestParam(value = "comment", required = false) String comment,
                                         @RequestParam(value = "sitetype", required = false) String type,
-                                        @RequestParam(value = "region", required = false) String region,
+                                        @RequestParam(value = "region", required = false) Integer region,
                                         @RequestParam(value = "provinceId", required = false) Integer provinceId,
                                         @RequestParam(value = "cityId", required = false) Integer cityId,
                                         @RequestParam(value = "areaId", required = false) Integer areaId,
@@ -101,7 +101,7 @@ public class WebsiteController {
          */
         @ResponseBody
         @RequestMapping(value = "ajax/delete", method = RequestMethod.POST)
-        public String delete(@RequestParam(value = "id", required = false) String id, Model model) {
+        public String delete(@RequestParam(value = "id", required = false) Integer id, Model model) {
                 websiteServiceImpl.deleteWebsite(id);
                 return "success";
         }
@@ -111,7 +111,7 @@ public class WebsiteController {
          */
         @ResponseBody
         @RequestMapping(value = "ajax/moreinfo/{id}", method = RequestMethod.GET)
-        public Map<String, Object> moreinfo(@PathVariable(value = "id") String id, Model model) {
+        public Map<String, Object> moreinfo(@PathVariable(value = "id") Integer id, Model model) {
                 Website website = websiteServiceImpl.getWebsite(id);
 
                 Map<String, Object> map = new HashMap<String, Object>();

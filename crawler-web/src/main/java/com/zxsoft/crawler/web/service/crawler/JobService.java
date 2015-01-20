@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.zxsoft.crawler.storage.WebPage.JOB_TYPE;
-
 public interface JobService {
 
 	/**

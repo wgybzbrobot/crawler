@@ -37,7 +37,7 @@ public class SectionDaoImpl implements SectionDao {
                 if (pageNo <= 0)
                         pageNo = 1;
 
-                Map<String, String> params = new HashMap<String, String>();
+                Map<String, Object> params = new HashMap<String, Object>();
 
                 StringBuffer sb = new StringBuffer(" from Section a where 1=1 ");
                 if (section != null) {

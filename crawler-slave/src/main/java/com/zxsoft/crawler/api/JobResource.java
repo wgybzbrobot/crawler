@@ -10,7 +10,6 @@ import org.restlet.resource.ServerResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zxsoft.crawler.api.JobManager.JobType;
 import com.zxsoft.crawler.api.JobStatus.State;
 
 public class JobResource extends ServerResource {
@@ -82,23 +81,52 @@ public class JobResource extends ServerResource {
 	}
 
 	/**
-	 * 创建新任务接口参数：
+	 * 创建新任务, 参数<code>args</code>包含任务类型<code>JOB_TYPE</code>和其它参数<code>ARGS</code>.
+	 * <p>其它参数<code>ARGS</code>包含:
 	 * <ol>
-	 * <li>crawlId 爬虫编号(唯一标识)</li>
-	 * <li>jobType 任务类型</li>
 	 * <li>url 网址</li>
 	 * <li>prevFetchTime 上次抓取时间,可选配置</li>
+	 * <li>comment 版块名称</li>
+	 * <li>provinceId 省份代码, 如果没有则为0</li>
+	 * <li>cityId 城市代码, 如果没有则为0</li>
+	 * <li>areaId 区域代码, 如果没有则为0</li>
+	 * <li>crawlId(可选参数) 爬虫编号(唯一标识)</li>
 	 * </ol>
 	 */
 	@Put("json")
 	@SuppressWarnings("unchecked")
 	public Object create(Map<String, Object> args) throws Exception {
-		String typeString = (String) args.get(Params.JOB_TYPE);
-		JobType jobType = JobType.valueOf(typeString.toUpperCase());
+		String type = (String) args.get(Params.JOB_TYPE);
+		JobType jobType = JobType.valueOf(type.toUpperCase());
 		Object map = args.get(Params.ARGS);
+		
 		Map<String, Object> cmdArgs = null;
 		if (map instanceof Map<?, ?>) {
 			cmdArgs = (Map<String, Object>) map;
+			
+//			int region = 1, provinceId = 0, cityId = 0;
+//	                try {
+//	                        region = (int) args.get(Params.REGION_ID);
+//	                } catch (Exception e) {
+//	                        LOG.warn("regionId: " + e.getMessage());
+//	                }
+//	                cmdArgs.put(Params.REGION_ID, region);
+//	                // 当版块属于国内时
+//	                if (Params.REGION_DOMESTIC == region) {
+//	                        try {
+//	                                provinceId = (int) args.get(Params.PROVINCE_ID);
+//	                        } catch (Exception e) {
+//	                                LOG.warn("Cannot get provinceId, message: " + e.getMessage());
+//	                        }
+//	                        try {
+//	                                cityId = (int) args.get(Params.CITY_ID);
+//	                        } catch (Exception e) {
+//	                                LOG.warn("Cannot get cityId, message: " + e.getMessage());
+//	                        }
+//	                        cmdArgs.put(Params.PROVINCE_ID, provinceId);
+//	                        cmdArgs.put(Params.CITY_ID, cityId);
+//	                }
+			
 		}
 		JobCode jobCode = null;
 		try {

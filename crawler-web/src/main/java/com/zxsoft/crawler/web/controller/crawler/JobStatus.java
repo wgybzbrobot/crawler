@@ -3,8 +3,7 @@ package com.zxsoft.crawler.web.controller.crawler;
 import java.io.Serializable;
 import java.util.Map;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.zxsoft.crawler.api.JobType;
 
 public class JobStatus implements Serializable {
 	/**
@@ -14,9 +13,6 @@ public class JobStatus implements Serializable {
 
 	public static enum State {
 		IDLE, RUNNING, FINISHED, FAILED, KILLED, STOPPING, KILLING, ANY
-	};
-	public static enum JobType {
-		NETWORK_SEARCH, NETWORK_INSPECT
 	};
 
 	public String id;

@@ -34,7 +34,7 @@ public class DetailConfigVerification extends ParseTool {
 		Map<String, Object> info = new LinkedHashMap<String, Object>();
 		// info.put("测试页URL", detailConf.getTestUrl());
 		List<Map<String, String>> errors = new LinkedList<Map<String, String>>();
-		WebPage page = new WebPage(testUrl, false);
+		WebPage page = new WebPage(testUrl, detailConf.getAjax());
 		ProtocolOutput protocolOutput = fetch(page);
 		Document document = null;
 		if (protocolOutput == null || protocolOutput.getDocument() == null || !protocolOutput.getStatus().isSuccess()) {
@@ -44,6 +44,7 @@ public class DetailConfigVerification extends ParseTool {
 			errors.add(error);
 		} else {
 			document = protocolOutput.getDocument();
+			System.out.println(document.html());
 			if (!StringUtils.isEmpty(detailConf.getReplyNum())) {
 				Elements replyNumEles = document.select(detailConf.getReplyNum());
 				if (CollectionUtils.isEmpty(replyNumEles)) {

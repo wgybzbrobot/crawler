@@ -26,6 +26,7 @@ public class ConfDetail implements java.io.Serializable {
 	private String forwardNum;
 	private String sources;
 	private Boolean fetchOrder;
+	private Boolean ajax = false;
 	private String master;
 	private String author;
 	private String date;
@@ -137,8 +138,16 @@ public class ConfDetail implements java.io.Serializable {
 	public void setFetchOrder(Boolean fetchOrder) {
 		this.fetchOrder = fetchOrder;
 	}
+	@Column(name = "ajax")
+	public Boolean getAjax() {
+                return ajax;
+        }
 
-	@Column(name = "master", length = 100)
+        public void setAjax(Boolean ajax) {
+                this.ajax = ajax;
+        }
+
+        @Column(name = "master", length = 100)
 	public String getMaster() {
 		return this.master;
 	}

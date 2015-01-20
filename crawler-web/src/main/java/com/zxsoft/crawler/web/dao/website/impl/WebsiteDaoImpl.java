@@ -74,7 +74,7 @@ public class WebsiteDaoImpl implements WebsiteDao {
         }
 
         @Override
-        public Website getWebsite(String id) {
+        public Website getWebsite(Integer id) {
                 return hibernateTemplate.get(Website.class, id);
         }
 

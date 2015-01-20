@@ -42,6 +42,7 @@
 				<configuration>
 					<excludes>
 						<exclude>**/log4j.xml</exclude>
+						<exclude>**/oracle.properties</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

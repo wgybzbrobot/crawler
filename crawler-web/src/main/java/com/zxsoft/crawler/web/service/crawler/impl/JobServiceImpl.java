@@ -12,10 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.api.Machine;
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.master.MasterPath;
-import com.zxsoft.crawler.storage.WebPage.JOB_TYPE;
 import com.zxsoft.crawler.web.service.crawler.JobService;
 
 /**
@@ -28,7 +28,7 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 	@Override
 	public Map<String, Object> addInsecptJob(Map<String, Object> args) {
 		final Map<String, Object> map = new HashMap<String, Object>();
-		map.put(Params.JOB_TYPE, JOB_TYPE.NETWORK_INSPECT);
+		map.put(Params.JOB_TYPE, JobType.NETWORK_INSPECT);
 		map.put(Params.ARGS, args);
 		try {
 	        Thread t = new Thread() {
@@ -56,7 +56,7 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 	@Override
 	public Map<String, Object> addSearchJob(Map<String, Object> args) {
 		final Map<String, Object> map = new HashMap<String, Object>();
-		map.put(Params.JOB_TYPE, JOB_TYPE.NETWORK_SEARCH);
+		map.put(Params.JOB_TYPE, JobType.NETWORK_SEARCH);
 		map.put(Params.ARGS, args);
 		try {
 			Thread t = new Thread() {

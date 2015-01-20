@@ -58,7 +58,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         }
 
         @Override
-        public Website getWebsite(String id) {
+        public Website getWebsite(Integer id) {
                 return websiteDao.getWebsite(id);
         }
 
@@ -67,7 +67,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         
         @Override
         @Transactional
-        public void deleteWebsite(String id) {
+        public void deleteWebsite(Integer id) {
                 Website website = websiteDao.getWebsite(id);
                 Set<Section> sections = website.getSections();
                 if (!CollectionUtils.isEmpty(sections)) {

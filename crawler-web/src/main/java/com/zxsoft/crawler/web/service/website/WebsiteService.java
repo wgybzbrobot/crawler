@@ -18,12 +18,12 @@ public interface WebsiteService {
 	void addWebsite(Website website);
 	
 	int save(Website website);
-	Website getWebsite(String id);
+	Website getWebsite(Integer id);
 	/**
 	 * 删除网站, 以及网站下的所有版块
 	 * @param id
 	 */
-	void deleteWebsite(String id);
+	void deleteWebsite(Integer id);
 	
 	List<Auth> getAuths(String id);
 	void saveAuth(Auth auth);

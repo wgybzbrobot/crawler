@@ -19,7 +19,7 @@ public interface WebsiteDao {
 	 */
 	@Transactional
 	Page<Website> getWebsites(Website website, int pageNo, int pageSize);
-	Website getWebsite(String id);
+	Website getWebsite(Integer id);
 	void addWebsite(Website website);
 	void addWebsites(List<Website> websites);
         void deleteWebsite(Website website);

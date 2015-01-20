@@ -388,6 +388,11 @@
 											</label> <input name="testUrl" type="text" />
 										</div>
 										<div>
+											<label class="form-label" for="ajax">是否Ajax加载</label>
+											<input type="radio" name="ajax" value="true" checked="checked" />是<input type="radio" name="ajax"
+												value="false" /> 否
+										</div>
+										<div>
 											<label class="form-label" for="host">域名<span class="red">*</span>
 											</label> <input name="id.host" type="text" class="easyui-validatebox " style="height: 60px; width:200px;" data-options="required:true, multiline:true" />
 										</div>
@@ -488,6 +493,17 @@
 											<div>
 												<label class="form-label" for="testUrl">测试页URL地址<span class="red">*</span></label>
 												<input name="testUrl" />
+											</div>
+											<div>
+												<label class="form-label" for="ajax">是否Ajax加载</label>
+												<c:choose>
+													<c:when test="${confDetail.ajax }">
+														<input type="radio" name="ajax" value="true" checked="checked" />是<input type="radio" name="ajax"
+															value="false" /> 否</c:when>
+													<c:otherwise>
+														<input type="radio" name="ajax" value="true" />是<input type="radio" name="ajax" value="false"
+															checked="checked" /> 否</c:otherwise>
+												</c:choose>
 											</div>
 											<div>
 												<label class="form-label" for="host">域名<span class="red">*</span></label><input name="id.host"
@@ -601,6 +617,7 @@
 					</c:forEach>
 				</c:otherwise>
 			</c:choose>
+			<!-- 添加更多详细页配置 -->
 			<div class="conf-panel" >
 				<div class="easyui-panel " title="详细页配置(额外)" data-options="collapsible:true, collapsed:true">
 				<div style="padding: 10px 60px 20px 60px">
@@ -610,6 +627,11 @@
 						<div>
 							<label class="form-label" for="testUrl">测试页URL地址<span class="red">*</span>
 							</label> <input name="testUrl" type="text" class="easyui-validatebox" data-options="required:true, validType:'url'" />
+						</div>
+						<div>
+							<label class="form-label" for="ajax">是否Ajax加载</label>
+							<input type="radio" name="ajax" value="true" />是<input type="radio" name="ajax"
+								value="false" checked="checked"  /> 否
 						</div>
 						<div>
 							<label class="form-label" for="host">域名<span class="red">*</span>

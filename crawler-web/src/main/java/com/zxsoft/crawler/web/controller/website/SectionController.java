@@ -51,7 +51,7 @@ public class SectionController {
          * @return
          */
         @RequestMapping(method = RequestMethod.GET)
-        public String index(@RequestParam(value = "websiteId", required = false) String websiteId, Model model) {
+        public String index(@RequestParam(value = "websiteId", required = false) Integer websiteId, Model model) {
                 List<Category> categories = dictService.getCategories();
                 model.addAttribute("categories", categories);
                 Website website = websiteService.getWebsite(websiteId);

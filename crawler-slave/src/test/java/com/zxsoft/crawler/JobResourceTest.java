@@ -11,9 +11,9 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 
+import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.api.SlaveServer;
-import com.zxsoft.crawler.api.JobManager.JobType;
 
 public class JobResourceTest {
 

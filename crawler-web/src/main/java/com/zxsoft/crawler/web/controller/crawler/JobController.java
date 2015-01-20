@@ -31,13 +31,14 @@ import com.zxisl.commons.io.ClassPathResource;
 import com.zxisl.commons.utils.Assert;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
+import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.api.Params;
+import com.zxsoft.crawler.api.Prey;
+import com.zxsoft.crawler.api.Prey.State;
 import com.zxsoft.crawler.entity.ConfList;
-import com.zxsoft.crawler.entity.Prey;
 import com.zxsoft.crawler.entity.Section;
 import com.zxsoft.crawler.entity.Website;
 import com.zxsoft.crawler.master.MasterPath;
-import com.zxsoft.crawler.web.controller.crawler.JobStatus.JobType;
 import com.zxsoft.crawler.web.service.crawler.JobService;
 import com.zxsoft.crawler.web.service.crawler.impl.JobServiceImpl;
 import com.zxsoft.crawler.web.service.website.ConfigService;
@@ -46,6 +47,7 @@ import com.zxsoft.crawler.web.service.website.SectionService;
 
 /**
  * 任务接口
+ * 
  * @author xiayun
  *
  */
@@ -54,7 +56,7 @@ import com.zxsoft.crawler.web.service.website.SectionService;
 public class JobController {
 
         private static Logger LOG = LoggerFactory.getLogger(JobController.class);
-        
+
         private JobService jobService = new JobServiceImpl();
         @Autowired
         private SectionService sectionService;
@@ -88,7 +90,9 @@ public class JobController {
 
         /**
          * 列出任务种子
-         * @param index 个数
+         * 
+         * @param index
+         *                个数
          * @param model
          * @return
          */
@@ -111,7 +115,9 @@ public class JobController {
                         model.addAttribute("code", 5000);
                         model.addAttribute("msg", "Redis没有启动: " + REDIS_HOST + ":" + 6379);
                         e.printStackTrace();
-                } finally {
+                } catch (Exception e) {
+                        e.printStackTrace();
+                }finally {
                         model.addAttribute("count", count);
                         model.addAttribute("preys", list);
                         jedis.close();
@@ -122,19 +128,20 @@ public class JobController {
 
                 List<ConfList> engines = dictService.getSearchEngines();
                 model.addAttribute("engines", engines);
-                
+
                 model.addAttribute("currentTime", new Date().toLocaleString());
 
                 return "/crawler/preys";
         }
-        
+
         /**
          * 查询任务
+         * 
          * @param name
          * @return
          */
         @RequestMapping(value = "jobs", method = RequestMethod.POST)
-        public String  jobs(@RequestParam(value = "job", required = false) String job, Model model) {
+        public String jobs(@RequestParam(value = "job", required = false) String job, Model model) {
                 List<Prey> list = new LinkedList<Prey>();
                 model.addAttribute("currentTime", new Date().toLocaleString());
                 model.addAttribute("searchJobKey", job);
@@ -169,12 +176,13 @@ public class JobController {
                         model.addAttribute("preys", list);
                         jedis.close();
                 }
-                
+
                 return "/crawler/preys";
         }
-        
+
         /**
          * 删除任务
+         * 
          * @param comment
          * @param start
          * @return
@@ -186,7 +194,7 @@ public class JobController {
                 if (StringUtils.isEmpty(comment) || start == 0L) {
                         return "{\"code\":-1}";
                 }
-               String ret = "";
+                String ret = "";
                 Jedis jedis = new Jedis(REDIS_HOST, 6379);
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 long count = 0, begin = 0, end = 100;
@@ -202,10 +210,10 @@ public class JobController {
                                         Prey prey = gson.fromJson(str, Prey.class);
                                         String json = prey.toString();
                                         if (json.contains(comment) && json.contains(String.valueOf(start))) {
-                                               long retNum = jedis.zrem(URLBASE, json);
-                                               if (retNum== 0){
-                                                       ret = "{\"code\":-1}";
-                                               }
+                                                long retNum = jedis.zrem(URLBASE, json);
+                                                if (retNum == 0) {
+                                                        ret = "{\"code\":-1}";
+                                                }
                                                 ret = "{\"code\":1}";
                                                 break;
                                         }
@@ -218,12 +226,13 @@ public class JobController {
                 } finally {
                         jedis.close();
                 }
-                
+
                 return ret;
         }
 
         /**
          * 暂停任务
+         * 
          * @param comment
          * @param start
          * @return
@@ -235,9 +244,9 @@ public class JobController {
                 if (StringUtils.isEmpty(comment) || start == 0L) {
                         return "{\"code\":-1}";
                 }
-               String ret = "";
+                String ret = "";
                 Jedis jedis = new Jedis(REDIS_HOST, 6379);
-                
+
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 long count = 0, begin = 0, end = 100;
                 try {
@@ -254,16 +263,16 @@ public class JobController {
                                         if (json.contains(comment) && json.contains(String.valueOf(start))) {
                                                 Transaction t = jedis.multi();
                                                 Response<Long> res = t.zrem(URLBASE, str);
-                                                if (prey.getState() == 0 ) { // 已暂停,点击后开始
-                                                        prey.setState(1);
+                                                if (prey.getState() == State.JOB_STOP) { // 已暂停,点击后开始
+                                                        prey.setState(State.JOB_EXCUTING);
                                                         t.zadd(URLBASE, 0.999d, prey.toString());
                                                 } else { // 暂停
-                                                        prey.setState(0);
+                                                        prey.setState(State.JOB_STOP);
                                                         t.zadd(URLBASE, 0.0d, prey.toString());
                                                 }
-                                               t.exec();
-                                               
-                                               ret = "{\"code\":1}";
+                                                t.exec();
+
+                                                ret = "{\"code\":1}";
                                                 break;
                                         }
                                 }
@@ -275,12 +284,13 @@ public class JobController {
                 } finally {
                         jedis.close();
                 }
-                
+
                 return ret;
         }
-        
+
         /**
          * 添加搜索任务
+         * 
          * @param keyword
          * @param engineIds
          * @return
@@ -302,6 +312,7 @@ public class JobController {
 
         /**
          * 添加网络巡检任务
+         * 
          * @param url
          * @return
          */
@@ -323,7 +334,11 @@ public class JobController {
                 if (section == null)
                         throw new NullPointerException("section is null, but conflist is not null: " + url);
                 Website website = section.getWebsite();
-                String site = website.getSite();
+                int source_id = website.getId();
+                int county_code = website.getRegion() == null ? 0 : website.getRegion();
+                int province_code = website.getProvinceId() == null ? 0 : website.getProvinceId();
+                int city_code = website.getCityId() == null ? 0 : website.getCityId();
+                
                 Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
                 Prey prey = null;
                 try {
@@ -333,23 +348,29 @@ public class JobController {
                                 args.put("msg", "jobexist");
                         } else {
                                 // 添加任务
-                                double score = 1.0d / (System.currentTimeMillis() / 60000 );
-                                prey = new Prey(site, url, confList.getComment(), JobType.NETWORK_INSPECT.toString(), confList.getFetchinterval());
-                                prey.setStart(System.currentTimeMillis());
+                                double score = 1.0d / (System.currentTimeMillis() / 60000);
+                                prey = new Prey(source_id, url, confList.getComment(), JobType.NETWORK_INSPECT.toString(),
+                                                                confList.getFetchinterval(), System.currentTimeMillis(), 0,
+                                                                county_code, province_code, city_code,
+                                                                State.JOB_EXCUTING);
                                 LOG.info("添加任务:" + prey.toString());
                                 jedis.zadd(URLBASE, score, prey.toString());
                         }
                 } catch (JedisConnectionException e) {
                         args.put("msg", "jedisconnectionexception");
                         e.printStackTrace();
+                } catch(Exception e) { 
+                        args.put("msg", e.getMessage());
+                        e.printStackTrace();      
                 } finally {
                         jedis.close();
                 }
                 return args;
         }
-        
+
         /**
          * 判断url任务是否已在redis队列中
+         * 
          * @param url
          * @return
          */
@@ -367,10 +388,11 @@ public class JobController {
                         count = jedis.zcard(URLBASE);
                         while (begin < count) {
                                 Set<String> set = jedis.zrevrange(URLBASE, begin, end);
-                                if (CollectionUtils.isEmpty(set)) break;
+                                if (CollectionUtils.isEmpty(set))
+                                        break;
                                 for (String str : set) {
                                         Prey _prey = gson.fromJson(str, Prey.class);
-//                                        String json = _prey.toString();
+                                        // String json = _prey.toString();
                                         String _url = _prey.getUrl();
                                         if (_url.endsWith("/")) {
                                                 _url = _url.substring(0, _url.lastIndexOf("/"));
@@ -378,9 +400,11 @@ public class JobController {
                                         if (url.equals(_url)) {
                                                 return true;
                                         }
-//                                        if (json.contains(String.valueOf(url))) {
-//                                                return true;
-//                                        }
+                                        // if
+                                        // (json.contains(String.valueOf(url)))
+                                        // {
+                                        // return true;
+                                        // }
                                 }
                                 begin = end;
                                 end = end + 100;
@@ -392,7 +416,6 @@ public class JobController {
                 }
                 return false;
         }
-        
 
         /**
          * 查找已配置版块

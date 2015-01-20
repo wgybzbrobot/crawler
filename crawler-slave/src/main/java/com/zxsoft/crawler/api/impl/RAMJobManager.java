@@ -15,7 +15,9 @@ import org.slf4j.LoggerFactory;
 import com.zxsoft.crawler.api.CrawlTool;
 import com.zxsoft.crawler.api.JobCode;
 import com.zxsoft.crawler.api.JobManager;
+import com.zxsoft.crawler.api.JobResource;
 import com.zxsoft.crawler.api.JobStatus;
+import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.api.SlaveServer;
 import com.zxsoft.crawler.api.JobStatus.State;
 import com.zxsoft.crawler.slave.utils.DbService;
@@ -119,6 +121,10 @@ public class RAMJobManager implements JobManager {
 		return null;
 	}
 
+	/**
+	 * 创建任务.
+	 * @param args  参考 {@link JobResource#create(Map)}
+	 */
 	@Override
 	public JobCode create(JobType jobType, Map<String, Object> args)
 	        throws Exception {
