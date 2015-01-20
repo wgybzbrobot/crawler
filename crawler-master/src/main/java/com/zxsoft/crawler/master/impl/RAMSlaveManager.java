@@ -141,6 +141,9 @@ public class RAMSlaveManager implements SlaveManager {
                 return url.toExternalForm();
         }
 
+        /**
+         * 创建任务
+         */
         @Override
         public String create(final Map<String, Object> args) throws Exception {
                 int i = 0;
@@ -167,10 +170,10 @@ public class RAMSlaveManager implements SlaveManager {
                                 }
                         }
                         URL u = new URL(url);
-                        LOG.info("选中slave(" + u.getHost() + ":" + u.getPort() + ")执行任务");
+                        LOG.info("Choose slave(" + u.getHost() + ":" + u.getPort() + ") to excute job.");
                         return new JobCode(22, "success choose slave", u.getHost() + ":" + u.getPort()).toString();
                 }
-                LOG.error("Oh My God! 所有slave都罢工了, 都不能执行任务.");
+                LOG.error("Oh My God! All slaves are not working, all can not excute job.");
                 return new JobCode(55, "no slaves work").toString();
         }
 

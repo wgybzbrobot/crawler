@@ -7,225 +7,231 @@ import java.io.Serializable;
  */
 public class DetailConf implements Serializable {
 
-    private static final long serialVersionUID = -7536047593216572652L;
-    private String listUrl;
-    private String host;
-	private String replyNum;
-	private String reviewNum;
-	private String forwardNum;
-	private String sources;
-	private boolean fetchorder; // 抓取顺序，true从最后一页开始抓
+        private static final long serialVersionUID = -7536047593216572652L;
+        private String listUrl;
+        private String host;
+        private String replyNum;
+        private String reviewNum;
+        private String forwardNum;
+        private String sources;
+        private Boolean fetchorder; // 抓取顺序，true从最后一页开始抓
+        private Boolean ajax; // 是否ajax请求
 
-	// 主帖模块
-	private String master;
-	private String author;
-	private String date;
-	private String content;
+        // 主帖模块
+        private String master;
+        private String author;
+        private String date;
+        private String content;
 
-	// 回复
-	private String reply;
-	private String replyAuthor;
-	private String replyDate;
-	private String replyContent;
+        // 回复
+        private String reply;
+        private String replyAuthor;
+        private String replyDate;
+        private String replyContent;
 
-	// 子回复
-	private String subReply;
-	private String subReplyAuthor;
-	private String subReplyDate;
-	private String subReplyContent;
+        // 子回复
+        private String subReply;
+        private String subReplyAuthor;
+        private String subReplyDate;
+        private String subReplyContent;
 
-	
-	
-	public DetailConf(String listUrl, String host, String replyNum, String reviewNum, String forwardNum,
-            String sources, boolean fetchorder, String master, String author, String date,
-            String content, String reply, String replyAuthor, String replyDate,
-            String replyContent, String subReply, String subReplyAuthor, String subReplyDate,
-            String subReplyContent) {
-	    super();
-	    this.listUrl = listUrl;
-	    this.host = host;
-	    this.replyNum = replyNum;
-	    this.reviewNum = reviewNum;
-	    this.forwardNum = forwardNum;
-	    this.sources = sources;
-	    this.fetchorder = fetchorder;
-	    this.master = master;
-	    this.author = author;
-	    this.date = date;
-	    this.content = content;
-	    this.reply = reply;
-	    this.replyAuthor = replyAuthor;
-	    this.replyDate = replyDate;
-	    this.replyContent = replyContent;
-	    this.subReply = subReply;
-	    this.subReplyAuthor = subReplyAuthor;
-	    this.subReplyDate = subReplyDate;
-	    this.subReplyContent = subReplyContent;
-    }
-	
-	private String testUrl;
-	
-	public String getListUrl() {
-		return listUrl;
-	}
+        public DetailConf(String listUrl, String host, String replyNum, String reviewNum, String forwardNum, String sources,
+                                        boolean fetchorder, boolean ajax, String master, String author, String date, String content, String reply,
+                                        String replyAuthor, String replyDate, String replyContent, String subReply, String subReplyAuthor,
+                                        String subReplyDate, String subReplyContent) {
+                super();
+                this.listUrl = listUrl;
+                this.host = host;
+                this.replyNum = replyNum;
+                this.reviewNum = reviewNum;
+                this.forwardNum = forwardNum;
+                this.sources = sources;
+                this.fetchorder = fetchorder;
+                this.master = master;
+                this.author = author;
+                this.date = date;
+                this.content = content;
+                this.reply = reply;
+                this.replyAuthor = replyAuthor;
+                this.replyDate = replyDate;
+                this.replyContent = replyContent;
+                this.subReply = subReply;
+                this.subReplyAuthor = subReplyAuthor;
+                this.subReplyDate = subReplyDate;
+                this.subReplyContent = subReplyContent;
+        }
 
-	public void setListUrl(String listUrl) {
-		this.listUrl = listUrl;
-	}
+        private String testUrl;
 
-	public String getTestUrl() {
-		return testUrl;
-	}
+        public boolean isAjax() {
+                return ajax;
+        }
 
-	public void setTestUrl(String testUrl) {
-		this.testUrl = testUrl;
-	}
+        public void setAjax(boolean ajax) {
+                this.ajax = ajax;
+        }
 
-	public DetailConf() {}
+        public String getListUrl() {
+                return listUrl;
+        }
 
-	public String getHost() {
-		return host;
-	}
+        public void setListUrl(String listUrl) {
+                this.listUrl = listUrl;
+        }
 
-	public void setHost(String host) {
-		this.host = host;
-	}
+        public String getTestUrl() {
+                return testUrl;
+        }
 
-	public String getReplyNum() {
-		return replyNum;
-	}
+        public void setTestUrl(String testUrl) {
+                this.testUrl = testUrl;
+        }
 
-	public void setReplyNum(String replyNum) {
-		this.replyNum = replyNum;
-	}
+        public DetailConf() {
+        }
 
-	public String getReviewNum() {
-		return reviewNum;
-	}
+        public String getHost() {
+                return host;
+        }
 
-	public void setReviewNum(String reviewNum) {
-		this.reviewNum = reviewNum;
-	}
+        public void setHost(String host) {
+                this.host = host;
+        }
 
-	public String getForwardNum() {
-		return forwardNum;
-	}
+        public String getReplyNum() {
+                return replyNum;
+        }
 
-	public void setForwardNum(String forwardNum) {
-		this.forwardNum = forwardNum;
-	}
+        public void setReplyNum(String replyNum) {
+                this.replyNum = replyNum;
+        }
 
-	public String getSources() {
-		return sources;
-	}
+        public String getReviewNum() {
+                return reviewNum;
+        }
 
-	public void setSources(String sources) {
-		this.sources = sources;
-	}
+        public void setReviewNum(String reviewNum) {
+                this.reviewNum = reviewNum;
+        }
 
-	public boolean isFetchorder() {
-		return fetchorder;
-	}
+        public String getForwardNum() {
+                return forwardNum;
+        }
 
-	public void setFetchorder(boolean fetchorder) {
-		this.fetchorder = fetchorder;
-	}
+        public void setForwardNum(String forwardNum) {
+                this.forwardNum = forwardNum;
+        }
 
-	public String getMaster() {
-		return master;
-	}
+        public String getSources() {
+                return sources;
+        }
 
-	public void setMaster(String master) {
-		this.master = master;
-	}
+        public void setSources(String sources) {
+                this.sources = sources;
+        }
 
-	public String getAuthor() {
-		return author;
-	}
+        public boolean isFetchorder() {
+                return fetchorder;
+        }
 
-	public void setAuthor(String author) {
-		this.author = author;
-	}
+        public void setFetchorder(boolean fetchorder) {
+                this.fetchorder = fetchorder;
+        }
 
-	public String getDate() {
-		return date;
-	}
+        public String getMaster() {
+                return master;
+        }
 
-	public void setDate(String date) {
-		this.date = date;
-	}
+        public void setMaster(String master) {
+                this.master = master;
+        }
 
-	public String getContent() {
-		return content;
-	}
+        public String getAuthor() {
+                return author;
+        }
 
-	public void setContent(String content) {
-		this.content = content;
-	}
+        public void setAuthor(String author) {
+                this.author = author;
+        }
 
-	public String getReply() {
-		return reply;
-	}
+        public String getDate() {
+                return date;
+        }
 
-	public void setReply(String reply) {
-		this.reply = reply;
-	}
+        public void setDate(String date) {
+                this.date = date;
+        }
 
-	public String getReplyAuthor() {
-		return replyAuthor;
-	}
+        public String getContent() {
+                return content;
+        }
 
-	public void setReplyAuthor(String replyAuthor) {
-		this.replyAuthor = replyAuthor;
-	}
+        public void setContent(String content) {
+                this.content = content;
+        }
 
-	public String getReplyDate() {
-		return replyDate;
-	}
+        public String getReply() {
+                return reply;
+        }
 
-	public void setReplyDate(String replyDate) {
-		this.replyDate = replyDate;
-	}
+        public void setReply(String reply) {
+                this.reply = reply;
+        }
 
-	public String getReplyContent() {
-		return replyContent;
-	}
+        public String getReplyAuthor() {
+                return replyAuthor;
+        }
 
-	public void setReplyContent(String replyContent) {
-		this.replyContent = replyContent;
-	}
+        public void setReplyAuthor(String replyAuthor) {
+                this.replyAuthor = replyAuthor;
+        }
 
-	public String getSubReply() {
-		return subReply;
-	}
+        public String getReplyDate() {
+                return replyDate;
+        }
 
-	public void setSubReply(String subReply) {
-		this.subReply = subReply;
-	}
+        public void setReplyDate(String replyDate) {
+                this.replyDate = replyDate;
+        }
 
-	public String getSubReplyAuthor() {
-		return subReplyAuthor;
-	}
+        public String getReplyContent() {
+                return replyContent;
+        }
 
-	public void setSubReplyAuthor(String subReplyAuthor) {
-		this.subReplyAuthor = subReplyAuthor;
-	}
+        public void setReplyContent(String replyContent) {
+                this.replyContent = replyContent;
+        }
 
-	public String getSubReplyDate() {
-		return subReplyDate;
-	}
+        public String getSubReply() {
+                return subReply;
+        }
 
-	public void setSubReplyDate(String subReplyDate) {
-		this.subReplyDate = subReplyDate;
-	}
+        public void setSubReply(String subReply) {
+                this.subReply = subReply;
+        }
 
-	public String getSubReplyContent() {
-		return subReplyContent;
-	}
+        public String getSubReplyAuthor() {
+                return subReplyAuthor;
+        }
 
-	public void setSubReplyContent(String subReplyContent) {
-		this.subReplyContent = subReplyContent;
-	}
+        public void setSubReplyAuthor(String subReplyAuthor) {
+                this.subReplyAuthor = subReplyAuthor;
+        }
 
-	
+        public String getSubReplyDate() {
+                return subReplyDate;
+        }
+
+        public void setSubReplyDate(String subReplyDate) {
+                this.subReplyDate = subReplyDate;
+        }
+
+        public String getSubReplyContent() {
+                return subReplyContent;
+        }
+
+        public void setSubReplyContent(String subReplyContent) {
+                this.subReplyContent = subReplyContent;
+        }
+
 }

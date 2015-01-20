@@ -24,11 +24,11 @@
 		</dependency>
 		
 		<!-- 探测网页编码 -->
-		<!-- <dependency>
+		<dependency>
 			<groupId>net.sourceforge.jchardet</groupId>
 			<artifactId>jchardet</artifactId>
 			<version>1.0</version>
-		</dependency> -->
+		</dependency>
 		<dependency>
 			<groupId>com.googlecode.juniversalchardet</groupId>
 			<artifactId>juniversalchardet</artifactId>
@@ -42,7 +42,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tika</groupId>
-			<artifactId>tika-core</artifactId>
+			<artifactId>tika-parsers</artifactId>
 			<version>1.5</version>
 		</dependency>
 		<dependency>

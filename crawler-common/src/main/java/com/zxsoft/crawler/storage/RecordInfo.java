@@ -65,11 +65,21 @@ public class RecordInfo implements Serializable, Cloneable {
                 }
         }
 
-        public RecordInfo(String title, String url) {
+        public RecordInfo(String url, int platform, String ip, int country_code, int province_code, int city_code, int location_code,
+                                        String location, int source_id, int server_id, int source_type) {
                 this.lasttime = System.currentTimeMillis();
                 this.first_time = this.lasttime;
-                this.title = title;
                 this.url = url;
+                this.platform = platform;
+                this.ip = ip;
+                this.country_code = country_code;
+                this.province_code = province_code;
+                this.city_code = city_code;
+                this.location_code = location_code;
+                this.location = location;
+                this.source_id = source_id;
+                this.server_id = server_id;
+                this.source_type = source_type;
         }
 
         public RecordInfo() {

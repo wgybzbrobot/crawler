@@ -1,6 +1,7 @@
 target
 .settings
 .classpath
+crawler-*/**/.gitignore
 .project
 .springBeans
 logs

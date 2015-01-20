@@ -22,6 +22,7 @@ import com.zxisl.commons.io.ClassPathResource;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.api.Params;
+import com.zxsoft.crawler.api.Prey;
 import com.zxsoft.crawler.master.impl.RAMSlaveManager;
 
 /**
@@ -115,7 +116,7 @@ public class MasterServer {
                                         while (true) {
                                                 if (shouldSleep){
                                                         try {
-                                                                TimeUnit.SECONDS.sleep(30);
+                                                                TimeUnit.SECONDS.sleep(10);
                                                         } catch (InterruptedException e) {
                                                                 LOG.error(e.getMessage());
                                                                 e.printStackTrace();
@@ -131,7 +132,7 @@ public class MasterServer {
                                                         strs = jedis.zrevrange(URLBASE, 0, 0);
 
                                                         if (CollectionUtils.isEmpty(strs)) {
-                                                                LOG.warn("No records in redis urlbase, sleep 30s then try again.");
+                                                                LOG.warn("No records in redis urlbase, sleep 10s then try again.");
                                                                 shouldSleep = true;
                                                                 continue;
                                                         }
@@ -171,7 +172,7 @@ public class MasterServer {
                                                                 }
                                                                 continue;
                                                         }
-                                                        LOG.info("分发任务: " + prey.toString());
+                                                        LOG.info("Distributing Job: " + prey.toString());
                                                         Map<String, Object> map = new HashMap<String, Object>();
                                                         map.put(Params.JOB_TYPE, prey.getJobType());
                                                         Map<String, Object> args = new HashMap<String, Object>();
@@ -188,7 +189,7 @@ public class MasterServer {
                                                                 e.printStackTrace();
                                                         }
                                                 } catch (JedisConnectionException e) {
-                                                        LOG.error(e.getMessage() + ", cannot connect to redis, sleep 30s then try again.");
+                                                        LOG.error(e.getMessage() + ", cannot connect to redis, sleep 10s then try again.");
                                                         shouldSleep = true;
                                                 } finally {
                                                         if (jedis != null) {
@@ -200,32 +201,41 @@ public class MasterServer {
                         }
                 }, "TaskSchedulerThread").start();
 
-                int realInterval = 10;
-                boolean searchTaskExecutable = false;
-                try {
-                        Properties prop = new Properties();
-                        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                        InputStream stream = loader.getResourceAsStream("oracle.properties");
-                        prop.load(stream);
-                        realInterval = Integer.valueOf( prop.getProperty("read.seconds.interval", "10"));
-                        searchTaskExecutable = true;
-                } catch (Exception e) {
-                        LOG.warn("从oracle.properties中读取read.seconds.interval失败", e);
-                        LOG.warn("将不会从数据库中读取全网搜索任务, 但可以调用接口执行全网搜索任务.", e);
+                if (enableGetNetworkSearchTaskFromDb) {
+                        int realInterval = 10;
+                        boolean searchTaskExecutable = false;
+                        try {
+                                Properties prop = new Properties();
+                                ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                                InputStream stream = loader.getResourceAsStream("oracle.properties");
+                                prop.load(stream);
+                                realInterval = Integer.valueOf( prop.getProperty("read.seconds.interval", "10"));
+                                searchTaskExecutable = true;
+                        } catch (Exception e) {
+                                LOG.warn("从oracle.properties中读取read.seconds.interval失败", e);
+                                LOG.warn("将不会从数据库中读取全网搜索任务, 但您可以调用接口执行全网搜索任务.", e);
+                        }
+                        if (searchTaskExecutable) {
+                                new Thread( new NetworkSearchThread(realInterval), "NetworkSearchJobSchedular").start();
+                        }
                 }
-                if (searchTaskExecutable) {
-                        new Thread( new NetworkSearchThread(realInterval), "NetworkSearchJobSchedular").start();
-                }
-                
                 
         }
 
+        private static boolean enableGetNetworkSearchTaskFromDb = false;
+        public static boolean enableGetNetworkSearchTaskFromDb() {
+                return enableGetNetworkSearchTaskFromDb;
+        }
         public static void main(String[] args) throws Exception {
                 if (args.length == 0) {
-                        System.err.println("Usage: CrawlerServer <port>");
+                        System.err.println("Usage: CrawlerServer <port> [enableSearchTask]");
                         System.exit(-1);
                 }
-
+                if (args.length == 2) {
+                        if ("enableSearchTask".equals(args[1])) {
+                                enableGetNetworkSearchTaskFromDb = true;
+                        }
+                }
                 int port = Integer.parseInt(args[0]);
                 MasterServer server = new MasterServer(port);
                 server.start();

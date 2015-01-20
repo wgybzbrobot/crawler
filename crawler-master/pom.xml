@@ -95,7 +95,7 @@
 					<tarLongFileMode>gnu</tarLongFileMode>
 					<appendAssemblyId>false</appendAssemblyId>
 					<attach>false</attach>
-					<finalName>${project.artifactId}-${project.version}</finalName>
+					<finalName>${project.artifactId}</finalName>
 					<descriptorRefs>
 						<descriptorRef>master-dist</descriptorRef>
 					</descriptorRefs>

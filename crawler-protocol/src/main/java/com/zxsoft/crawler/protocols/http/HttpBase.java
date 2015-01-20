@@ -54,6 +54,7 @@ public abstract class HttpBase extends PageHelper {
 	/** Indicates if a proxy is used */
 	/** The network timeout in millisecond */
 	protected static   int timeout = 20000;
+	protected static   int sotimeout = 30000;
 
 	/** The length limit for downloaded content, in bytes. */
 	protected int maxContent = 1024 * 1024 * 3;
@@ -113,6 +114,12 @@ public abstract class HttpBase extends PageHelper {
 			LOG.info("http request timeout: " + timeout);
 		} catch (NumberFormatException e ) {
 			LOG.warn("http.timeout set error, use default:" + timeout);
+		}
+		try {
+		        sotimeout = Integer.valueOf(prop.getProperty("http.sotimeout"));
+		        LOG.info("http socket timeout: " + sotimeout);
+		} catch (NumberFormatException e ) {
+		        LOG.warn("http.sotimeout set error, use default:" + sotimeout);
 		}
 	}
 

@@ -22,6 +22,7 @@
 			<directory>src/main/resources</directory>
 			<outputDirectory>/conf</outputDirectory>
 			<includes>
+				<include>oracle.properties</include>
 				<include>log4j.xml</include>
 			</includes>
 		</fileSet>
@@ -37,7 +38,8 @@
 			<outputDirectory>/conf</outputDirectory>
 			<includes>
 				<include>db.properties</include>
-				<include>output.properties</include>
+				<include>restoutput.properties</include>
+				<include>cache-sentiment.properties</include>
 			</includes>
 		</fileSet>
 		<fileSet>

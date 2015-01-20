@@ -1,19 +1,14 @@
 package com.zxsoft.crawler.protocols.http;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.tika.io.IOUtils;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 
 import com.zxisl.commons.utils.Assert;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
-import com.zxsoft.crawler.protocol.util.EncodingDetector;
 import com.zxsoft.crawler.storage.WebPage;
 
 public class HttpFetcherTest {
@@ -22,12 +17,11 @@ public class HttpFetcherTest {
 	
 	@Test
 	public void test() {
-		String url = "http://www.hfr.cc/thread-88379-1-1.html";
+		String url = "http://blog.csdn.net/gb/洛县发布/1/12/n4340210.htm洛县发布雨后海边戏水卫生警告.html";
 		WebPage page = new WebPage(url, false);
 		ProtocolOutput output = httpFetcher.fetch(page);
 		Document document = output.getDocument();
-		String text = document.select("div.pct div.t_fsz table tr td.t_f").first().html();
-		Assert.hasText(text);
+		System.out.println(document.html());
 	}
 
 	@Test

@@ -1,0 +1,9 @@
+site_name: 网络舆情爬虫
+repo_url: http://192.168.6.141/crawler
+site_favicon: favicon.ico
+pages:
+- [index.md, Home]
+- [master.md, 主控Master]
+- [slave.md, Slave]
+- [web.md, Web UI]
+- [install.md, 安装部署]
