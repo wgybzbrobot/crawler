@@ -60,7 +60,7 @@ public class HttpClient extends HttpBase {
 		Protocol.registerProtocol("https", https);
 		HttpConnectionManagerParams params = connectionManager.getParams();
 		params.setConnectionTimeout(timeout); // 连接时间
-		params.setSoTimeout(30000); // 设置socket timeout, 读数据的时间
+		params.setSoTimeout(sotimeout); // 设置socket timeout, 读数据的时间
 		params.setSendBufferSize(BUFFER_SIZE);
 		params.setReceiveBufferSize(BUFFER_SIZE);
 		 params.setDefaultMaxConnectionsPerHost(32);
@@ -115,20 +115,15 @@ public class HttpClient extends HttpBase {
 				metadata.set(heads[i].getName(), heads[i].getValue());
 
 			String contentType = metadata.get(Response.CONTENT_TYPE);
-//			charset = EncodingDetector.detect(contentType);
-//			if (!StringUtils.isEmpty(charset)) {
-//			      LOG.debug("使用contenttype得到编码:" + charset);  
-//			}
 			InputStream in = get.getResponseBodyAsStream();
 			try {
 			        content = IOUtils.toByteArray(in);
-//			        if (StringUtils.isEmpty(charset)) {
-			                _charset = EncodingDetector.detect(contentType, content);
-//			                LOG.debug("使用icu得到编码:" + _charset);
-//			        }
+			        EncodingDetector detector = new EncodingDetector();
+		                 detector.detect(contentType, content, url);
+		                 _charset = detector.getCharset();
 			} catch (Exception e) {
 				if (code == 200) {
-				        LOG.error(e.getMessage(), e);
+				        LOG.error(e.getMessage() + ": " + url.toExternalForm(), e);
 				}
 			} finally {
 				if (in != null) 	in.close();
@@ -144,9 +139,9 @@ public class HttpClient extends HttpBase {
 			}
 		} catch(SocketException e) {
 		        code = -2;
-		        LOG.error(e.getMessage() + ": " + url.toString(), e);
+		        LOG.error(e.getMessage() + ": " + url.toString());
 		} catch (Exception e) {
-			LOG.error(e.getMessage() + ": " + url.toString(), e);
+			LOG.error(e.getMessage() + ": " + url.toString());
 		} finally {
 			get.releaseConnection();
 		}
@@ -189,7 +184,10 @@ public class HttpClient extends HttpBase {
 			try {
 			        content = IOUtils.toByteArray(in);
 //                                if (StringUtils.isEmpty(charset)) {
-                                        _charset = EncodingDetector.detect(contentType, content);
+//                                        _charset = EncodingDetector.detect(contentType, content);
+			        EncodingDetector detector = new EncodingDetector();
+                                detector.detect(contentType, content, url);
+                                _charset = detector.getCharset();
 //                                        LOG.debug("使用icu得到编码:" + charset);
 //                                }
 			} catch (Exception e) {
