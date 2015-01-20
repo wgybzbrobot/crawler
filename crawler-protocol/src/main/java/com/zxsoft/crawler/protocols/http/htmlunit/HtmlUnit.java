@@ -29,7 +29,6 @@ import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.net.protocols.ProtocolException;
 import com.zxsoft.crawler.net.protocols.Response;
 import com.zxsoft.crawler.protocols.http.HttpBase;
-import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.Utils;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
@@ -55,10 +54,10 @@ public class HtmlUnit extends HttpBase {
 //		client.getOptions().setTimeout(50000);
 		client.getOptions().setThrowExceptionOnScriptError(false);
 		client.getOptions().setPrintContentOnFailingStatusCode(false);
-		client.waitForBackgroundJavaScript(5000);
-		client.waitForBackgroundJavaScriptStartingBefore(2000);
-		client.getCookieManager().setCookiesEnabled(true);//开启cookie管理
-		if (!StringUtils.isEmpty(proxyUsername) && !StringUtils.isEmpty(proxyPassword)) {
+//		client.waitForBackgroundJavaScript(5000);
+//		client.waitForBackgroundJavaScriptStartingBefore(2000);
+		client.getCookieManager().setCookiesEnabled(true); //开启cookie管理
+		if (useProxy && !StringUtils.isEmpty(proxyUsername) && !StringUtils.isEmpty(proxyPassword)) {
 		  final DefaultCredentialsProvider credentialsProvider = (DefaultCredentialsProvider) client.getCredentialsProvider();
 		  credentialsProvider.addCredentials(proxyUsername, proxyPassword);
 		}
@@ -87,6 +86,7 @@ public class HtmlUnit extends HttpBase {
 		}
 		
 		htmlPage = client.getPage(request);
+
 		return htmlPage;
 	}
 
