@@ -5,25 +5,38 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zxsoft.crawler.plugin.parse.ext.source.SourceLexer;
-import com.zxsoft.crawler.plugin.parse.ext.source.SourceParser;
-import com.zxsoft.crawler.plugin.parse.ext.source.SourceParser.ExtractSourceContext;
+import com.zxsoft.crawler.plugin.parse.ext.generated.ReadNumExtractorLexer;
+import com.zxsoft.crawler.plugin.parse.ext.generated.ReadNumExtractorParser;
+import com.zxsoft.crawler.plugin.parse.ext.generated.ReadNumExtractorParser.ExtractReadNumContext;
+import com.zxsoft.crawler.plugin.parse.ext.generated.ReplyNumExtractorLexer;
+import com.zxsoft.crawler.plugin.parse.ext.generated.ReplyNumExtractorParser;
+import com.zxsoft.crawler.plugin.parse.ext.generated.ReplyNumExtractorParser.ExtractReplyNumContext;
+import com.zxsoft.crawler.plugin.parse.ext.generated.SourceExtractorLexer;
+import com.zxsoft.crawler.plugin.parse.ext.generated.SourceExtractorParser;
+import com.zxsoft.crawler.plugin.parse.ext.generated.SourceExtractorParser.ExtractSourceContext;
+import com.zxsoft.crawler.util.Utils;
 
 /**
  * 抽取资讯来源
+ * 
  * @author xiayun
  *
  */
-public class SourceExtractor {
+public class ExtExtractor {
 
-        private static Logger LOG = LoggerFactory.getLogger(SourceExtractor.class);
-        
-        public static String extract(String text) {
+        private static Logger LOG = LoggerFactory.getLogger(ExtExtractor.class);
+
+        /**
+         * 抽取来源
+         * @param text
+         * @return
+         */
+        public static String extractSource(String text) {
                 ANTLRInputStream ais = new ANTLRInputStream(text);
-                SourceLexer rlexer = new SourceLexer(ais);
+                SourceExtractorLexer rlexer = new SourceExtractorLexer(ais);
                 CommonTokenStream rTokenStream = new CommonTokenStream(rlexer);
-                SourceParser rparser = new SourceParser(rTokenStream);
-                ExtractSourceContext  rContext = rparser.extractSource();
+                SourceExtractorParser rparser = new SourceExtractorParser(rTokenStream);
+                ExtractSourceContext rContext = rparser.extractSource();
                 String str = rContext.getText();
                 if (str.contains("missing") || str.contains("EOF")) {
                         // do not find use antlr4
@@ -32,12 +45,75 @@ public class SourceExtractor {
                         int pos = str.indexOf(":") == -1 ? str.indexOf("：") : str.indexOf(":");
                         str = str.substring(pos + 1);
                 }
+                if (str == null || str.length() > 30) str = "";
                 return str;
         }
-        
-        public static void main(String[] args) {
-                System.out.println(SourceExtractor.extract("2014-12-22 8:57:16   来源：安徽财经网  评论("));
-                System.out.println(SourceExtractor.extract("来源：苹果日报"));
+
+        /**
+         * 抽取浏览数
+         * @param text
+         * @return
+         */
+        public static int extractReadNum(String text) {
+                int num = 0;
+                try {
+                        ANTLRInputStream ais = new ANTLRInputStream(text);
+                        ReadNumExtractorLexer rlexer = new ReadNumExtractorLexer(ais);
+                        CommonTokenStream rTokenStream = new CommonTokenStream(rlexer);
+                        ReadNumExtractorParser rparser = new ReadNumExtractorParser(rTokenStream);
+                        ExtractReadNumContext context = rparser.extractReadNum();
+                        String str = context.getText();
+                        if (str.contains("missing") || str.contains("EOF")) {
+                                // do not find use antlr4
+                                str = text;
+                        } else {
+                                int pos = str.indexOf(":") == -1 ? str.indexOf("：") : str.indexOf(":");
+                                str = str.substring(pos + 1);
+                        }
+                        num = Integer.valueOf(str.trim());
+                } catch (Exception e) {
+                        try {
+                                num = Utils.extractNum(text);
+                                return num;
+                        } catch (NumberFormatException e1) {
+                                LOG.debug(e1.getMessage());
+                        }
+                }
+                return num;
         }
-        
+
+        /**
+         * 抽取回复数
+         * @param text
+         * @return
+         */
+        public static int extractReplyNum(String text) {
+                int num = 0;
+                try {
+                        ANTLRInputStream ais = new ANTLRInputStream(text);
+                        ReplyNumExtractorLexer rlexer = new ReplyNumExtractorLexer(ais);
+                        CommonTokenStream rTokenStream = new CommonTokenStream(rlexer);
+                        ReplyNumExtractorParser rparser = new ReplyNumExtractorParser(rTokenStream);
+                        ExtractReplyNumContext context = rparser.extractReplyNum();
+                        String str = context.getText();
+                        if (str.contains("missing") || str.contains("EOF")) {
+                                // do not find use antlr4
+                                str = text;
+                        } else {
+                                int pos = str.indexOf(":") == -1 ? str.indexOf("：") : str.indexOf(":");
+                                str = str.substring(pos + 1);
+                        }
+                        num = Integer.valueOf(str.trim());
+                } catch (Exception e) {
+                        try {
+                                // 直接抽取
+                                num = Utils.extractNum(text);
+                                return num;
+                        } catch (NumberFormatException e1) {
+                                LOG.debug(e1.getMessage());
+                        }
+                }
+                return num;
+        }
+
 }
