@@ -26,25 +26,36 @@ import com.zxsoft.crawler.store.OutputException;
 
 public class RestOutput implements Output {
 	private static Logger LOG = LoggerFactory.getLogger(RestOutput.class);
-	private static final String url;
-
+	private static  String url;
+	private static final Output mysqlOutput = new MysqlOutput();
+	private static boolean writeToMysqlIfFail = false;
+	
 	static {
 		Properties prop = new Properties();
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
-		InputStream stream = loader.getResourceAsStream("output.properties");
+		InputStream stream = loader.getResourceAsStream("restoutput.properties");
 		try {
 			prop.load(stream);
-		} catch (IOException e1) {
-		        LOG.error("Load output.properties file failed.");
-		}
-		url = prop.getProperty("data.output.address");
-		if (StringUtils.isEmpty(url)) {
-			throw new NullPointerException("data.output.address not set");
-		}
-		LOG.info("data.output.address: " + url);
+        		url = prop.getProperty("data.output.address");
+        		if (StringUtils.isEmpty(url)) {
+        			throw new NullPointerException("data.output.address not set");
+        		}
+        		LOG.info("data.output.address: " + url);
+        		String _writeToMysqlIfFail = prop.getProperty("writeToMysqlIfFail");
+        		if ("yes".equals(_writeToMysqlIfFail)) {
+        		        writeToMysqlIfFail = true;
+        		}
+		} catch (NullPointerException e) {
+                        LOG.error("Cannot find restoutput.properties file, cannot write data to solr service.");
+                }catch (IOException e1) {
+                        LOG.error("Load restoutput.properties failed, 将导致无法写数据到solr服务.");
+                }
 	}
 
-	public void write(RecordInfo info) throws OutputException {
+	/**
+	 * 写一条
+	 */
+	public int write(RecordInfo info) throws OutputException {
 		Assert.notNull(info);
 		List<RecordInfo> recordInfos = new LinkedList<RecordInfo>();
 		recordInfos.add(info);
@@ -54,9 +65,9 @@ public class RestOutput implements Output {
 		Gson gson = new Gson();
 		String json = gson.toJson(map, Map.class);
 		Client client = Client.create();
-		WebResource webResource = client.resource(url);
 		ClientResponse response = null;
 		try {
+		        WebResource webResource = client.resource(url);
 			response = webResource.type("application/json").post(ClientResponse.class, json);
 			String msg = response.getEntity(String.class);
 			OutputReturn ret = gson.fromJson(msg, OutputReturn.class);
@@ -64,7 +75,15 @@ public class RestOutput implements Output {
 				LOG.error("Output Failure: " + ret.errorMessage);
 			}
 		} catch (ClientHandlerException e) {
-			throw new OutputException(e.getMessage());
+		       LOG.error("Write solr failed: "  + info.toString());
+		        if (writeToMysqlIfFail) {
+        		        LOG.error(e.getMessage() + ", will write data to Mysql", e);
+        		        mysqlOutput.write(info);
+		        } else {
+		                throw new OutputException(e.getMessage());
+		        }
+		} catch (IllegalArgumentException | NullPointerException e) {
+		        throw new OutputException("Solr service url address is null or not valid.", e);
 		} finally {
 			if (response != null) {
 				response.close();
@@ -73,6 +92,7 @@ public class RestOutput implements Output {
 				client.destroy();
 			}
 		}
+		return 1;
 	}
 
 	final class OutputReturn {
@@ -81,19 +101,21 @@ public class RestOutput implements Output {
 	}
 
 	public int write(List<RecordInfo> recordInfos) throws OutputException {
-		// if (2 > 1) return recordInfos.size();
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		if (CollectionUtils.isEmpty(recordInfos))
 			return 0;
 		int realSize = recordInfos.size();
 		int size = recordInfos.size();
-		int outputSize = 50;
+		int outputSize = 50, successCount = 0;
 		Client client = Client.create();
+		client.setConnectTimeout(20000);
+		client.setReadTimeout(20000);
 		try {
 			while (size > outputSize) {
 				List<RecordInfo> subList = recordInfos.subList(0, outputSize);
 				Map<String, Object> map = new HashMap<String, Object>();
-				map.put("num", subList.size());
+				int number = subList.size();
+				map.put("num", number);
 				map.put("records", subList);
 				String json = gson.toJson(map, Map.class);
 				WebResource webResource = client.resource(url);
@@ -101,13 +123,22 @@ public class RestOutput implements Output {
 				try {
 					response = webResource.type("application/json").post(ClientResponse.class, json);
 					String msg = response.getEntity(String.class);
+					LOG.debug(msg + ", status code:" + response.getStatus());
 					OutputReturn ret = gson.fromJson(msg, OutputReturn.class);
 					if (ret.errorCode != 0) {
 						LOG.error("Output Failure: " + ret.errorMessage);
 					}
+					successCount += number;
 				} catch (ClientHandlerException e) {
-					LOG.error(e.getMessage());
-					throw new OutputException(e.getMessage());
+				        for (RecordInfo _info : subList) {
+				                LOG.error("Write solr failed: " + _info.toString());
+                                        }
+				        if (writeToMysqlIfFail) {
+					LOG.error(e.getMessage() + ", will write data to mysql");
+					mysqlOutput.write(recordInfos);
+				        } else {
+        					throw new OutputException(e.getMessage());				                
+				        }
 				} finally {
 					if (response != null) {
 						response.close();
@@ -126,8 +157,18 @@ public class RestOutput implements Output {
 			try {
 				response = webResource.type("application/json").post(ClientResponse.class, json);
 				String msg = response.getEntity(String.class);
+                                LOG.debug(msg + ", status code:" + response.getStatus());
+				successCount += size;
 			} catch (ClientHandlerException e) {
-				throw new OutputException(e.getMessage());
+			        for (RecordInfo _info : recordInfos) {
+                                        LOG.error("Write solr failed: " + _info.toString());
+                                }
+			        if (writeToMysqlIfFail) {
+        			        LOG.error(e.getMessage() + ", will write data to mysql");
+        			        mysqlOutput.write(recordInfos);
+			        } else {
+                                      throw new OutputException(e.getMessage());
+			        }
 			} finally {
 				if (response != null) {
 					response.close();
@@ -138,6 +179,11 @@ public class RestOutput implements Output {
 		} finally {
 			client.destroy();
 		}
+		
+		if (successCount < realSize ) {
+		        LOG.warn("Total record count is " + realSize + ", but write to rest service record count is " + successCount);
+		}
+		
 		return realSize;
 	}
 

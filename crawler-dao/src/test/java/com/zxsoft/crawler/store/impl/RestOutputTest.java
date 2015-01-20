@@ -22,17 +22,11 @@ public class RestOutputTest {
 	private Output output = new RestOutput();
 	
 	@Test
-	public void testWrite() throws OutputException /*throws OutputException*/ {
-		RecordInfo info = new RecordInfo("Test", "http://test.org");
-		output.write(info);
-	}
-	
-	@Test
 	public void testJerseyClient() {
 		Client client = Client.create();
 		WebResource webResource = client.resource("http://192.168.32.11:8900/sentiment/index");
-		
-		RecordInfo info = new RecordInfo("Test", "http://test.org");
+		RecordInfo info = new RecordInfo("http://www.recoteo.com", 2, "192.168.6.103", 0, 0, 0, 0, "某某区域地址", 1, 1, 1);
+		info.setTitle("Test");
 		info.setIdentify_md5("xiayun");
 		List<RecordInfo> recordInfos = new ArrayList<RecordInfo>();
 		recordInfos.add(info);

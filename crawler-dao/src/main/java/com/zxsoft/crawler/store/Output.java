@@ -5,7 +5,7 @@ import com.zxsoft.crawler.storage.RecordInfo;
 
 public interface Output {
 
-	void write(RecordInfo info) throws OutputException;
+	int write(RecordInfo info) throws OutputException;
 	
 	/**
 	 * @return number of output size

@@ -15,7 +15,6 @@ import com.zxisl.commons.utils.NetUtils;
 import com.zxsoft.crawler.storage.Account;
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.ListConf;
-import com.zxsoft.crawler.storage.Section;
 
 public class ConfDao extends BaseDao {
 
@@ -161,6 +160,7 @@ public class ConfDao extends BaseDao {
 					        detailConf.setReviewNum(rs.getString("reviewNum"));
 					        detailConf.setSources(rs.getString("sources"));
 					        detailConf.setFetchorder(rs.getBoolean("fetchorder"));
+					        detailConf.setAjax(rs.getBoolean("ajax"));
 					        detailConf.setMaster(rs.getString("master"));
 					        detailConf.setAuthor(rs.getString("author"));
 					        detailConf.setDate(rs.getString("date"));
@@ -179,6 +179,8 @@ public class ConfDao extends BaseDao {
 			DetailConf detailConf = null;
 			if (!CollectionUtils.isEmpty(list)) {
 				detailConf = list.get(0);
+			} else {
+			        return null;
 			}
 
 			objectCache.setObject(host, detailConf);
@@ -204,6 +206,7 @@ public class ConfDao extends BaseDao {
 					        detailConf.setReviewNum(rs.getString("reviewNum"));
 					        detailConf.setSources(rs.getString("sources"));
 					        detailConf.setFetchorder(rs.getBoolean("fetchorder"));
+					        detailConf.setAjax(rs.getBoolean("ajax"));
 					        detailConf.setMaster(rs.getString("master"));
 					        detailConf.setAuthor(rs.getString("author"));
 					        detailConf.setDate(rs.getString("date"));
