@@ -58,4 +58,18 @@ public class TestNetworkInspectParserController {
 		Assert.isTrue(status.getStatus() == FetchStatus.Status.SUCCESS);
 	}
 	
+	/**
+	 * 新浪博客
+	 * @throws ParserNotFoundException
+	 */
+	@Test
+	public void testSinaBlog() throws ParserNotFoundException {
+	        String url = "http://roll.blog.sina.com.cn/list/exc/index.shtml";
+	        WebPage page = new WebPage(url, false);
+                page = new WebPage("独家", url, System.currentTimeMillis(), null);
+                NetworkInspectParserController parserController = new NetworkInspectParserController();
+                FetchStatus status = parserController.parse(page);
+                Assert.isTrue(status.getStatus() == FetchStatus.Status.SUCCESS);
+	}
+	
 }

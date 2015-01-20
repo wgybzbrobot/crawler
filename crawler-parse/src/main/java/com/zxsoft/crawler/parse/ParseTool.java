@@ -10,6 +10,7 @@ import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.store.Output;
+import com.zxsoft.crawler.store.impl.MysqlOutput;
 import com.zxsoft.crawler.store.impl.RestOutput;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
@@ -17,7 +18,9 @@ import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
 public abstract class ParseTool {
         private Logger LOG = LoggerFactory.getLogger(ParseTool.class);
         private static HttpFetcher httpFetcher = new HttpFetcher();
+        
         protected static Output indexWriter = new RestOutput();
+        
         protected ConfDao confDao = new ConfDao();
 
         protected ProtocolOutput fetch(WebPage page) {

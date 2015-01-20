@@ -16,6 +16,16 @@
 			<artifactId>crawler-protocol</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.zxsoft.crawler</groupId>
+			<artifactId>crawler-parse-ext</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>com.zxsoft.crawler</groupId>
+					<artifactId>crawler-common</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j-cypher-compiler-2.1</artifactId>
 			<version>2.1.2</version>
@@ -37,7 +47,16 @@
 					<artifactId>jcl-over-slf4j</artifactId>
 					<groupId>org.slf4j</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>common-utils</artifactId>
+					<groupId>com.zxisl</groupId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>zx.soft</groupId>
+			<artifactId>negative-sentiment1</artifactId>
+			<version>2.0.0</version>
 		</dependency>
 	</dependencies>
 

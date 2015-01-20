@@ -32,7 +32,7 @@ public final class NetworkInspectParserController extends ParseTool {
 		LOG.debug("indexUrl: " + indexUrl);
 		ListConf listConf = confDao.getListConf(indexUrl);
 		if (listConf == null) {
-		        LOG.error("没有找到列表页配置: " + indexUrl);
+		        LOG.error("No List Configuration, url: " + indexUrl);
 			return new FetchStatus(indexUrl, 43, Status.CONF_ERROR);
 		}
 
@@ -69,9 +69,9 @@ public final class NetworkInspectParserController extends ParseTool {
 				continuePage = false;
 				msg = StringUtils.concat(msg, "没有获取列表页中记录的更新时间，抓完设定的页数" + _pageNum + ", 若数量为0,则可能配置有误.");
 				break;
-			} else if (pageNum > _pageNum + 1) { // 有更新日期
+			} else if (pageNum > _pageNum + 3) { // 有更新日期
 			        continuePage = false;
-                                msg += "抓完设定的页数" + (_pageNum + 1);
+                                msg += "抓完设定的页数" + (_pageNum + 3);
                                 break;
 			}
 			
@@ -113,11 +113,17 @@ public final class NetworkInspectParserController extends ParseTool {
 				WebPage wp = page.clone();
 				wp.setTitle(title);
 				wp.setBaseUrl(curl);
-				wp.setAjax(false);// detail page use normal load
+				wp.setAjax(false); // detail page use normal load
 				wp.setDocument(null);
-				
+				if (update != null) {
+				        wp.setUpdateTime(update.getTime());
+				} else {
+				        wp.setUpdateTime(0);
+				}
+		                
 				try {
 					Parser parser = factory.getParserByCategory(listConf.getCategory());
+					parser.setup(page);
 					FetchStatus _status = parser.parse(wp);
 					sum += _status.getCount();
 					msg = StringUtils.concat(msg, _status.getMessage());
@@ -127,7 +133,7 @@ public final class NetworkInspectParserController extends ParseTool {
                                         status = Status.OUTPUT_FAILURE;
 				}catch (Exception e) {
 				        msg = StringUtils.concat(msg, e.getMessage());
-					LOG.error(msg);
+					LOG.error(msg, e);
 				}
 				if (!continuePage) {
 					break;
@@ -151,7 +157,7 @@ public final class NetworkInspectParserController extends ParseTool {
 				pageNum++;
 			}
 		}
-		LOG.info("【" + listConf.getComment() + "】共抓取数据数量:" + sum + ", msg:" + msg);
+		LOG.info("【" + listConf.getComment() + "】total fetch record number:" + sum + ", msg:" + msg);
 		return new FetchStatus(indexUrl, 21, status, sum, msg);
 	}
 }

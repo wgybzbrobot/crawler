@@ -81,6 +81,15 @@ public final class NetworkSearchParserController extends ParseTool {
                 } catch (UnknownHostException e) {
                         LOG.warn(e.getMessage(), e);
                 }
+                
+                int country_code = page.getRegion();
+                int province_code = page.getProvinceId();
+                int city_code = page.getCityId();
+                int location_code = LocationUtils.getLocationCode(ip);
+                String location = LocationUtils.getLocation(ip);
+                int source_id = page.getSource_id();
+                int server_id = page.getServer_id();
+                int source_type = page.getSource_type();
 
                 while (true) {
                         Elements list = document.select(listDom);
@@ -118,9 +127,9 @@ public final class NetworkSearchParserController extends ParseTool {
                                         date = new Nldp(str).extractDateInMillis();
                                 }
 
-                                RecordInfo info = new RecordInfo(title, curl);
+                                RecordInfo info = new RecordInfo(curl, Platform.PLATFORM_META_SEARCH, ip, country_code, province_code, city_code, location_code, location, source_id, server_id, source_type);
+                                info.setTitle(title);
                                 info.setId(Md5Signatrue.generateMd5(curl));
-                                info.setIp(ip);
                                 info.setContent(synopsis);
                                 info.setTimestamp(date);
                                 LOG.info(title);
@@ -133,7 +142,7 @@ public final class NetworkSearchParserController extends ParseTool {
                         } catch (OutputException e) {
                                 status.setStatus(FetchStatus.Status.OUTPUT_FAILURE);
                                 status.setMessage("写数据出去失败");
-                                LOG.error("无法写数据出去" + e.getMessage(), e);
+                                LOG.error("Output datafailure, message:" + e.getMessage(), e);
                         }
 
                         tempPage.setDocument(document);

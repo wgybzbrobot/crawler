@@ -1,7 +1,5 @@
 package com.zxsoft.crawler.plugin.parse;
 
-import java.net.URL;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,13 +12,13 @@ import org.slf4j.LoggerFactory;
 import com.zxisl.commons.utils.Assert;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
-import com.zxsoft.crawler.dns.DNSCache;
 import com.zxsoft.crawler.parse.FetchStatus;
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
 import com.zxsoft.crawler.parse.Parser;
+import com.zxsoft.crawler.parse.Platform;
 import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
-import com.zxsoft.crawler.plugin.parse.ext.SourceExtractor;
+import com.zxsoft.crawler.plugin.parse.ext.ExtExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.util.Md5Signatrue;
 import com.zxsoft.crawler.storage.DetailConf;
@@ -39,8 +37,6 @@ public class NewsParser extends Parser {
 			return new LinkedList<RecordInfo>();
 		}
 	};
-	private String ip;
-//	private long monitorTime = new Date().getTime();
 
 	@Override
 	public FetchStatus parse(WebPage page) throws Exception {
@@ -58,13 +54,12 @@ public class NewsParser extends Parser {
 
 		DetailConf detailConf = confDao.getDetailConf(page.getListUrl(), Utils.getHost(mainUrl));
 		if (detailConf == null) {
+		        LOG.error("DetailConf not found: " + mainUrl);
 			return new FetchStatus(mainUrl, 41, Status.CONF_ERROR);
 		}
 		
-		ip = DNSCache.getIp(new URL(mainUrl));
-
-		RecordInfo info = new RecordInfo(page.getTitle(), mainUrl);
-		info.setIp(ip);
+		RecordInfo info = new RecordInfo(mainUrl, Platform.PLATFORM_NEWS, ip, country_code, province_code, city_code, location_code, location, source_id, server_id, source_type);
+		info.setTitle(page.getTitle());
 		Elements contentEles = null;
 		if (StringUtils.isEmpty(detailConf.getContent()) && !CollectionUtils.isEmpty(contentEles = document.select(detailConf.getContent()))) {
 			Element contentEle = contentEles.first();
@@ -80,11 +75,13 @@ public class NewsParser extends Parser {
 		String sourcesDom = detailConf.getSources();
 		if (!StringUtils.isEmpty(sourcesDom) && !CollectionUtils.isEmpty(document.select(sourcesDom)))  {
 		        String text = document.select(sourcesDom).first().text();
-	                info.setSource_name(SourceExtractor.extract(text));
+	                info.setSource_name(ExtExtractor.extractSource(text));
 		}
 		String replyNumDom = detailConf.getReplyNum();
 		if (!StringUtils.isEmpty(replyNumDom) && !CollectionUtils.isEmpty(document.select(replyNumDom)))
-			info.setComment_count(Integer.valueOf(document.select(replyNumDom).first().text()));
+//			info.setComment_count(Integer.valueOf(document.select(replyNumDom).first().text()));
+			info.setComment_count(ExtExtractor.extractReplyNum(document.select(replyNumDom).first().text()));
+		        
 		String forwardNumDom = detailConf.getForwardNum();
 		if (!StringUtils.isEmpty(forwardNumDom) && !CollectionUtils.isEmpty(document.select(forwardNumDom))) {
 			String forwardNum = document.select(forwardNumDom).first().text();
@@ -105,10 +102,10 @@ public class NewsParser extends Parser {
 
 		int count = threadLocalRecordInfos.get().size();
 		try {
+		        
 			indexWriter.write(threadLocalRecordInfos.get());
 		} catch (OutputException e) {
-			throw new OutputException(mainUrl + "数据输出失败.");
-//			return new FetchStatus(mainUrl, 61, Status.OUTPUT_FAILURE);
+			throw new OutputException(mainUrl + " output data failed.");
 		}
 
 		return new FetchStatus(mainUrl, 21, Status.SUCCESS, count);
