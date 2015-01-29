@@ -48,7 +48,7 @@
 					Account account = (Account) session.getAttribute("account");
 					if (account == null) {
 				%>
-				<a class="mnav" id="j_login" href="login">登录</a>
+				<a class="mnav" id="j_login" href='<c:url value="login'"/>'>登录</a>
 				<%
 					} else {
 				%>

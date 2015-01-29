@@ -69,7 +69,9 @@ $(function() {
 				return true;
 			}, 
 			success: function (data) {
-				alert('添加成功');
+				console.log('data: ' + data);
+				/* data = $.parseJSON(data); */
+				alert(data); 
 				$('div.form-wrapper').hide();
 				location.reload();
 			}
@@ -153,7 +155,7 @@ $(function() {
    			dataType : 'json',
    			data: {url: val.href},
    			success: function(data) {
-   				console.log(data);
+   				/* console.log(data); */
    				if (data == true) {
    					val.style.color='#ff0000';
 					console.log('ture');   					
@@ -202,7 +204,7 @@ $(function() {
 			</div>
 		</div>
 
-		<div id="addSearchJobDialog" class="form-wrapper" style="display: none; width: 410px; height: 250px;">
+		<div id="addSearchJobDialog" class="form-wrapper" style="display: none; width: 410px; height: 300px;">
 			<a class="form-wrapper-close" href="javascript:void(0);"></a>
 			<div class="form-wrapper-title">添加全网搜索任务</div>
 			<div class="form-wrapper-center">
@@ -241,6 +243,7 @@ $(function() {
 							<td>上次抓取时间</td>
 							<td>时间间隔</td>
 							<td>预计下次抓取时间</td>
+							<td>抓取次数</td>
 							<td>操作</td>
 						</tr>
 					</thead>
@@ -270,6 +273,7 @@ $(function() {
 										type="both" value="${nextFetchTime}" pattern="yyyy-MM-dd HH:mm:ss" var="nextFetchTimef" />
 									${nextFetchTimef }
 							</span></td>
+							<td>${prey.count}</td>
 							<td>
 								<span>
 									<a class="delJob" comment="${prey.comment }" start="${prey.start}" href="<c:url value='/slaves/ajax/job/delete' />" onclick="return false;">删除</a>

@@ -2,8 +2,7 @@ package com.zxsoft.crawler.master;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URLEncoder;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -17,13 +16,15 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.zxisl.commons.io.ClassPathResource;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
-import com.zxsoft.crawler.api.Params;
+import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.api.Prey;
 import com.zxsoft.crawler.master.impl.RAMSlaveManager;
+import com.zxsoft.crawler.util.URLFormatter;
 
 /**
  * 主控节点
@@ -111,6 +112,7 @@ public class MasterServer {
                 new Thread(new Runnable() {
                         @Override
                         public void run() {
+                                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                                 synchronized (this) {
                                         boolean shouldSleep = false;
                                         while (true) {
@@ -140,7 +142,7 @@ public class MasterServer {
 
                                                         Prey prey = null;
                                                         try {
-                                                                prey = new Gson().fromJson(json, Prey.class);
+                                                                prey = gson.fromJson(json, Prey.class);
                                                         } catch (JsonSyntaxException e) {
                                                                 LOG.warn(e.getLocalizedMessage() + ", will remove it from urlbase.");
                                                                 jedis.zrem(URLBASE, json);
@@ -151,19 +153,20 @@ public class MasterServer {
                                                         }
                                                         long interval = System.currentTimeMillis() - prey.getPrevFetchTime();
                                                         long realInterval = prey.getFetchinterval() * 60 * 1000L;
-                                                        long prevFetchTime = prey.getPrevFetchTime();
                                                         if (interval >= realInterval) {
-                                                                
                                                                 long res = jedis.zrem(URLBASE, json);
                                                                 if (res != 1L) {
                                                                         LOG.error(json + " is not member of urlbase, cannot remove it. And it will not create job to slaves.");
                                                                 }
                                                                 // 将上次抓取时间设置为当前时间，供下次抓取使用
                                                                 prey.setPrevFetchTime(System.currentTimeMillis());
+                                                                prey.setCount(prey.getCount() + 1);
                                                                 double score = 1.0d / (System.currentTimeMillis() / 60000.0d + prey.getFetchinterval() * 1.0d);
                                                                 jedis.zadd(URLBASE, score, prey.toString());
                                                         } else {
                                                                 long wait = realInterval - interval;
+                                                                if (wait > 120000L)
+                                                                        wait = 120000L;
                                                                 LOG.info("Sleep " + wait + " milliseconds");
                                                                 try {
                                                                         Thread.sleep(wait);
@@ -173,17 +176,9 @@ public class MasterServer {
                                                                 continue;
                                                         }
                                                         LOG.info("Distributing Job: " + prey.toString());
-                                                        Map<String, Object> map = new HashMap<String, Object>();
-                                                        map.put(Params.JOB_TYPE, prey.getJobType());
-                                                        Map<String, Object> args = new HashMap<String, Object>();
-                                                        args.put(Params.URL, prey.getUrl());
-                                                        args.put(Params.PREV_FETCH_TIME, prevFetchTime);
-                                                        args.put(Params.COMMENT, prey.getComment());
-                                                        map.put(Params.ARGS, args);
-
                                                         SlaveManager slaveManager = new RAMSlaveManager();
                                                         try {
-                                                                slaveManager.create(map);
+                                                                slaveManager.create(prey);
                                                         } catch (Exception e) {
                                                                 LOG.warn(e.getMessage());
                                                                 e.printStackTrace();

@@ -47,6 +47,8 @@ public class WebPage implements Serializable, Cloneable {
         private int source_id;
         private int server_id;
         private int source_type;
+        private int sectionId;
+        private String comment;
 
         private ListConf ListConf;
 
@@ -88,10 +90,12 @@ public class WebPage implements Serializable, Cloneable {
                 this.prevFetchTime = prevFetchTime;
         }
 
-        public WebPage(String baseUrl, long prevFetchTime, int region, int provinceId, int cityId, int locationCode, String location,
+        public WebPage(String baseUrl, int sectionId, String comment, long prevFetchTime, int region, int provinceId, int cityId, int locationCode, String location,
                                         String ip, JobType jobType, int source_id, int server_id, int source_type) {
                 super();
                 this.baseUrl = baseUrl;
+                this.sectionId = sectionId;
+                this.comment = comment;
                 this.prevFetchTime = prevFetchTime;
                 this.region = region;
                 this.provinceId = provinceId;
@@ -263,6 +267,22 @@ public class WebPage implements Serializable, Cloneable {
 
         public void setStatus(int status) {
                 this.status = status;
+        }
+
+        public int getSectionId() {
+                return sectionId;
+        }
+
+        public void setSectionId(int sectionId) {
+                this.sectionId = sectionId;
+        }
+
+        public String getComment() {
+                return comment;
+        }
+
+        public void setComment(String comment) {
+                this.comment = comment;
         }
 
         public long getFetchTime() {

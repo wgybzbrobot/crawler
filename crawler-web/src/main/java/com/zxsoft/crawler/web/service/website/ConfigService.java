@@ -15,7 +15,7 @@ public interface ConfigService {
 	 * 获取配置配置，包含列表页confList<ConfList>和详细页配置confDetails<List<ConfDetail>>
 	 * @param url 版块URL
 	 */
-	Map<String, Object> getConfig(String sectionId);
+	Map<String, Object> getConfig(Integer sectionId);
 	
 	/**
 	 * Add website's list-page configuration 

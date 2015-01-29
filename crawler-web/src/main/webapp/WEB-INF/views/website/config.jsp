@@ -54,16 +54,19 @@
 					});
 				}
 				var html = '<strong>配置结果:</strong><p>分页栏:' + data.pagebar + '</p>';
-				html += '<table><tr><td>编号</td><td>详细页</td><td>更新时间</td><td>简介</td></tr>';
+				html += '<table><tr><td>编号</td><td>详细页</td><td>更新时间</td><td>发布时间</td><td>简介</td></tr>';
 				$.each(data.list, function(i, item){
 					html += '<tr>';
 					html += '<td class="link">' + (i+1) + '</td>';
 					html += '<td><a class="link" target="_blank" href="' + item.url + '">' + item.title + '</a></td>';
 					html += '<td>' + (item.update == null ? '没有获取到' : new Date(item.update).toLocaleString()) + '</td>';
+					html += '<td>' + (item.releaseDate == null ? '没有获取到' : new Date(item.releaseDate).toLocaleString()) + '</td>';
 					html += '<td>' + (item.synopsis == null ? '' : item.synopsis) + '</td>';
 					html += '</tr>';
 				});
 				html += '</table>';
+				var regex = new RegExp('script', 'g');
+				html = html.replace(regex, "span style='display:none;'");
 				$("#message div.form-wrapper-center").html(html);
 				$('#message').show();  
 			}).fail(function () {
@@ -132,14 +135,29 @@
 			$('label.error').text('');
 			$('#saveMessage').html('');
 			
-			$('#confdetail' + index).form('submit', {
-				url: 'config/ajax/testDetailConf',
-				onSubmit:function(param) {
-					return $(this).form('enableValidation').form('validate');
-				},
-				success : function(data) {
+			var postConfDetail = $.ajax({
+				type: 'POST',
+			 url: 'config/ajax/testDetailConf',
+			 data: $('#confdetail' + index).form().serialize(),
+			 beforeSend: function() {
+				 var isValid =  $('#confdetail' + index).form('enableValidation').form('validate');
+				 if (!isValid) {
+					 $('#loading').hide();
+					$.messager.show({title:'验证结果', msg:'验证失败', timeout:5000,
+		                showType:'show', style:{ right:'',top:document.body.scrollTop+document.documentElement.scrollTop, bottom:''}
+		            });
+					return false;
+				 }
+			 },
+			 error: function() {
+				 $.messager.show({title:'验证结果', msg:'验证失败', timeout:5000,
+		                showType:'show', style:{ right:'',top:document.body.scrollTop+document.documentElement.scrollTop, bottom:''}
+		            });
+			 },
+			 success: function(data) {
+				 $('#loading').hide();
+				 console.log(data);
 					$('#loading').hide();
-					data = $.parseJSON(data);
 					$('#confdetail' + index).find('label').css('border', 'none');
 					$('#confdetail' + index).find('label').attr('title', '');
 					if (data.errors != undefined && data.errors.length != 0) {
@@ -148,7 +166,6 @@
 							$('#confdetail' + index).find('label[for=' + val.field + ']').attr('title', val.msg);
 						});
 					}
-					
 					if ($.isEmptyObject(data.info)) {
 						return false;
 					}
@@ -179,19 +196,11 @@
 						}
 					}
 					html += '</div></div>';
-					
 					$("#message div.form-wrapper-center").html(html);
-					$('#message').show();  
-				},
-				error: function() {
-					console.log('failekdd');
-					$('#loading').hide();
-					$.messager.show({title:'验证结果', msg:'验证失败', timeout:5000,
-		                showType:'show', style:{ right:'',top:document.body.scrollTop+document.documentElement.scrollTop, bottom:''}
-		            });
-				}
+					$('#message').show(); 
+			 }
 			});
-		}); 
+		});
 		$("a[id^='saveConfDetail']").on('click', function(e) {
 			e.preventDefault();
 			var index = $(this).attr('id').split('saveConfDetail')[1];

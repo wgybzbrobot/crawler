@@ -36,7 +36,7 @@ public class TestJobServiceImpl {
 			Map<String, Object> args = new HashMap<String, Object>();
 			args.put(Params.KEYWORD, keyword);
 			args.put(Params.ENGINE_URL, engineId);
-			jobService.addSearchJob(args);
+//			jobService.addSearchJob(args);
 		}
 		
 	}

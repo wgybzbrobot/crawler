@@ -129,10 +129,12 @@
 							<c:forEach items="${categories }" var="category">
 								<option value="${category.id }">${category.comment }</option>
 							</c:forEach>
-							<%-- <c:if test="${fn:contains(website.site, 'baidu.com')}">
-								<option value="tieba">百度贴吧</option>
-							</c:if> --%>
 						</select>
+					</div>
+					<div>
+						<label class="form-label" for="category">URL地址是否动态变化</label> 
+						是<input name="autoUrl" type="radio"  value="true"	/>
+						否<input name="autoUrl" type="radio" value="false" checked="checked"/>
 					</div>
 					<div>
 						<input class="form-btn" type="button" onclick="return submitForm();" value="保存" />
@@ -177,12 +179,8 @@
 							<a href="javascript:void(0)"><span>加载更多</span></a>
 						</div>
 					</c:if>
-
 				</div>
 			</c:otherwise>
 		</c:choose>
 	</div>
-<%-- 	<div class="right-promotion">
-		<c:import url="/website/auth/${website.id}" charEncoding="utf-8" />
-	</div> --%>
 </body>

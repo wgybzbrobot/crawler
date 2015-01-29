@@ -18,7 +18,7 @@ public class SectionServiceImpl implements SectionService {
         private SectionDao sectionDao;
 
         @Override
-        public Section getSection(String sectionId) {
+        public Section getSection(Integer sectionId) {
                 return sectionDao.getSection(sectionId);
         }
 
@@ -43,7 +43,7 @@ public class SectionServiceImpl implements SectionService {
         }
 
         @Override
-        public void delete(String id) {
+        public void delete(Integer id) {
                 sectionDao.delete(id);
         }
 

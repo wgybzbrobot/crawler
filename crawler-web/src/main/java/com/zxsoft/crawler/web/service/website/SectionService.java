@@ -8,7 +8,7 @@ import com.zxsoft.crawler.entity.Section;
 @Service
 public interface SectionService {
 
-	Section getSection(String sectionId);
+	Section getSection(Integer sectionId);
 	/**
 	 * 查找版块
 	 */
@@ -16,7 +16,7 @@ public interface SectionService {
 	
 	void saveOrUpdate(Section section);
 	
-	void delete(String id);
+	void delete(Integer id);
 	Section getSectionByUrl(String url);
         void delete(Section section);
 

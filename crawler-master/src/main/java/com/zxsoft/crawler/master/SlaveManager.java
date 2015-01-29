@@ -1,18 +1,16 @@
 package com.zxsoft.crawler.master;
 
 import java.util.List;
-import java.util.Map;
+import com.zxsoft.crawler.api.Prey;
 
 public interface SlaveManager {
   
-  public static enum JobType {NETWORK_SEARCH, NETWORK_INSPECT};
-
   public List<SlaveStatus> list() throws Exception;
   
   /**
    * 创建任务
    */
-  public String create(Map<String, Object> map) throws Exception;
+  public String create(Prey prey) throws Exception;
   
   public boolean abort(String slaveId, String crawlId, String id) throws Exception;
   

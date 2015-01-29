@@ -35,7 +35,7 @@ public class ConfigController {
 	 * 跳转配置页面
 	 */
 	@RequestMapping(method = RequestMethod.GET)
-	public String index(@RequestParam(value = "sectionId", required = false) String sectionId,
+	public String index(@RequestParam(value = "sectionId", required = false) Integer sectionId,
 	        Model model) {
 		Section section = sectionService.getSection(sectionId);
 		model.addAttribute("section", section);
@@ -56,7 +56,7 @@ public class ConfigController {
 	 * 验证列表页配置是否正确
 	 */
 	@ResponseBody
-	@RequestMapping(value = "ajax/testListConf", method = RequestMethod.POST)
+	@RequestMapping(value = "ajax/testListConf", method = RequestMethod.POST, produces="application/json")
 	public Map<String, Object> testListConf(ConfList listConf, @RequestParam(value="keyword", required=false) String keyword) {
 		Map<String, Object> listRes = listConfigVerification.verify(listConf, keyword);
 		return listRes;

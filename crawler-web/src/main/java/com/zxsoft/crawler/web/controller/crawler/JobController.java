@@ -1,6 +1,7 @@
 package com.zxsoft.crawler.web.controller.crawler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -32,7 +33,6 @@ import com.zxisl.commons.utils.Assert;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.api.JobType;
-import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.api.Prey;
 import com.zxsoft.crawler.api.Prey.State;
 import com.zxsoft.crawler.entity.ConfList;
@@ -117,7 +117,7 @@ public class JobController {
                         e.printStackTrace();
                 } catch (Exception e) {
                         e.printStackTrace();
-                }finally {
+                } finally {
                         model.addAttribute("count", count);
                         model.addAttribute("preys", list);
                         jedis.close();
@@ -292,34 +292,47 @@ public class JobController {
          * 添加搜索任务
          * 
          * @param keyword
-         * @param engineIds
+         * @param engineUrls
          * @return
          */
         @ResponseBody
         @RequestMapping(value = "ajax/addSearchJob", method = RequestMethod.POST)
-        public Map<String, Object> addSearchJob(@RequestParam(value = "keyword", required = false) String keyword,
-                                        @RequestParam(value = "engineId", required = false) List<String> engineIds) {
+        public String addSearchJob(@RequestParam(value = "keyword", required = false) String keyword,
+                                        @RequestParam(value = "engineId", required = false) List<String> engineUrls) {
                 Assert.hasLength(keyword);
-                Assert.notEmpty(engineIds);
-                for (String engineId : engineIds) {
-                        Map<String, Object> args = new HashMap<String, Object>();
-                        args.put(Params.KEYWORD, keyword);
-                        args.put(Params.ENGINE_URL, engineId);
-                        jobService.addSearchJob(args);
+                Assert.notEmpty(engineUrls);
+               List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+                for (String engineUrl : engineUrls) {
+                        if (StringUtils.isEmpty(engineUrl)) 
+                                continue;
+                        Section section = sectionService.getSectionByUrl(engineUrl);
+                        if (section == null) {
+                                continue;
+                        }
+                        Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl, keyword,section.getAutoUrl());
+                        
+                        Map<String, Object> map = jobService.addSearchJob(prey);
+                        list.add(map);
                 }
-                return null;
+                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                String json = gson.toJson(list, List.class);
+                return json;
         }
 
         /**
          * 添加网络巡检任务
          * 
          * @param url
+         * @param 抓取时间间隔(minute), default is 60minutes.
          * @return
          */
         @ResponseBody
         @RequestMapping(value = "ajax/addInspectJob", method = RequestMethod.POST)
-        public Map<String, Object> addInspectJob(@RequestParam(value = "url", required = false) String url) {
+        public Map<String, Object> addInspectJob(@RequestParam(value = "url", required = false) String url, 
+                                        @RequestParam(value = "interval", required = false) Integer interval) {
                 Assert.hasLength(url);
+                if (interval == null) interval = 60;
+                
                 Map<String, Object> args = new HashMap<String, Object>();
                 if (url.endsWith("/")) {
                         url = url.substring(0, url.lastIndexOf("/"));
@@ -331,14 +344,17 @@ public class JobController {
                 }
 
                 Section section = sectionService.getSectionByUrl(url);
-                if (section == null)
-                        throw new NullPointerException("section is null, but conflist is not null: " + url);
+                if (section == null) {
+                        args.put("msg", "section is null, but conflist is not null.");
+                        return args;
+                }
                 Website website = section.getWebsite();
                 int source_id = website.getId();
+                int sectionId = section.getId();
                 int county_code = website.getRegion() == null ? 0 : website.getRegion();
                 int province_code = website.getProvinceId() == null ? 0 : website.getProvinceId();
                 int city_code = website.getCityId() == null ? 0 : website.getCityId();
-                
+
                 Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
                 Prey prey = null;
                 try {
@@ -349,19 +365,19 @@ public class JobController {
                         } else {
                                 // 添加任务
                                 double score = 1.0d / (System.currentTimeMillis() / 60000);
-                                prey = new Prey(source_id, url, confList.getComment(), JobType.NETWORK_INSPECT.toString(),
-                                                                confList.getFetchinterval(), System.currentTimeMillis(), 0,
-                                                                county_code, province_code, city_code,
-                                                                State.JOB_EXCUTING);
+                                prey = new Prey(JobType.NETWORK_INSPECT, source_id, url, sectionId, confList.getComment(), 
+                                                                interval, System.currentTimeMillis(), 0, county_code,
+                                                                province_code, city_code, State.JOB_EXCUTING);
+                                prey.setAutoUrl(section.getAutoUrl());
                                 LOG.info("添加任务:" + prey.toString());
                                 jedis.zadd(URLBASE, score, prey.toString());
                         }
                 } catch (JedisConnectionException e) {
                         args.put("msg", "jedisconnectionexception");
                         e.printStackTrace();
-                } catch(Exception e) { 
+                } catch (Exception e) {
                         args.put("msg", e.getMessage());
-                        e.printStackTrace();      
+                        e.printStackTrace();
                 } finally {
                         jedis.close();
                 }
@@ -392,7 +408,6 @@ public class JobController {
                                         break;
                                 for (String str : set) {
                                         Prey _prey = gson.fromJson(str, Prey.class);
-                                        // String json = _prey.toString();
                                         String _url = _prey.getUrl();
                                         if (_url.endsWith("/")) {
                                                 _url = _url.substring(0, _url.lastIndexOf("/"));
@@ -400,11 +415,6 @@ public class JobController {
                                         if (url.equals(_url)) {
                                                 return true;
                                         }
-                                        // if
-                                        // (json.contains(String.valueOf(url)))
-                                        // {
-                                        // return true;
-                                        // }
                                 }
                                 begin = end;
                                 end = end + 100;

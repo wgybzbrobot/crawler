@@ -25,7 +25,7 @@
 				var oldurl = $(this).attr('idx');
 				console.log(oldurl);
 				$('#sectionForm input[name=oldUrl]').val(oldurl);				
-				$('#sectionForm').form('load', 'section/ajax/moreinfo/' + $(this).attr('id'));
+				$('#sectionForm').form('load', $('input#editurl').attr('value') + $(this).attr('id'));
 		});
 		/* 创建 */
 		$('a.addSectionBtn').click(function(e) {
@@ -56,7 +56,7 @@
 
 	function submitForm() {
 		$('#sectionForm').form('submit', {
-			url : 'section/ajax/add',
+			url : $('input#saveurl').attr('value'),
 			onSubmit : function(param) {
 				return $(this).form('enableValidation').form('validate');
 			},
@@ -77,6 +77,8 @@
 </script>
 </head>
 <body>
+<input type="hidden" name="editurl" value='<c:url value="/section/ajax/moreinfo/"/>'  id="editurl" />
+<input type="hidden" name="saveurl" value='<c:url value="/section/ajax/add"/>'  id="saveurl" />
 	<div id="body">
 		<div class="form-wrapper" style="display: none;">
 			<a class="form-wrapper-close" href="javascript:void(0);"></a>

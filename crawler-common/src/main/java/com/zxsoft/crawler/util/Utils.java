@@ -183,6 +183,7 @@ public class Utils {
 	}
 
 	public static int extractNum(String str) {
+	        str=str.replaceAll(",", "");
 		int result = -1;
 		Pattern pattern = Pattern.compile("\\d+");
 		Matcher matcher = pattern.matcher(str);

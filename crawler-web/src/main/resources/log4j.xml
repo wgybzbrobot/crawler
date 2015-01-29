@@ -8,7 +8,7 @@
 		</layout>
 	</appender>
 	<appender name="FILE" class="org.apache.log4j.rolling.RollingFileAppender">
-		<param name="file" value="~/weblogs/web.log" />
+		<param name="file" value="weblogs/web.log" />
 		<param name="append" value="false" />
 		<rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
 			<param name="FileNamePattern" value="weblogs/web.log.%d{yyyy-MM-dd}.gz" />
@@ -27,16 +27,15 @@
 		<appender-ref ref="FILE" />
 	</logger>
 	<logger name="org.springframework">
-		<level value="debug" />
+		<level value="warn" />
 		<appender-ref ref="FILE" />
 	</logger>
 	<logger name="org.hibernate">
-		<level value="debug" />
+		<level value="warn" />
 		<appender-ref ref="FILE" />
 	</logger>
 	<root>
 		<priority value="info" />	
-		<appender-ref ref="STDOUT" />
 		<!-- <appender-ref ref="FILE" /> -->
 	</root>
 </log4j:configuration>

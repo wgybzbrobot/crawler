@@ -8,6 +8,8 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Put;
 import org.restlet.resource.ServerResource;
 
+import com.zxsoft.crawler.api.Prey;
+
 public class SlaveResource extends ServerResource {
 
 	@Get("json")
@@ -23,8 +25,8 @@ public class SlaveResource extends ServerResource {
 	}
 
 	@Put("json")
-	public Object create(Map<String, Object> args) throws Exception {
-		String res = MasterApp.slaveMgr.create(args); 
+	public Object create(Prey prey) throws Exception {
+		String res = MasterApp.slaveMgr.create(prey); 
 		return res;
 	}
 

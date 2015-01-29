@@ -1,7 +1,5 @@
 package com.zxsoft.crawler.web.verification;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,12 +41,12 @@ public class ListConfigVerification extends ParseTool {
                 List<ThreadInfo> list = new ArrayList<ThreadInfo>();
                 String pageStr = "", testurl = listConf.getUrl();
                 if ("search".equals(listConf.getCategory())) {
-                        try {
-                                keyword = URLEncoder.encode(keyword, "UTF-8");
-                        } catch (UnsupportedEncodingException e) {
-                                e.printStackTrace();
-                        }
-                        testurl = listConf.getUrl().replace("%s", keyword);
+                        testurl = String.format(testurl, keyword);
+//                        try {
+//                                testurl = URIUtil.encodePathQuery(testurl, "UTF-8");
+//                        } catch (URIException e) {
+//                                e.printStackTrace();
+//                        }
                 }
                 WebPage page = new WebPage(testurl, listConf.getAjax());
                 ProtocolOutput protocolOutput = fetch(page);
@@ -60,7 +58,8 @@ public class ListConfigVerification extends ParseTool {
                         try {
                                 document = protocolOutput.getDocument();
                               String html = document.html();
-                              map.put("html", html);
+                              System.out.println(html);
+//                              map.put("html", html);
                                 if (StringUtils.isEmpty(listConf.getListdom())) {
                                         errors.put("listdomerror", "必填");
                                 } else {// document.select("form#moderate  table:gt(1)");
@@ -78,7 +77,7 @@ public class ListConfigVerification extends ParseTool {
         //                                                        LOG.info(listElement.html());
                                                         } else {
                                                                 int i = 0;
-                                                                int updateErrorCount = 0;
+                                                                int updateErrorCount = 0, releaseDateErrorCount = 0;
                                                                 int urlErrorCount = 0;
                                                                 for (Element lineEle : lineElements) {
                                                                         i++;
@@ -111,8 +110,23 @@ public class ListConfigVerification extends ParseTool {
                                                                                         }
                                                                                 }
                                                                         }
+                                                                        /*
+                                                                         * 发布时间
+                                                                         */
+                                                                        Date releaseDate = null;
+                                                                        if (!StringUtils.isEmpty(listConf.getDatedom())) {
+                                                                                Elements dateElements = lineEle.select(listConf.getDatedom());
+                                                                                if (CollectionUtils.isEmpty(dateElements)) {
+                                                                                        releaseDateErrorCount++;
+                                                                                } else {
+                                                                                        releaseDate = DateExtractor.extract(dateElements.first().html());
+                                                                                        if (releaseDate == null) {
+                                                                                                LOG.warn("没有获取到时间: " + dateElements.first().html());
+                                                                                        }
+                                                                                }
+                                                                        }
         
-                                                                        ThreadInfo info = new ThreadInfo(url, title, update);
+                                                                        ThreadInfo info = new ThreadInfo(url, title, update, releaseDate);
         
                                                                         if (!StringUtils.isEmpty(listConf.getSynopsisdom())) {
                                                                                 Elements synoEles = lineEle.select(listConf.getSynopsisdom());
@@ -124,7 +138,10 @@ public class ListConfigVerification extends ParseTool {
                                                                         list.add(info);
                                                                 }
                                                                 if (updateErrorCount > 10) {
-                                                                        errors.put("updatedom", "获取更新时间失败");
+                                                                        errors.put("updatedom", "获取更新时间失败超过10次");
+                                                                }
+                                                                if (releaseDateErrorCount > 10) {
+                                                                        errors.put("datedom", "获取发布时间失败超过10次");
                                                                 }
                                                                 if (urlErrorCount > 10) {
                                                                         errors.put("urldom", "获取详细页URL失败");

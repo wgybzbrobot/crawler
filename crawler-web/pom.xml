@@ -151,7 +151,7 @@
 							<targetPath>WEB-INF/classes/</targetPath>
 							<includes>
 								<include>db.properties</include>
-								<include>output.properties</include>
+								<include>restoutput.properties</include>
 							</includes>
 						</resource>
 						<resource>

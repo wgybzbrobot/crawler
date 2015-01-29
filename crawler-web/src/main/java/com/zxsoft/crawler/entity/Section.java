@@ -6,10 +6,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -25,13 +25,14 @@ public class Section implements java.io.Serializable {
 	 * 
 	 */
     private static final long serialVersionUID = -7399722190855313390L;
-    private String id;
+    private Integer id;
 	private String url;
 	private Website website;
 	private Account account;
 	private Category category;
 	private String comment;
 	private String status;
+	private Boolean autoUrl;
 	
 //	private ConfList confList;
 
@@ -58,18 +59,17 @@ public class Section implements java.io.Serializable {
     }
 
 	@Id
-	@GenericGenerator(name = "generator", strategy = "uuid.hex")
-	@GeneratedValue(generator = "generator")
-	@Column(name = "id", unique = true, nullable = false, length = 150)
-	public String getId() {
+        @GeneratedValue(strategy=GenerationType.IDENTITY)
+        @Column(name = "id", unique = true, nullable = false)
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
-	@Column(name = "url", unique = true, nullable = false, length = 150)
+	@Column(name = "url", unique = true, nullable = false, length = 250)
 	public String getUrl() {
 		return this.url;
 	}
@@ -126,6 +126,15 @@ public class Section implements java.io.Serializable {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
+	@Column(name = "autoUrl")
+        public Boolean getAutoUrl() {
+                return autoUrl;
+        }
+
+        public void setAutoUrl(Boolean autoUrl) {
+                this.autoUrl = autoUrl;
+        }
 
 //	@OneToOne(fetch = FetchType.LAZY,mappedBy = "url")
 //	public ConfList getConfList() {

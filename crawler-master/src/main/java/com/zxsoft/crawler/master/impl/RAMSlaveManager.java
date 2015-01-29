@@ -2,10 +2,10 @@ package com.zxsoft.crawler.master.impl;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -22,15 +22,19 @@ import com.google.gson.GsonBuilder;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.zxisl.commons.utils.Assert;
 import com.zxisl.commons.utils.CollectionUtils;
+import com.zxisl.commons.utils.IPUtil;
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.api.JobCode;
+import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.api.Machine;
+import com.zxsoft.crawler.api.Prey;
 import com.zxsoft.crawler.master.SlaveCache;
 import com.zxsoft.crawler.master.SlaveManager;
 import com.zxsoft.crawler.master.SlaveStatus;
 import com.zxsoft.crawler.master.SlaveStatus.State;
 import com.zxsoft.crawler.slave.SlavePath;
+import com.zxsoft.crawler.util.URLFormatter;
 
 public class RAMSlaveManager implements SlaveManager {
 
@@ -127,32 +131,59 @@ public class RAMSlaveManager implements SlaveManager {
         /**
          * 选择slave节点
          */
-        public String chooseUrl() {
+        public ScoredMachine chooseSlave() {
                 ScoredMachine sm = scheduler.selectSlave();
-                Assert.notNull(sm, "没有Slave启动");
-
-                URL url = null;
-                try {
-                        url = new URL("http", sm.machine.getIp(), sm.machine.getPort(), "/" + SlavePath.PATH + "/"
-                                                        + SlavePath.JOB_RESOURCE_PATH);
-                } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                }
-                return url.toExternalForm();
+                return sm;
         }
 
         /**
          * 创建任务
          */
         @Override
-        public String create(final Map<String, Object> args) throws Exception {
+        public String create(Prey prey) throws Exception {
+                if (prey.getJobType() == JobType.NETWORK_SEARCH) {
+                        if (!StringUtils.isEmpty(prey.getEncode())) {
+                                try {
+                                        prey.setKeyword(URLEncoder.encode(prey.getKeyword(), prey.getEncode()));  
+                                }catch (Exception e) {
+                                        LOG.error("URLEncoder.encode keyword error, may be encoding not supported, "
+                                                                        + "job will not execute, please check.", e);
+                                        return new JobCode(20121, "URLEncoder.encode keyword error," + e.getMessage()).toString();
+                                }
+                        }
+                        if (prey.isAutoUrl()) {
+                                prey.setUrl(URLFormatter.format(prey.getEngineUrl(), prey.getKeyword()));
+                        }
+                } else if (prey.isAutoUrl()) {
+                        prey.setUrl(URLFormatter.format(prey.getUrl()));
+                }
+
                 int i = 0;
+                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 while (i++ < SlaveCache.machines.size()) {
-                        String url = chooseUrl();
+                        ScoredMachine sm = chooseSlave();
+                        URL url = null;
+                        try {
+                                url = new URL("http", sm.machine.getIp(), sm.machine.getPort(), "/" + SlavePath.PATH + "/"
+                                                                + SlavePath.JOB_RESOURCE_PATH);
+                        } catch (MalformedURLException e) {
+                                LOG.error("Config Error in slave.ini, message: " + e.getMessage());
+                                continue;
+                        }
+                        
+                        int server_id = 0;
+                        try {
+                                server_id = Integer.valueOf(sm.machine.getComment());
+                        } catch (Exception e) {
+                                LOG.warn("Error Config in slaves.ini, slave comment should be int type. Message: " + e.getMessage());
+                                server_id = IPUtil.getServerId();
+                        }
+                        prey.setServer_id(server_id);
+                        
                         com.sun.jersey.api.client.Client client = com.sun.jersey.api.client.Client.create();
-                        WebResource webResource = client.resource(url);
-                        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                        String json = gson.toJson(args, Map.class);
+                        WebResource webResource = client.resource(url.toExternalForm());
+                        
+                        String json = gson.toJson(prey, Prey.class);
                         ClientResponse response = null;
                         try {
                                 response = webResource.type("application/json").put(ClientResponse.class, json);
@@ -169,9 +200,8 @@ public class RAMSlaveManager implements SlaveManager {
                                         client.destroy();
                                 }
                         }
-                        URL u = new URL(url);
-                        LOG.info("Choose slave(" + u.getHost() + ":" + u.getPort() + ") to excute job.");
-                        return new JobCode(22, "success choose slave", u.getHost() + ":" + u.getPort()).toString();
+                        LOG.info("Choose slave(" + url.getHost() + ":" + url.getPort() + ") to excute job.");
+                        return new JobCode(22, "success choose slave", url.getHost() + ":" + url.getPort()).toString();
                 }
                 LOG.error("Oh My God! All slaves are not working, all can not excute job.");
                 return new JobCode(55, "no slaves work").toString();

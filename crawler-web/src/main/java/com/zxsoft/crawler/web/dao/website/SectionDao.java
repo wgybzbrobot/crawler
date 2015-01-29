@@ -11,7 +11,7 @@ public interface SectionDao {
 	/**
 	 * 获取版块
 	 */
-	Section getSection(String id);
+	Section getSection(Integer id);
 
 	/**
 	 * 版块的搜索接口
@@ -19,7 +19,7 @@ public interface SectionDao {
 	Page<Section> getSections(Section section, int pageNo, int pageSize);
 	
 
-	void delete(String id);
+	void delete(Integer id);
 
 	void saveOrUpdate(Section section);
 

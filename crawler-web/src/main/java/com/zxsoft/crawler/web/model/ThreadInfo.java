@@ -10,14 +10,16 @@ public class ThreadInfo {
 	private String url;
 	private String title;
 	private Date update;
+	private Date releaseDate;
 	private String synopsis;
 	
 	public ThreadInfo() {}
-	public ThreadInfo(String url, String title, Date update) {
+	public ThreadInfo(String url, String title, Date update, Date releaseDate) {
 	    super();
 	    this.url = url;
 	    this.title = title;
 	    this.update = update;
+	    this.releaseDate = releaseDate;
     }
 	
 	public String getSynopsis() {
@@ -38,12 +40,18 @@ public class ThreadInfo {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public Date getupdate() {
-		return update;
-	}
-	public void setupdate(Date update) {
-		this.update = update;
-	}
+        public Date getUpdate() {
+                return update;
+        }
+        public void setUpdate(Date update) {
+                this.update = update;
+        }
+        public Date getReleaseDate() {
+                return releaseDate;
+        }
+        public void setReleaseDate(Date releaseDate) {
+                this.releaseDate = releaseDate;
+        }
 	
 	
 }

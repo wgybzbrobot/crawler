@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.zxsoft.crawler.api.Prey;
+
 public interface JobService {
 
 	/**
@@ -15,9 +17,9 @@ public interface JobService {
 	
 	/**
 	 * 添加全网搜索任务
-	 * @param args 参数: 搜索关键字, 搜索引擎id ...
+	 * @param args 参数: 搜索关键字, 搜索引擎url ...
 	 */
-	Map<String, Object> addSearchJob( Map<String, Object> args);
+	Map<String, Object> addSearchJob( Prey prey);
 	
 	/**
 	 * get all jobs 

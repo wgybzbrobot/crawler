@@ -138,14 +138,16 @@ public class SectionController {
          */
         @ResponseBody
         @RequestMapping(value = "ajax/moreinfo/{id}", method = RequestMethod.GET)
-        public Map<String, Object> moreinfo(@PathVariable(value = "id") String id, Model model) {
+        public Map<String, Object> moreinfo(@PathVariable(value = "id") Integer id, Model model) {
                 Section section = sectionService.getSection(id);
 
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("id", section.getId());
                 map.put("url", section.getUrl());
+                map.put("autoUrl", section.getAutoUrl());
                 map.put("comment", section.getComment());
                 map.put("category.id", section.getCategory().getId());
+                map.put("website.id", section.getWebsite().getId());
 
                 return map;
         }
@@ -159,7 +161,7 @@ public class SectionController {
          */
         @ResponseBody
         @RequestMapping(value = "ajax/delete/{id}", method = RequestMethod.GET)
-        public String delete(@PathVariable(value = "id") String id, Model model) {
+        public String delete(@PathVariable(value = "id") Integer id, Model model) {
                 sectionService.delete(id);
                 return "success";
         }

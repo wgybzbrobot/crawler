@@ -28,7 +28,7 @@ public class ConfigServiceImpl implements ConfigService {
 	private SectionDao sectionDao;
 	
 	@Override
-	public Map<String, Object> getConfig(String sectionId) {
+	public Map<String, Object> getConfig(Integer sectionId) {
 		
 		Section section = sectionDao.getSection(sectionId);
 		String url = section.getUrl();

@@ -22,6 +22,7 @@ public class RecordInfo implements Serializable, Cloneable {
         private String url = "";
         private String home_url = "";
         private String title = "";
+//        private int type_ids = 0;
         private String type = "";
         private boolean isharmful;
         private String content = "";
@@ -54,7 +55,7 @@ public class RecordInfo implements Serializable, Cloneable {
         private int location_code = 0;
         private int province_code = 0;
         private int city_code = 0;
-
+        
         @Override
         public RecordInfo clone() {
                 try {
@@ -65,11 +66,13 @@ public class RecordInfo implements Serializable, Cloneable {
                 }
         }
 
-        public RecordInfo(String url, int platform, String ip, int country_code, int province_code, int city_code, int location_code,
+        public RecordInfo(String url,/* int sectionId, */String comment, int platform, String ip, int country_code, int province_code, int city_code, int location_code,
                                         String location, int source_id, int server_id, int source_type) {
                 this.lasttime = System.currentTimeMillis();
                 this.first_time = this.lasttime;
                 this.url = url;
+//                this.type_ids = sectionId;
+                this.type = comment;
                 this.platform = platform;
                 this.ip = ip;
                 this.country_code = country_code;
@@ -92,6 +95,14 @@ public class RecordInfo implements Serializable, Cloneable {
                 String json = gson.toJson(this);
                 return json;
         }
+
+//        public int getType_ids() {
+//                return type_ids;
+//        }
+//
+//        public void setType_ids(int type_ids) {
+//                this.type_ids = type_ids;
+//        }
 
         public int getFavorite_count() {
                 return favorite_count;

@@ -28,7 +28,7 @@ public class SectionDaoImpl implements SectionDao {
         private HibernateTemplate hibernateTemplate;
 
         @Override
-        public Section getSection(String id) {
+        public Section getSection(Integer id) {
                 return hibernateTemplate.get(Section.class, id);
         }
 
@@ -87,7 +87,7 @@ public class SectionDaoImpl implements SectionDao {
         private JdbcTemplate jdbcTemplate;
 
         @Override
-        public void delete(String id) {
+        public void delete(Integer id) {
                 Section section = hibernateTemplate.get(Section.class, id);
 
                 final String url = section.getUrl();
