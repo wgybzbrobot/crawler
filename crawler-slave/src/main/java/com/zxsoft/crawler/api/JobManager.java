@@ -11,7 +11,7 @@ public interface JobManager {
 
         public JobStatus get(String crawlId, String id) throws Exception;
 
-        public JobCode create(JobType type, Map<String, Object> args) throws Exception;
+        public JobCode create(Map<String, Object> args) throws Exception;
 
         public boolean abort(String crawlId, String id) throws Exception;
 

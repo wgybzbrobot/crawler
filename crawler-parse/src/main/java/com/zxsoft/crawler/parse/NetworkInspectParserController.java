@@ -123,6 +123,9 @@ public final class NetworkInspectParserController extends ParseTool {
 		                
 				try {
 					Parser parser = factory.getParserByCategory(listConf.getCategory());
+					/*
+					 * 重要! 设置通用字段值
+					 */
 					parser.setup(page);
 					FetchStatus _status = parser.parse(wp);
 					sum += _status.getCount();

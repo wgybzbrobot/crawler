@@ -43,22 +43,28 @@ public class NewsParser extends Parser {
 		Assert.notNull(page, "Page is null");
 		String mainUrl = page.getBaseUrl();
 
+		DetailConf detailConf = confDao.getDetailConf(page.getListUrl(), Utils.getHost(mainUrl));
+		 if (detailConf == null) {
+                        return new FetchStatus(mainUrl, 41, Status.CONF_ERROR);
+                }
+		
+		page.setAjax(detailConf.isAjax());
 		ProtocolOutput _output = fetch(page);
 		if (!_output.getStatus().isSuccess()) {
-			return new FetchStatus(mainUrl, 61, Status.PROTOCOL_FAILURE);
+		        return new FetchStatus(mainUrl, 61, Status.PROTOCOL_FAILURE);
 		}
+		
 		Document document = _output.getDocument();
 		page.setDocument(document);
 
 		ajax.set(page.isAjax());
 
-		DetailConf detailConf = confDao.getDetailConf(page.getListUrl(), Utils.getHost(mainUrl));
 		if (detailConf == null) {
 		        LOG.error("DetailConf not found: " + mainUrl);
 			return new FetchStatus(mainUrl, 41, Status.CONF_ERROR);
 		}
 		
-		RecordInfo info = new RecordInfo(mainUrl, Platform.PLATFORM_NEWS, ip, country_code, province_code, city_code, location_code, location, source_id, server_id, source_type);
+		RecordInfo info = new RecordInfo(mainUrl, comment,Platform.PLATFORM_NEWS, ip, country_code, province_code, city_code, location_code, location, source_id, server_id, source_type);
 		info.setTitle(page.getTitle());
 		Elements contentEles = null;
 		if (StringUtils.isEmpty(detailConf.getContent()) && !CollectionUtils.isEmpty(contentEles = document.select(detailConf.getContent()))) {

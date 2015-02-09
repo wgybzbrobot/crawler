@@ -44,14 +44,14 @@ public class EncodingDetector {
                 return charset;
         }
 
-        public void detect(String contentType, byte[] content, URL url) {
+        public void detect(String contentType, byte[] content, URL url/*, int i*/) {
                 // String charset = "";
                 try {
                         /*
                          * 在contentType中探测
                          */
                         if (!StringUtils.isEmpty(contentType)) {
-                                LOG.debug("在contentType中探测");
+//                                LOG.debug("在contentType中探测");
                                 int start = contentType.indexOf("charset=");
                                 if (start >= 0) {
                                         charset = contentType.substring(start + 8);
@@ -68,7 +68,7 @@ public class EncodingDetector {
                          * 若出现bug则将universalchardet和icu换位置试试
                          */
                         if (StringUtils.isEmpty(charset)) {
-                                LOG.debug("使用universalchardet探测 ");
+//                                LOG.debug("使用universalchardet探测 ");
                                 org.mozilla.universalchardet.UniversalDetector detector = new org.mozilla.universalchardet.UniversalDetector(
                                                                 null);
                                 detector.handleData(content, 0, content.length);
@@ -81,12 +81,12 @@ public class EncodingDetector {
                          * 使用icu探测
                          */
                         if (StringUtils.isEmpty(charset)) {
-                                LOG.debug("使用icu探测");
+//                                LOG.debug("使用icu探测");
                                 CharsetDetector detector = new CharsetDetector();
                                 detector.setText(content);
                                 CharsetMatch charsetMatch = detector.detect();
                                 int confidence = charsetMatch.getConfidence();
-                                LOG.debug("confidence: " + charsetMatch.getConfidence());
+//                                LOG.debug("confidence: " + charsetMatch.getConfidence());
                                 if (confidence > 60) {
                                         // LOG.info("Detect encoding confidence("
                                         // + confidence + ", encoding: " +
@@ -117,6 +117,11 @@ public class EncodingDetector {
 
                         if (StringUtils.isEmpty(charset) || "isAscii".equalsIgnoreCase(charset)) {
                                 charset = DEFAULT_CHARSET;
+//                                if (i == 1) {
+//                                        charset = DEFAULT_CHARSET;
+//                                } else {
+//                                        charset = "UTF-8";
+//                                }
                         } else {
                                 objectCache.setObject(url.getHost(), charset);
                         }

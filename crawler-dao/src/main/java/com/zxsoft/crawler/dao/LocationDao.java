@@ -20,11 +20,11 @@ public class LocationDao {
                 driver = new OracleDriver();
                 Properties prop = new Properties();
                 ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                InputStream stream = loader.getResourceAsStream("location.properties");
                 try {
+                        InputStream stream = loader.getResourceAsStream("location.properties");
                         prop.load(stream);
-                } catch (IOException e) {
-                        LOG.error(e.getMessage(), e);
+                } catch (Exception e) {
+                        LOG.error("Load location.properties failed.", e);
                 }
                 String url = prop.getProperty("db.url");
                 String username = prop.getProperty("db.username");

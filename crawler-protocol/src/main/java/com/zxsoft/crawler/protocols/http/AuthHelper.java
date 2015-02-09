@@ -29,25 +29,25 @@ public class AuthHelper {
 	 * @param url <code>url</code>是版块地址后者版块下列表页的地址，可从数据库中查询，
 	 * 若查询不到，说明数据库中没有该url的相关配置
 	 */
-	public static boolean isAuth(URL url) {
-		ConfDao confDao = new ConfDao();
-		String host = NetUtils.getHost(url);
-		
-		// 先查询ConfDetail
-		DetailConf detailConf = confDao.getDetailConf(host);
-		String urlstr = url.toExternalForm();
-		if (detailConf != null) {
-			urlstr = detailConf.getListUrl();
-		}
-		// 再查询ConfList
-		ListConf listConf = confDao.getListConf(urlstr);
-		
-		if (listConf == null) {
-			LOG.warn("没有找到ListConf:" + url.toExternalForm());
-			return false;
-		}
-		return listConf.isAuth();
-	}
+//	public static boolean isAuth(URL url) {
+//		ConfDao confDao = new ConfDao();
+//		String host = NetUtils.getHost(url);
+//		
+//		// 先查询ConfDetail
+//		DetailConf detailConf = confDao.getDetailConf(host);
+//		String urlstr = url.toExternalForm();
+//		if (detailConf != null) {
+//			urlstr = detailConf.getListUrl();
+//		}
+//		// 再查询ConfList
+//		ListConf listConf = confDao.getListConf(urlstr);
+//		
+//		if (listConf == null) {
+//			LOG.warn("没有找到ListConf:" + url.toExternalForm());
+//			return false;
+//		}
+//		return listConf.isAuth();
+//	}
 	
 	/**
 	 * <p>从url中读取读取Cookie，<code>CookieStore</code>中是将网站地址作为key存储的，
@@ -58,27 +58,27 @@ public class AuthHelper {
 	 * 若查询不到，说明数据库中没有该url的相关配置
 	 * @throws CookieNotFoundException 
 	 */
-	public static String readCookie(URL url) throws CookieNotFoundException {
-		ConfDao confDao = new ConfDao();
-		String host = NetUtils.getHost(url);
-		
-		// 先查询ConfDetail
-		DetailConf detailConf = confDao.getDetailConf(host);
-		String urlstr = url.toExternalForm();
-		if (detailConf != null) {
-			urlstr = detailConf.getListUrl();
-		}
-		// 再查询ConfList
-		ListConf listConf = confDao.getListConf(urlstr);
-		
-		if (listConf == null) {
-			LOG.warn("没有找到ListConf:" + url.toExternalForm());
-			throw new CookieNotFoundException("不能读取Cookie, 因为没有找到" + url.toExternalForm() + "所属网站地址");
-		}
-		
-		
-		return "";
-	}
+//	public static String readCookie(URL url) throws CookieNotFoundException {
+//		ConfDao confDao = new ConfDao();
+//		String host = NetUtils.getHost(url);
+//		
+//		// 先查询ConfDetail
+//		DetailConf detailConf = confDao.getDetailConf(host);
+//		String urlstr = url.toExternalForm();
+//		if (detailConf != null) {
+//			urlstr = detailConf.getListUrl();
+//		}
+//		// 再查询ConfList
+//		ListConf listConf = confDao.getListConf(urlstr);
+//		
+//		if (listConf == null) {
+//			LOG.warn("没有找到ListConf:" + url.toExternalForm());
+//			throw new CookieNotFoundException("不能读取Cookie, 因为没有找到" + url.toExternalForm() + "所属网站地址");
+//		}
+//		
+//		
+//		return "";
+//	}
 	
 	
 	

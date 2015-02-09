@@ -4,6 +4,17 @@ import com.zxsoft.crawler.storage.WebPage;
 
 public abstract class Parser extends ParseTool {
 
+        // 原创记录或者父记录url
+        protected String original_url;
+        // 原创用户或者父用户昵称
+        protected String original_name;
+        // 原创记录或者记录户标题
+        protected String original_title;
+        // 版块id
+        protected int sectionId;
+        // 版块名称
+        protected String comment;
+        
         /*
          * 通用字段
          */
@@ -30,6 +41,8 @@ public abstract class Parser extends ParseTool {
                 this.source_type = page.getSource_type();
                 this.source_id = page.getSource_id();
                 this.server_id = page.getServer_id();
+                this.sectionId = page.getSectionId();
+                this.comment = page.getComment();
         }
         
         public abstract FetchStatus parse(WebPage page) throws Exception;

@@ -10,6 +10,7 @@ public class TestExtExtractor {
         public void testExtractSource() {
                 Assert.isTrue("安徽财经网".equals(ExtExtractor.extractSource("2014-12-22 8:57:16   来源：安徽财经网  评论(").trim()));
                 Assert.isTrue("苹果日报".equals(ExtExtractor.extractSource("来源：苹果日报")));
+                Assert.isTrue("中時即時".equals(ExtExtractor.extractSource("來自: 中時即時    ").trim()));
         }
 
         @Test
@@ -37,5 +38,10 @@ public class TestExtExtractor {
         public void testExtractReadNum() {
                 String text = "阅读数: 19";
                 Assert.isTrue(19 == ExtExtractor.extractReadNum(text));
+        }
+        @Test
+        public void testExtractReadNum2() {
+                String text = "127";
+                Assert.isTrue(127 == ExtExtractor.extractReadNum(text));
         }
 }

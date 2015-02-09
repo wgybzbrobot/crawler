@@ -105,7 +105,7 @@ public class HttpClient extends HttpBase {
 		HttpMethodParams params = get.getParams();
 		params.makeLenient();
 		params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-		params.setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
+//		params.setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
 		params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
 		String _charset = "";
 		try {
@@ -157,7 +157,7 @@ public class HttpClient extends HttpBase {
 		params.makeLenient();
 		params.setContentCharset("UTF-8");
 		params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-		params.setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
+//		params.setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
 		params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
 		
 		String _charset = "";
@@ -253,13 +253,14 @@ public class HttpClient extends HttpBase {
 		Document currentDoc = page.getDocument();
 		Elements elements = null;
 		elements = currentDoc.select("a:matchesOwn(下一页|下页|下一页>)");
-
+//System.out.println(currentDoc);
 		if (!CollectionUtils.isEmpty(elements)) {
 			WebPage np = page;
 			String next = elements.first().absUrl("href");
 			if (StringUtils.isEmpty(next)) {
 				throw new PageBarNotFoundException();
 			}
+			LOG.info(next);
 			np.setBaseUrl(next);
 
 			return getResponse(np);

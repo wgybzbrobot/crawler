@@ -44,19 +44,6 @@ public class JobStatus implements Serializable {
 		sb.append("\"state\":" + state + ",");
 		sb.append("\"msg\":" + msg + "}");
 	        return sb.toString();
-		
-//		Map<String, Object> map = new HashMap<String, Object>();
-//		map.put("id", id);
-//		map.put("jobType", type);
-//		map.put("comment", comment);
-//		map.put("args", args);
-//		map.put("result", result);
-//		map.put("state", state);
-//		map.put("msg", msg);
-//
-//		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-//		String json = gson.toJson(map, Map.class);
-//		return json;
 	}
 
 }

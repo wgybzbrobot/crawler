@@ -20,13 +20,12 @@
 		<module>crawler-common</module>
 		<module>crawler-dao</module>
 		<module>crawler-parse</module>
+		<module>crawler-parse-ext</module>
 		<module>crawler-protocol</module>
 		<module>crawler-slave</module>
 		<module>crawler-master</module>
 		<module>crawler-web</module>
 		<module>crawler-assemblies</module>
-		<module>crawler-project</module>
-		<module>crawler-parse-ext</module>
 	</modules>
 	<organization>
 		<name>中新软件有限公司</name>

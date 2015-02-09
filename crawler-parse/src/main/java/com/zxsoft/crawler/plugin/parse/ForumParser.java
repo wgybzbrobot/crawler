@@ -1,6 +1,5 @@
 package com.zxsoft.crawler.plugin.parse;
 
-import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import com.zxisl.commons.utils.Assert;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
-import com.zxsoft.crawler.dns.DNSCache;
 import com.zxsoft.crawler.parse.FetchStatus;
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.parse.MultimediaExtractor;
@@ -64,7 +62,7 @@ public class ForumParser extends Parser {
                         LOG.error("没有详细页配置: " + mainUrl);
                         return new FetchStatus(mainUrl, 41, Status.CONF_ERROR);
                 }
-
+                page.setAjax(detailConf.isAjax());
                 ProtocolOutput _output = fetch(page);
                 if (!_output.getStatus().isSuccess()) {
                         return new FetchStatus(mainUrl, 51, Status.PROTOCOL_FAILURE);
@@ -76,10 +74,11 @@ public class ForumParser extends Parser {
                 /*
                  * 解析主贴
                  */
-                RecordInfo info = new RecordInfo(mainUrl, Platform.PLATFORM_FORUM, ip, country_code, province_code, city_code,
+                RecordInfo info = new RecordInfo(mainUrl, comment, Platform.PLATFORM_FORUM, ip, country_code, province_code, city_code,
                                                 location_code, location, source_id, server_id, source_type);
                 info.setTitle(page.getTitle());
                 info.setUpdate_time(page.getUpdateTime());
+                
                 String replyNumDom = detailConf.getReplyNum();
                 if (!StringUtils.isEmpty(replyNumDom) && !CollectionUtils.isEmpty(mainDoc.select(replyNumDom)))
                         info.setComment_count(Utils.extractNum(mainDoc.select(replyNumDom).first().text()));
@@ -91,8 +90,13 @@ public class ForumParser extends Parser {
                 if (!CollectionUtils.isEmpty(masterEles)) {
                         Element masterEle = masterEles.first();
                         String authorDom = detailConf.getAuthor();
-                        if (!StringUtils.isEmpty(authorDom) && !CollectionUtils.isEmpty(masterEle.select(authorDom)))
-                                info.setNickname(masterEle.select(authorDom).first().text());
+                        if (!StringUtils.isEmpty(authorDom) && !CollectionUtils.isEmpty(masterEle.select(authorDom))) {
+                                Element userEle = masterEle.select(authorDom).first();
+                                info.setNickname(userEle.text());
+                                if (!StringUtils.isEmpty(userEle.absUrl("href"))) {
+                                        info.setHome_url(userEle.absUrl("href"));
+                                }
+                        }
                         Elements contentEles = masterEle.select(detailConf.getContent());
                         if (!CollectionUtils.isEmpty(contentEles)) {
                                 Element contentEle = contentEles.first();
@@ -112,6 +116,16 @@ public class ForumParser extends Parser {
                         }
                         info.setId(Md5Signatrue.generateMd5(info.getNickname(), info.getContent(), info.getPic_url(), info.getVoice_url(),
                                                         info.getVideo_url()));
+                        
+                        // 原创记录或者父记录url
+                        original_url = mainUrl;
+                         // 原创用户或者父用户昵称
+                        original_name = info.getNickname();
+                         // 原创记录或者记录户标题
+                        original_title = info.getTitle();
+                         // 版块名称
+//                        type = ;
+                        
                         getRecordInfos().add(info);
                 } else {
                         return new FetchStatus(mainUrl, 42, Status.CONF_ERROR);
@@ -121,10 +135,7 @@ public class ForumParser extends Parser {
                  * 解析回复
                  */
                 Document _doc = mainDoc;
-                String currentUrl = mainUrl, newPageUrl = ""/*
-                                                             * , currentPageText
-                                                             * = ""
-                                                             */;
+                String currentUrl = mainUrl, newPageUrl = "";
                 _output = null;
                 if (!detailConf.isFetchorder()) { // 从第一页
                         int pageNum = 1;
@@ -193,10 +204,14 @@ public class ForumParser extends Parser {
          */
         private boolean parsePage(long prevFetchTime, Document doc, String mainUrl, String currentUrl, DetailConf detailConf)
                                         throws SelectorParseException {
+                // 没有回复
+                if (StringUtils.isEmpty(detailConf.getReply())) {
+                        return false;
+                }
                 Elements replyEles = doc.select(detailConf.getReply());
                 Collections.reverse(replyEles);
                 for (Element element : replyEles) {
-                        RecordInfo reply = new RecordInfo(currentUrl, Platform.PLATFORM_REPLY, ip, country_code, province_code, city_code,
+                        RecordInfo reply = new RecordInfo(currentUrl, comment,Platform.PLATFORM_REPLY, ip, country_code, province_code, city_code,
                                                         location_code, location, source_id, server_id, source_type);
                         reply.setOriginal_url(mainUrl);
                         // 保存回复
@@ -214,7 +229,7 @@ public class ForumParser extends Parser {
                         String parentId = id;
                         if (!CollectionUtils.isEmpty(subReplyEles)) {
                                 for (Element ele : subReplyEles) {
-                                        RecordInfo subReply = new RecordInfo(currentUrl, Platform.PLATFORM_REPLY, ip, country_code,
+                                        RecordInfo subReply = new RecordInfo(currentUrl,comment, Platform.PLATFORM_REPLY, ip, country_code,
                                                                         province_code, city_code, location_code, location, source_id,
                                                                         server_id, source_type);
                                         subReply.setOriginal_id(parentId);
@@ -232,7 +247,11 @@ public class ForumParser extends Parser {
         private String save(RecordInfo reply, Element element, String parentId, DetailConf detailConf) throws SelectorParseException {
                 String replyAuthorDom = detailConf.getReplyAuthor();
                 if (!StringUtils.isEmpty(replyAuthorDom) && !CollectionUtils.isEmpty(element.select(replyAuthorDom))) {
-                        reply.setNickname(element.select(replyAuthorDom).first().text());
+                        Element userEle = element.select(replyAuthorDom).first();
+                        reply.setNickname(userEle.text());
+                        if (!StringUtils.isEmpty(userEle.absUrl("href"))) {
+                                reply.setHome_url(userEle.absUrl("href"));
+                        }
                 }
                 Elements contentEles = element.select(detailConf.getReplyContent());
                 if (!CollectionUtils.isEmpty(contentEles)) {
@@ -264,7 +283,11 @@ public class ForumParser extends Parser {
         private String saveSub(RecordInfo reply, Element element, DetailConf detailConf) throws SelectorParseException {
                 String subReplyAuthorDom = detailConf.getSubReplyAuthor();
                 if (!StringUtils.isEmpty(subReplyAuthorDom) && !CollectionUtils.isEmpty(element.select(subReplyAuthorDom))) {
-                        reply.setNickname(element.select(subReplyAuthorDom).first().text());
+                        Element userEle = element.select(subReplyAuthorDom).first();
+                        reply.setNickname(userEle.text());
+                        if (!StringUtils.isEmpty(userEle.absUrl("href"))) {
+                                reply.setHome_url(userEle.absUrl("href"));
+                        }
                 }
                 String subReplyContentDom = detailConf.getSubReplyContent();
                 if (!StringUtils.isEmpty(subReplyContentDom) && !CollectionUtils.isEmpty(element.select(subReplyContentDom))) {

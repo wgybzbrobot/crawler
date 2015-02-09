@@ -94,47 +94,19 @@ public class JobResource extends ServerResource {
 	 * </ol>
 	 */
 	@Put("json")
-	@SuppressWarnings("unchecked")
 	public Object create(Map<String, Object> args) throws Exception {
-		String type = (String) args.get(Params.JOB_TYPE);
-		JobType jobType = JobType.valueOf(type.toUpperCase());
-		Object map = args.get(Params.ARGS);
-		
-		Map<String, Object> cmdArgs = null;
-		if (map instanceof Map<?, ?>) {
-			cmdArgs = (Map<String, Object>) map;
-			
-//			int region = 1, provinceId = 0, cityId = 0;
-//	                try {
-//	                        region = (int) args.get(Params.REGION_ID);
-//	                } catch (Exception e) {
-//	                        LOG.warn("regionId: " + e.getMessage());
-//	                }
-//	                cmdArgs.put(Params.REGION_ID, region);
-//	                // 当版块属于国内时
-//	                if (Params.REGION_DOMESTIC == region) {
-//	                        try {
-//	                                provinceId = (int) args.get(Params.PROVINCE_ID);
-//	                        } catch (Exception e) {
-//	                                LOG.warn("Cannot get provinceId, message: " + e.getMessage());
-//	                        }
-//	                        try {
-//	                                cityId = (int) args.get(Params.CITY_ID);
-//	                        } catch (Exception e) {
-//	                                LOG.warn("Cannot get cityId, message: " + e.getMessage());
-//	                        }
-//	                        cmdArgs.put(Params.PROVINCE_ID, provinceId);
-//	                        cmdArgs.put(Params.CITY_ID, cityId);
-//	                }
-			
-		}
+	        if (args == null)
+                        return new JobCode(52, "parameters is null").toString();
+	        
 		JobCode jobCode = null;
 		try {
-			jobCode = SlaveApp.jobMgr.create(jobType, cmdArgs);
+			jobCode = SlaveApp.jobMgr.create(args);
 		} catch (RejectedExecutionException e) {
 			LOG.error(e.getMessage());
 			jobCode = new JobCode(53, e.getMessage());
-		}
+		} catch (Exception e) {
+                        LOG.error("", e);
+                }
 		return jobCode.toString();
 	}
 }

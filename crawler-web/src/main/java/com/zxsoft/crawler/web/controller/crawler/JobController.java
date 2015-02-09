@@ -420,7 +420,7 @@ public class JobController {
                                 end = end + 100;
                         }
                 } catch (JedisConnectionException e) {
-                        LOG.error(e.getMessage());
+                        LOG.error(e.getMessage(), e);
                 } finally {
                         jedis.close();
                 }

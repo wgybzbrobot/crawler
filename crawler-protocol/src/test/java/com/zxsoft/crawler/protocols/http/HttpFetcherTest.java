@@ -23,6 +23,14 @@ public class HttpFetcherTest {
 		Document document = output.getDocument();
 		System.out.println(document.html());
 	}
+	@Test
+	public void test12() {
+	        String url = "http://news.mingpao.com/ins/%E5%8D%B3%E6%99%82%E6%96%B0%E8%81%9E/web_tc/main";
+	        WebPage page = new WebPage(url, true);
+	        ProtocolOutput output = httpFetcher.fetch(page);
+	        Document document = output.getDocument();
+	        System.out.println(document.html());
+	}
 
 	@Test
 	public void test2() {

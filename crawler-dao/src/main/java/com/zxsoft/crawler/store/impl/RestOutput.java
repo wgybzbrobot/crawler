@@ -27,6 +27,7 @@ import com.zxsoft.crawler.store.OutputException;
 public class RestOutput implements Output {
 	private static Logger LOG = LoggerFactory.getLogger(RestOutput.class);
 	private static  String url;
+	private static String _url;
 	private static final Output mysqlOutput = new MysqlOutput();
 	private static boolean writeToMysqlIfFail = false;
 	
@@ -45,6 +46,11 @@ public class RestOutput implements Output {
         		if ("yes".equals(_writeToMysqlIfFail)) {
         		        writeToMysqlIfFail = true;
         		}
+        		try {
+        		        _url =  prop.getProperty("data.output.lucene");
+        		} catch (Exception e) {
+        		        e.printStackTrace();
+        		}
 		} catch (NullPointerException e) {
                         LOG.error("Cannot find restoutput.properties file, cannot write data to solr service.");
                 }catch (IOException e1) {
@@ -57,12 +63,17 @@ public class RestOutput implements Output {
 	 */
 	public int write(RecordInfo info) throws OutputException {
 		Assert.notNull(info);
+		
+		if (!StringUtils.isEmpty(_url)) {
+		        writeToLuceneService(info);
+		}
+		
 		List<RecordInfo> recordInfos = new LinkedList<RecordInfo>();
 		recordInfos.add(info);
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("num", 1);
 		map.put("records", recordInfos);
-		Gson gson = new Gson();
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		String json = gson.toJson(map, Map.class);
 		Client client = Client.create();
 		ClientResponse response = null;
@@ -71,9 +82,14 @@ public class RestOutput implements Output {
 			response = webResource.type("application/json").post(ClientResponse.class, json);
 			String msg = response.getEntity(String.class);
 			OutputReturn ret = gson.fromJson(msg, OutputReturn.class);
-			if (ret.errorCode != 0) {
-				LOG.error("Output Failure: " + ret.errorMessage);
-			}
+			  if (ret.errorCode != 0) {
+                                  LOG.error("Output Failure: " + ret.errorMessage);
+                                  if (writeToMysqlIfFail) {
+                                          mysqlOutput.write(recordInfos);
+                                  }
+                          }  else {
+                                  LOG.debug("success write to slolr:" + json);
+                          }
 		} catch (ClientHandlerException e) {
 		       LOG.error("Write solr failed: "  + info.toString());
 		        if (writeToMysqlIfFail) {
@@ -104,50 +120,12 @@ public class RestOutput implements Output {
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		if (CollectionUtils.isEmpty(recordInfos))
 			return 0;
-		int realSize = recordInfos.size();
-		int size = recordInfos.size();
-		int outputSize = 50, successCount = 0;
+		int realSize = recordInfos.size(), size = recordInfos.size();
+		int successCount = 0;
 		Client client = Client.create();
 		client.setConnectTimeout(20000);
 		client.setReadTimeout(20000);
 		try {
-			while (size > outputSize) {
-				List<RecordInfo> subList = recordInfos.subList(0, outputSize);
-				Map<String, Object> map = new HashMap<String, Object>();
-				int number = subList.size();
-				map.put("num", number);
-				map.put("records", subList);
-				String json = gson.toJson(map, Map.class);
-				WebResource webResource = client.resource(url);
-				ClientResponse response = null;
-				try {
-					response = webResource.type("application/json").post(ClientResponse.class, json);
-					String msg = response.getEntity(String.class);
-					LOG.debug(msg + ", status code:" + response.getStatus());
-					OutputReturn ret = gson.fromJson(msg, OutputReturn.class);
-					if (ret.errorCode != 0) {
-						LOG.error("Output Failure: " + ret.errorMessage);
-					}
-					successCount += number;
-				} catch (ClientHandlerException e) {
-				        for (RecordInfo _info : subList) {
-				                LOG.error("Write solr failed: " + _info.toString());
-                                        }
-				        if (writeToMysqlIfFail) {
-					LOG.error(e.getMessage() + ", will write data to mysql");
-					mysqlOutput.write(recordInfos);
-				        } else {
-        					throw new OutputException(e.getMessage());				                
-				        }
-				} finally {
-					if (response != null) {
-						response.close();
-					}
-				}
-				recordInfos = recordInfos.subList(outputSize, size);
-				size = recordInfos.size();
-			}
-
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("num", size);
 			map.put("records", recordInfos);
@@ -158,7 +136,16 @@ public class RestOutput implements Output {
 				response = webResource.type("application/json").post(ClientResponse.class, json);
 				String msg = response.getEntity(String.class);
                                 LOG.debug(msg + ", status code:" + response.getStatus());
-				successCount += size;
+                                OutputReturn ret = gson.fromJson(msg, OutputReturn.class);
+                                if (ret.errorCode != 0) {
+                                        LOG.error("Output Failure: " + ret.errorMessage);
+                                        if (writeToMysqlIfFail) {
+                                                mysqlOutput.write(recordInfos);
+                                        }
+                                } else {
+                                        successCount += size;
+                                        LOG.debug("success write to slolr:" + json);
+                                }
 			} catch (ClientHandlerException e) {
 			        for (RecordInfo _info : recordInfos) {
                                         LOG.error("Write solr failed: " + _info.toString());
@@ -184,7 +171,37 @@ public class RestOutput implements Output {
 		        LOG.warn("Total record count is " + realSize + ", but write to rest service record count is " + successCount);
 		}
 		
+		
+		for (RecordInfo recordInfo : recordInfos) {
+		        writeToLuceneService(recordInfo);
+                }
+		
 		return realSize;
 	}
 
+	/**
+	 * 写到lucene服务
+	 * @param recordInfo
+	 */
+	private void writeToLuceneService(RecordInfo recordInfo) {
+	        Client client = Client.create();
+	        ClientResponse response = null;
+	        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+	        try {
+	                String json = gson.toJson(recordInfo, RecordInfo.class);
+                        WebResource webResource = client.resource(_url);
+                        response = webResource.type("application/json").post(ClientResponse.class, json);
+                        String msg = response.getEntity(String.class);
+                        LOG.debug(msg);
+                } catch (Exception e) {
+                       LOG.error("Write lucene failed: ", e);
+                } finally {
+                        if (response != null) {
+                                response.close();
+                        }
+                        if (client != null) {
+                                client.destroy();
+                        }
+                }
+	}
 }

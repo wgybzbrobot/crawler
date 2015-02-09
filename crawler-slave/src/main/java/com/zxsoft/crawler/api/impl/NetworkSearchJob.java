@@ -31,9 +31,11 @@ public class NetworkSearchJob extends CrawlTool {
                 String keyword = (String) args.get(Params.KEYWORD);
                 Assert.notNull(keyword);
                 String engineUrl = (String) args.get(Params.ENGINE_URL);
+                String url = args.get(Params.URL) == null ? "" : (String) args.get(Params.URL);
 
                 WebPage page = new WebPage(keyword, engineUrl);
-
+                page.setBaseUrl(url);
+                
                 NetworkSearchParserController parserController = new NetworkSearchParserController();
                 Map<String, Object> map = new HashMap<String, Object>();
                 try {

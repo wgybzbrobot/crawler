@@ -48,7 +48,12 @@ public final class NetworkSearchParserController extends ParseTool {
                         return new FetchStatus(listUrl, 43, Status.CONF_ERROR);
                 }
 
-                String indexUrl = String.format(listUrl, URLEncoder.encode(keyword, "UTF-8"));
+                
+                String indexUrl = page.getBaseUrl();
+                if (StringUtils.isEmpty(indexUrl)) {
+                        indexUrl = String.format(listUrl, keyword);
+                }
+                
                 FetchStatus status = new FetchStatus(indexUrl, listConf.getComment() + keyword);
 
                 String listDom = listConf.getListdom();
@@ -90,27 +95,43 @@ public final class NetworkSearchParserController extends ParseTool {
                 int source_id = page.getSource_id();
                 int server_id = page.getServer_id();
                 int source_type = page.getSource_type();
-
+                int sectionId = page.getSectionId();
+                String comment = page.getComment();
+                
                 while (true) {
                         Elements list = document.select(listDom);
                         if (CollectionUtils.isEmpty(list)) {
                                 return new FetchStatus(listUrl, 44, Status.CONF_ERROR);
                         }
+                        
                         Elements lines = list.first().select(listConf.getLinedom());
-
+                        if (CollectionUtils.isEmpty(lines)) {
+                                return new FetchStatus(listUrl, 45, Status.CONF_ERROR);
+                        }
+                        
                         LOG.info("【" + listConf.getComment() + "】第" + pageNum.get() + " 页, 数量: " + lines.size());
 
                         List<RecordInfo> infos = new LinkedList<RecordInfo>();
 
+                        String curl = "";
                         for (Element line : lines) {
                                 Elements _urls = line.select(listConf.getUrldom());
-                                if (CollectionUtils.isEmpty(_urls) || StringUtils.isEmpty(_urls.first().absUrl("href")))
+                                
+                                if (CollectionUtils.isEmpty(_urls))
                                         continue;
+                                if (!StringUtils.isEmpty(_urls.first().absUrl("href"))) {
+                                        /** 链接地址 */
+                                        curl = _urls.first().absUrl("href");
+                                } else {
+                                        Elements _anchors = _urls.first().getElementsByTag("a");
+                                        if (CollectionUtils.isEmpty(_anchors)) //没有链接
+                                                continue;
+                                        else
+                                                curl = _anchors.first().absUrl("href");
+                                }
 
                                 sum.incrementAndGet();
 
-                                /** 链接地址 */
-                                String curl = _urls.first().absUrl("href");
                                 /** 标题 */
                                 String title = line.select(urlDom).first().text();
                                 /** 简介 */
@@ -127,12 +148,12 @@ public final class NetworkSearchParserController extends ParseTool {
                                         date = new Nldp(str).extractDateInMillis();
                                 }
 
-                                RecordInfo info = new RecordInfo(curl, Platform.PLATFORM_META_SEARCH, ip, country_code, province_code, city_code, location_code, location, source_id, server_id, source_type);
+                                RecordInfo info = new RecordInfo(curl,  comment,Platform.PLATFORM_META_SEARCH, ip, country_code, province_code, city_code, location_code, location, source_id, server_id, source_type);
                                 info.setTitle(title);
                                 info.setId(Md5Signatrue.generateMd5(curl));
                                 info.setContent(synopsis);
                                 info.setTimestamp(date);
-                                LOG.info(title);
+                                LOG.info(info.toString());
                                 infos.add(info);
                         }
 
@@ -154,7 +175,7 @@ public final class NetworkSearchParserController extends ParseTool {
                                 LOG.debug("No next page, exit.");
                                 break;
                         }
-
+                        document = ptemp.getDocument();
                         pageNum.incrementAndGet();
 
                 }

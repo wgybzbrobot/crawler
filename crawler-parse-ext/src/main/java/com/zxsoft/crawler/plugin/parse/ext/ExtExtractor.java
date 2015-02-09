@@ -45,7 +45,7 @@ public class ExtExtractor {
                         int pos = str.indexOf(":") == -1 ? str.indexOf("：") : str.indexOf(":");
                         str = str.substring(pos + 1);
                 }
-                if (str == null || str.length() > 30) str = "";
+                if (str == null || str.trim().length() > 30) str = "";
                 return str;
         }
 

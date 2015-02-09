@@ -3,6 +3,7 @@ package com.zxsoft.crawler.parse;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.jdbc.core.RowMapper;
 
@@ -43,5 +44,6 @@ public class LocationUtils {
                 }
                 return 0;
         }
+        
         
 }

@@ -21,4 +21,11 @@ public class TestDateExtractor {
                 Date date  = DateExtractor.extract(text);
                 System.out.println(date.toLocaleString());
         }
+
+        @Test
+        public void testExtract3() {
+                String text = "2015年 1月 22日";
+                Date date  = DateExtractor.extract(text);
+                System.out.println(date.toLocaleString());
+        }
 }

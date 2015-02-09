@@ -1,10 +1,8 @@
 package com.zxsoft.crawler.protocols.http;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.URIException;
@@ -44,6 +42,7 @@ public class HttpFetcher {
                                 url = URIUtil.encodePathQuery(url, "UTF-8");
                                 page.setBaseUrl(url);
                         } catch (URIException e) {
+                                LOG.error("URIUtil.encodePathQuery(url, utf-8) error.", e);
                         }
                 } catch (MalformedURLException e1) {
                         LOG.error("Error: not match url regular expression: " + url);
