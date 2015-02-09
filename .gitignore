@@ -5,6 +5,7 @@ crawler-*/**/.gitignore
 .project
 .springBeans
 logs
+*.properties
 *.pyc
 *.log
 *.class
