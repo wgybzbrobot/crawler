@@ -92,13 +92,27 @@ public final class NetworkInspectParserController extends ParseTool {
 					hasUpdate = true;
 				}
 
-				Date releasedate = null; // NOTE:有些列表页面可能没有发布时间
-				if (!StringUtils.isEmpty(listConf.getDatedom()) && !CollectionUtils.isEmpty(line.select(listConf.getDatedom()))) {
-					releasedate = DateExtractor.extract(line.select(listConf.getDatedom()).first().html());
-				}
-
 				if (CollectionUtils.isEmpty(line.select(urlDom)) || StringUtils.isEmpty(line.select(urlDom).first().absUrl("href")))
-					continue;
+				        continue;
+
+				
+				WebPage wp = page.clone();
+				/*
+				 * 如果详细页没有这些字段，则在列表页获取
+				 */
+				if (!StringUtils.isEmpty(listConf.getDatedom()) && !CollectionUtils.isEmpty(line.select(listConf.getDatedom()))) {
+				        Date releasedate = DateExtractor.extract(line.select(listConf.getDatedom()).first().html());
+					wp.setReleaseDate(releasedate);
+				}
+				if (!StringUtils.isEmpty(listConf.getAuthordom()) && !CollectionUtils.isEmpty(line.select(listConf.getAuthordom()))) {
+				        Element authorEle = line.select(listConf.getAuthordom()).first();
+				        wp.setAuthor(authorEle.text());
+				        Elements _anchors = authorEle.getElementsByTag("a");
+				        if (!CollectionUtils.isEmpty(_anchors)) {
+				              wp.setHomeUrl(_anchors.first().absUrl("href"));  
+				        }
+				}
+				
 
 				String curl = "";
 				Elements as = line.getElementsByTag("a");
@@ -110,7 +124,6 @@ public final class NetworkInspectParserController extends ParseTool {
 
 				String title = line.select(urlDom).first().text();
 				
-				WebPage wp = page.clone();
 				wp.setTitle(title);
 				wp.setBaseUrl(curl);
 				wp.setAjax(false); // detail page use normal load

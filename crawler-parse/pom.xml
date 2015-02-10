@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>com.zxisl</groupId>
 			<artifactId>nldp</artifactId>
-			<version>1.0.3-SNAPSHOT</version>
+			<version>1.0.3</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>

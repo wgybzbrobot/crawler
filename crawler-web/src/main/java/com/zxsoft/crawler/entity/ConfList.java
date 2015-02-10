@@ -33,6 +33,7 @@ public class ConfList implements java.io.Serializable {
 	private String datedom;
 	private String updatedom;
 	private String synopsisdom;
+	private String authordom;
 	
 //	private Section section;
 
@@ -163,8 +164,17 @@ public class ConfList implements java.io.Serializable {
 	public void setLinedom(String linedom) {
 		this.linedom = linedom;
 	}
+	
+	@Column(name = "authordom", length = 100)
+	public String getAuthordom() {
+                return authordom;
+        }
 
-	@Column(name = "urldom", length = 100)
+        public void setAuthordom(String authordom) {
+                this.authordom = authordom;
+        }
+
+        @Column(name = "urldom", length = 100)
 	public String getUrldom() {
 		return this.urldom;
 	}

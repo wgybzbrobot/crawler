@@ -64,7 +64,7 @@ public class ConfDao extends BaseDao {
 					                .getString("category"), rs.getBoolean("auth"), rs
 					                .getBoolean("ajax"), rs.getInt("fetchinterval"), rs
 					                .getString("filterurl"), rs.getString("listdom"), rs
-					                .getString("linedom"), rs.getString("urldom"), rs
+					                .getString("linedom"), rs.getString("authordom"), rs.getString("urldom"), rs
 					                .getString("datedom"), rs.getString("updatedom"), rs
 					                .getInt("numThreads"), rs.getString("synopsisdom"));
 				        }

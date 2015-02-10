@@ -44,4 +44,11 @@ public class TestExtExtractor {
                 String text = "127";
                 Assert.isTrue(127 == ExtExtractor.extractReadNum(text));
         }
+        
+        @Test
+        public void testExtractAuthor() {
+                String text = "编辑：zhongkang  日期：02-10 来源：京华时报";
+                System.out.println(ExtExtractor.extractAuthor(text));
+                Assert.isTrue("zhongkang".equals(ExtExtractor.extractAuthor(text)));
+        }
 }

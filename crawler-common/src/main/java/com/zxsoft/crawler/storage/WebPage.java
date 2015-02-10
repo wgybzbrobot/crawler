@@ -1,6 +1,7 @@
 package com.zxsoft.crawler.storage;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import org.jsoup.nodes.Document;
 
@@ -31,7 +32,10 @@ public class WebPage implements Serializable, Cloneable {
         private long updateTime;
         private boolean ajax;
         private boolean auth;
-
+        
+        private Date releaseDate;
+        private String author;
+        private String homeUrl;
         /*
          * 通用字段
          */
@@ -115,6 +119,30 @@ public class WebPage implements Serializable, Cloneable {
                 this.baseUrl = baseUrl;
                 this.fetchTime = fetchTime;
                 this.document = document;
+        }
+
+        public Date getReleaseDate() {
+                return releaseDate;
+        }
+
+        public void setReleaseDate(Date releaseDate) {
+                this.releaseDate = releaseDate;
+        }
+
+        public String getAuthor() {
+                return author;
+        }
+
+        public void setAuthor(String author) {
+                this.author = author;
+        }
+
+        public String getHomeUrl() {
+                return homeUrl;
+        }
+
+        public void setHomeUrl(String homeUrl) {
+                this.homeUrl = homeUrl;
         }
 
         public int getSource_id() {

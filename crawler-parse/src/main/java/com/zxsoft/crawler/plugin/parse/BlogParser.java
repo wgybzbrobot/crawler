@@ -84,23 +84,29 @@ public class BlogParser extends Parser {
                 Elements masterEles = mainDoc.select(detailConf.getMaster());
                 if (!CollectionUtils.isEmpty(masterEles)) {
                         Element masterEle = masterEles.first();
-                        String authorDom = detailConf.getAuthor();
-                        if (!StringUtils.isEmpty(authorDom) && !CollectionUtils.isEmpty(masterEle.select(authorDom))) {
-                                Element userEle = masterEle.select(authorDom).first();
-                                info.setNickname(userEle.text());
-                                if (!StringUtils.isEmpty(userEle.absUrl("href"))) {
-                                        info.setHome_url(userEle.absUrl("href"));
+                        
+                        if (StringUtils.isEmpty(page.getAuthor())) {
+                                String authorDom = detailConf.getAuthor();
+                                if (!StringUtils.isEmpty(authorDom) && !CollectionUtils.isEmpty(masterEle.select(authorDom))) {
+                                        Element userEle = masterEle.select(authorDom).first();
+                                        info.setNickname(userEle.text());
+                                        if (!StringUtils.isEmpty(userEle.absUrl("href"))) {
+                                                info.setHome_url(userEle.absUrl("href"));
+                                        }
                                 }
+                        } else {
+                                info.setNickname(page.getAuthor());
+                                info.setHome_url(page.getHomeUrl() == null ? "" : page.getHomeUrl());
                         }
-                        Elements contentEles = masterEle.select(detailConf.getContent());
-                        if (!CollectionUtils.isEmpty(contentEles)) {
+                        Elements contentEles = null;
+                        if (!StringUtils.isEmpty(detailConf.getContent()) && !CollectionUtils.isEmpty(contentEles = masterEle.select(detailConf.getContent())) ) {
                                 Element contentEle = contentEles.first();
                                 info.setContent(contentEle.text());
                                 info.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, ""));
                                 info.setVoice_url(MultimediaExtractor.extractAudioUrl(contentEle));
                                 info.setVideo_url(MultimediaExtractor.extractVideoUrl(contentEle));
                         }
-                        if (info.getTimestamp() == 0) {
+                        if (page.getReleaseDate() == null) {
                                 String dateDom = detailConf.getDate();
                                 if (!StringUtils.isEmpty(dateDom) && !CollectionUtils.isEmpty(masterEle.select(dateDom))) {
                                         String dateField = masterEle.select(dateDom).first().html();
@@ -108,6 +114,8 @@ public class BlogParser extends Parser {
                                                 info.setTimestamp(DateExtractor.extractInMilliSecs(dateField));
                                         }
                                 }
+                        } else {
+                                info.setTimestamp(page.getReleaseDate().getTime());
                         }
                         info.setId(Md5Signatrue.generateMd5(info.getNickname(), info.getContent(), info.getPic_url(), info.getVoice_url(),
                                                         info.getVideo_url()));

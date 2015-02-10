@@ -18,6 +18,7 @@ public class ListConf implements Serializable{
     private int fetchinterval;
     private String filterurl;
     private String listdom;
+    private String authordom; // 作者，当详细页没有是时
     private String linedom; // 列表页面中一行的DOM
     private String urldom; // 一行信息的url DOM
     private String datedom; // 发布时间DOM
@@ -29,7 +30,7 @@ public class ListConf implements Serializable{
     public ListConf() {}
     
 	public ListConf(String comment, String url, String category, boolean auth, boolean ajax, int fetchinterval, /*int pageNum,*/
-            String filterurl, String listdom, String linedom, String urldom, String datedom,
+            String filterurl, String listdom, String linedom,String authordom, String urldom, String datedom,
             String updatedom, int numThreads, String synopsisdom) {
 	    super();
 	    this.comment = comment;
@@ -41,6 +42,7 @@ public class ListConf implements Serializable{
 	    this.filterurl = filterurl;
 	    this.listdom = listdom;
 	    this.linedom = linedom;
+	    this.authordom = authordom;
 	    this.urldom = urldom;
 	    this.datedom = datedom;
 	    this.updatedom = updatedom;
@@ -48,7 +50,15 @@ public class ListConf implements Serializable{
 	    this.synopsisdom = synopsisdom;
     }
 	
-	public boolean isAuth() {
+	public String getAuthordom() {
+                return authordom;
+        }
+
+        public void setAuthordom(String authordom) {
+                this.authordom = authordom;
+        }
+
+        public boolean isAuth() {
 		return auth;
 	}
 

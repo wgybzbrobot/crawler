@@ -67,7 +67,7 @@ public class NewsParser extends Parser {
 		RecordInfo info = new RecordInfo(mainUrl, comment,Platform.PLATFORM_NEWS, ip, country_code, province_code, city_code, location_code, location, source_id, server_id, source_type);
 		info.setTitle(page.getTitle());
 		Elements contentEles = null;
-		if (StringUtils.isEmpty(detailConf.getContent()) && !CollectionUtils.isEmpty(contentEles = document.select(detailConf.getContent()))) {
+		if (!StringUtils.isEmpty(detailConf.getContent()) && !CollectionUtils.isEmpty(contentEles = document.select(detailConf.getContent()))) {
 			Element contentEle = contentEles.first();
 			info.setContent(contentEle.text());
 			info.setPic_url(MultimediaExtractor.extractImgUrl(contentEle, ""));
@@ -76,7 +76,8 @@ public class NewsParser extends Parser {
 		}
 		String authorDom = detailConf.getAuthor();
 		if (!StringUtils.isEmpty(authorDom) && !CollectionUtils.isEmpty(document.select(authorDom))) {
-			info.setNickname(document.select(authorDom).first().text());
+		        String text = document.select(authorDom).first().text();
+			info.setNickname(ExtExtractor.extractAuthor(text));
 		}
 		String sourcesDom = detailConf.getSources();
 		if (!StringUtils.isEmpty(sourcesDom) && !CollectionUtils.isEmpty(document.select(sourcesDom)))  {
@@ -91,11 +92,13 @@ public class NewsParser extends Parser {
 		String forwardNumDom = detailConf.getForwardNum();
 		if (!StringUtils.isEmpty(forwardNumDom) && !CollectionUtils.isEmpty(document.select(forwardNumDom))) {
 			String forwardNum = document.select(forwardNumDom).first().text();
+			if (!StringUtils.isEmpty(forwardNum))
 			info.setRepost_count(Integer.valueOf(forwardNum));
 		}
 		String reviewNumDom = detailConf.getReviewNum();
 		if (!StringUtils.isEmpty(reviewNumDom) && !CollectionUtils.isEmpty(document.select(reviewNumDom))) {
 			String reviewNum = document.select(reviewNumDom).first().text();
+			if (!StringUtils.isEmpty(reviewNum))
 			info.setRead_count(Integer.valueOf(reviewNum));
 		}
 		String dateDom = detailConf.getDate();

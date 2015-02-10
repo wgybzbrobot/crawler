@@ -126,8 +126,19 @@ public class ListConfigVerification extends ParseTool {
                                                                                 }
                                                                         }
         
+                                                                        
                                                                         ThreadInfo info = new ThreadInfo(url, title, update, releaseDate);
         
+                                                                        /*
+                                                                         * 作者
+                                                                         */
+                                                                        if (!StringUtils.isEmpty(listConf.getAuthordom())) {
+                                                                                Elements authorEles = lineEle.select(listConf.getAuthordom());
+                                                                                if (!CollectionUtils.isEmpty(authorEles)) {
+                                                                                        info.setAuthor(authorEles.first().text());
+                                                                                }
+                                                                        }
+                                                                        
                                                                         if (!StringUtils.isEmpty(listConf.getSynopsisdom())) {
                                                                                 Elements synoEles = lineEle.select(listConf.getSynopsisdom());
                                                                                 if (!CollectionUtils.isEmpty(synoEles)) {

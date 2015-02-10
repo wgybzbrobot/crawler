@@ -22,3 +22,7 @@
 /ReplyNumExtractorLexer.tokens
 /ReplyNumExtractorListener.java
 /ReplyNumExtractorParser.java
+/AuthorExtractor.tokens
+/AuthorExtractorLexer.java
+/AuthorExtractorLexer.tokens
+/AuthorExtractorParser.java

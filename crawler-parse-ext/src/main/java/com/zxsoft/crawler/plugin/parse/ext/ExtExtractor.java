@@ -5,6 +5,9 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zxsoft.crawler.plugin.parse.ext.generated.AuthorExtractorLexer;
+import com.zxsoft.crawler.plugin.parse.ext.generated.AuthorExtractorParser;
+import com.zxsoft.crawler.plugin.parse.ext.generated.AuthorExtractorParser.ExtractAuthorContext;
 import com.zxsoft.crawler.plugin.parse.ext.generated.ReadNumExtractorLexer;
 import com.zxsoft.crawler.plugin.parse.ext.generated.ReadNumExtractorParser;
 import com.zxsoft.crawler.plugin.parse.ext.generated.ReadNumExtractorParser.ExtractReadNumContext;
@@ -114,6 +117,24 @@ public class ExtExtractor {
                         }
                 }
                 return num;
+        }
+        
+        public static String extractAuthor(String text) {
+                ANTLRInputStream ais = new ANTLRInputStream(text);
+                AuthorExtractorLexer rlexer = new AuthorExtractorLexer(ais);
+                CommonTokenStream rTokenStream = new CommonTokenStream(rlexer);
+                AuthorExtractorParser rparser = new AuthorExtractorParser(rTokenStream);
+                ExtractAuthorContext rContext = rparser.extractAuthor();
+                String str = rContext.getText();
+                if (str.contains("missing") || str.contains("EOF")) {
+                        // do not find use antlr4
+                        str = text;
+                } else {
+                        int pos = str.indexOf(":") == -1 ? str.indexOf("：") : str.indexOf(":");
+                        str = str.substring(pos + 1);
+                }
+                if (str == null || str.trim().length() > 30) str = "";
+                return str.trim();
         }
 
 }

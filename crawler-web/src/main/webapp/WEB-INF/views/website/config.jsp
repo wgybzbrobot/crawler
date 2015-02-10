@@ -54,11 +54,12 @@
 					});
 				}
 				var html = '<strong>配置结果:</strong><p>分页栏:' + data.pagebar + '</p>';
-				html += '<table><tr><td>编号</td><td>详细页</td><td>更新时间</td><td>发布时间</td><td>简介</td></tr>';
+				html += '<table><tr><td>编号</td><td>详细页</td><td>作者</td><td>更新时间</td><td>发布时间</td><td>简介</td></tr>';
 				$.each(data.list, function(i, item){
 					html += '<tr>';
 					html += '<td class="link">' + (i+1) + '</td>';
 					html += '<td><a class="link" target="_blank" href="' + item.url + '">' + item.title + '</a></td>';
+					html += '<td>' + (item.author == null ? ' ' : item.author) + '</td>';
 					html += '<td>' + (item.update == null ? '没有获取到' : new Date(item.update).toLocaleString()) + '</td>';
 					html += '<td>' + (item.releaseDate == null ? '没有获取到' : new Date(item.releaseDate).toLocaleString()) + '</td>';
 					html += '<td>' + (item.synopsis == null ? '' : item.synopsis) + '</td>';
@@ -312,18 +313,6 @@
 									 	<input type="hidden" name="url" id="url" value="${section.url }" />
 									 	<input type="hidden" name="category" value="${section.category.id }" />
 									</div>
-								<%-- 	<div>
-										<label class="form-label" for="auth">是否需要登录</label>
-										<c:choose>
-											<c:when test="${confList.auth}">
-												<input type="radio" name="auth" value="true" checked="checked" />是<input type="radio" name="auth"
-													value="false" /> 否</c:when>
-											<c:otherwise>
-												<input type="radio" name="auth" value="true" />是<input type="radio" name="auth" value="false"
-													checked="checked" /> 否
-											</c:otherwise>
-										</c:choose>
-									</div> --%>
 									<div>
 										<label class="form-label" for="ajax">是否Ajax加载</label>
 										<c:choose>
@@ -335,10 +324,6 @@
 													checked="checked" /> 否</c:otherwise>
 										</c:choose>
 									</div>
-									<%-- <div>
-										<label class="form-label" for="numThreads">线程数<span class="red">*</span></label> <input class="easyui-numberbox "
-											name="numThreads" data-options="required:true,min:1,precision:0,value:6" value="${confList.numThreads }" />
-									</div> --%>
 									<div>
 										<label class="form-label" for="fetchinterval">时间间隔(分钟)<span class="red">*</span></label> <input name="fetchinterval"
 											class="easyui-numberbox" data-options="required:true,min:1,precision:0" value="${confList.fetchinterval }" />
@@ -360,6 +345,10 @@
 									<div>
 										<label class="form-label" for="urldom">详细页URL DOM<span class="red">*</span></label> <input name="urldom"
 											class="easyui-textbox" data-options="required:true" value="${confList.urldom }" /> 
+									</div>
+									<div>
+										<label class="form-label" for="urldom" title="当详细页中没有时填写"> 作者 DOM</label> <input name="authordom"
+											class="easyui-textbox"  value="${confList.authordom }" /> <label class="form-label" class="error" id="authordomerror"></label>
 									</div>
 									<div>
 										<label class="form-label" for="updatedom">更新时间DOM</label> <input name="updatedom" class="easyui-textbox"

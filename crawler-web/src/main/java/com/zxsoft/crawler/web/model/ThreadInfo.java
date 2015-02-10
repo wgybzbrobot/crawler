@@ -9,6 +9,7 @@ public class ThreadInfo {
 
 	private String url;
 	private String title;
+	private String author;
 	private Date update;
 	private Date releaseDate;
 	private String synopsis;
@@ -22,7 +23,13 @@ public class ThreadInfo {
 	    this.releaseDate = releaseDate;
     }
 	
-	public String getSynopsis() {
+	public String getAuthor() {
+                return author;
+        }
+        public void setAuthor(String author) {
+                this.author = author;
+        }
+        public String getSynopsis() {
 		return synopsis;
 	}
 	public void setSynopsis(String synopsis) {

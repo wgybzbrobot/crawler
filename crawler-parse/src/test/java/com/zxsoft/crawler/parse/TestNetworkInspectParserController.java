@@ -71,5 +71,5 @@ public class TestNetworkInspectParserController {
                 FetchStatus status = parserController.parse(page);
                 Assert.isTrue(status.getStatus() == FetchStatus.Status.SUCCESS);
 	}
-	
+
 }

@@ -127,7 +127,9 @@ public class DetailConfigVerification extends ParseTool {
 							error.put("msg", "获取楼主失败");
 							errors.add(error);
 						} else {
-							String masterAuthor = masterAuthorEles.first().text();
+//							String masterAuthor = masterAuthorEles.first().text();
+							   String text = masterAuthorEles.first().text();
+					                 String masterAuthor = ExtExtractor.extractAuthor(text);
 							info.put("author", masterAuthor);
 						}
 					}
