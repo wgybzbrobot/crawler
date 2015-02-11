@@ -36,8 +36,8 @@ public class TestExtExtractor {
         }
         @Test
         public void testExtractReadNum() {
-                String text = "阅读数: 19";
-                Assert.isTrue(19 == ExtExtractor.extractReadNum(text));
+                String text = "收藏 分享 2015-2-10 18:20| 發佈者: maganpower| 查看數: 564| 評論數: 0 |來自: 中央社";
+                Assert.isTrue(564 == ExtExtractor.extractReadNum(text));
         }
         @Test
         public void testExtractReadNum2() {

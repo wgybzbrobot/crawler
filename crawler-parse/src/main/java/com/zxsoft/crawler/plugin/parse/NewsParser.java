@@ -99,7 +99,7 @@ public class NewsParser extends Parser {
 		if (!StringUtils.isEmpty(reviewNumDom) && !CollectionUtils.isEmpty(document.select(reviewNumDom))) {
 			String reviewNum = document.select(reviewNumDom).first().text();
 			if (!StringUtils.isEmpty(reviewNum))
-			info.setRead_count(Integer.valueOf(reviewNum));
+			        info.setRead_count(ExtExtractor.extractReadNum(reviewNum));
 		}
 		String dateDom = detailConf.getDate();
 		if (!StringUtils.isEmpty(dateDom) && !CollectionUtils.isEmpty(document.select(dateDom))) {
