@@ -180,7 +180,7 @@ public class ConfDao extends BaseDao {
 			if (!CollectionUtils.isEmpty(list)) {
 				detailConf = list.get(0);
 			} else {
-			        LOG.debug("Do not find DetailConf database.");
+			        LOG.error(" Do not find DetailConf in database." + host);
 			        return null;
 			}
 
