@@ -170,7 +170,7 @@
 			<a id="addWebsiteBtn" class="linkbutton" href="javascript:void(0);">添加网站</a>
 			<a id="addWebsiteBtn" class="linkbutton" href='<c:url value="/section/search"/>'>查找版块</a>
 		</div>
-		<div class="form-wrapper" style="display: none; height: 366px; width:445px;">
+		<div class="form-wrapper" style="display: none; height: 386px; width:445px;">
 			<a class="form-wrapper-close" href="javascript:;"></a>
 			<div class="form-wrapper-title">编辑网站详细信息</div>
 			<div class="form-wrapper-center">

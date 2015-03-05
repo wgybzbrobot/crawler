@@ -94,6 +94,26 @@ public class WebPage implements Serializable, Cloneable {
                 this.prevFetchTime = prevFetchTime;
         }
 
+        public WebPage(String baseUrl, String engineUrl, String keyword, int sectionId, String comment,  int region, int provinceId, int cityId, int locationCode, String location,
+                                        String ip, JobType jobType, int source_id, int server_id, int source_type) {
+                super();
+                this.baseUrl = baseUrl;
+                this.listUrl = engineUrl;
+                this.keyword = keyword;
+                this.sectionId = sectionId;
+                this.comment = comment;
+                this.region = region;
+                this.provinceId = provinceId;
+                this.cityId = cityId;
+                this.locationCode = locationCode;
+                this.location = location;
+                this.ip = ip;
+                this.jobType = jobType;
+                this.source_id = source_id;
+                this.server_id = server_id;
+                this.source_type = source_type;
+        }
+        
         public WebPage(String baseUrl, int sectionId, String comment, long prevFetchTime, int region, int provinceId, int cityId, int locationCode, String location,
                                         String ip, JobType jobType, int source_id, int server_id, int source_type) {
                 super();

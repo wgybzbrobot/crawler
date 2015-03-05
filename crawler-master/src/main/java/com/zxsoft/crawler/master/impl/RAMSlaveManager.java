@@ -151,9 +151,11 @@ public class RAMSlaveManager implements SlaveManager {
                                         return new JobCode(20121, "URLEncoder.encode keyword error," + e.getMessage()).toString();
                                 }
                         }
-                        if (prey.isAutoUrl()) {
+//                        if (prey.isAutoUrl()) {
                                 prey.setUrl(URLFormatter.format(prey.getEngineUrl(), prey.getKeyword()));
-                        }
+//                        } else {
+//                                prey.setUrl(String.format(prey.getUrl(), prey.getKeyword()));
+//                        }
                 } else if (prey.isAutoUrl()) {
                         prey.setUrl(URLFormatter.format(prey.getUrl()));
                 }

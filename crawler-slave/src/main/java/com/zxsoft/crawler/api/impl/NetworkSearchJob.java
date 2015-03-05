@@ -1,5 +1,6 @@
 package com.zxsoft.crawler.api.impl;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,9 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.zxisl.commons.utils.Assert;
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.api.CrawlTool;
+import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.api.Params;
+import com.zxsoft.crawler.dns.DNSCache;
 import com.zxsoft.crawler.parse.FetchStatus;
+import com.zxsoft.crawler.parse.LocationUtils;
 import com.zxsoft.crawler.parse.NetworkSearchParserController;
 import com.zxsoft.crawler.parse.ParserNotFoundException;
 import com.zxsoft.crawler.storage.WebPage;
@@ -31,13 +36,41 @@ public class NetworkSearchJob extends CrawlTool {
                 String keyword = (String) args.get(Params.KEYWORD);
                 Assert.notNull(keyword);
                 String engineUrl = (String) args.get(Params.ENGINE_URL);
-                String url = args.get(Params.URL) == null ? "" : (String) args.get(Params.URL);
-
-                WebPage page = new WebPage(keyword, engineUrl);
+                String url =  (String) args.get(Params.URL);
+                Map<String, Object> map = new HashMap<String, Object>();
+                
+                if (StringUtils.isEmpty(url)) {
+                        LOG.error("error, no url:" + engineUrl);
+                        map.put("code", 5004);
+                        map.put("message", "search url not set by engineUrl and keyword.");
+                        return map;
+                }
+                
+                /*
+                 * 传入参数
+                 */
+                int region = (Integer) args.get(Params.COUNTRY_CODE);
+                int provinceId = (Integer) args.get(Params.PROVINCE_CODE);
+                int cityId = (Integer) args.get(Params.CITY_CODE);
+                int source_id = (Integer) args.get(Params.SOURCE_ID);
+                int server_id = (Integer) args.get(Params.SERVER_ID);
+                int source_type = JobType.NETWORK_SEARCH.getValue();
+                int sectionId = (Integer) args.get(Params.SECTION_ID);
+                String comment = (String) args.get(Params.COMMENT);
+                int locationCode = 0;
+            
+                String   ip = DNSCache.getIp( new URL(url));
+                String location = LocationUtils.getLocation(ip);
+              locationCode = LocationUtils.getLocationCode(ip);
+              
+              WebPage page = new WebPage(url, engineUrl, keyword, sectionId, comment, region, provinceId, cityId, locationCode, location, ip,
+                                              JobType.NETWORK_SEARCH, source_id, server_id, source_type);
+              
+//                WebPage page = new WebPage(keyword, engineUrl);
                 page.setBaseUrl(url);
                 
                 NetworkSearchParserController parserController = new NetworkSearchParserController();
-                Map<String, Object> map = new HashMap<String, Object>();
+             
                 try {
                         FetchStatus status = parserController.parse(page);
                         map.put("url", status.getUrl());
@@ -52,6 +85,10 @@ public class NetworkSearchJob extends CrawlTool {
                         LOG.error(e.getMessage());
                         map.put("code", 5002);
                         map.put("message", e.getMessage());
+                } catch (IllegalArgumentException e) {
+                        LOG.error("Argument error, may be parse rule not configured.", e);
+                        map.put("code", 5003);
+                        map.put("message", "argument error, may be parse rule not configured" + e.getMessage());
                 }
 
                 LOG.debug((String) map.get("message"));

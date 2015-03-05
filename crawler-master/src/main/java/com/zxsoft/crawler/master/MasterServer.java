@@ -207,8 +207,8 @@ public class MasterServer {
                                 realInterval = Integer.valueOf( prop.getProperty("read.seconds.interval", "10"));
                                 searchTaskExecutable = true;
                         } catch (Exception e) {
-                                LOG.warn("从oracle.properties中读取read.seconds.interval失败", e);
-                                LOG.warn("将不会从数据库中读取全网搜索任务, 但您可以调用接口执行全网搜索任务.", e);
+                                LOG.error("从oracle.properties中读取read.seconds.interval失败", e);
+                                LOG.warn("将不会从数据库中读取全网搜索任务, 但您可以调用接口执行全网搜索任务.");
                         }
                         if (searchTaskExecutable) {
                                 new Thread( new NetworkSearchThread(realInterval), "NetworkSearchJobSchedular").start();

@@ -118,6 +118,7 @@ public class Prey implements Serializable {
          */
         private String password;
         
+        private int jobId;
 
         /**
          * 用于初始化全网搜索
@@ -125,10 +126,17 @@ public class Prey implements Serializable {
          * @param engineUrl
          * @param keyword
          */
-        public Prey(JobType jobType, String engineUrl, String keyword) {
+        public Prey(JobType jobType, String engineUrl, String keyword,  int source_id, int sectionId, String comment, 
+                                        int country_code, int province_code, int city_code) {
                 this.jobType = jobType;
                 this.engineUrl = engineUrl;
                 this.keyword = keyword;
+                this.source_id = source_id;
+                this.sectionId = sectionId;
+                this.comment = comment;
+                this.country_code = country_code;
+                this.province_code = province_code;
+                this.city_code = city_code;
         }
         /**
          * 
@@ -228,6 +236,12 @@ public class Prey implements Serializable {
                 return engineUrl;
         }
 
+        public int getJobId() {
+                return jobId;
+        }
+        public void setJobId(int jobId) {
+                this.jobId = jobId;
+        }
         public boolean isAutoUrl() {
                 return autoUrl;
         }

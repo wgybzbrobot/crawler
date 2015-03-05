@@ -50,9 +50,6 @@ public final class NetworkSearchParserController extends ParseTool {
 
                 
                 String indexUrl = page.getBaseUrl();
-                if (StringUtils.isEmpty(indexUrl)) {
-                        indexUrl = String.format(listUrl, keyword);
-                }
                 
                 FetchStatus status = new FetchStatus(indexUrl, listConf.getComment() + keyword);
 

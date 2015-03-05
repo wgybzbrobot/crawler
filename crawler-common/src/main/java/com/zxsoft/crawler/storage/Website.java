@@ -6,20 +6,43 @@ public class Website implements java.io.Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -5354652608097154552L;
-	private String id;
+	private Integer id;
 	private String site;
 	private String comment;
 	private String region;
 	private String status;
-
+	/**
+	 * 对应oracle中的ly
+	 */
+	private int tid;
+	
 	public Website() {
 	}
 
-	public String getId() {
+
+	public Website(Integer id, String site, String comment, int tid) {
+                super();
+                this.id = id;
+                this.site = site;
+                this.comment = comment;
+                this.tid = tid;
+        }
+
+        public int getTid() {
+                return tid;
+        }
+
+
+        public void setTid(int tid) {
+                this.tid = tid;
+        }
+
+
+        public Integer getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

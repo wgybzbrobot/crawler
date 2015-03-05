@@ -24,8 +24,8 @@ public class DbService {
                 List<Map<String, Object>> task = new ArrayList<Map<String,Object>>();
                 
                 for (Map<String, Object> map : list) {
-                        String comment = (String)map.get("engineComment");
-                        String url = mysqlDao.getSearchEngineUrl(comment);
+                        int ly = (Integer)map.get("ly");
+                        String url = mysqlDao.getSearchEngineUrl(ly);
                         if (StringUtils.isEmpty(url))
                                 continue;
                         map.put("engineUrl", url);
@@ -36,7 +36,7 @@ public class DbService {
         }
         
         /**
-         * 此方法仅被调用一次,在master启动后被调用
+         *  读取任务列表`JHRW_RWLB`（循环读取）
          * @return
          */
         public List<Map<String, Object>> getSearchTaskQueue() {
@@ -48,8 +48,8 @@ public class DbService {
                 List<Map<String, Object>> tasks = new ArrayList<Map<String,Object>>();
                 
                 for (Map<String, Object> map : list) {
-                        String comment = (String)map.get("engineComment");
-                        String url = mysqlDao.getSearchEngineUrl(comment);
+                        int ly = (int)map.get("ly");
+                        String url = mysqlDao.getSearchEngineUrl(ly);
                         if (StringUtils.isEmpty(url))
                                 continue;
                         map.put("engineUrl", url);
@@ -59,6 +59,8 @@ public class DbService {
                 return tasks;
         }
         
-        
+        public Map<String, Object> getBasicInfos(String engineUrl) {
+                return mysqlDao.getBasicInfos(engineUrl);
+        }
         
 }

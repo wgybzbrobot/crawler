@@ -1,11 +1,9 @@
 target
 .settings
 .classpath
-crawler-*/**/.gitignore
 .project
 .springBeans
 logs
-**/*.properties
 *.pyc
 *.log
 *.class

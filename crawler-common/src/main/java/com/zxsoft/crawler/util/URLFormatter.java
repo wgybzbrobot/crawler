@@ -58,6 +58,7 @@ public class URLFormatter {
                 Date date = new Date();
                 int count = StringUtils.countOccurrencesOf(url, "%t");
                 if (count == 0) {
+                        url = String.format(url, keyword);
                         return url;
                 }
                 List<Object> list = new ArrayList<Object>();

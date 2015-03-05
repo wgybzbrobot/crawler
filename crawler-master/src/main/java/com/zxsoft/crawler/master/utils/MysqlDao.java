@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -53,37 +55,57 @@ public class MysqlDao extends BaseDao {
         
         /**
          * 通过注释取得搜索引擎url
-         * @param comment
+         * @param ly ==> tid
+         * 
          * @return
          */
-        public String getSearchEngineUrl(String comment) {
-                if (StringUtils.isEmpty(comment)) {
+        public String getSearchEngineUrl(int ly) {
+                if (StringUtils.isEmpty(ly)) {
                         return null;
                 }
                 ObjectCache objectCache = ObjectCache.get("ListConf", TIMEOUT);
                 String url = "";
-                if (objectCache.getObject(comment) != null) {
+                if (objectCache.getObject(String.valueOf(ly)) != null) {
                         LOG.debug("Find search engine url in Cache");
-                        url =  (String) objectCache.getObject(comment);
+                        url =  (String) objectCache.getObject(String.valueOf(ly));
                 } else {
                         // if not found in cache, get ListConf from database
                         LOG.debug("Do not find ListConf in Cache, will get search engine url from database.");
-                        LOG.debug("Getting search engine url:" + comment);
-                        List<String> list = mysqlJdbcTemplate.query("select * from conf_list where comment = ?",
-                                new Object[] { comment }, new RowMapper<String>() {
+                        LOG.debug("Getting search engine url:" + ly);
+                        List<String> list = mysqlJdbcTemplate.query("select a.* from conf_list a, website b, section c where b.id = c.site and c.url = a.url and b.tid = ?",
+                                new Object[] { ly }, new RowMapper<String>() {
                                         public String mapRow(ResultSet rs, int rowNum) throws SQLException {
                                                 return  rs.getString("url");
                                         }
                                 });
                         if (CollectionUtils.isEmpty(list) || StringUtils.isEmpty(list.get(0))) {
-                                LOG.error("在表<" + TABLE_CONF_LIST + ">没有找到comment为<" + comment + ">的记录.");
+//                                LOG.error("在表<website>没有找到来源为<" + ly + ">的记录.");
                                 return null;
                         } else {
                                 url = list.get(0);
-                                objectCache.setObject(comment, url);
+                                LOG.info("找到来源 " + ly + "的网站" + url);
+                                objectCache.setObject(String.valueOf(ly), url);
                         }
                 }
                 return url;
         }
 
+        public Map<String, Object> getBasicInfos(String engineUrl) {
+                List<Map<String, Object>> list = mysqlJdbcTemplate.query("select a.comment,  a.region, a.tid, a.provinceId, a.cityId, a.areaId, b.id from website a, section b"
+                                                + "  where b.url = ?  and a.id=b.site ",
+                                                new Object[] { engineUrl }, new RowMapper<Map<String, Object>>() {
+                                                        public Map<String, Object> mapRow(ResultSet rs, int rowNum) throws SQLException {
+                                                                Map<String, Object> map = new HashMap<String,Object>();
+                                                                map.put("source_id", rs.getInt("tid"));
+                                                                map.put("provinceId", rs.getInt("provinceId"));
+                                                                map.put("cityId", rs.getInt("cityId"));
+                                                                map.put("areaId", rs.getInt("areaId"));
+                                                                map.put("sectionId", rs.getInt("id"));
+                                                                map.put("region", rs.getInt("region"));
+                                                                map.put("comment", rs.getString("comment"));
+                                                                return  map;
+                                                        }
+                                                });
+                return CollectionUtils.isEmpty(list) ? null : list.get(0);
+        }
 }

@@ -72,16 +72,16 @@ public class NetworkInspectJob extends CrawlTool {
                 String ip = "", location = "";
                 try {
                         URL u = new URL(url);
-//                        ip = DNSCache.getIp(u);
-//                        location = LocationUtils.getLocation(ip);
-//                        locationCode = LocationUtils.getLocationCode(ip);
-                        OverseaDao overseaDao = new OverseaDao();
-                        Map <String, Object> _map = overseaDao.getOversea(u.getHost());
-                        if (_map != null) {
-                                ip = (String)_map.get("ip");
-                                location = (String)_map.get("location");
-                                locationCode = (Integer)_map.get("code");
-                        }
+                        ip = DNSCache.getIp(u);
+                        location = LocationUtils.getLocation(ip);
+                        locationCode = LocationUtils.getLocationCode(ip);
+//                        OverseaDao overseaDao = new OverseaDao();
+//                        Map <String, Object> _map = overseaDao.getOversea(u.getHost());
+//                        if (_map != null) {
+//                                ip = (String)_map.get("ip");
+//                                location = (String)_map.get("location");
+//                                locationCode = (Integer)_map.get("code");
+//                        }
                 } catch (Exception e) {
                         LOG.warn(e.getMessage(), e);
                 }

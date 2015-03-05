@@ -53,7 +53,9 @@ public class OracleDao {
                         List<String> ips = IPUtil.getIPv4();
                         if (!CollectionUtils.isEmpty(ips)) {
                                 String str = ips.get(0);
-                                machineId = str.replaceAll("\\.", "");
+                                String[] nums = str.split("\\.");
+//                                machineId = str.replaceAll("\\.", "");
+                                machineId = nums[2] + nums[3];
                                 LOG.info(machineId);
                         }
                 }

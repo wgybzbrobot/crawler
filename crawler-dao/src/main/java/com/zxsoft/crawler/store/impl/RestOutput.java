@@ -171,10 +171,11 @@ public class RestOutput implements Output {
 		        LOG.warn("Total record count is " + realSize + ", but write to rest service record count is " + successCount);
 		}
 		
-		
-		for (RecordInfo recordInfo : recordInfos) {
-		        writeToLuceneService(recordInfo);
-                }
+		if (!StringUtils.isEmpty(_url)) {
+        		for (RecordInfo recordInfo : recordInfos) {
+        		        writeToLuceneService(recordInfo);
+                        }
+		}
 		
 		return realSize;
 	}

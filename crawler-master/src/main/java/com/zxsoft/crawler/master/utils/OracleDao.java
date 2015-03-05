@@ -52,14 +52,14 @@ public class OracleDao extends BaseDao {
          * @return
          */
         public List<Map<String, Object>> queryTaskExecuteList() {
-                List<Map<String, Object>> list = oracleJdbcTemplate.query("select id, gjc, zdmc from " + VIEW_SELECT_TASK_EXECUTE_LIST,
+                List<Map<String, Object>> list = oracleJdbcTemplate.query("select id, gjc, ly from " + VIEW_SELECT_TASK_EXECUTE_LIST,
                                                 new RowMapper<Map<String, Object>>() {
                                                         @Override
                                                         public Map<String, Object> mapRow(ResultSet rs, int arg1) throws SQLException {
                                                                 Map<String, Object> map = new HashMap<String, Object>();
-                                                                map.put("networkSearchTaskId", rs.getString("id"));
+                                                                map.put("jobId", rs.getInt("id"));
                                                                 map.put("keyword", rs.getString("gjc"));
-                                                                map.put("engineComment", rs.getString("zdmc"));
+                                                                map.put("ly", rs.getInt("ly"));
                                                                 return map;
                                                         }
                                                 });
@@ -72,13 +72,14 @@ public class OracleDao extends BaseDao {
          * @return
          */
         public List<Map<String, Object>> queryTaskQueue() {
-                List<Map<String, Object>> list = oracleJdbcTemplate.query("select gjc, zdmc from " + TABLE_JHRW_RWLB,
+                List<Map<String, Object>> list = oracleJdbcTemplate.query("select id, gjc, ly from " + TABLE_JHRW_RWLB,
                                                 new RowMapper<Map<String, Object>>() {
                                                         @Override
                                                         public Map<String, Object> mapRow(ResultSet rs, int arg1) throws SQLException {
                                                                 Map<String, Object> map = new HashMap<String, Object>();
+                                                                map.put("jobId", rs.getInt("id"));
                                                                 map.put("keyword", rs.getString("gjc"));
-                                                                map.put("engineComment", rs.getString("zdmc"));
+                                                                map.put("ly", rs.getInt("ly"));
                                                                 return map;
                                                         }
                                                 });
