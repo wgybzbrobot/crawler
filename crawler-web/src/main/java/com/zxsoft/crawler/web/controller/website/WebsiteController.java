@@ -80,6 +80,7 @@ public class WebsiteController {
                                         @RequestParam(value = "provinceId", required = false) Integer provinceId,
                                         @RequestParam(value = "cityId", required = false) Integer cityId,
                                         @RequestParam(value = "areaId", required = false) Integer areaId,
+                                        @RequestParam(value = "tid", required = false) Integer tid,
                                         @RequestParam(value = "status", required = false) String status, Model model) {
                 type = "001";
                 SiteType siteType = new SiteType(type);
@@ -90,6 +91,7 @@ public class WebsiteController {
                 website.setProvinceId(provinceId);
                 website.setCityId(cityId);
                 website.setAreaId(areaId);
+                website.setTid(tid);
                 int code = websiteServiceImpl.save(website);
                 if (code == Code.RECORD_EXIST)
                         return "urlExist";
@@ -123,6 +125,7 @@ public class WebsiteController {
                 map.put("provinceId", website.getProvinceId());
                 map.put("cityId", website.getCityId());
                 map.put("areaId", website.getAreaId());
+                map.put("tid", website.getTid());
                 map.put("sitetype", website.getSiteType().getType());
                 return map;
         }

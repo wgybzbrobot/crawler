@@ -36,6 +36,10 @@ public class Website implements java.io.Serializable {
         private Integer provinceId;
         private Integer cityId;
         private Integer areaId;
+        /**
+         * tid 对应原oracle中的来源id
+         */
+        private Integer tid;
         private Set<Section> sections = new HashSet<Section>(0);
 //        private Set<Auth> auths = new HashSet<Auth>(0);
 
@@ -129,6 +133,15 @@ public class Website implements java.io.Serializable {
 
         public void setCityId(Integer cityId) {
                 this.cityId = cityId;
+        }
+        
+        @Column(name = "tid")
+        public Integer getTid() {
+                return tid;
+        }
+
+        public void setTid(Integer tid) {
+                this.tid = tid;
         }
 
         @Column(name = "areaId")

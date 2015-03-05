@@ -170,7 +170,7 @@
 			<a id="addWebsiteBtn" class="linkbutton" href="javascript:void(0);">添加网站</a>
 			<a id="addWebsiteBtn" class="linkbutton" href='<c:url value="/section/search"/>'>查找版块</a>
 		</div>
-		<div class="form-wrapper" style="display: none; height: 320px; width:445px;">
+		<div class="form-wrapper" style="display: none; height: 366px; width:445px;">
 			<a class="form-wrapper-close" href="javascript:;"></a>
 			<div class="form-wrapper-title">编辑网站详细信息</div>
 			<div class="form-wrapper-center">
@@ -183,6 +183,10 @@
 					<div>
 						<label class="form-label" for="comment">网站名称</label> <input class="easyui-validatebox form-input" type="text"
 							name="comment" data-options="required:true" />
+					</div>
+					<div>
+						<label class="form-label" for="tid">来源id</label> <input class="easyui-validatebox form-input" type="text"
+							name="tid" data-options="required:true" />
 					</div>
 					<div>
 						<label class="form-label" for="region">区域:</label><span>境内</span><input type="radio" name="region" value="1"
