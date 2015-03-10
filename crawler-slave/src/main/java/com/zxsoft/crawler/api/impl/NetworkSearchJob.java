@@ -1,5 +1,6 @@
 package com.zxsoft.crawler.api.impl;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,7 @@ import com.zxsoft.crawler.parse.LocationUtils;
 import com.zxsoft.crawler.parse.NetworkSearchParserController;
 import com.zxsoft.crawler.parse.ParserNotFoundException;
 import com.zxsoft.crawler.storage.WebPage;
+import com.zxsoft.crawler.util.URLFormatter;
 
 /**
  * 全网搜索
@@ -37,14 +39,17 @@ public class NetworkSearchJob extends CrawlTool {
                 Assert.notNull(keyword);
                 String engineUrl = (String) args.get(Params.ENGINE_URL);
                 String url =  (String) args.get(Params.URL);
+                
+                String encode = args.get("encode") == null ? "" : (String) args.get("encode");
+                
                 Map<String, Object> map = new HashMap<String, Object>();
                 
-                if (StringUtils.isEmpty(url)) {
-                        LOG.error("error, no url:" + engineUrl);
-                        map.put("code", 5004);
-                        map.put("message", "search url not set by engineUrl and keyword.");
-                        return map;
-                }
+//                if (StringUtils.isEmpty(url)) {
+//                        LOG.error("error, no url:" + engineUrl);
+//                        map.put("code", 5004);
+//                        map.put("message", "search url not set by engineUrl and keyword.");
+//                        return map;
+//                }
                 
                 /*
                  * 传入参数
@@ -59,13 +64,19 @@ public class NetworkSearchJob extends CrawlTool {
                 String comment = (String) args.get(Params.COMMENT);
                 int locationCode = 0;
             
-                String   ip = DNSCache.getIp( new URL(url));
+                String _url = engineUrl;
+                url = engineUrl;
+                if (url.contains("%t")) 
+                        _url = URLFormatter.format(_url, keyword);
+                else 
+                        _url = URLFormatter.format(_url);
+                String   ip = DNSCache.getIp( new URL(_url));
                 String location = LocationUtils.getLocation(ip);
               locationCode = LocationUtils.getLocationCode(ip);
               
               WebPage page = new WebPage(url, engineUrl, keyword, sectionId, comment, region, provinceId, cityId, locationCode, location, ip,
                                               JobType.NETWORK_SEARCH, source_id, server_id, source_type);
-              
+              page.setEncode(encode);
 //                WebPage page = new WebPage(keyword, engineUrl);
                 page.setBaseUrl(url);
                 
@@ -89,6 +100,10 @@ public class NetworkSearchJob extends CrawlTool {
                         LOG.error("Argument error, may be parse rule not configured.", e);
                         map.put("code", 5003);
                         map.put("message", "argument error, may be parse rule not configured" + e.getMessage());
+                } catch (MalformedURLException e) {
+                        LOG.error("Not valid url.", e);
+                        map.put("code", 5004);
+                        map.put("message", "not valid url." + e.getMessage());
                 }
 
                 LOG.debug((String) map.get("message"));

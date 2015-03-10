@@ -141,24 +141,6 @@ public class RAMSlaveManager implements SlaveManager {
          */
         @Override
         public String create(Prey prey) throws Exception {
-                if (prey.getJobType() == JobType.NETWORK_SEARCH) {
-                        if (!StringUtils.isEmpty(prey.getEncode())) {
-                                try {
-                                        prey.setKeyword(URLEncoder.encode(prey.getKeyword(), prey.getEncode()));  
-                                }catch (Exception e) {
-                                        LOG.error("URLEncoder.encode keyword error, may be encoding not supported, "
-                                                                        + "job will not execute, please check.", e);
-                                        return new JobCode(20121, "URLEncoder.encode keyword error," + e.getMessage()).toString();
-                                }
-                        }
-//                        if (prey.isAutoUrl()) {
-                                prey.setUrl(URLFormatter.format(prey.getEngineUrl(), prey.getKeyword()));
-//                        } else {
-//                                prey.setUrl(String.format(prey.getUrl(), prey.getKeyword()));
-//                        }
-                } else if (prey.isAutoUrl()) {
-                        prey.setUrl(URLFormatter.format(prey.getUrl()));
-                }
 
                 int i = 0;
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
