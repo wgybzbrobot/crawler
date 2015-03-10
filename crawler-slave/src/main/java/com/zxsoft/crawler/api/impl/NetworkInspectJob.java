@@ -18,6 +18,7 @@ import com.zxsoft.crawler.parse.FetchStatus;
 import com.zxsoft.crawler.parse.OverseaDao;
 import com.zxsoft.crawler.parse.ParserNotFoundException;
 import com.zxsoft.crawler.storage.WebPage;
+import com.zxsoft.crawler.util.URLFormatter;
 
 /**
  * 网络巡检任务
@@ -71,7 +72,10 @@ public class NetworkInspectJob extends CrawlTool {
                  */
                 String ip = "", location = "";
                 try {
-                        URL u = new URL(url);
+                        String _url = url;
+                        if (url.contains("%t")) 
+                                _url = URLFormatter.format(url);
+                        URL u = new URL(_url);
                         ip = DNSCache.getIp(u);
                         location = LocationUtils.getLocation(ip);
                         locationCode = LocationUtils.getLocationCode(ip);
