@@ -225,18 +225,21 @@ public abstract class HttpBase extends PageHelper {
 			// handle this in the higher layer.
 			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(protocolStatusCode, u.toString()));
 		} else if (code == 400) { // bad request, mark as GONE
-			LOG.trace("400 Bad request: " + u);
+			LOG.error("400 Bad request: " + u);
 			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.GONE, u.toString()));
 		} else if (code == 401) { // requires authorization, but no valid
 			                      // auth provided.
-			LOG.trace("401 Authentication Required");
+			LOG.error("401 Authentication Required: " + u);
 			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.ACCESS_DENIED,
 			        "Authentication required: " + u.toString()));
 		} else if (code == 404) {
+		        LOG.error("404 not found: " + u);
 			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.NOTFOUND, u.toString()));
 		} else if (code == 410) { // permanently GONE
+		        LOG.error("410 Permanently gone: " + u);
 			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.GONE, u.toString()));
 		} else if (code == -2) {
+		        LOG.error("Connection reset: " + u);
 		        return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.CONNECTION_RESET, u.toString()));
 		} else {
 		        LOG.error(u + " return code: " +  code + ". " + document.html());
