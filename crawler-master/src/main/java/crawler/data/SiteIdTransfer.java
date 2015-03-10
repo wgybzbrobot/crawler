@@ -80,7 +80,7 @@ public class SiteIdTransfer {
                 JdbcTemplate oracleJdbcTemplate = getOracleJdbcTemplate();
                 
                 List<Website> list = mysqlJdbcTemplate.query("select a.id, a.site, a.comment, a.tid "
-                                                + " from website a, section b where a.id = b.site and b.category = 'search';",
+                                                + " from website a, section b where a.id = b.site and b.category = 'forum' ",
                         new RowMapper<Website>() {
                                 public Website mapRow(ResultSet rs, int rowNum) throws SQLException {
                                         return new Website( rs.getInt("id"),   rs.getString("site"),  rs.getString("comment"), rs.getInt("tid"));
@@ -92,7 +92,7 @@ public class SiteIdTransfer {
                                 continue;
                         
                         List<Map<String, Object>> _list = oracleJdbcTemplate.query("select id, zdmc from fllb_cjlb "
-                                                        + " where zdmc=? and gsfl=1 and shzt=1 and bz=1 ", 
+                                                        + " where zdmc=? and zdbs=2 and shzt=1 and bz=1 ", 
                                                         new Object[]{website.getComment()}, new RowMapper<Map<String, Object>>() {
                                 public Map<String, Object> mapRow(ResultSet rs, int arg1) throws SQLException {
                                         Map<String, Object> map = new HashMap<String, Object>();
