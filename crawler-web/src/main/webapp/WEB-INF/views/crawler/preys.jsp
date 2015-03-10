@@ -196,7 +196,7 @@ $(function() {
 				<form id="addInspectJobForm" action="<c:url value='/slaves/ajax/addInspectJob' />" method="post" style="width: 90%; margin: 0 auto;" data-options="novalidate:true">
 					<div>
 						<label class="form-label" for="url">版块地址:</label>
-						<input type="text" name="url" id="fetchurl" class="easyui-validatebox form-input" style="width: 260px;" data-options="required:true"  validtype="url"/>
+						<input type="text" name="url" id="fetchurl" class="easyui-validatebox form-input" style="width: 260px;" data-options="required:true" />
 					</div>
 					<div class="message"></div>
 					<div><input class="form-btn" type="button"  id="submitInspectJob" value="添加" /></div>
