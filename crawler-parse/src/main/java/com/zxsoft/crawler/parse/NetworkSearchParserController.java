@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
 import com.zxisl.nldp.Nldp;
+import com.zxsoft.crawler.api.JobCode;
+import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.dns.DNSCache;
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
@@ -27,6 +29,7 @@ import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.store.OutputException;
+import com.zxsoft.crawler.util.URLFormatter;
 
 /**
  * 解析全网搜索，与网络巡检不同的是不用进入详细页
@@ -48,8 +51,12 @@ public final class NetworkSearchParserController extends ParseTool {
                         return new FetchStatus(listUrl, 43, Status.CONF_ERROR);
                 }
 
-                
                 String indexUrl = page.getBaseUrl();
+
+                if (!StringUtils.isEmpty(page.getEncode())) {
+                        keyword = URLEncoder.encode(keyword, page.getEncode());  
+                }
+                indexUrl = URLFormatter.format(indexUrl, keyword);
                 
                 FetchStatus status = new FetchStatus(indexUrl, listConf.getComment() + keyword);
 

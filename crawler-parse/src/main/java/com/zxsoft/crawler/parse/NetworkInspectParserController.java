@@ -1,5 +1,7 @@
 package com.zxsoft.crawler.parse;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
 
 import org.jsoup.nodes.Document;
@@ -11,12 +13,15 @@ import org.slf4j.LoggerFactory;
 import com.zxisl.commons.utils.Assert;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
+import com.zxsoft.crawler.api.JobCode;
+import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.parse.FetchStatus.Status;
 import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.storage.ListConf;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.store.OutputException;
+import com.zxsoft.crawler.util.URLFormatter;
 
 /**
  * 调用相应的解析器解析网页
@@ -26,7 +31,7 @@ public final class NetworkInspectParserController extends ParseTool {
 	private static Logger LOG = LoggerFactory.getLogger(NetworkInspectParserController.class);
 	private static final int _pageNum = 2;
 
-	public FetchStatus parse(WebPage page) throws ParserNotFoundException {
+	public FetchStatus parse(WebPage page) throws ParserNotFoundException, UnsupportedEncodingException {
 		Assert.notNull(page);
 		String indexUrl = page.getBaseUrl();
 		LOG.debug("indexUrl: " + indexUrl);
@@ -35,6 +40,10 @@ public final class NetworkInspectParserController extends ParseTool {
 		        LOG.error("No List Configuration, url: " + indexUrl);
 			return new FetchStatus(indexUrl, 43, Status.CONF_ERROR);
 		}
+		
+		if (indexUrl.contains("%t")) {
+                        indexUrl = URLFormatter.format(indexUrl);
+	        }
 
 		page.setAjax(listConf.isAjax());
 		page.setAuth(listConf.isAuth());
