@@ -37,10 +37,10 @@
 		<url>scm:git:git@192.168.3.21:spider/crawler.git</url>
 	</scm>
 	<!-- 持续集成 -->
-	<ciManagement>
+<!-- 	<ciManagement>
 		<system>Hudson</system>
 		<url>http://${distribution.repository}:8080/hudson</url>
-	</ciManagement>
+	</ciManagement> -->
 	<!-- 问题跟踪 -->
 	<issueManagement>
 		<system>JIRA</system>
@@ -67,10 +67,10 @@
 			<id>zxsoft-dist</id>
 			<url>http://192.168.3.23:18081/nexus/content/repositories/releases</url>
 		</repository>
-		<site>
+		<!-- <site>
 			<id>website</id>
 			<url>scp:192.168.4.137/var/www</url>
-		</site>
+		</site> -->
 	</distributionManagement>
 	<profiles>
 		<profile>
@@ -117,7 +117,7 @@
 						<encoding>UTF-8</encoding>
 					</configuration>
 				</plugin>
-				<plugin>
+<!-- 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-antrun-plugin</artifactId>
 					<version>1.7</version>
@@ -131,7 +131,7 @@
 						<stagingDirectory>/tmp/stage</stagingDirectory>
 					</configuration>
 					<dependencies>
-						<dependency><!-- add support for ssh/scp -->
+						<dependency>add support for ssh/scp
 							<groupId>org.apache.maven.wagon</groupId>
 							<artifactId>wagon-ssh</artifactId>
 							<version>1.0</version>
@@ -145,7 +145,7 @@
 					<configuration>
 						<testFailureIgnore>true</testFailureIgnore>
 					</configuration>
-				</plugin>
+				</plugin> -->
 			</plugins>
 		</pluginManagement>
 		<plugins>
