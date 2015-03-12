@@ -19,17 +19,7 @@ public class BlogParserTest {
          * @throws Exception
          */
         @Test
-        public void testParseAnhuiNews() throws Exception {
-                String baseUrl = "http://bbs.anhuinews.com/thread-1102159-1-2.html";
-                WebPage page = new WebPage();
-                page.setBaseUrl(baseUrl);
-                page.setListUrl("http://bbs.anhuinews.com/forum-316-1.html");
-                page.setTitle("我为祖国贴春联”春联征集火热进行中，欢迎网友踊跃参与");
-                page.setAjax(false);
-
-                Parser parser = new ForumParser();
-                FetchStatus fetchStatus = parser.parse(page);
-                Assert.isTrue(fetchStatus.getStatus() == Status.SUCCESS);
-                LOG.info("count:" + fetchStatus);
+        public void testParseSinaBlog() throws Exception {
+              
         }
 }

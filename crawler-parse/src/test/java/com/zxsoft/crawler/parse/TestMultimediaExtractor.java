@@ -69,16 +69,9 @@ public class TestMultimediaExtractor {
 		for (Element element : elements) {
 			String videoUrl = element.absUrl("src");
 			System.out.println(videoUrl);
-        }
+		}
 
 	}
 	
-	/*@Test
-	public void testExtractAudioUrl() throws IOException {
-		Document document = Jsoup.connect("http://tieba.baidu.com/p/3110651581").get();
-		Element element = document.getElementById("j_p_postlist").select("div.d_post_content_main.d_post_content_firstfloor").first();
-		MultimediaExtractor extractor = new MultimediaExtractor();
-		String url = extractor.extractAudioUrl(element);
-		
-	}*/
+	
 }
