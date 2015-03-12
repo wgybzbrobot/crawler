@@ -7,11 +7,15 @@ import java.util.Map;
 import org.restlet.resource.Get;
 import org.restlet.resource.Put;
 import org.restlet.resource.ServerResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zxsoft.crawler.api.Prey;
 
 public class SlaveResource extends ServerResource {
 
+        private static Logger LOG = LoggerFactory.getLogger(SlaveResource.class);
+        
 	@Get("json")
 	public Object retrieve() throws Exception {
 		
@@ -26,6 +30,7 @@ public class SlaveResource extends ServerResource {
 
 	@Put("json")
 	public Object create(Prey prey) throws Exception {
+	        LOG.info("Create Job: " + prey.toString());
 		String res = MasterApp.slaveMgr.create(prey); 
 		return res;
 	}

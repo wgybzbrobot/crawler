@@ -229,6 +229,7 @@ public class MasterServer {
                 if (args.length == 2) {
                         if ("enableSearchTask".equals(args[1])) {
                                 enableGetNetworkSearchTaskFromDb = true;
+                                LOG.info("Enable get network search task from db.");
                         }
                 }
                 int port = Integer.parseInt(args[0]);
