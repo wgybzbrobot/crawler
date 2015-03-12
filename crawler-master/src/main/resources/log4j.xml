@@ -20,8 +20,8 @@
 		</layout>
 	</appender>
 	<logger name="com.zxsoft.crawler">
-		<level value="debug" />
-		<appender-ref ref="FILE" />
+		<level value="info" />
+		<appender-ref ref="STDOUT" />
 	</logger>
 	<root>
 		<priority value="info" />

@@ -32,9 +32,9 @@
 		<url>http://www.zxfirewall.com</url>
 	</organization>
 	<scm>
-		<connection>scm:git:git@github.com:cloudsharl/crawler.git</connection>
-		<developerConnection>scm:git:git@github.com:cloudsharl/crawler.git</developerConnection>
-		<url>scm:git:git@github.com:cloudsharl/crawler.git</url>
+		<connection>scm:git:git@192.168.3.21:spider/crawler.git</connection>
+		<developerConnection>scm:git:git@192.168.3.21:spider/crawler.git</developerConnection>
+		<url>scm:git:git@192.168.3.21:spider/crawler.git</url>
 	</scm>
 	<!-- 持续集成 -->
 	<ciManagement>

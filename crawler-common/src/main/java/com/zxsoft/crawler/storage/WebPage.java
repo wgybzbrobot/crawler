@@ -14,6 +14,8 @@ public class WebPage implements Serializable, Cloneable {
         private String baseUrl;
         private String keyword;
 
+        private String encode;
+        
         /**
          * url所属的网站
          */
@@ -139,6 +141,14 @@ public class WebPage implements Serializable, Cloneable {
                 this.baseUrl = baseUrl;
                 this.fetchTime = fetchTime;
                 this.document = document;
+        }
+
+        public String getEncode() {
+                return encode;
+        }
+
+        public void setEncode(String encode) {
+                this.encode = encode;
         }
 
         public Date getReleaseDate() {
