@@ -55,36 +55,36 @@ public class MysqlDao extends BaseDao {
         
         /**
          * 通过注释取得搜索引擎url
-         * @param ly ==> tid
+         * @param tid ==> tid
          * 
          * @return
          */
-        public String getSearchEngineUrl(int ly) {
-                if (StringUtils.isEmpty(ly)) {
+        public String getSearchEngineUrl(int tid) {
+                if (StringUtils.isEmpty(tid)) {
                         return null;
                 }
                 ObjectCache objectCache = ObjectCache.get("ListConf", TIMEOUT);
                 String url = "";
-                if (objectCache.getObject(String.valueOf(ly)) != null) {
+                if (objectCache.getObject(String.valueOf(tid)) != null) {
                         LOG.debug("Find search engine url in Cache");
-                        url =  (String) objectCache.getObject(String.valueOf(ly));
+                        url =  (String) objectCache.getObject(String.valueOf(tid));
                 } else {
                         // if not found in cache, get ListConf from database
                         LOG.debug("Do not find ListConf in Cache, will get search engine url from database.");
-                        LOG.debug("Getting search engine url:" + ly);
-                        List<String> list = mysqlJdbcTemplate.query("select a.* from conf_list a, website b, section c where b.id = c.site and c.url = a.url and b.tid = ?",
-                                new Object[] { ly }, new RowMapper<String>() {
+                        LOG.debug("Getting search engine url by tid:" + tid);
+                        List<String> list = mysqlJdbcTemplate.query("select a.url from conf_list a, website w, section s where w.id = s.site and s.url = a.url and w.tid = ?",
+                                new Object[] { tid }, new RowMapper<String>() {
                                         public String mapRow(ResultSet rs, int rowNum) throws SQLException {
                                                 return  rs.getString("url");
                                         }
                                 });
                         if (CollectionUtils.isEmpty(list) || StringUtils.isEmpty(list.get(0))) {
-//                                LOG.error("在表<website>没有找到来源为<" + ly + ">的记录.");
+                                LOG.error("在表<website>没有找到来源tid为<" + tid + ">的记录.");
                                 return null;
                         } else {
                                 url = list.get(0);
-                                LOG.info("找到来源 " + ly + "的网站" + url);
-                                objectCache.setObject(String.valueOf(ly), url);
+                                LOG.info("找到来源 " + tid + "的网站" + url);
+                                objectCache.setObject(String.valueOf(tid), url);
                         }
                 }
                 return url;

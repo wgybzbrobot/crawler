@@ -21,18 +21,18 @@ public class DbService {
                      return null;   
                 }
                 
-                List<Map<String, Object>> task = new ArrayList<Map<String,Object>>();
+                List<Map<String, Object>> tasks = new ArrayList<Map<String,Object>>();
                 
                 for (Map<String, Object> map : list) {
-                        int ly = (Integer)map.get("ly");
-                        String url = mysqlDao.getSearchEngineUrl(ly);
+                        int tid = (Integer)map.get("tid");
+                        String url = mysqlDao.getSearchEngineUrl(tid);
                         if (StringUtils.isEmpty(url))
                                 continue;
                         map.put("engineUrl", url);
-                        task.add(map);
+                        tasks.add(map);
                 }
                 
-                return task;
+                return tasks;
         }
         
         /**
@@ -48,8 +48,8 @@ public class DbService {
                 List<Map<String, Object>> tasks = new ArrayList<Map<String,Object>>();
                 
                 for (Map<String, Object> map : list) {
-                        int ly = (int)map.get("ly");
-                        String url = mysqlDao.getSearchEngineUrl(ly);
+                        int tid = (int)map.get("tid");
+                        String url = mysqlDao.getSearchEngineUrl(tid);
                         if (StringUtils.isEmpty(url))
                                 continue;
                         map.put("engineUrl", url);

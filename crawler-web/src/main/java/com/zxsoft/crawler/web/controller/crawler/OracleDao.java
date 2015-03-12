@@ -1,4 +1,4 @@
-package com.zxsoft.crawler.master.utils;
+package com.zxsoft.crawler.web.controller.crawler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
-public class OracleDao extends BaseDao {
+import com.zxisl.commons.utils.CollectionUtils;
+
+public class OracleDao {
         private static Logger LOG = LoggerFactory.getLogger(OracleDao.class);
 
         private static final JdbcTemplate oracleJdbcTemplate;
@@ -45,47 +47,27 @@ public class OracleDao extends BaseDao {
         }
 
         /**
-         * 读取视图`SELECT_TASK_EXECUTE_LIST`（读取一次），全部读取
+         * 查询sourceid
          * 
          * @return
          */
-        public List<Map<String, Object>> queryTaskExecuteList() {
-                List<Map<String, Object>> list = oracleJdbcTemplate.query("select a.id, a.gjc, a.ly, b.sourceid  from SELECT_TASK_EXECUTE_LIST a, fllb_cjlb b where a.ly = b.id ",
+        public int querySourceId(int tid) {
+                List<Map<String, Object>> list = oracleJdbcTemplate.query("select sourceid  from  fllb_cjlb  where id = ? ",
+                                                new Object[]{tid},
                                                 new RowMapper<Map<String, Object>>() {
                                                         @Override
                                                         public Map<String, Object> mapRow(ResultSet rs, int arg1) throws SQLException {
                                                                 Map<String, Object> map = new HashMap<String, Object>();
-                                                                map.put("jobId", rs.getInt("id"));
-                                                                map.put("keyword", rs.getString("gjc"));
-                                                                map.put("tid", rs.getInt("ly"));
                                                                 map.put("source_id", rs.getInt("sourceid"));
                                                                 return map;
                                                         }
                                                 });
-             
-                return list;
-        }
-
-        /**
-         * 读取任务列表`JHRW_RWLB`, 被多次读取
-         * 
-         * @return
-         */
-        public List<Map<String, Object>> queryTaskQueue() {
-                List<Map<String, Object>> list = oracleJdbcTemplate.query("select a.id, a.gjc, a.ly, b.sourceid from JHRW_RWLB a, fllb_cjlb b ",
-                                                new RowMapper<Map<String, Object>>() {
-                                                        @Override
-                                                        public Map<String, Object> mapRow(ResultSet rs, int arg1) throws SQLException {
-                                                                Map<String, Object> map = new HashMap<String, Object>();
-                                                                map.put("jobId", rs.getInt("id"));
-                                                                map.put("keyword", rs.getString("gjc"));
-                                                                map.put("tid", rs.getInt("ly"));
-                                                                map.put("source_id", rs.getInt("sourceid"));
-                                                                return map;
-                                                        }
-                                                });
-
-                return list;
+             if (CollectionUtils.isEmpty(list)) {
+                     LOG.error("在oracle数据库fllb_cjlb中没有找到记录,id=" + tid);
+                     return 0;
+             }
+             int source_id = (Integer)list.get(0).get("source_id");
+                return source_id;
         }
 
 }

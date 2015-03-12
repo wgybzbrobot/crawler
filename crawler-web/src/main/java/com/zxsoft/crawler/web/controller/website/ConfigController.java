@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.zxisl.commons.utils.Assert;
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.entity.Section;
@@ -26,6 +29,8 @@ import com.zxsoft.crawler.web.verification.ListConfigVerification;
 @RequestMapping("/config")
 public class ConfigController {
 
+        private static Logger LOG = LoggerFactory.getLogger(ConfigController.class);
+        
 	@Autowired
 	private ConfigService configService;
 	@Autowired
@@ -58,7 +63,26 @@ public class ConfigController {
 	@ResponseBody
 	@RequestMapping(value = "ajax/testListConf", method = RequestMethod.POST, produces="application/json")
 	public Map<String, Object> testListConf(ConfList listConf, @RequestParam(value="keyword", required=false) String keyword) {
-		Map<String, Object> listRes = listConfigVerification.verify(listConf, keyword);
+	        Map<String, Object> listRes = new HashMap<String, Object>();
+	        
+	        if (StringUtils.isEmpty(listConf.getUrl())) {
+	                Map<String, String> errors = new HashMap<String, String>();
+                        errors.put("urlerror", "必填");
+                        listRes.put("errors", errors);
+                        return listRes;
+                }
+	        
+	        Section section = sectionService.getSectionByUrl(listConf.getUrl());
+	        if (section == null) {
+                       Map<String, String> errors = new HashMap<String, String>();
+	                errors.put("section", "section not found");
+                        listRes.put("errors", errors);
+                        LOG.error("Section not found with url " + listConf.getUrl());
+                        return listRes;
+	        }
+	        boolean autoUrl = section.getAutoUrl();
+	        
+		listRes = listConfigVerification.verify(listConf, keyword, autoUrl);
 		return listRes;
 	}
 

@@ -58,9 +58,9 @@ public final class NetworkSearchThread implements Runnable {
                                 prey.setSource_id((Integer) _map.get("ly"));
                                 prey.setJobId((Integer)_map.get("jobId"));
                                 try {
-//                                        Object obj = slaveResource.create(prey);
-//                                        LOG.info((String) obj);
                                         LOG.info(prey.toString());
+                                        Object obj = slaveResource.create(prey);
+//                                        LOG.info((String) obj);
                                 } catch (Exception e) {
                                         LOG.error("创建从数据库中获取全网搜索的任务失败", e);
                                 }
@@ -71,32 +71,35 @@ public final class NetworkSearchThread implements Runnable {
                  * 读取任务列表`JHRW_RWLB`（循环读取）
                  */
                 while (true) {
-
-                        List<Map<String, Object>> tasks = service.getSearchTaskQueue();
-                        if (CollectionUtils.isEmpty(tasks)) {
-                                for (Map<String, Object> _map : tasks) {
-                                        String engineUrl = (String) _map.get(Params.ENGINE_URL);
-                                        Map<String, Object> map = service.getBasicInfos(engineUrl);
-                                        int source_id = (Integer)map.get("source_id");
-                                        int sectionId = (Integer)map.get("sectionId");
-                                        String comment = (String)map.get("comment");
-                                        int country_code = (Integer)map.get("region");
-                                        int province_code = (Integer)map.get("provinceId");
-                                        int city_code = (Integer)map.get("cityId");
-                                        
-                                        Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl ,
-                                                                        (String) _map.get(Params.KEYWORD),  source_id,  sectionId,  comment, 
-                                                                         country_code,  province_code,  city_code);
-                                        prey.setSource_id((Integer) _map.get("ly"));
-                                        prey.setJobId((Integer)_map.get("jobId"));
-                                        try {
-//                                                Object obj = slaveResource.create(prey);
-//                                                LOG.info((String) obj);
-                                                LOG.info(prey.toString());
-                                        } catch (Exception e) {
-                                                LOG.error("", e);
+                        try {
+                                List<Map<String, Object>> tasks = service.getSearchTaskQueue();
+                                if (CollectionUtils.isEmpty(tasks)) {
+                                        for (Map<String, Object> _map : tasks) {
+                                                String engineUrl = (String) _map.get(Params.ENGINE_URL);
+                                                Map<String, Object> map = service.getBasicInfos(engineUrl);
+                                                int source_id = (Integer)map.get("source_id");
+                                                int sectionId = (Integer)map.get("sectionId");
+                                                String comment = (String)map.get("comment");
+                                                int country_code = (Integer)map.get("region");
+                                                int province_code = (Integer)map.get("provinceId");
+                                                int city_code = (Integer)map.get("cityId");
+                                                
+                                                Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl ,
+                                                                                (String) _map.get(Params.KEYWORD),  source_id,  sectionId,  comment, 
+                                                                                 country_code,  province_code,  city_code);
+                                                prey.setSource_id((Integer) _map.get("source_id"));
+                                                prey.setJobId((Integer)_map.get("jobId"));
+                                                try {
+                                                        Object obj = slaveResource.create(prey);
+        //                                                LOG.info((String) obj);
+        //                                                LOG.info(prey.toString());
+                                                } catch (Exception e) {
+                                                        LOG.error("", e);
+                                                }
                                         }
                                 }
+                        } catch (Exception e) {
+                                LOG.error("任务列表`JHRW_RWLB`（循环读取）出错.", e);
                         }
 
                         try {

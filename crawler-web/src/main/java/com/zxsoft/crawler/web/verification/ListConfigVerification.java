@@ -1,5 +1,6 @@
 package com.zxsoft.crawler.web.verification;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import com.zxsoft.crawler.parse.ParseTool;
 import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.storage.WebPage;
+import com.zxsoft.crawler.util.URLFormatter;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PageHelper;
 import com.zxsoft.crawler.web.model.ThreadInfo;
@@ -27,26 +29,36 @@ public class ListConfigVerification extends ParseTool {
 
         private static Logger LOG = LoggerFactory.getLogger(ListConfigVerification.class);
 
-        public Map<String, Object> verify(ConfList listConf, String keyword) {
+        public Map<String, Object> verify(ConfList listConf, String keyword, boolean autoUrl) {
 
                 Map<String, Object> map = new HashMap<String, Object>();
                 Map<String, String> errors = new HashMap<String, String>();
 
-                if (StringUtils.isEmpty(listConf.getUrl())) {
-                        errors.put("urlerror", "必填");
-                        map.put("errors", errors);
-                        return map;
-                }
-
                 List<ThreadInfo> list = new ArrayList<ThreadInfo>();
                 String pageStr = "", testurl = listConf.getUrl();
                 if ("search".equals(listConf.getCategory())) {
-                        testurl = String.format(testurl, keyword);
+                        if (autoUrl) {
+                                try {
+                                        testurl = URLFormatter.format(testurl, keyword);
+                                } catch (UnsupportedEncodingException e) {
+                                       LOG.error("", e);
+                                       return null;
+                                }
+                        } else {
+                                testurl = String.format(testurl, keyword);
+                        }
 //                        try {
 //                                testurl = URIUtil.encodePathQuery(testurl, "UTF-8");
 //                        } catch (URIException e) {
 //                                e.printStackTrace();
 //                        }
+                } else {
+                        try {
+                               testurl =  URLFormatter.format(testurl);
+                        } catch (UnsupportedEncodingException e) {
+                                LOG.error("", e);
+                                return null;
+                        }
                 }
                 WebPage page = new WebPage(testurl, listConf.getAjax());
                 ProtocolOutput protocolOutput = fetch(page);

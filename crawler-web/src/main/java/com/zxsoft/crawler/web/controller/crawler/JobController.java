@@ -33,6 +33,7 @@ import com.zxisl.commons.utils.Assert;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.api.JobType;
+import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.api.Prey;
 import com.zxsoft.crawler.api.Prey.State;
 import com.zxsoft.crawler.entity.ConfList;
@@ -309,7 +310,19 @@ public class JobController {
                         if (section == null) {
                                 continue;
                         }
-                        Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl, keyword,section.getAutoUrl());
+                        
+                        Website website = section.getWebsite();
+                        int source_id = website.getTid();
+                        int sectionId = section.getId();
+                        String comment = website.getComment();
+                        int country_code = website.getRegion();
+                        int province_code = website.getProvinceId();
+                        int city_code = website.getCityId();
+                        Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl ,
+                                                        keyword,  source_id,  sectionId,  comment, 
+                                                         country_code,  province_code,  city_code);
+                        prey.setSource_id(source_id);
+                        prey.setJobId(1111);
                         
                         Map<String, Object> map = jobService.addSearchJob(prey);
                         list.add(map);
@@ -319,6 +332,8 @@ public class JobController {
                 return json;
         }
 
+        private static OracleDao oracleDao = new OracleDao();
+        
         /**
          * 添加网络巡检任务
          * 
@@ -349,7 +364,9 @@ public class JobController {
                         return args;
                 }
                 Website website = section.getWebsite();
-                int source_id = website.getId();
+                int tid = website.getTid();
+                int source_id = oracleDao.querySourceId(tid);
+                
                 int sectionId = section.getId();
                 int county_code = website.getRegion() == null ? 0 : website.getRegion();
                 int province_code = website.getProvinceId() == null ? 0 : website.getProvinceId();
@@ -374,10 +391,10 @@ public class JobController {
                         }
                 } catch (JedisConnectionException e) {
                         args.put("msg", "jedisconnectionexception");
-                        e.printStackTrace();
+                        LOG.error("Add Inspect Job failed.", e);
                 } catch (Exception e) {
                         args.put("msg", e.getMessage());
-                        e.printStackTrace();
+                        LOG.error("Add Inspect Job failed.", e);
                 } finally {
                         jedis.close();
                 }
