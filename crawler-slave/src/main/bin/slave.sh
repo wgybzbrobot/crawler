@@ -55,7 +55,7 @@ start() {
             $PORT = $2
         fi
         echo "Starting $CLASS"
-        `nohup java $JAVA_OPTS -classpath $CLASSPATH $CLASS $PORT >/dev/null 2>&1 &`
+        `nohup java $JAVA_OPTS -classpath $CLASSPATH $CLASS $PORT enableSearchTask >/dev/null 2>&1 &`
        # exec $CMD
         checkPid
         if [ $pid -ne 0 ]; then
