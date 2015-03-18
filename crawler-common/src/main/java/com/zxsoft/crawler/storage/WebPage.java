@@ -59,6 +59,8 @@ public class WebPage implements Serializable, Cloneable {
 
         private ListConf ListConf;
 
+        private int platform;
+
         @Override
         public WebPage clone() {
                 try {
@@ -97,12 +99,13 @@ public class WebPage implements Serializable, Cloneable {
                 this.prevFetchTime = prevFetchTime;
         }
 
-        public WebPage(String baseUrl, String engineUrl, String keyword, int sectionId, String comment,  int region, int provinceId, int cityId, int locationCode, String location,
+        public WebPage(String baseUrl, String engineUrl, String keyword,int platform,  int sectionId, String comment,  int region, int provinceId, int cityId, int locationCode, String location,
                                         String ip, JobType jobType, int source_id, String source_name, int server_id, int source_type) {
                 super();
                 this.baseUrl = baseUrl;
                 this.listUrl = engineUrl;
                 this.keyword = keyword;
+                this.platform = platform;
                 this.sectionId = sectionId;
                 this.comment = comment;
                 this.region = region;
@@ -144,6 +147,14 @@ public class WebPage implements Serializable, Cloneable {
                 this.baseUrl = baseUrl;
                 this.fetchTime = fetchTime;
                 this.document = document;
+        }
+
+        public int getPlatform() {
+            return platform;
+        }
+
+        public void setPlatform(int platform) {
+            this.platform = platform;
         }
 
         public String getEncode() {

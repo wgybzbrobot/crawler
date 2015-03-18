@@ -53,9 +53,10 @@ public final class NetworkSearchThread implements Runnable {
                                 int country_code = (Integer)map.get("region");
                                 int province_code = (Integer)map.get("provinceId");
                                 int city_code = (Integer)map.get("cityId");
+                                int platform = (Integer) map.get("platform");
                                 
                                 Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl ,
-                                                                (String) _map.get(Params.KEYWORD),  source_id,  source_name, sectionId,  comment, 
+                                                                (String) _map.get(Params.KEYWORD),  platform, source_id,  source_name, sectionId,  comment, 
                                                                  country_code,  province_code,  city_code);
                                 prey.setSource_id((Integer) _map.get("source_id"));
                                 prey.setJobId((Integer)_map.get("jobId"));
@@ -86,9 +87,10 @@ public final class NetworkSearchThread implements Runnable {
                                                 int country_code = (Integer)map.get("region");
                                                 int province_code = (Integer)map.get("provinceId");
                                                 int city_code = (Integer)map.get("cityId");
+                                                int platform = (Integer) map.get("platform");
                                                 
                                                 Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl ,
-                                                                                (String) _map.get(Params.KEYWORD),  source_id,  source_name,sectionId,  comment, 
+                                                                                (String) _map.get(Params.KEYWORD),platform,   source_id,  source_name,sectionId,  comment, 
                                                                                  country_code,  province_code,  city_code);
                                                 prey.setSource_id((Integer) _map.get("source_id"));
                                                 prey.setJobId((Integer)_map.get("jobId"));

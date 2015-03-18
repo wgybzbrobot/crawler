@@ -72,7 +72,7 @@ public class MysqlDao extends BaseDao {
                         // if not found in cache, get ListConf from database
                         LOG.debug("Do not find ListConf in Cache, will get search engine url from database.");
                         LOG.debug("Getting search engine url by tid:" + tid);
-                        List<String> list = mysqlJdbcTemplate.query("select a.url from conf_list a, website w, section s where w.id = s.site and s.url = a.url and w.tid = ?",
+                        List<String> list = mysqlJdbcTemplate.query("select a.url from conf_list a, website w, section s where w.id = s.site and s.url = a.url and s.category = 'search' and and w.tid = ?",
                                 new Object[] { tid }, new RowMapper<String>() {
                                         public String mapRow(ResultSet rs, int rowNum) throws SQLException {
                                                 return  rs.getString("url");

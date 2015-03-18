@@ -312,7 +312,11 @@ public class JobController {
                         }
                         
                         Website website = section.getWebsite();
-                        int source_id = website.getTid();
+                        int tid = website.getTid();
+                        Map<String, Object> oMap = oracleDao.querySourceId(tid);
+                        int source_id = (Integer) oMap.get("source_id");
+                        int platform = (Integer) oMap.get("platform");
+                        
                         String source_name = website.getComment(); 
                         int sectionId = section.getId();
                         String comment = website.getComment();
@@ -320,7 +324,7 @@ public class JobController {
                         int province_code = website.getProvinceId();
                         int city_code = website.getCityId();
                         Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl ,
-                                                        keyword,  source_id, source_name, sectionId,  comment, 
+                                                        keyword,  platform, source_id, source_name, sectionId,  comment, 
                                                          country_code,  province_code,  city_code);
                         prey.setSource_id(source_id);
                         prey.setJobId(1111);
@@ -366,7 +370,9 @@ public class JobController {
                 }
                 Website website = section.getWebsite();
                 int tid = website.getTid();
-                int source_id = oracleDao.querySourceId(tid);
+                Map<String, Object> oMap = oracleDao.querySourceId(tid);
+                int source_id = (Integer) oMap.get("source_id");
+                int platform = (Integer) oMap.get("platform");
                 
                 int sectionId = section.getId();
                 int county_code = website.getRegion() == null ? 0 : website.getRegion();

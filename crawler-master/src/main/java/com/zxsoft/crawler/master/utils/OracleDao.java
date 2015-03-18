@@ -50,7 +50,8 @@ public class OracleDao extends BaseDao {
          * @return
          */
         public List<Map<String, Object>> queryTaskExecuteList() {
-                List<Map<String, Object>> list = oracleJdbcTemplate.query("select a.id, a.gjc, a.ly, b.sourceid  from SELECT_TASK_EXECUTE_LIST a, fllb_cjlb b where a.ly = b.id ",
+                List<Map<String, Object>> list = oracleJdbcTemplate.query("select a.id, a.gjc, a.ly, b.sourceid , b.zdbs platform"
+                        + " from SELECT_TASK_EXECUTE_LIST a, fllb_cjlb b where a.ly = b.id ",
                                                 new RowMapper<Map<String, Object>>() {
                                                         @Override
                                                         public Map<String, Object> mapRow(ResultSet rs, int arg1) throws SQLException {
@@ -59,6 +60,7 @@ public class OracleDao extends BaseDao {
                                                                 map.put("keyword", rs.getString("gjc"));
                                                                 map.put("tid", rs.getInt("ly"));
                                                                 map.put("source_id", rs.getInt("sourceid"));
+                                                                map.put("platform", rs.getInt("platform"));
                                                                 return map;
                                                         }
                                                 });
@@ -72,7 +74,8 @@ public class OracleDao extends BaseDao {
          * @return
          */
         public List<Map<String, Object>> queryTaskQueue() {
-                List<Map<String, Object>> list = oracleJdbcTemplate.query("select a.id, a.gjc, a.ly, b.sourceid from JHRW_RWLB a, fllb_cjlb b ",
+                List<Map<String, Object>> list = oracleJdbcTemplate.query("select a.id, a.gjc, a.ly, b.sourceid, b.zdbs platform from JHRW_RWLB a, fllb_cjlb b "
+                        + " where a.ly = b.id ",
                                                 new RowMapper<Map<String, Object>>() {
                                                         @Override
                                                         public Map<String, Object> mapRow(ResultSet rs, int arg1) throws SQLException {
@@ -81,6 +84,7 @@ public class OracleDao extends BaseDao {
                                                                 map.put("keyword", rs.getString("gjc"));
                                                                 map.put("tid", rs.getInt("ly"));
                                                                 map.put("source_id", rs.getInt("sourceid"));
+                                                                map.put("platform", rs.getInt("platform"));
                                                                 return map;
                                                         }
                                                 });

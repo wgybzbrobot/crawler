@@ -64,18 +64,20 @@ public class NetworkSearchJob extends CrawlTool {
                 int sectionId = (Integer) args.get(Params.SECTION_ID);
                 String comment = (String) args.get(Params.COMMENT);
                 int locationCode = 0;
+                int platform = (Integer)args.get("platform");
             
                 String _url = engineUrl;
                 url = engineUrl;
-                if (url.contains("%t")) 
+//                if (url.contains("%t")) 
                         _url = URLFormatter.format(_url, keyword);
-                else 
-                        _url = URLFormatter.format(_url);
+//                else 
+//                        _url = URLFormatter.format(_url);
+                
                 String   ip = DNSCache.getIp( new URL(_url));
                 String location = LocationUtils.getLocation(ip);
               locationCode = LocationUtils.getLocationCode(ip);
               
-              WebPage page = new WebPage(url, engineUrl, keyword, sectionId, comment, region, provinceId, cityId, locationCode, location, ip,
+              WebPage page = new WebPage(url, engineUrl, keyword, platform, sectionId, comment, region, provinceId, cityId, locationCode, location, ip,
                                               JobType.NETWORK_SEARCH, source_id,source_name, server_id, source_type);
               page.setEncode(encode);
 //                WebPage page = new WebPage(keyword, engineUrl);

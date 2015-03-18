@@ -28,6 +28,8 @@ public class Prey implements Serializable {
          */
         private String source_name;
 
+        private int platform;
+        
         /**
          * 版块id
          */
@@ -131,11 +133,12 @@ public class Prey implements Serializable {
          * @param engineUrl
          * @param keyword
          */
-        public Prey(JobType jobType, String engineUrl, String keyword,  int source_id,String source_name, int sectionId, String comment, 
+        public Prey(JobType jobType, String engineUrl, String keyword, int platform, int source_id,String source_name, int sectionId, String comment, 
                                         int country_code, int province_code, int city_code) {
                 this.jobType = jobType;
                 this.engineUrl = engineUrl;
                 this.keyword = keyword;
+                this.platform = platform;
                 this.source_id = source_id;
                 this.source_name = source_name;
                 this.sectionId = sectionId;
@@ -239,6 +242,12 @@ public class Prey implements Serializable {
                 return json;
         }
         
+        public int getPlatform() {
+            return platform;
+        }
+        public void setPlatform(int platform) {
+            this.platform = platform;
+        }
         public String getSource_name() {
             return source_name;
         }

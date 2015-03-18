@@ -47,27 +47,30 @@ public class OracleDao {
         }
 
         /**
-         * 查询sourceid
+         * 查询sourceid, platform
          * 
          * @return
          */
-        public int querySourceId(int tid) {
-                List<Map<String, Object>> list = oracleJdbcTemplate.query("select sourceid  from  fllb_cjlb  where id = ? ",
+        public Map<String, Object> querySourceId(int tid) {
+            Map<String, Integer> map = new  HashMap<String, Integer>();
+            
+                List<Map<String, Object>> list = oracleJdbcTemplate.query("select sourceid ,zdbs platform from  fllb_cjlb  where id = ? ",
                                                 new Object[]{tid},
                                                 new RowMapper<Map<String, Object>>() {
                                                         @Override
                                                         public Map<String, Object> mapRow(ResultSet rs, int arg1) throws SQLException {
                                                                 Map<String, Object> map = new HashMap<String, Object>();
                                                                 map.put("source_id", rs.getInt("sourceid"));
+                                                                map.put("sourceid", rs.getInt("platform"));
                                                                 return map;
                                                         }
                                                 });
              if (CollectionUtils.isEmpty(list)) {
                      LOG.error("在oracle数据库fllb_cjlb中没有找到记录,id=" + tid);
-                     return 0;
+                     return null;
              }
-             int source_id = (Integer)list.get(0).get("source_id");
-                return source_id;
+//             int source_id = (Integer)list.get(0).get("source_id");
+             return list.get(0);
         }
 
 }
