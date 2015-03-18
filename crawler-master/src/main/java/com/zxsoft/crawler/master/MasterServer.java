@@ -197,6 +197,7 @@ public class MasterServer {
                 }, "TaskSchedulerThread").start();
 
                 if (enableGetNetworkSearchTaskFromDb) {
+                        LOG.info("开启全网搜索功能.");
                         int realInterval = 10;
                         boolean searchTaskExecutable = false;
                         try {

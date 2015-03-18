@@ -64,7 +64,7 @@ public class NewsParser extends Parser {
 			return new FetchStatus(mainUrl, 41, Status.CONF_ERROR);
 		}
 		
-		RecordInfo info = new RecordInfo(mainUrl, comment,Platform.PLATFORM_NEWS, ip, country_code, province_code, city_code, location_code, location, source_id, server_id, source_type);
+		RecordInfo info = new RecordInfo(mainUrl, comment,Platform.PLATFORM_NEWS, ip, country_code, province_code, city_code, location_code, location, source_id, source_name, server_id, source_type);
 		info.setTitle(page.getTitle());
 		Elements contentEles = null;
 		if (!StringUtils.isEmpty(detailConf.getContent()) && !CollectionUtils.isEmpty(contentEles = document.select(detailConf.getContent()))) {

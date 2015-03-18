@@ -74,7 +74,7 @@ public class TieBaParser extends Parser {
                  * 解析主贴
                  */
                 RecordInfo info = new RecordInfo(mainUrl,  comment,Platform.PLATFORM_FORUM, ip, country_code, province_code, city_code,
-                                                location_code, location, source_id, server_id, source_type);
+                                                location_code, location, source_id, source_name, server_id, source_type);
                 info.setTitle(page.getTitle());
                 info.setUpdate_time(page.getUpdateTime());
                 Document document = page.getDocument();
@@ -213,7 +213,7 @@ public class TieBaParser extends Parser {
                 Collections.reverse(replyEles);
                 for (Element element : replyEles) {
                         RecordInfo info = new RecordInfo(currentUrl, comment, Platform.PLATFORM_REPLY, ip, country_code, province_code, city_code,
-                                                        location_code, location, source_id, server_id, source_type);
+                                                        location_code, location, source_id, source_name, server_id, source_type);
                         info.setOriginal_url(mainUrl);
 
                         String json = element.attr("data-field");
@@ -232,7 +232,7 @@ public class TieBaParser extends Parser {
                                                         + System.currentTimeMillis();
 
                         RecordInfo subReply = new RecordInfo(currentUrl, comment,Platform.PLATFORM_REPLY, ip, country_code, province_code,
-                                                        city_code, location_code, location, source_id, server_id, source_type);
+                                                        city_code, location_code, location, source_id, source_name, server_id, source_type);
                         subReply.setOriginal_url(mainUrl);
                         subReply.setOriginal_id(info.getId());
                         saveSub(subReply, surl, tid);

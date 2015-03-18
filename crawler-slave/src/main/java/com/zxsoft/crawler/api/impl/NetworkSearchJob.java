@@ -58,6 +58,7 @@ public class NetworkSearchJob extends CrawlTool {
                 int provinceId = (Integer) args.get(Params.PROVINCE_CODE);
                 int cityId = (Integer) args.get(Params.CITY_CODE);
                 int source_id = (Integer) args.get(Params.SOURCE_ID);
+                String source_name = (String)args.get(Params.SOURCE_NAME);
                 int server_id = (Integer) args.get(Params.SERVER_ID);
                 int source_type = JobType.NETWORK_SEARCH.getValue();
                 int sectionId = (Integer) args.get(Params.SECTION_ID);
@@ -75,7 +76,7 @@ public class NetworkSearchJob extends CrawlTool {
               locationCode = LocationUtils.getLocationCode(ip);
               
               WebPage page = new WebPage(url, engineUrl, keyword, sectionId, comment, region, provinceId, cityId, locationCode, location, ip,
-                                              JobType.NETWORK_SEARCH, source_id, server_id, source_type);
+                                              JobType.NETWORK_SEARCH, source_id,source_name, server_id, source_type);
               page.setEncode(encode);
 //                WebPage page = new WebPage(keyword, engineUrl);
                 page.setBaseUrl(url);
@@ -97,13 +98,13 @@ public class NetworkSearchJob extends CrawlTool {
                         map.put("code", 5002);
                         map.put("message", e.getMessage());
                 } catch (IllegalArgumentException e) {
-                        LOG.error("Argument error, may be parse rule not configured.", e);
+                        LOG.error("Argument error, may be parse rule not configured." + url, e);
                         map.put("code", 5003);
                         map.put("message", "argument error, may be parse rule not configured" + e.getMessage());
                 } catch (MalformedURLException e) {
-                        LOG.error("Not valid url.", e);
+                        LOG.error("Not valid url:" + url, e);
                         map.put("code", 5004);
-                        map.put("message", "not valid url." + e.getMessage());
+                        map.put("message", "not valid url," + url + e.getMessage());
                 }
 
                 LOG.debug((String) map.get("message"));

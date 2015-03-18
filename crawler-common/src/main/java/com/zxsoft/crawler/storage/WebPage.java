@@ -51,6 +51,7 @@ public class WebPage implements Serializable, Cloneable {
         private String location;
         private String ip;
         private int source_id;
+        private String source_name;
         private int server_id;
         private int source_type;
         private int sectionId;
@@ -97,7 +98,7 @@ public class WebPage implements Serializable, Cloneable {
         }
 
         public WebPage(String baseUrl, String engineUrl, String keyword, int sectionId, String comment,  int region, int provinceId, int cityId, int locationCode, String location,
-                                        String ip, JobType jobType, int source_id, int server_id, int source_type) {
+                                        String ip, JobType jobType, int source_id, String source_name, int server_id, int source_type) {
                 super();
                 this.baseUrl = baseUrl;
                 this.listUrl = engineUrl;
@@ -112,12 +113,13 @@ public class WebPage implements Serializable, Cloneable {
                 this.ip = ip;
                 this.jobType = jobType;
                 this.source_id = source_id;
+                this.source_name = source_name;
                 this.server_id = server_id;
                 this.source_type = source_type;
         }
         
         public WebPage(String baseUrl, int sectionId, String comment, long prevFetchTime, int region, int provinceId, int cityId, int locationCode, String location,
-                                        String ip, JobType jobType, int source_id, int server_id, int source_type) {
+                                        String ip, JobType jobType, int source_id,String source_name, int server_id, int source_type) {
                 super();
                 this.baseUrl = baseUrl;
                 this.sectionId = sectionId;
@@ -131,6 +133,7 @@ public class WebPage implements Serializable, Cloneable {
                 this.ip = ip;
                 this.jobType = jobType;
                 this.source_id = source_id;
+                this.source_name = source_name;
                 this.server_id = server_id;
                 this.source_type = source_type;
         }
@@ -157,6 +160,14 @@ public class WebPage implements Serializable, Cloneable {
 
         public void setReleaseDate(Date releaseDate) {
                 this.releaseDate = releaseDate;
+        }
+
+        public String getSource_name() {
+            return source_name;
+        }
+
+        public void setSource_name(String source_name) {
+            this.source_name = source_name;
         }
 
         public String getAuthor() {

@@ -75,7 +75,7 @@ public class ForumParser extends Parser {
                  * 解析主贴
                  */
                 RecordInfo info = new RecordInfo(mainUrl, comment, Platform.PLATFORM_FORUM, ip, country_code, province_code, city_code,
-                                                location_code, location, source_id, server_id, source_type);
+                                                location_code, location, source_id, source_name, server_id, source_type);
                 info.setTitle(page.getTitle());
                 info.setUpdate_time(page.getUpdateTime());
                 
@@ -212,7 +212,7 @@ public class ForumParser extends Parser {
                 Collections.reverse(replyEles);
                 for (Element element : replyEles) {
                         RecordInfo reply = new RecordInfo(currentUrl, comment,Platform.PLATFORM_REPLY, ip, country_code, province_code, city_code,
-                                                        location_code, location, source_id, server_id, source_type);
+                                                        location_code, location, source_id, source_name, server_id, source_type);
                         reply.setOriginal_url(mainUrl);
                         // 保存回复
                         String id = save(reply, element, null, detailConf);
@@ -230,7 +230,7 @@ public class ForumParser extends Parser {
                         if (!CollectionUtils.isEmpty(subReplyEles)) {
                                 for (Element ele : subReplyEles) {
                                         RecordInfo subReply = new RecordInfo(currentUrl,comment, Platform.PLATFORM_REPLY, ip, country_code,
-                                                                        province_code, city_code, location_code, location, source_id,
+                                                                        province_code, city_code, location_code, location, source_id, source_name,
                                                                         server_id, source_type);
                                         subReply.setOriginal_id(parentId);
                                         subReply.setOriginal_url(mainUrl);

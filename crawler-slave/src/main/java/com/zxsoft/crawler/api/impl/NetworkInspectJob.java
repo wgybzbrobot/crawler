@@ -61,6 +61,7 @@ public class NetworkInspectJob extends CrawlTool {
                 int provinceId = (Integer) args.get(Params.PROVINCE_CODE);
                 int cityId = (Integer) args.get(Params.CITY_CODE);
                 int source_id = (Integer) args.get(Params.SOURCE_ID);
+                String source_name = (String)args.get(Params.SOURCE_NAME);
                 int server_id = (Integer) args.get(Params.SERVER_ID);
                 int source_type = JobType.NETWORK_INSPECT.getValue();
                 int sectionId = (Integer) args.get(Params.SECTION_ID);
@@ -93,7 +94,7 @@ public class NetworkInspectJob extends CrawlTool {
                 try {
                         NetworkInspectParserController parseUtil = new NetworkInspectParserController();
                         WebPage page = new WebPage(url, sectionId, comment, prevFetchTime, region, provinceId, cityId, locationCode, location, ip,
-                                                        JobType.NETWORK_INSPECT, source_id, server_id, source_type);
+                                                        JobType.NETWORK_INSPECT, source_id, source_name, server_id, source_type);
                         FetchStatus status = parseUtil.parse(page);
                         map.put("code", 2001);
                         map.put("count", status.getCount());

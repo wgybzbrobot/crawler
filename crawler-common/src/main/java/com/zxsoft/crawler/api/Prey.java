@@ -22,6 +22,11 @@ public class Prey implements Serializable {
          * 网站id
          */
         private int source_id;
+        
+        /**
+         * 来源名称, 网站名称
+         */
+        private String source_name;
 
         /**
          * 版块id
@@ -126,12 +131,13 @@ public class Prey implements Serializable {
          * @param engineUrl
          * @param keyword
          */
-        public Prey(JobType jobType, String engineUrl, String keyword,  int source_id, int sectionId, String comment, 
+        public Prey(JobType jobType, String engineUrl, String keyword,  int source_id,String source_name, int sectionId, String comment, 
                                         int country_code, int province_code, int city_code) {
                 this.jobType = jobType;
                 this.engineUrl = engineUrl;
                 this.keyword = keyword;
                 this.source_id = source_id;
+                this.source_name = source_name;
                 this.sectionId = sectionId;
                 this.comment = comment;
                 this.country_code = country_code;
@@ -187,10 +193,11 @@ public class Prey implements Serializable {
          * @param city_code
          * @param state         任务状态
          */
-        public Prey(JobType jobType, int source_id, String url, int sectionId, String comment,  int fetchinterval, long start, long prevFetchTime,
+        public Prey(JobType jobType, int source_id, String source_name, String url, int sectionId, String comment,  int fetchinterval, long start, long prevFetchTime,
                                         int country_code, int province_code, int city_code, State state) {
                 super();
                 this.source_id = source_id;
+                this.source_name = source_name;
                 this.sectionId = sectionId;
                 this.url = url;
                 this.comment = comment;
@@ -232,6 +239,12 @@ public class Prey implements Serializable {
                 return json;
         }
         
+        public String getSource_name() {
+            return source_name;
+        }
+        public void setSource_name(String source_name) {
+            this.source_name = source_name;
+        }
         public String getEngineUrl() {
                 return engineUrl;
         }

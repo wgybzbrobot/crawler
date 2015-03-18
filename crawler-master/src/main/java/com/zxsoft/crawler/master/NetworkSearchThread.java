@@ -42,27 +42,29 @@ public final class NetworkSearchThread implements Runnable {
                 List<Map<String, Object>> list = service.getSearchTaskList();
                 if (!CollectionUtils.isEmpty(list)) {
                         for (Map<String, Object> _map : list) {
+                                try {
                                 String engineUrl = (String) _map.get(Params.ENGINE_URL);
                                 
                                 Map<String, Object> map = service.getBasicInfos(engineUrl);
                                 int source_id = (Integer)map.get("source_id");
                                 int sectionId = (Integer)map.get("sectionId");
                                 String comment = (String)map.get("comment");
+                                String source_name = comment;
                                 int country_code = (Integer)map.get("region");
                                 int province_code = (Integer)map.get("provinceId");
                                 int city_code = (Integer)map.get("cityId");
                                 
                                 Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl ,
-                                                                (String) _map.get(Params.KEYWORD),  source_id,  sectionId,  comment, 
+                                                                (String) _map.get(Params.KEYWORD),  source_id,  source_name, sectionId,  comment, 
                                                                  country_code,  province_code,  city_code);
-                                prey.setSource_id((Integer) _map.get("ly"));
+                                prey.setSource_id((Integer) _map.get("source_id"));
                                 prey.setJobId((Integer)_map.get("jobId"));
-                                try {
+                             
                                         LOG.info(prey.toString());
                                         Object obj = slaveResource.create(prey);
 //                                        LOG.info((String) obj);
                                 } catch (Exception e) {
-                                        LOG.error("创建从数据库中获取全网搜索的任务失败", e);
+                                        LOG.error("create search job failed from oracle db.", e);
                                 }
                         }
                 }
@@ -80,12 +82,13 @@ public final class NetworkSearchThread implements Runnable {
                                                 int source_id = (Integer)map.get("source_id");
                                                 int sectionId = (Integer)map.get("sectionId");
                                                 String comment = (String)map.get("comment");
+                                                String source_name = comment;
                                                 int country_code = (Integer)map.get("region");
                                                 int province_code = (Integer)map.get("provinceId");
                                                 int city_code = (Integer)map.get("cityId");
                                                 
                                                 Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl ,
-                                                                                (String) _map.get(Params.KEYWORD),  source_id,  sectionId,  comment, 
+                                                                                (String) _map.get(Params.KEYWORD),  source_id,  source_name,sectionId,  comment, 
                                                                                  country_code,  province_code,  city_code);
                                                 prey.setSource_id((Integer) _map.get("source_id"));
                                                 prey.setJobId((Integer)_map.get("jobId"));

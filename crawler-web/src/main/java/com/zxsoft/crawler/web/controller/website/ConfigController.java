@@ -130,7 +130,8 @@ public class ConfigController {
 	@ResponseBody
 	@RequestMapping(value = "ajax/saveDetailConf", method = RequestMethod.POST)
 	public Map<String, Object> saveDetailConf(ConfDetail detailConf, String testUrl, String oldHost) {
-		Map<String, Object> map = detailConfigVerification.verify(detailConf, testUrl);
+//		Map<String, Object> map = detailConfigVerification.verify(detailConf, testUrl);
+	    Map<String, Object> map  = new HashMap<String, Object>();
 		configService.add(detailConf, oldHost);
 		map.put("msg", "success");
 		

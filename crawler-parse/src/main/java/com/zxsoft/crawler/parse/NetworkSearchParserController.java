@@ -97,6 +97,7 @@ public final class NetworkSearchParserController extends ParseTool {
                 int location_code = LocationUtils.getLocationCode(ip);
                 String location = LocationUtils.getLocation(ip);
                 int source_id = page.getSource_id();
+                String source_name = page.getSource_name();
                 int server_id = page.getServer_id();
                 int source_type = page.getSource_type();
                 int sectionId = page.getSectionId();
@@ -152,7 +153,7 @@ public final class NetworkSearchParserController extends ParseTool {
                                         date = new Nldp(str).extractDateInMillis();
                                 }
 
-                                RecordInfo info = new RecordInfo(curl,  comment,Platform.PLATFORM_META_SEARCH, ip, country_code, province_code, city_code, location_code, location, source_id, server_id, source_type);
+                                RecordInfo info = new RecordInfo(curl,  comment,Platform.PLATFORM_META_SEARCH, ip, country_code, province_code, city_code, location_code, location, source_id,source_name,  server_id, source_type);
                                 info.setTitle(title);
                                 info.setId(Md5Signatrue.generateMd5(curl));
                                 info.setContent(synopsis);

@@ -26,6 +26,7 @@ public abstract class Parser extends ParseTool {
         protected String location;
         protected int source_type;
         protected int source_id;
+        protected String source_name;
         protected int server_id;
 
         /**
@@ -40,6 +41,7 @@ public abstract class Parser extends ParseTool {
                 this.location = page.getLocation();
                 this.source_type = page.getSource_type();
                 this.source_id = page.getSource_id();
+                this.source_name = page.getSource_name();
                 this.server_id = page.getServer_id();
                 this.sectionId = page.getSectionId();
                 this.comment = page.getComment();

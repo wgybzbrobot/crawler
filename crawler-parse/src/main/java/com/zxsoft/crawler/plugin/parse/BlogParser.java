@@ -71,7 +71,7 @@ public class BlogParser extends Parser {
                 /*
                  * 解析博主的博客内容
                  */
-                RecordInfo info = new RecordInfo(mainUrl, comment,Platform.PLATFORM_BLOG, ip, country_code, province_code, city_code, location_code, location, source_id, server_id, source_type);
+                RecordInfo info = new RecordInfo(mainUrl, comment,Platform.PLATFORM_BLOG, ip, country_code, province_code, city_code, location_code, location, source_id, source_name, server_id, source_type);
                 info.setTitle(page.getTitle());
                  info.setUpdate_time(page.getUpdateTime());
                 String replyNumDom = detailConf.getReplyNum();
@@ -198,7 +198,7 @@ public class BlogParser extends Parser {
                 Elements replyEles = doc.select(detailConf.getReply());
                 Collections.reverse(replyEles);
                 for (Element element : replyEles) {
-                        RecordInfo reply = new RecordInfo(currentUrl,comment, Platform.PLATFORM_REPLY, ip, country_code, province_code, city_code, location_code, location, source_id, server_id, source_type);
+                        RecordInfo reply = new RecordInfo(currentUrl,comment, Platform.PLATFORM_REPLY, ip, country_code, province_code, city_code, location_code, location, source_id, source_name, server_id, source_type);
                         reply.setOriginal_url(mainUrl);
                          // 保存回复
                         String id = save(reply, element, null, detailConf);
@@ -214,7 +214,7 @@ public class BlogParser extends Parser {
                         Elements subReplyEles = element.select(subReplyDom);
                         if (!CollectionUtils.isEmpty(subReplyEles)) {
                                 for (Element ele : subReplyEles) {
-                                        RecordInfo subReply = new RecordInfo(currentUrl,  comment,Platform.PLATFORM_REPLY, ip, country_code, province_code, city_code, location_code, location, source_id, server_id, source_type);
+                                        RecordInfo subReply = new RecordInfo(currentUrl,  comment,Platform.PLATFORM_REPLY, ip, country_code, province_code, city_code, location_code, location, source_id, source_name, server_id, source_type);
                                         subReply.setOriginal_id(id);
                                         subReply.setOriginal_url(mainUrl);
                                         saveSub(subReply, ele, detailConf);

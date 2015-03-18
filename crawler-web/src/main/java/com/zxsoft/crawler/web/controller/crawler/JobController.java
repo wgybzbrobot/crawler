@@ -313,13 +313,14 @@ public class JobController {
                         
                         Website website = section.getWebsite();
                         int source_id = website.getTid();
+                        String source_name = website.getComment(); 
                         int sectionId = section.getId();
                         String comment = website.getComment();
                         int country_code = website.getRegion();
                         int province_code = website.getProvinceId();
                         int city_code = website.getCityId();
                         Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl ,
-                                                        keyword,  source_id,  sectionId,  comment, 
+                                                        keyword,  source_id, source_name, sectionId,  comment, 
                                                          country_code,  province_code,  city_code);
                         prey.setSource_id(source_id);
                         prey.setJobId(1111);
@@ -382,7 +383,7 @@ public class JobController {
                         } else {
                                 // 添加任务
                                 double score = 1.0d / (System.currentTimeMillis() / 60000);
-                                prey = new Prey(JobType.NETWORK_INSPECT, source_id, url, sectionId, confList.getComment(), 
+                                prey = new Prey(JobType.NETWORK_INSPECT, source_id, website.getComment(),url, sectionId, section.getComment(), 
                                                                 interval, System.currentTimeMillis(), 0, county_code,
                                                                 province_code, city_code, State.JOB_EXCUTING);
                                 prey.setAutoUrl(section.getAutoUrl());

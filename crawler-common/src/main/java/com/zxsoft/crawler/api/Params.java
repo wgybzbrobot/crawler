@@ -38,6 +38,7 @@ public interface Params {
         public static final String CITY_CODE = "city_code";
         public static final String LOCATION_CODE = "location_code";
         public static final String SOURCE_ID = "source_id";
+        public static final String SOURCE_NAME = "source_name";
         public static final String SOURCE_TYPE = "source_type";
         public static final String SERVER_ID = "server_id";
 
