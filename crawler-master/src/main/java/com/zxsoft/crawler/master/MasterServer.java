@@ -89,7 +89,7 @@ public class MasterServer {
                 slaveManager.list();
 
                 // 监测slave
-                new Thread(new Runnable() {
+                Thread slaveMonitorThread = new Thread(new Runnable() {
                         public void run() {
                                 while (true) {
                                         try {
@@ -106,10 +106,11 @@ public class MasterServer {
                                         }
                                 }
                         }
-                }, "SlaveMonitorThread").start();
+                }, "SlaveMonitorThread");
+                slaveMonitorThread.setDaemon(false);
 
                 // 任务队列管理
-                new Thread(new Runnable() {
+               Thread taskSchedulerThread =  new Thread(new Runnable() {
                         @Override
                         public void run() {
                                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
@@ -194,7 +195,11 @@ public class MasterServer {
                                         }
                                 }
                         }
-                }, "TaskSchedulerThread").start();
+                }, "TaskSchedulerThread");
+               taskSchedulerThread.setDaemon(false);
+               
+               slaveMonitorThread.start();
+               taskSchedulerThread.start();
 
                 if (enableGetNetworkSearchTaskFromDb) {
                         LOG.info("开启全网搜索功能.");
@@ -212,7 +217,8 @@ public class MasterServer {
                                 LOG.warn("将不会从数据库中读取全网搜索任务, 但您可以调用接口执行全网搜索任务.");
                         }
                         if (searchTaskExecutable) {
-                                new Thread( new NetworkSearchThread(realInterval), "NetworkSearchJobSchedular").start();
+                                new OnceNetworkSearchThread().start();
+                                new RecurNetworkSearchThread(realInterval).start();
                         }
                 }
                 

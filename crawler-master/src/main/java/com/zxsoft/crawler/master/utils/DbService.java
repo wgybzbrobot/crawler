@@ -1,6 +1,7 @@
 package com.zxsoft.crawler.master.utils;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,13 +16,13 @@ public class DbService {
          * 此方法仅被调用一次,在master启动后被调用
          * @return
          */
-        public List<Map<String, Object>> getSearchTaskList() {
+        public LinkedList<Map<String, Object>> getSearchTaskList() {
                 List<Map<String, Object>> list = oracleDao.queryTaskExecuteList();
                 if (StringUtils.isEmpty(list)) {
                      return null;   
                 }
                 
-                List<Map<String, Object>> tasks = new ArrayList<Map<String,Object>>();
+                LinkedList<Map<String, Object>> tasks = new LinkedList<Map<String,Object>>();
                 
                 for (Map<String, Object> map : list) {
                         int tid = (Integer)map.get("tid");

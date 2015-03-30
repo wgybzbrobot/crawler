@@ -22,8 +22,7 @@ public class OracleDao extends BaseDao {
 
         private static final JdbcTemplate oracleJdbcTemplate;
         static {
-                OracleDriver driver = null;
-                driver = new OracleDriver();
+                OracleDriver driver  = new OracleDriver();
                 Properties prop = new Properties();
                 ClassLoader loader = Thread.currentThread().getContextClassLoader();
                 InputStream stream = loader.getResourceAsStream("oracle.properties");

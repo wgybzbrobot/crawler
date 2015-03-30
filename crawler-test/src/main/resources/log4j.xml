@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration debug="true"
+	xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.EnhancedPatternLayout">
+			<param name="ConversionPattern" value="%d{ISO8601} [%t] %5p %c [Line:%L] - %m%n" />
+		</layout>
+	</appender>
+	<appender name="FILE" class="org.apache.log4j.rolling.RollingFileAppender">
+		<param name="file" value="test.log" />
+		<param name="append" value="false" />
+		<rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+			<param name="FileNamePattern" value="test.log.%d{yyyy-MM-dd}.gz" />
+			<param name="ActiveFileName" value="test.log" />
+		</rollingPolicy>
+		<layout class="org.apache.log4j.EnhancedPatternLayout">
+			<param name="ConversionPattern" value="%d{ISO8601} [%t] %5p %c [Line:%L] - %m%n" />
+		</layout>
+	</appender>
+	<logger name="com.zxsoft.crawler">
+		<level value="debug" />
+		<appender-ref ref="FILE" />
+	</logger>
+	<logger name="com.springframework.jdbc">
+		<level value="info" />
+		<appender-ref ref="FILE" />
+	</logger>
+	<logger name="org.apache">
+		<level value="warn" />
+		<appender-ref ref="FILE" />
+	</logger>
+	<logger name="httpclient.wire">
+		<level value="warn" />
+		<appender-ref ref="FILE" />
+	</logger>
+	<logger name="com.gargoylesoftware">
+		<level value="warn" />
+		<appender-ref ref="FILE" />
+	</logger>
+	<root>
+		<priority value="info" />
+		<appender-ref ref="STDOUT" />
+	</root>
+</log4j:configuration>
