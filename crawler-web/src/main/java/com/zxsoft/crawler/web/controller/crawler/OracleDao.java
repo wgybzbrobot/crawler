@@ -61,7 +61,7 @@ public class OracleDao {
                                                         public Map<String, Object> mapRow(ResultSet rs, int arg1) throws SQLException {
                                                                 Map<String, Object> map = new HashMap<String, Object>();
                                                                 map.put("source_id", rs.getInt("sourceid"));
-                                                                map.put("sourceid", rs.getInt("platform"));
+                                                                map.put("platform", rs.getInt("platform"));
                                                                 return map;
                                                         }
                                                 });

@@ -33,7 +33,6 @@ import com.zxisl.commons.utils.Assert;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.api.JobType;
-import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.api.Prey;
 import com.zxsoft.crawler.api.Prey.State;
 import com.zxsoft.crawler.entity.ConfList;
@@ -56,422 +55,443 @@ import com.zxsoft.crawler.web.service.website.SectionService;
 @RequestMapping(MasterPath.SLAVE_RESOURCE_PATH)
 public class JobController {
 
-        private static Logger LOG = LoggerFactory.getLogger(JobController.class);
+    private static Logger LOG = LoggerFactory.getLogger(JobController.class);
 
-        private JobService jobService = new JobServiceImpl();
-        @Autowired
-        private SectionService sectionService;
-        @Autowired
-        private DictService dictService;
-        @Autowired
-        private ConfigService configService;
+    private JobService jobService = new JobServiceImpl();
+    @Autowired
+    private SectionService sectionService;
+    @Autowired
+    private DictService dictService;
+    @Autowired
+    private ConfigService configService;
 
-        private static final String URLBASE = "urlbase";
-        private static final String REDIS_HOST;
-        private static final int REDIS_PORT;
+    private static final String URLBASE = "urlbase";
+    private static final String REDIS_HOST;
+    private static final int REDIS_PORT;
 
-        static {
-                ClassPathResource resource = new ClassPathResource("redis.properties");
-                Properties properties = new Properties();
-                try {
-                        properties.load(resource.getInputStream());
-                } catch (IOException e) {
-                        e.printStackTrace();
-                }
-                REDIS_HOST = properties.getProperty("redis.host");
-                REDIS_PORT = Integer.valueOf(properties.getProperty("redis.port"));
-
-                if (StringUtils.isEmpty(REDIS_HOST)) {
-                        throw new NullPointerException("redis.properties中没有配置<redis.host>");
-                }
-                if (StringUtils.isEmpty(REDIS_HOST)) {
-                        throw new NullPointerException("redis.properties中没有配置<redis.prot>");
-                }
+    static {
+        ClassPathResource resource = new ClassPathResource("redis.properties");
+        Properties properties = new Properties();
+        try {
+            properties.load(resource.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        REDIS_HOST = properties.getProperty("redis.host");
+        REDIS_PORT = Integer.valueOf(properties.getProperty("redis.port"));
 
-        /**
-         * 列出任务种子
-         * 
-         * @param index
-         *                个数
-         * @param model
-         * @return
-         */
-        @RequestMapping(value = "preys/{index}", method = RequestMethod.GET)
-        public String jobs(@PathVariable(value = "index") int index, Model model) {
-                List<Prey> list = new LinkedList<Prey>();
-                Jedis jedis = new Jedis(REDIS_HOST, 6379);
-                long count = 0;
-                try {
-                        count = jedis.zcard(URLBASE);
-                        Set<String> set = jedis.zrevrange(URLBASE, 0, index - 1);
-                        if (!CollectionUtils.isEmpty(set)) {
-                                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                                for (String str : set) {
-                                        Prey prey = gson.fromJson(str, Prey.class);
-                                        list.add(prey);
-                                }
-                        }
-                } catch (JedisConnectionException e) {
-                        model.addAttribute("code", 5000);
-                        model.addAttribute("msg", "Redis没有启动: " + REDIS_HOST + ":" + 6379);
-                        e.printStackTrace();
-                } catch (Exception e) {
-                        e.printStackTrace();
-                } finally {
-                        model.addAttribute("count", count);
-                        model.addAttribute("preys", list);
-                        jedis.close();
-                }
-
-                List<ConfList> confLists = configService.getInspectConfLists(null);
-                model.addAttribute("confLists", confLists);
-
-                List<ConfList> engines = dictService.getSearchEngines();
-                model.addAttribute("engines", engines);
-
-                model.addAttribute("currentTime", new Date().toLocaleString());
-
-                return "/crawler/preys";
+        if (StringUtils.isEmpty(REDIS_HOST)) {
+            throw new NullPointerException("redis.properties中没有配置<redis.host>");
         }
+        if (StringUtils.isEmpty(REDIS_HOST)) {
+            throw new NullPointerException("redis.properties中没有配置<redis.port>");
+        }
+    }
 
-        /**
-         * 查询任务
-         * 
-         * @param name
-         * @return
-         */
-        @RequestMapping(value = "jobs", method = RequestMethod.POST)
-        public String jobs(@RequestParam(value = "job", required = false) String job, Model model) {
-                List<Prey> list = new LinkedList<Prey>();
-                model.addAttribute("currentTime", new Date().toLocaleString());
-                model.addAttribute("searchJobKey", job);
-                if (StringUtils.isEmpty(job)) {
-                        return jobs(20, model);
-                }
-                Jedis jedis = new Jedis(REDIS_HOST, 6379);
+    /**
+     * 列出任务种子
+     * 
+     * @param index
+     *            个数
+     * @param model
+     * @return
+     */
+    @RequestMapping(value = "preys/{index}", method = RequestMethod.GET)
+    public String jobs(@PathVariable(value = "index") int index, Model model) {
+        List<Prey> list = new LinkedList<Prey>();
+        Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
+        long count = 0;
+        try {
+            count = jedis.zcard(URLBASE);
+            Set<String> set = jedis.zrevrange(URLBASE, 0, index - 1);
+            if (!CollectionUtils.isEmpty(set)) {
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                long count = 0, begin = 0, end = 100;
-                try {
-                        count = jedis.zcard(URLBASE);
-                        while (begin < count) {
-                                Set<String> set = jedis.zrevrange(URLBASE, begin, end);
-                                if (CollectionUtils.isEmpty(set)) {
-                                        break;
-                                }
-                                for (String str : set) {
-                                        Prey prey = gson.fromJson(str, Prey.class);
-                                        if (prey.toString().contains(job)) {
-                                                list.add(prey);
-                                        }
-                                }
-                                begin = end;
-                                end = end + 100;
+                for (String str : set) {
+                    Prey prey = gson.fromJson(str, Prey.class);
+                    list.add(prey);
+                }
+            }
+        } catch (JedisConnectionException e) {
+            model.addAttribute("code", 5000);
+            model.addAttribute("msg", "Redis没有启动: " + REDIS_HOST + ":"
+                            + REDIS_PORT);
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            model.addAttribute("count", count);
+            model.addAttribute("preys", list);
+            jedis.close();
+        }
+
+        List<ConfList> confLists = configService.getInspectConfLists(null);
+        model.addAttribute("confLists", confLists);
+
+        List<ConfList> engines = dictService.getSearchEngines();
+        model.addAttribute("engines", engines);
+
+        model.addAttribute("currentTime", new Date().toLocaleString());
+
+        return "/crawler/preys";
+    }
+
+    /**
+     * 查询任务
+     * 
+     * @param name
+     * @return
+     */
+    @RequestMapping(value = "jobs", method = RequestMethod.POST)
+    public String jobs(
+                    @RequestParam(value = "job", required = false) String job,
+                    Model model) {
+        List<Prey> list = new LinkedList<Prey>();
+        model.addAttribute("currentTime", new Date().toLocaleString());
+        model.addAttribute("searchJobKey", job);
+        if (StringUtils.isEmpty(job)) {
+            return jobs(20, model);
+        }
+        Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        long count = 0, begin = 0, end = 100;
+        try {
+            count = jedis.zcard(URLBASE);
+            while (begin < count) {
+                Set<String> set = jedis.zrevrange(URLBASE, begin, end);
+                if (CollectionUtils.isEmpty(set)) {
+                    break;
+                }
+                for (String str : set) {
+                    Prey prey = gson.fromJson(str, Prey.class);
+                    if (prey.toString().contains(job)) {
+                        list.add(prey);
+                    }
+                }
+                begin = end;
+                end = end + 100;
+            }
+        } catch (JedisConnectionException e) {
+            e.printStackTrace();
+            model.addAttribute("code", 5000);
+            model.addAttribute("msg", "Redis没有启动: " + REDIS_HOST + ":"
+                            + REDIS_PORT);
+        } finally {
+            model.addAttribute("count", count);
+            model.addAttribute("preys", list);
+            jedis.close();
+        }
+
+        return "/crawler/preys";
+    }
+
+    /**
+     * 删除任务
+     * 
+     * @param comment
+     * @param start
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "ajax/job/delete", method = RequestMethod.POST)
+    public String deleteJob(
+                    @RequestParam(value = "comment", required = false) String comment,
+                    @RequestParam(value = "start", required = false) long start) {
+        if (StringUtils.isEmpty(comment) || start == 0L) {
+            return "{\"code\":-1}";
+        }
+        String ret = "";
+        Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        long count = 0, begin = 0, end = 100;
+        try {
+            count = jedis.zcard(URLBASE);
+            while (begin < count) {
+                Set<String> set = jedis.zrevrange(URLBASE, begin, end);
+                if (CollectionUtils.isEmpty(set)) {
+                    ret = "{\"code\":-1}";
+                    break;
+                }
+                for (String str : set) {
+                    Prey prey = gson.fromJson(str, Prey.class);
+                    String json = prey.toString();
+                    if (json.contains(comment)
+                                    && json.contains(String.valueOf(start))) {
+                        long retNum = jedis.zrem(URLBASE, json);
+                        if (retNum == 0) {
+                            ret = "{\"code\":-1}";
                         }
-                } catch (JedisConnectionException e) {
-                        e.printStackTrace();
-                        model.addAttribute("code", 5000);
-                        model.addAttribute("msg", "Redis没有启动: " + REDIS_HOST + ":" + 6379);
-                } finally {
-                        model.addAttribute("count", count);
-                        model.addAttribute("preys", list);
-                        jedis.close();
+                        ret = "{\"code\":1}";
+                        break;
+                    }
                 }
-
-                return "/crawler/preys";
+                begin = end;
+                end = end + 100;
+            }
+        } catch (JedisConnectionException e) {
+            e.printStackTrace();
+        } finally {
+            jedis.close();
         }
 
-        /**
-         * 删除任务
-         * 
-         * @param comment
-         * @param start
-         * @return
-         */
-        @ResponseBody
-        @RequestMapping(value = "ajax/job/delete", method = RequestMethod.POST)
-        public String deleteJob(@RequestParam(value = "comment", required = false) String comment,
-                                        @RequestParam(value = "start", required = false) long start) {
-                if (StringUtils.isEmpty(comment) || start == 0L) {
-                        return "{\"code\":-1}";
+        return ret;
+    }
+
+    /**
+     * 暂停任务
+     * 
+     * @param comment
+     * @param start
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "ajax/job/halt", method = RequestMethod.POST)
+    public String haltOrStartJob(
+                    @RequestParam(value = "comment", required = false) String comment,
+                    @RequestParam(value = "start", required = false) long start) {
+        if (StringUtils.isEmpty(comment) || start == 0L) {
+            return "{\"code\":-1}";
+        }
+        String ret = "";
+        Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
+
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        long count = 0, begin = 0, end = 100;
+        try {
+            count = jedis.zcard(URLBASE);
+            while (begin < count) {
+                Set<String> set = jedis.zrevrange(URLBASE, begin, end);
+                if (CollectionUtils.isEmpty(set)) {
+                    ret = "{\"code\":-1}";
+                    break;
                 }
-                String ret = "";
-                Jedis jedis = new Jedis(REDIS_HOST, 6379);
-                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                long count = 0, begin = 0, end = 100;
-                try {
-                        count = jedis.zcard(URLBASE);
-                        while (begin < count) {
-                                Set<String> set = jedis.zrevrange(URLBASE, begin, end);
-                                if (CollectionUtils.isEmpty(set)) {
-                                        ret = "{\"code\":-1}";
-                                        break;
-                                }
-                                for (String str : set) {
-                                        Prey prey = gson.fromJson(str, Prey.class);
-                                        String json = prey.toString();
-                                        if (json.contains(comment) && json.contains(String.valueOf(start))) {
-                                                long retNum = jedis.zrem(URLBASE, json);
-                                                if (retNum == 0) {
-                                                        ret = "{\"code\":-1}";
-                                                }
-                                                ret = "{\"code\":1}";
-                                                break;
-                                        }
-                                }
-                                begin = end;
-                                end = end + 100;
+                for (String str : set) {
+                    Prey prey = gson.fromJson(str, Prey.class);
+                    String json = prey.toString();
+                    if (json.contains(comment)
+                                    && json.contains(String.valueOf(start))) {
+                        Transaction t = jedis.multi();
+                        Response<Long> res = t.zrem(URLBASE, str);
+                        if (prey.getState() == State.JOB_STOP) { // 已暂停,点击后开始
+                            prey.setState(State.JOB_EXCUTING);
+                            t.zadd(URLBASE, 0.999d, prey.toString());
+                        } else { // 暂停
+                            prey.setState(State.JOB_STOP);
+                            t.zadd(URLBASE, 0.0d, prey.toString());
                         }
-                } catch (JedisConnectionException e) {
-                        e.printStackTrace();
-                } finally {
-                        jedis.close();
-                }
+                        t.exec();
 
-                return ret;
+                        ret = "{\"code\":1}";
+                        break;
+                    }
+                }
+                begin = end;
+                end = end + 100;
+            }
+        } catch (JedisConnectionException e) {
+            e.printStackTrace();
+        } finally {
+            jedis.close();
         }
 
-        /**
-         * 暂停任务
-         * 
-         * @param comment
-         * @param start
-         * @return
-         */
-        @ResponseBody
-        @RequestMapping(value = "ajax/job/halt", method = RequestMethod.POST)
-        public String haltOrStartJob(@RequestParam(value = "comment", required = false) String comment,
-                                        @RequestParam(value = "start", required = false) long start) {
-                if (StringUtils.isEmpty(comment) || start == 0L) {
-                        return "{\"code\":-1}";
-                }
-                String ret = "";
-                Jedis jedis = new Jedis(REDIS_HOST, 6379);
+        return ret;
+    }
 
-                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                long count = 0, begin = 0, end = 100;
-                try {
-                        count = jedis.zcard(URLBASE);
-                        while (begin < count) {
-                                Set<String> set = jedis.zrevrange(URLBASE, begin, end);
-                                if (CollectionUtils.isEmpty(set)) {
-                                        ret = "{\"code\":-1}";
-                                        break;
-                                }
-                                for (String str : set) {
-                                        Prey prey = gson.fromJson(str, Prey.class);
-                                        String json = prey.toString();
-                                        if (json.contains(comment) && json.contains(String.valueOf(start))) {
-                                                Transaction t = jedis.multi();
-                                                Response<Long> res = t.zrem(URLBASE, str);
-                                                if (prey.getState() == State.JOB_STOP) { // 已暂停,点击后开始
-                                                        prey.setState(State.JOB_EXCUTING);
-                                                        t.zadd(URLBASE, 0.999d, prey.toString());
-                                                } else { // 暂停
-                                                        prey.setState(State.JOB_STOP);
-                                                        t.zadd(URLBASE, 0.0d, prey.toString());
-                                                }
-                                                t.exec();
+    /**
+     * 添加搜索任务
+     * 
+     * @param keyword
+     * @param engineUrls
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "ajax/addSearchJob", method = RequestMethod.POST)
+    public String addSearchJob(
+                    @RequestParam(value = "keyword", required = false) String keyword,
+                    @RequestParam(value = "engineId", required = false) List<String> engineUrls) {
+        Assert.hasLength(keyword);
+        Assert.notEmpty(engineUrls);
+        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        for (String engineUrl : engineUrls) {
+            if (StringUtils.isEmpty(engineUrl))
+                continue;
+            Section section = sectionService.getSectionByUrl(engineUrl);
+            if (section == null) {
+                continue;
+            }
 
-                                                ret = "{\"code\":1}";
-                                                break;
-                                        }
-                                }
-                                begin = end;
-                                end = end + 100;
-                        }
-                } catch (JedisConnectionException e) {
-                        e.printStackTrace();
-                } finally {
-                        jedis.close();
-                }
+            Website website = section.getWebsite();
+            int tid = website.getTid();
+            Map<String, Object> oMap = oracleDao.querySourceId(tid);
+            int source_id = (Integer) oMap.get("source_id");
+            int platform = (Integer) oMap.get("platform");
 
-                return ret;
+            String source_name = website.getComment();
+            int sectionId = section.getId();
+            String comment = website.getComment();
+            int country_code = website.getRegion();
+            int province_code = website.getProvinceId();
+            int city_code = website.getCityId();
+            Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl, keyword,
+                            platform, source_id, source_name, sectionId,
+                            comment, country_code, province_code, city_code);
+            prey.setSource_id(source_id);
+            prey.setJobId(1111);
+
+            Map<String, Object> map = jobService.addSearchJob(prey);
+            list.add(map);
         }
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        String json = gson.toJson(list, List.class);
+        return json;
+    }
 
-        /**
-         * 添加搜索任务
-         * 
-         * @param keyword
-         * @param engineUrls
-         * @return
-         */
-        @ResponseBody
-        @RequestMapping(value = "ajax/addSearchJob", method = RequestMethod.POST)
-        public String addSearchJob(@RequestParam(value = "keyword", required = false) String keyword,
-                                        @RequestParam(value = "engineId", required = false) List<String> engineUrls) {
-                Assert.hasLength(keyword);
-                Assert.notEmpty(engineUrls);
-               List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
-                for (String engineUrl : engineUrls) {
-                        if (StringUtils.isEmpty(engineUrl)) 
-                                continue;
-                        Section section = sectionService.getSectionByUrl(engineUrl);
-                        if (section == null) {
-                                continue;
-                        }
-                        
-                        Website website = section.getWebsite();
-                        int tid = website.getTid();
-                        Map<String, Object> oMap = oracleDao.querySourceId(tid);
-                        int source_id = (Integer) oMap.get("source_id");
-                        int platform = (Integer) oMap.get("platform");
-                        
-                        String source_name = website.getComment(); 
-                        int sectionId = section.getId();
-                        String comment = website.getComment();
-                        int country_code = website.getRegion();
-                        int province_code = website.getProvinceId();
-                        int city_code = website.getCityId();
-                        Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl ,
-                                                        keyword,  platform, source_id, source_name, sectionId,  comment, 
-                                                         country_code,  province_code,  city_code);
-                        prey.setSource_id(source_id);
-                        prey.setJobId(1111);
-                        
-                        Map<String, Object> map = jobService.addSearchJob(prey);
-                        list.add(map);
-                }
-                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                String json = gson.toJson(list, List.class);
-                return json;
+    private static OracleDao oracleDao = new OracleDao();
+
+    /**
+     * 添加网络巡检任务
+     * 
+     * @param url
+     * @param 抓取时间间隔
+     *            (minute), default is 60minutes.
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "ajax/addInspectJob", method = RequestMethod.POST)
+    public Map<String, Object> addInspectJob(
+                    @RequestParam(value = "url", required = false) String url,
+                    @RequestParam(value = "interval", required = false) Integer interval) {
+        Assert.hasLength(url);
+
+        Map<String, Object> args = new HashMap<String, Object>();
+        if (url.endsWith("/")) {
+            url = url.substring(0, url.lastIndexOf("/"));
         }
-
-        private static OracleDao oracleDao = new OracleDao();
-        
-        /**
-         * 添加网络巡检任务
-         * 
-         * @param url
-         * @param 抓取时间间隔(minute), default is 60minutes.
-         * @return
-         */
-        @ResponseBody
-        @RequestMapping(value = "ajax/addInspectJob", method = RequestMethod.POST)
-        public Map<String, Object> addInspectJob(@RequestParam(value = "url", required = false) String url, 
-                                        @RequestParam(value = "interval", required = false) Integer interval) {
-                Assert.hasLength(url);
-                if (interval == null) interval = 60;
-                
-                Map<String, Object> args = new HashMap<String, Object>();
-                if (url.endsWith("/")) {
-                        url = url.substring(0, url.lastIndexOf("/"));
-                }
-                ConfList confList = configService.getConfList(url);
-                if (confList == null) {
-                        args.put("msg", "noconflist");
-                        return args;
-                }
-
-                Section section = sectionService.getSectionByUrl(url);
-                if (section == null) {
-                        args.put("msg", "section is null, but conflist is not null.");
-                        return args;
-                }
-                Website website = section.getWebsite();
-                int tid = website.getTid();
-                Map<String, Object> oMap = oracleDao.querySourceId(tid);
-                int source_id = (Integer) oMap.get("source_id");
-                int platform = (Integer) oMap.get("platform");
-                
-                int sectionId = section.getId();
-                int county_code = website.getRegion() == null ? 0 : website.getRegion();
-                int province_code = website.getProvinceId() == null ? 0 : website.getProvinceId();
-                int city_code = website.getCityId() == null ? 0 : website.getCityId();
-
-                Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
-                Prey prey = null;
-                try {
-                        // 判断任务列表中是否已存在该任务
-                        boolean exist = jobExist(url);
-                        if (exist) {
-                                args.put("msg", "jobexist");
-                        } else {
-                                // 添加任务
-                                double score = 1.0d / (System.currentTimeMillis() / 60000);
-                                prey = new Prey(JobType.NETWORK_INSPECT, source_id, website.getComment(),url, sectionId, section.getComment(), 
-                                                                interval, System.currentTimeMillis(), 0, county_code,
-                                                                province_code, city_code, State.JOB_EXCUTING);
-                                prey.setAutoUrl(section.getAutoUrl());
-                                LOG.info("添加任务:" + prey.toString());
-                                jedis.zadd(URLBASE, score, prey.toString());
-                        }
-                } catch (JedisConnectionException e) {
-                        args.put("msg", "jedisconnectionexception");
-                        LOG.error("Add Inspect Job failed.", e);
-                } catch (Exception e) {
-                        args.put("msg", e.getMessage());
-                        LOG.error("Add Inspect Job failed.", e);
-                } finally {
-                        jedis.close();
-                }
-                return args;
+        ConfList confList = configService.getConfList(url);
+        if (confList == null) {
+            args.put("msg", "noconflist");
+            return args;
         }
+        if (interval == null)
+            interval = confList.getFetchinterval();
 
-        /**
-         * 判断url任务是否已在redis队列中
-         * 
-         * @param url
-         * @return
-         */
-        @ResponseBody
-        @RequestMapping(value = "ajax/jobExist", method = RequestMethod.POST)
-        public boolean jobExist(@RequestParam(value = "url", required = false) String url) {
-                Assert.hasLength(url);
-                if (url.endsWith("/")) {
-                        url = url.substring(0, url.lastIndexOf("/"));
-                }
-                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
-                long count = 0, begin = 0, end = 100;
-                try {
-                        count = jedis.zcard(URLBASE);
-                        while (begin < count) {
-                                Set<String> set = jedis.zrevrange(URLBASE, begin, end);
-                                if (CollectionUtils.isEmpty(set))
-                                        break;
-                                for (String str : set) {
-                                        Prey _prey = gson.fromJson(str, Prey.class);
-                                        String _url = _prey.getUrl();
-                                        if (_url.endsWith("/")) {
-                                                _url = _url.substring(0, _url.lastIndexOf("/"));
-                                        }
-                                        if (url.equals(_url)) {
-                                                return true;
-                                        }
-                                }
-                                begin = end;
-                                end = end + 100;
-                        }
-                } catch (JedisConnectionException e) {
-                        LOG.error(e.getMessage(), e);
-                } finally {
-                        jedis.close();
-                }
-                return false;
+        Section section = sectionService.getSectionByUrl(url);
+        if (section == null) {
+            args.put("msg", "section is null, but conflist is not null.");
+            return args;
         }
-
-        /**
-         * 查找已配置版块
-         * 
-         * @param name
-         *                版块名称或地址
-         * @return
-         */
-        @ResponseBody
-        @RequestMapping(value = "ajax/preys", method = RequestMethod.POST)
-        public List<ConfList> preys(@RequestParam(value = "name", required = false) String name) {
-
-                ConfList param1 = new ConfList();
-                param1.setUrl(name);
-                List<ConfList> confLists = configService.getInspectConfLists(param1);
-
-                ConfList param2 = new ConfList();
-                param2.setComment(name);
-                List<ConfList> confLists2 = configService.getInspectConfLists(param2);
-
-                confLists.addAll(confLists2);
-                return confLists;
+        Website website = section.getWebsite();
+        int tid = website.getTid(), source_id = 0, platform = 0;
+        try {
+            Map<String, Object> oMap = oracleDao.querySourceId(tid);
+            source_id = (Integer) oMap.get("source_id");
+            platform = (Integer) oMap.get("platform");
+        } catch (Exception e) {
+            args.put("msg", "从oracle中获取source_id和platform失败, tid " + tid);
+            return args;
         }
+        int sectionId = section.getId();
+        int county_code = website.getRegion() == null ? 0 : website.getRegion();
+        int province_code = website.getProvinceId() == null ? 0 : website
+                        .getProvinceId();
+        int city_code = website.getCityId() == null ? 0 : website.getCityId();
+
+        Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
+        Prey prey = null;
+        try {
+            // 判断任务列表中是否已存在该任务
+            boolean exist = jobExist(url);
+            if (exist) {
+                args.put("msg", "jobexist");
+            } else {
+                // 添加任务
+                double score = 1.0d / (System.currentTimeMillis() / 60000);
+                prey = new Prey(JobType.NETWORK_INSPECT, source_id,
+                                website.getComment(), url, sectionId,
+                                section.getComment(), interval,
+                                System.currentTimeMillis(), 0, county_code,
+                                province_code, city_code, State.JOB_EXCUTING);
+                prey.setAutoUrl(section.getAutoUrl());
+                LOG.info("添加任务:" + prey.toString());
+                jedis.zadd(URLBASE, score, prey.toString());
+            }
+        } catch (JedisConnectionException e) {
+            args.put("msg", "jedisconnectionexception");
+            LOG.error("Add Inspect Job failed.", e);
+        } catch (Exception e) {
+            args.put("msg", e.getMessage());
+            LOG.error("Add Inspect Job failed.", e);
+        } finally {
+            jedis.close();
+        }
+        return null;
+    }
+
+    /**
+     * 判断url任务是否已在redis队列中
+     * 
+     * @param url
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "ajax/jobExist", method = RequestMethod.POST)
+    public boolean jobExist(
+                    @RequestParam(value = "url", required = false) String url) {
+        Assert.hasLength(url);
+        if (url.endsWith("/")) {
+            url = url.substring(0, url.lastIndexOf("/"));
+        }
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
+        long count = 0, begin = 0, end = 100;
+        try {
+            count = jedis.zcard(URLBASE);
+            while (begin < count) {
+                Set<String> set = jedis.zrevrange(URLBASE, begin, end);
+                if (CollectionUtils.isEmpty(set))
+                    break;
+                for (String str : set) {
+                    Prey _prey = gson.fromJson(str, Prey.class);
+                    String _url = _prey.getUrl();
+                    if (_url.endsWith("/")) {
+                        _url = _url.substring(0, _url.lastIndexOf("/"));
+                    }
+                    if (url.equals(_url)) {
+                        return true;
+                    }
+                }
+                begin = end;
+                end = end + 100;
+            }
+        } catch (JedisConnectionException e) {
+            LOG.error(e.getMessage(), e);
+        } finally {
+            jedis.close();
+        }
+        return false;
+    }
+
+    /**
+     * 查找已配置版块
+     * 
+     * @param name
+     *            版块名称或地址
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "ajax/preys", method = RequestMethod.POST)
+    public List<ConfList> preys(
+                    @RequestParam(value = "name", required = false) String name) {
+
+        ConfList param1 = new ConfList();
+        param1.setUrl(name);
+        List<ConfList> confLists = configService.getInspectConfLists(param1);
+
+        ConfList param2 = new ConfList();
+        param2.setComment(name);
+        List<ConfList> confLists2 = configService.getInspectConfLists(param2);
+
+        confLists.addAll(confLists2);
+        return confLists;
+    }
 
 }
