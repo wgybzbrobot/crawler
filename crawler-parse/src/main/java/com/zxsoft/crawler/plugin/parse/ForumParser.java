@@ -46,6 +46,7 @@ public class ForumParser extends Parser {
 
         private List<RecordInfo> recordInfos = new LinkedList<RecordInfo>();
 
+        private String title;
         public List<RecordInfo> getRecordInfos() {
                 return recordInfos;
         }
@@ -76,9 +77,10 @@ public class ForumParser extends Parser {
                  */
                 RecordInfo info = new RecordInfo(mainUrl, comment, Platform.PLATFORM_FORUM, ip, country_code, province_code, city_code,
                                                 location_code, location, source_id, source_name, server_id, source_type);
+                info.setTimestamp(page.getReleaseDate() == null ? 0 : page.getReleaseDate().getTime());
                 info.setTitle(page.getTitle());
                 info.setUpdate_time(page.getUpdateTime());
-                
+                title = page.getTitle();
                 String replyNumDom = detailConf.getReplyNum();
                 if (!StringUtils.isEmpty(replyNumDom) && !CollectionUtils.isEmpty(mainDoc.select(replyNumDom)))
                         info.setComment_count(Utils.extractNum(mainDoc.select(replyNumDom).first().text()));
@@ -155,7 +157,7 @@ public class ForumParser extends Parser {
                                 currentUrl = newPageUrl;
                         } while (!StringUtils.isEmpty(newPageUrl));
 
-                } else { // 从最后一夜
+                } else { // 从最后一页
                         WebPage np = page.clone(); // 跳转到最后一页
                         page.setDocument(_doc);
                         page.setBaseUrl(_doc.location());
@@ -214,6 +216,7 @@ public class ForumParser extends Parser {
                         RecordInfo reply = new RecordInfo(currentUrl, comment,Platform.PLATFORM_REPLY, ip, country_code, province_code, city_code,
                                                         location_code, location, source_id, source_name, server_id, source_type);
                         reply.setOriginal_url(mainUrl);
+                        reply.setTitle(title);
                         // 保存回复
                         String id = save(reply, element, null, detailConf);
                         // 由于时间的误差，将抓取时间拓展１分钟

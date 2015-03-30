@@ -74,6 +74,7 @@ public class BlogParser extends Parser {
                 RecordInfo info = new RecordInfo(mainUrl, comment,Platform.PLATFORM_BLOG, ip, country_code, province_code, city_code, location_code, location, source_id, source_name, server_id, source_type);
                 info.setTitle(page.getTitle());
                  info.setUpdate_time(page.getUpdateTime());
+                 info.setTimestamp(page.getReleaseDate() == null ? 0 : page.getReleaseDate().getTime());
                 String replyNumDom = detailConf.getReplyNum();
                 if (!StringUtils.isEmpty(replyNumDom) && !CollectionUtils.isEmpty(mainDoc.select(replyNumDom)))
                         info.setComment_count(Utils.extractNum(mainDoc.select(replyNumDom).first().text()));

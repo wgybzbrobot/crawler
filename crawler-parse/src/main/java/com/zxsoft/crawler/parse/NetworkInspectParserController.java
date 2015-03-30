@@ -78,9 +78,9 @@ public final class NetworkInspectParserController extends ParseTool {
 				continuePage = false;
 				msg = StringUtils.concat(msg, "没有获取列表页中记录的更新时间，抓完设定的页数" + _pageNum + ", 若数量为0,则可能配置有误.");
 				break;
-			} else if (pageNum > _pageNum + 3) { // 有更新日期
+			} else if (pageNum > _pageNum + 1) { // 有更新日期
 			        continuePage = false;
-                                msg += "抓完设定的页数" + (_pageNum + 3);
+                                msg += "抓完设定的页数" + (_pageNum + 1);
                                 break;
 			}
 			
@@ -90,14 +90,14 @@ public final class NetworkInspectParserController extends ParseTool {
 				Date update = null;
 				if (!StringUtils.isEmpty(updateDom) && !CollectionUtils.isEmpty(line.select(updateDom))) {
 					update = DateExtractor.extract(line.select(updateDom).first().html());
-					if (update != null && update.getTime() + 60000L < page.getPrevFetchTime()) {
-					        if (count > 5) {
-        						msg += "截止时间" + new Date(page.getPrevFetchTime()).toLocaleString();
-        						continuePage = false;
-        						break;
-					        }
-					        count++;
-					}
+//					if (update != null && update.getTime() + 60000L < page.getPrevFetchTime()) {
+//					        if (count > 5) {
+//        						msg += "截止时间" + new Date(page.getPrevFetchTime()).toLocaleString();
+//        						continuePage = false;
+//        						break;
+//					        }
+//					        count++;
+//					}
 					hasUpdate = true;
 				}
 
