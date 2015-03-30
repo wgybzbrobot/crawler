@@ -50,6 +50,7 @@ public abstract class HttpBase extends PageHelper {
 	protected static  String proxyUsername;
 	protected static  String proxyPassword;
 	
+	protected static final int retryNum = 3;
 
 	/** Indicates if a proxy is used */
 	/** The network timeout in millisecond */
@@ -131,7 +132,17 @@ public abstract class HttpBase extends PageHelper {
 	 **/
 	public ProtocolOutput getProtocolOutput(WebPage page) throws ProtocolException, IOException {
 		// URL u = new URL(url);
-		Response response = getResponse(page);
+	    
+		Response response = null;
+		for (int i = 0; i < retryNum; i++) {
+    		try {
+    		    response = getResponse(page);
+    		} catch (IOException e) {
+    		    LOG.debug("IOException, try again");
+    		   continue; 
+    		}
+    		break;
+		}
 		return dealResponse(response);
 	}
 

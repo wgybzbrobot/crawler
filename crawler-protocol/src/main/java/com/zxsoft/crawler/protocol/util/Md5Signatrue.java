@@ -21,7 +21,7 @@ public class Md5Signatrue {
 			throw new IllegalArgumentException("生产MD5时参数为空.");
 		}
 		
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder("reply");
 		for (String arg : args) {
 			if (StringUtils.isEmpty(arg))
 				continue;
@@ -39,7 +39,7 @@ public class Md5Signatrue {
 			e.printStackTrace();
 		}
 
-		return new String(Hex.encodeHexString(result));
+		return new String(Hex.encodeHexString(result)).toUpperCase();
 	}
 
 	public static void main(String[] args) {

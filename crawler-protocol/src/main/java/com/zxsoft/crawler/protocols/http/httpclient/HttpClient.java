@@ -141,7 +141,7 @@ public class HttpClient extends HttpBase {
 		        code = -2;
 		        LOG.error(e.getMessage() + ": " + url.toString());
 		} catch (Exception e) {
-			LOG.error(e.getMessage() + ": " + url.toString());
+			throw new IOException(e.getMessage());
 		} finally {
 			get.releaseConnection();
 		}
@@ -242,7 +242,18 @@ public class HttpClient extends HttpBase {
 		if (url != null) {
 			WebPage np = page;
 			np.setBaseUrl(url.toExternalForm());
-			return getResponse(page);
+			
+			Response response = null;
+		     for (int i = 0; i < retryNum; i++) {
+		            try {
+		                response = getResponse(np);
+		            } catch (IOException e) {
+		                LOG.debug("IOException, try again");
+		               continue; 
+		            }
+		            break;
+		        }
+			return response;
 		}
 
 		throw new PrevPageNotFoundException("Preview Page Not Found");
@@ -263,7 +274,18 @@ public class HttpClient extends HttpBase {
 			LOG.info(next);
 			np.setBaseUrl(next);
 
-			return getResponse(np);
+			Response response = null;
+		     for (int i = 0; i < retryNum; i++) {
+		            try {
+		                response = getResponse(np);
+		            } catch (IOException e) {
+		                LOG.debug("IOException, try again");
+		               continue; 
+		            }
+		            break;
+		        }
+		     
+			return response;
 		} else {
 			Element pagebar = getPageBar(currentDoc);
 			if (pagebar != null) {
@@ -289,7 +311,17 @@ public class HttpClient extends HttpBase {
 		if (!CollectionUtils.isEmpty(lastEles)) {
 			WebPage np = page;
 			np.setBaseUrl(lastEles.first().absUrl("href"));
-			return getResponse(np);
+			Response response = null;
+		     for (int i = 0; i < retryNum; i++) {
+		            try {
+		                response = getResponse(np);
+		            } catch (IOException e) {
+		                LOG.debug("IOException, try again");
+		               continue; 
+		            }
+		            break;
+		        }
+			return response;
 		}
 
 		// 1. get all links from page bar
