@@ -1,5 +1,8 @@
 package com.zxsoft.crawler.parse;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 import com.zxsoft.crawler.plugin.PluginRuntimeException;
 
 
@@ -23,6 +26,27 @@ public class Extension {
 		} catch (IllegalAccessException e) {
 			throw new PluginRuntimeException(e);
 		}
+	}
+
+	public Object getInstance(Object[] params, Class[] paramClassArr) throws PluginRuntimeException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
+	    
+	    ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+	    Class<?> clazz;
+	    try {
+	        clazz = classLoader.loadClass(className);
+//	        Object object = clazz.newInstance();
+	           
+            Constructor<?> cons = clazz.getConstructor(paramClassArr);
+            Object object = cons.newInstance(params);
+	        return object;
+	        
+	    } catch (ClassNotFoundException e) {
+	        throw new PluginRuntimeException(e);
+	    } catch (InstantiationException e) {
+	        throw new PluginRuntimeException(e);
+	    } catch (IllegalAccessException e) {
+	        throw new PluginRuntimeException(e);
+	    }
 	}
 
 	

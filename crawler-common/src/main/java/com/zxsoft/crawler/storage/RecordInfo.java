@@ -56,6 +56,33 @@ public class RecordInfo implements Serializable, Cloneable {
         private int province_code = 0;
         private int city_code = 0;
         
+       
+        
+        
+        public RecordInfo(int source_id, String type, int server_id,
+                        String identify_md5, String keyword, String ip,
+                        String location, String source_name, int source_type,
+                        int country_code, int location_code, int province_code,
+                        int city_code) {
+            super();
+            this.type = type;
+            this.server_id = server_id;
+            this.identify_md5 = identify_md5;
+            this.keyword = keyword;
+            this.ip = ip;
+            this.location = location;
+            this.source_name = source_name;
+            this.source_type = source_type;
+            this.country_code = country_code;
+            this.location_code = location_code;
+            this.province_code = province_code;
+            this.city_code = city_code;
+            this.source_id = source_id;
+            
+            this.lasttime = System.currentTimeMillis();
+            this.first_time = this.lasttime;
+        }
+
         @Override
         public RecordInfo clone() {
                 try {

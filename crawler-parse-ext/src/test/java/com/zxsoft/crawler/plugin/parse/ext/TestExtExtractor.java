@@ -3,6 +3,7 @@ package com.zxsoft.crawler.plugin.parse.ext;
 import org.junit.Test;
 
 import com.zxisl.commons.utils.Assert;
+import com.zxsoft.crawler.parse.ext.ExtExtractor;
 
 public class TestExtExtractor {
 

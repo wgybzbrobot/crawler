@@ -5,6 +5,7 @@ import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
 import com.zxsoft.crawler.master.impl.RAMSlaveManager;
+import com.zxsoft.crawler.urlbase.JobCreator;
 
 public class MasterApp extends Application {
 
@@ -13,9 +14,9 @@ public class MasterApp extends Application {
 	
 	public static SlaveManager slaveMgr;
 	
-	static {
-		slaveMgr = new RAMSlaveManager();
-	}
+	public MasterApp(JobCreator jobCreator) {
+	    slaveMgr = new RAMSlaveManager(jobCreator);
+    }
 	
 	@Override
 	public synchronized Restlet createInboundRoot() {

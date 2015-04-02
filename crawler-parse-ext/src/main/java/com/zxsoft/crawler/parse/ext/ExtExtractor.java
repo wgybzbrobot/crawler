@@ -1,22 +1,22 @@
-package com.zxsoft.crawler.plugin.parse.ext;
+package com.zxsoft.crawler.parse.ext;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zxsoft.crawler.plugin.parse.ext.generated.AuthorExtractorLexer;
-import com.zxsoft.crawler.plugin.parse.ext.generated.AuthorExtractorParser;
-import com.zxsoft.crawler.plugin.parse.ext.generated.AuthorExtractorParser.ExtractAuthorContext;
-import com.zxsoft.crawler.plugin.parse.ext.generated.ReadNumExtractorLexer;
-import com.zxsoft.crawler.plugin.parse.ext.generated.ReadNumExtractorParser;
-import com.zxsoft.crawler.plugin.parse.ext.generated.ReadNumExtractorParser.ExtractReadNumContext;
-import com.zxsoft.crawler.plugin.parse.ext.generated.ReplyNumExtractorLexer;
-import com.zxsoft.crawler.plugin.parse.ext.generated.ReplyNumExtractorParser;
-import com.zxsoft.crawler.plugin.parse.ext.generated.ReplyNumExtractorParser.ExtractReplyNumContext;
-import com.zxsoft.crawler.plugin.parse.ext.generated.SourceExtractorLexer;
-import com.zxsoft.crawler.plugin.parse.ext.generated.SourceExtractorParser;
-import com.zxsoft.crawler.plugin.parse.ext.generated.SourceExtractorParser.ExtractSourceContext;
+import com.zxsoft.crawler.parse.ext.generated.AuthorExtractorLexer;
+import com.zxsoft.crawler.parse.ext.generated.AuthorExtractorParser;
+import com.zxsoft.crawler.parse.ext.generated.AuthorExtractorParser.ExtractAuthorContext;
+import com.zxsoft.crawler.parse.ext.generated.ReadNumExtractorLexer;
+import com.zxsoft.crawler.parse.ext.generated.ReadNumExtractorParser;
+import com.zxsoft.crawler.parse.ext.generated.ReadNumExtractorParser.ExtractReadNumContext;
+import com.zxsoft.crawler.parse.ext.generated.ReplyNumExtractorLexer;
+import com.zxsoft.crawler.parse.ext.generated.ReplyNumExtractorParser;
+import com.zxsoft.crawler.parse.ext.generated.ReplyNumExtractorParser.ExtractReplyNumContext;
+import com.zxsoft.crawler.parse.ext.generated.SourceExtractorLexer;
+import com.zxsoft.crawler.parse.ext.generated.SourceExtractorParser;
+import com.zxsoft.crawler.parse.ext.generated.SourceExtractorParser.ExtractSourceContext;
 import com.zxsoft.crawler.util.Utils;
 
 /**

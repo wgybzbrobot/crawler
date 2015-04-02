@@ -61,7 +61,7 @@ public class RestOutput implements Output {
 	/**
 	 * 写一条
 	 */
-	public int write(RecordInfo info) throws OutputException {
+	public int write(RecordInfo info)  {
 		Assert.notNull(info);
 		
 		if (!StringUtils.isEmpty(_url)) {
@@ -95,11 +95,9 @@ public class RestOutput implements Output {
 		        if (writeToMysqlIfFail) {
         		        LOG.error(e.getMessage() + ", will write data to Mysql", e);
         		        mysqlOutput.write(info);
-		        } else {
-		                throw new OutputException(e.getMessage());
-		        }
+		        } 
 		} catch (IllegalArgumentException | NullPointerException e) {
-		        throw new OutputException("Solr service url address is null or not valid.", e);
+//		        throw new OutputException("Solr service url address is null or not valid.", e);
 		} finally {
 			if (response != null) {
 				response.close();
@@ -116,7 +114,7 @@ public class RestOutput implements Output {
 		String errorMessage;
 	}
 
-	public int write(List<RecordInfo> recordInfos) throws OutputException {
+	public int write(List<RecordInfo> recordInfos) {
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		if (CollectionUtils.isEmpty(recordInfos))
 			return 0;
@@ -162,7 +160,7 @@ public class RestOutput implements Output {
 				}
 			}
 		} catch (Exception e) {
-			throw new OutputException(e.getMessage());
+//			throw new OutputException(e.getMessage());
 		} finally {
 			client.destroy();
 		}

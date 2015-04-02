@@ -1,8 +1,10 @@
 package com.zxsoft.crawler.parse;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
+import java.util.Set;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -10,17 +12,18 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zxisl.commons.utils.Assert;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
-import com.zxsoft.crawler.api.JobCode;
 import com.zxsoft.crawler.api.JobType;
-import com.zxsoft.crawler.parse.FetchStatus.Status;
+import com.zxsoft.crawler.common.CrawlerException;
+import com.zxsoft.crawler.common.CrawlerException.ErrorCode;
+import com.zxsoft.crawler.common.DetailRule;
+import com.zxsoft.crawler.common.JobConf;
+import com.zxsoft.crawler.common.ListRule;
 import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
-import com.zxsoft.crawler.storage.ListConf;
+import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
-import com.zxsoft.crawler.store.OutputException;
 import com.zxsoft.crawler.util.URLFormatter;
 
 /**
@@ -31,45 +34,47 @@ public final class NetworkInspectParserController extends ParseTool {
 	private static Logger LOG = LoggerFactory.getLogger(NetworkInspectParserController.class);
 	private static final int _pageNum = 2;
 
-	public FetchStatus parse(WebPage page) throws ParserNotFoundException, UnsupportedEncodingException {
-		Assert.notNull(page);
-		String indexUrl = page.getBaseUrl();
-		LOG.debug("indexUrl: " + indexUrl);
-		ListConf listConf = confDao.getListConf(indexUrl);
-		if (listConf == null) {
-		        LOG.error("No List Configuration, url: " + indexUrl);
-			return new FetchStatus(indexUrl, 43, Status.CONF_ERROR);
+	public void parse(JobConf jobConf) throws ParserNotFoundException, UnsupportedEncodingException, CrawlerException {
+        
+        RecordInfo recordInfo = new RecordInfo( jobConf.getSource_id(), jobConf.getType(), jobConf.getWorkerId(), jobConf.getIdentify_md5(), jobConf.getKeyword(), 
+                        jobConf.getIp(),  jobConf.getLocation(), jobConf.getSource_name(), JobType.NETWORK_INSPECT.getValue(), jobConf.getCountry_code(), 
+                        jobConf.getLocationCode(),  jobConf.getProvince_code(), jobConf.getCity_code());
+        
+		ListRule rule = jobConf.getListRule();
+		
+		if (rule == null) {
+		      throw new CrawlerException(ErrorCode.CONF_ERROR, "No List Page Rule");
 		}
 		
-		if (indexUrl.contains("%t")) {
-                        indexUrl = URLFormatter.format(indexUrl);
+		String listUrl = jobConf.getUrl();
+		if (listUrl.contains("%t")) {
+		    listUrl = URLFormatter.format(listUrl);
 	        }
 
-		page.setAjax(listConf.isAjax());
-		page.setAuth(listConf.isAuth());
+		WebPage page = new WebPage(listUrl, rule.getAjax());
 		ParserFactory factory = new ParserFactory();
 		
-		page.setBaseUrl(indexUrl);
-		page.setListUrl(page.getBaseUrl());
+		
 		ProtocolOutput output = fetch(page);
 
-		if (!output.getStatus().isSuccess())
-			return new FetchStatus(indexUrl, 51, Status.PROTOCOL_FAILURE);
+		if (!output.getStatus().isSuccess()) {
+		    throw new CrawlerException(ErrorCode.NETWORK_ERROR, "Fail to get List page ");
+		}
 
 		Document document = output.getDocument();
 
-		LOG.info("【" + listConf.getComment() + "】抓取开始");
+		LOG.info("Fetching " + jobConf.getSource_name() + "-->" + jobConf.getType() + "...");
 
-		String listDom = listConf.getListdom(), lineDom = listConf.getLinedom(), updateDom = listConf.getUpdatedom();
-		String urlDom = listConf.getUrldom();
+		String listDom = rule.getListdom(), lineDom = rule.getLinedom(), updateDom = rule.getUpdatedom();
+		String urlDom = rule.getUrldom();
 		boolean hasUpdate = false, continuePage = true;
 		int sum = 0, pageNum = 1;
-		Status status = Status.SUCCESS;
 		String msg = "";
 		while (true) {
 			Elements list = document.select(listDom);
 			if (CollectionUtils.isEmpty(list)) {
-				return new FetchStatus(indexUrl, 44, Status.CONF_ERROR);
+			    LOG.trace(document.html());
+				throw new CrawlerException(ErrorCode.CONF_ERROR, "No record find in list page.");
 			}
 
 			Elements lines = list.first().select(lineDom);
@@ -80,48 +85,50 @@ public final class NetworkInspectParserController extends ParseTool {
 				break;
 			} else if (pageNum > _pageNum + 1) { // 有更新日期
 			        continuePage = false;
-                                msg += "抓完设定的页数" + (_pageNum + 1);
-                                break;
+                    msg += "抓完设定的页数" + (_pageNum + 1);
+                    break;
 			}
 			
-			LOG.info("【" + listConf.getComment() + "】第" + pageNum + "页,　记录数: " + lines.size());
+			LOG.info("【" + jobConf.getSource_name() + "-->" + jobConf.getType()  + "】第" + pageNum + "页,　记录数: " + lines.size());
 			int count = 0;
+			
 			for (Element line : lines) {
-				Date update = null;
-				if (!StringUtils.isEmpty(updateDom) && !CollectionUtils.isEmpty(line.select(updateDom))) {
-					update = DateExtractor.extract(line.select(updateDom).first().html());
-//					if (update != null && update.getTime() + 60000L < page.getPrevFetchTime()) {
-//					        if (count > 5) {
-//        						msg += "截止时间" + new Date(page.getPrevFetchTime()).toLocaleString();
-//        						continuePage = false;
-//        						break;
-//					        }
-//					        count++;
-//					}
-					hasUpdate = true;
-				}
-
-				if (CollectionUtils.isEmpty(line.select(urlDom)) || StringUtils.isEmpty(line.select(urlDom).first().absUrl("href")))
-				        continue;
-
-				
-				WebPage wp = page.clone();
+			    
+			    if (CollectionUtils.isEmpty(line.select(urlDom)) || StringUtils.isEmpty(line.select(urlDom).first().absUrl("href")))
+                    continue;
+			    
 				/*
 				 * 如果详细页没有这些字段，则在列表页获取
 				 */
-				if (!StringUtils.isEmpty(listConf.getDatedom()) && !CollectionUtils.isEmpty(line.select(listConf.getDatedom()))) {
-				        Date releasedate = DateExtractor.extract(line.select(listConf.getDatedom()).first().html());
-					wp.setReleaseDate(releasedate);
+				ExtInfo extInfo = new ExtInfo();
+
+                Date update = null;
+                if (!StringUtils.isEmpty(updateDom) && !CollectionUtils.isEmpty(line.select(updateDom))) {
+                    update = DateExtractor.extract(line.select(updateDom).first().html());
+//                  if (update != null && update.getTime() + 60000L < page.getPrevFetchTime()) {
+//                          if (count > 5) {
+//                              msg += "截止时间" + new Date(page.getPrevFetchTime()).toLocaleString();
+//                              continuePage = false;
+//                              break;
+//                          }
+//                          count++;
+//                  }
+                    extInfo.setUpdate(update.getTime());
+                    hasUpdate = true;
+                }
+                
+				if (!StringUtils.isEmpty(rule.getDatedom()) && !CollectionUtils.isEmpty(line.select(rule.getDatedom()))) {
+				        Date releasedate = DateExtractor.extract(line.select(rule.getDatedom()).first().html());
+					extInfo.setTimestamp(releasedate.getTime());
 				}
-				if (!StringUtils.isEmpty(listConf.getAuthordom()) && !CollectionUtils.isEmpty(line.select(listConf.getAuthordom()))) {
-				        Element authorEle = line.select(listConf.getAuthordom()).first();
-				        wp.setAuthor(authorEle.text());
+				if (!StringUtils.isEmpty(rule.getAuthordom()) && !CollectionUtils.isEmpty(line.select(rule.getAuthordom()))) {
+				        Element authorEle = line.select(rule.getAuthordom()).first();
+				        extInfo.setAuthor(authorEle.text());
 				        Elements _anchors = authorEle.getElementsByTag("a");
 				        if (!CollectionUtils.isEmpty(_anchors)) {
-				              wp.setHomeUrl(_anchors.first().absUrl("href"));  
+				            extInfo.setHomeUrl(_anchors.first().absUrl("href"));  
 				        }
 				}
-				
 
 				String curl = "";
 				Elements as = line.getElementsByTag("a");
@@ -130,34 +137,33 @@ public final class NetworkInspectParserController extends ParseTool {
 				} else {
 					curl = line.select(urlDom).first().absUrl("href");
 				}
-
+				URL u = null;
+				try {
+                    u = new URL(curl);
+                } catch (MalformedURLException e1) {
+                    LOG.warn("Not valid url: " + curl);
+                    continue;
+                }
+				recordInfo.setOriginal_url(curl);
 				String title = line.select(urlDom).first().text();
+				recordInfo.setTitle(title);
 				
-				wp.setTitle(title);
-				wp.setBaseUrl(curl);
-				wp.setAjax(false); // detail page use normal load
-				wp.setDocument(null);
-				if (update != null) {
-				        wp.setUpdateTime(update.getTime());
-				} else {
-				        wp.setUpdateTime(0);
-				}
 		                
 				try {
-					Parser parser = factory.getParserByCategory(listConf.getCategory());
-					/*
-					 * 重要! 设置通用字段值
-					 */
-					parser.setup(page);
-					FetchStatus _status = parser.parse(wp);
+					
+					DetailRule detailRule = seletDetailRule(jobConf.getDetailRules(), u);
+					if (null == detailRule) {
+					    LOG.warn("Related detail page rule not configured: " + u.getHost());
+					    continue;
+					}
+					
+					Object[] params = new Object[]{recordInfo, detailRule, jobConf.getPrevFetchTime(), extInfo};
+					Class[] paramClassArr = new Class[]{recordInfo.getClass(), detailRule.getClass(), Long.class, extInfo.getClass()};
+					Parser parser = factory.getParserByCategory(rule.getCategory(), params, paramClassArr);
+//					Parser parser = new ForumParser(recordInfo, detailRule, prevFetchTime, extInfo);
+					FetchStatus _status = parser.parse();
 					sum += _status.getCount();
-					msg = StringUtils.concat(msg, _status.getMessage());
-				} catch (OutputException e) {
-			                msg = StringUtils.concat(msg, e.getMessage());
-                                        LOG.error(msg);
-                                        status = Status.OUTPUT_FAILURE;
 				}catch (Exception e) {
-				        msg = StringUtils.concat(msg, e.getMessage());
 					LOG.error(msg, e);
 				}
 				if (!continuePage) {
@@ -168,9 +174,7 @@ public final class NetworkInspectParserController extends ParseTool {
 			if (!continuePage) {
 				break;
 			} else { // 翻页
-				WebPage np = page.clone();
-				np.setBaseUrl(document.location());
-				np.setDocument(document);
+			    WebPage np = new WebPage(document.location(), rule.getAjax() ,document);
 				ProtocolOutput ptemp = fetchNextPage(pageNum, np);
 				if (ptemp == null || !ptemp.getStatus().isSuccess()) {
 					break;
@@ -182,7 +186,25 @@ public final class NetworkInspectParserController extends ParseTool {
 				pageNum++;
 			}
 		}
-		LOG.info("【" + listConf.getComment() + "】total fetch record number:" + sum + ", msg:" + msg);
-		return new FetchStatus(indexUrl, 21, status, sum, msg);
+		  LOG.info(jobConf.getSource_name() + "-->" + jobConf.getType() + " complete fetch, total fetch record number is " + sum);
+	}
+	
+	/** 一个版块可能有多个详细页规则, 根据host获取对应的规则. */
+	private DetailRule seletDetailRule(Set<DetailRule> rules, URL  u) throws CrawlerException {
+	    if (rules == null)
+	        throw new CrawlerException(ErrorCode.CONF_ERROR, "No detail page rules");
+	    
+	    DetailRule[] drs = rules.toArray(new DetailRule[]{});
+	    
+	    if (rules.size() == 1) 
+	        return drs[0];
+	    
+	    for (DetailRule dr : drs) {
+            if (StringUtils.isEmpty(dr.getHost()))
+                            throw new CrawlerException(ErrorCode.CONF_ERROR, "Host field in detail rule is null");
+            if (dr.getHost().trim().contains(u.getHost().trim()))
+                return dr;
+        }
+	    return null;
 	}
 }

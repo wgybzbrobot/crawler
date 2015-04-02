@@ -17,6 +17,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
+import com.zxsoft.crawler.common.JobConf;
+import com.zxsoft.crawler.common.JobConfBuilder;
+
 public class OracleDao extends BaseDao {
         private static Logger LOG = LoggerFactory.getLogger(OracleDao.class);
 
@@ -48,19 +51,20 @@ public class OracleDao extends BaseDao {
          * 
          * @return
          */
-        public List<Map<String, Object>> queryTaskExecuteList() {
-                List<Map<String, Object>> list = oracleJdbcTemplate.query("select a.id, a.gjc, a.ly, b.sourceid , b.zdbs platform"
-                        + " from SELECT_TASK_EXECUTE_LIST a, fllb_cjlb b where a.ly = b.id ",
-                                                new RowMapper<Map<String, Object>>() {
+        public List<JobConf> queryTaskExecuteList() {
+                List<JobConf> list = oracleJdbcTemplate.query("select a.id, a.gjc, a.ly, b.sourceid , b.zdbs platform"
+                        + " from SELECT_TASK_EXECUTE_LIST a, fllb_cjlb b where a.ly = b.id and b.zdbs != 3 ",
+                                                new RowMapper<JobConf>() {
                                                         @Override
-                                                        public Map<String, Object> mapRow(ResultSet rs, int arg1) throws SQLException {
-                                                                Map<String, Object> map = new HashMap<String, Object>();
-                                                                map.put("jobId", rs.getInt("id"));
-                                                                map.put("keyword", rs.getString("gjc"));
-                                                                map.put("tid", rs.getInt("ly"));
-                                                                map.put("source_id", rs.getInt("sourceid"));
-                                                                map.put("platform", rs.getInt("platform"));
-                                                                return map;
+                                                        public JobConf mapRow(ResultSet rs, int arg1) throws SQLException {
+                                                                JobConf jobConf = new JobConf();
+                                                                jobConf.setJobId(rs.getInt("id"));
+                                                                jobConf.setKeyword(rs.getString("gjc"));
+                                                                jobConf.setSectionId(rs.getInt("ly")); // 这不是真的sectionid，这里只是用来保存ly字段
+                                                                jobConf.setSource_id(rs.getInt("sourceid"));
+                                                                jobConf.setPlatform(rs.getInt("platform"));
+                                                                
+                                                                return jobConf;
                                                         }
                                                 });
              
@@ -69,22 +73,21 @@ public class OracleDao extends BaseDao {
 
         /**
          * 读取任务列表`JHRW_RWLB`, 被多次读取
-         * 
-         * @return
          */
-        public List<Map<String, Object>> queryTaskQueue() {
-                List<Map<String, Object>> list = oracleJdbcTemplate.query("select a.id, a.gjc, a.ly, b.sourceid, b.zdbs platform from JHRW_RWLB a, fllb_cjlb b "
-                        + " where a.ly = b.id ",
-                                                new RowMapper<Map<String, Object>>() {
+        public List<JobConf> queryTaskQueue() {
+            List<JobConf> list = oracleJdbcTemplate.query("select a.id, a.gjc, a.ly, b.sourceid, b.zdbs platform from JHRW_RWLB a, fllb_cjlb b "
+                        + " where a.ly = b.id and b.zdbs != 3 ",
+                                                new RowMapper<JobConf>() {
                                                         @Override
-                                                        public Map<String, Object> mapRow(ResultSet rs, int arg1) throws SQLException {
-                                                                Map<String, Object> map = new HashMap<String, Object>();
-                                                                map.put("jobId", rs.getInt("id"));
-                                                                map.put("keyword", rs.getString("gjc"));
-                                                                map.put("tid", rs.getInt("ly"));
-                                                                map.put("source_id", rs.getInt("sourceid"));
-                                                                map.put("platform", rs.getInt("platform"));
-                                                                return map;
+                                                        public JobConf mapRow(ResultSet rs, int arg1) throws SQLException {
+                                                            JobConf jobConf = new JobConf();
+                                                            jobConf.setJobId(rs.getInt("id"));
+                                                            jobConf.setKeyword(rs.getString("gjc"));
+                                                            jobConf.setSectionId(rs.getInt("ly"));
+                                                            jobConf.setSource_id(rs.getInt("sourceid"));
+                                                            jobConf.setPlatform(rs.getInt("platform"));
+                                                            
+                                                            return jobConf;
                                                         }
                                                 });
 

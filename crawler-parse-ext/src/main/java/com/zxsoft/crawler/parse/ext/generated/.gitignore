@@ -1,0 +1,16 @@
+/AuthorExtractor.tokens
+/AuthorExtractorLexer.java
+/AuthorExtractorLexer.tokens
+/AuthorExtractorParser.java
+/ReadNumExtractor.tokens
+/ReadNumExtractorLexer.java
+/ReadNumExtractorLexer.tokens
+/ReadNumExtractorParser.java
+/ReplyNumExtractor.tokens
+/ReplyNumExtractorLexer.java
+/ReplyNumExtractorLexer.tokens
+/ReplyNumExtractorParser.java
+/SourceExtractor.tokens
+/SourceExtractorLexer.java
+/SourceExtractorLexer.tokens
+/SourceExtractorParser.java

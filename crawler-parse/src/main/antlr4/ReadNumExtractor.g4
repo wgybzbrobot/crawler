@@ -1,10 +1,10 @@
 /**
  * Define a grammar called Source, 来源
  */
-grammar ReplyNumExtractor;
+grammar ReadNumExtractor;
 
 @header {
-	package com.zxsoft.crawler.plugin.parse.ext.generated;
+	package com.zxsoft.crawler.parse.ext.generated;
 }
 
 options {
@@ -17,5 +17,5 @@ FILTER: . -> skip ;
 WITHESPACE: [ \t\r\n\u00A0];
 WS : WITHESPACE+ -> skip ; // skip spaces, tabs, newlines
 
-Reply_Num_Token1: '評論數'  WITHESPACE* ('：' | ':') WITHESPACE* [0-9]+  WITHESPACE*;
-extractReplyNum: Reply_Num_Token1;
+Read_Num_Token1: '查看數'  WITHESPACE* ('：' | ':') WITHESPACE* [0-9]+  WITHESPACE*;
+extractReadNum: Read_Num_Token1;

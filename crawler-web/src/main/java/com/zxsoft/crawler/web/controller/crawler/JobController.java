@@ -1,9 +1,9 @@
 package com.zxsoft.crawler.web.controller.crawler;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +35,10 @@ import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.api.Prey;
 import com.zxsoft.crawler.api.Prey.State;
+import com.zxsoft.crawler.common.DetailRule;
+import com.zxsoft.crawler.common.JobConf;
+import com.zxsoft.crawler.common.ListRule;
+import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.entity.ConfList;
 import com.zxsoft.crawler.entity.Section;
 import com.zxsoft.crawler.entity.Website;
@@ -308,41 +312,40 @@ public class JobController {
     public String addSearchJob(
                     @RequestParam(value = "keyword", required = false) String keyword,
                     @RequestParam(value = "engineId", required = false) List<String> engineUrls) {
-        Assert.hasLength(keyword);
-        Assert.notEmpty(engineUrls);
-        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-        for (String engineUrl : engineUrls) {
-            if (StringUtils.isEmpty(engineUrl))
-                continue;
-            Section section = sectionService.getSectionByUrl(engineUrl);
-            if (section == null) {
-                continue;
-            }
-
-            Website website = section.getWebsite();
-            int tid = website.getTid();
-            Map<String, Object> oMap = oracleDao.querySourceId(tid);
-            int source_id = (Integer) oMap.get("source_id");
-            int platform = (Integer) oMap.get("platform");
-
-            String source_name = website.getComment();
-            int sectionId = section.getId();
-            String comment = website.getComment();
-            int country_code = website.getRegion();
-            int province_code = website.getProvinceId();
-            int city_code = website.getCityId();
-            Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl, keyword,
-                            platform, source_id, source_name, sectionId,
-                            comment, country_code, province_code, city_code);
-            prey.setSource_id(source_id);
-            prey.setJobId(1111);
-
-            Map<String, Object> map = jobService.addSearchJob(prey);
-            list.add(map);
-        }
-        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-        String json = gson.toJson(list, List.class);
-        return json;
+//        Assert.hasLength(keyword);
+//        Assert.notEmpty(engineUrls);
+//        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+//        for (String engineUrl : engineUrls) {
+//            if (StringUtils.isEmpty(engineUrl))
+//                continue;
+//            Section section = sectionService.getSectionByUrl(engineUrl);
+//            if (section == null) {
+//                continue;
+//            }
+//
+//            Website website = section.getWebsite();
+//            int tid = website.getTid();
+//            JobConf jobConf = oracleDao.querySourceId(tid);
+//
+//            String source_name = website.getComment();
+//            int sectionId = section.getId();
+//            String comment = website.getComment();
+//            int country_code = website.getRegion();
+//            int province_code = website.getProvinceId();
+//            int city_code = website.getCityId();
+//            Prey prey = new Prey(JobType.NETWORK_SEARCH, engineUrl, keyword,
+//                            platform, source_id, source_name, sectionId,
+//                            comment, country_code, province_code, city_code);
+//            prey.setSource_id(source_id);
+//            prey.setJobId(1111);
+//
+//            Map<String, Object> map = jobService.addSearchJob(prey);
+//            list.add(map);
+//        }
+//        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+//        String json = gson.toJson(list, List.class);
+//        return json;
+        return null;
     }
 
     private static OracleDao oracleDao = new OracleDao();
@@ -354,75 +357,80 @@ public class JobController {
      * @param 抓取时间间隔
      *            (minute), default is 60minutes.
      * @return
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
      */
     @ResponseBody
     @RequestMapping(value = "ajax/addInspectJob", method = RequestMethod.POST)
     public Map<String, Object> addInspectJob(
                     @RequestParam(value = "url", required = false) String url,
-                    @RequestParam(value = "interval", required = false) Integer interval) {
+                    @RequestParam(value = "interval", required = false) Integer interval) throws IllegalArgumentException, IllegalAccessException {
         Assert.hasLength(url);
 
         Map<String, Object> args = new HashMap<String, Object>();
         if (url.endsWith("/")) {
             url = url.substring(0, url.lastIndexOf("/"));
         }
-        ConfList confList = configService.getConfList(url);
-        if (confList == null) {
-            args.put("msg", "noconflist");
-            return args;
-        }
-        if (interval == null)
-            interval = confList.getFetchinterval();
-
+        
         Section section = sectionService.getSectionByUrl(url);
         if (section == null) {
             args.put("msg", "section is null, but conflist is not null.");
             return args;
         }
-        Website website = section.getWebsite();
-        int tid = website.getTid(), source_id = 0, platform = 0;
-        try {
-            Map<String, Object> oMap = oracleDao.querySourceId(tid);
-            source_id = (Integer) oMap.get("source_id");
-            platform = (Integer) oMap.get("platform");
-        } catch (Exception e) {
-            args.put("msg", "从oracle中获取source_id和platform失败, tid " + tid);
+
+        Map<String, Object> confMap  = configService.getConfig(section.getId());
+        ConfList confList = (ConfList)confMap.get("confList");
+        List<ConfDetail> confDetails = (List<ConfDetail>) confMap.get("confDetails");
+        if (confList == null) {
+            args.put("msg", "noconflist");
             return args;
         }
-        int sectionId = section.getId();
-        int county_code = website.getRegion() == null ? 0 : website.getRegion();
-        int province_code = website.getProvinceId() == null ? 0 : website
-                        .getProvinceId();
-        int city_code = website.getCityId() == null ? 0 : website.getCityId();
-
-        Jedis jedis = new Jedis(REDIS_HOST, REDIS_PORT);
-        Prey prey = null;
-        try {
-            // 判断任务列表中是否已存在该任务
-            boolean exist = jobExist(url);
-            if (exist) {
-                args.put("msg", "jobexist");
-            } else {
-                // 添加任务
-                double score = 1.0d / (System.currentTimeMillis() / 60000);
-                prey = new Prey(JobType.NETWORK_INSPECT, source_id,
-                                website.getComment(), url, sectionId,
-                                section.getComment(), interval,
-                                System.currentTimeMillis(), 0, county_code,
-                                province_code, city_code, State.JOB_EXCUTING);
-                prey.setAutoUrl(section.getAutoUrl());
-                LOG.info("添加任务:" + prey.toString());
-                jedis.zadd(URLBASE, score, prey.toString());
-            }
-        } catch (JedisConnectionException e) {
-            args.put("msg", "jedisconnectionexception");
-            LOG.error("Add Inspect Job failed.", e);
-        } catch (Exception e) {
-            args.put("msg", e.getMessage());
-            LOG.error("Add Inspect Job failed.", e);
-        } finally {
-            jedis.close();
+        
+        ListRule listRule = new ListRule(confList.getAjax(), confList.getCategory(), 
+                        confList.getListdom(), confList.getLinedom(), confList.getUrldom(), 
+                        confList.getDatedom(), confList.getUpdatedom(), confList.getSynopsisdom(), 
+                        confList.getAuthordom());
+        
+        if (interval == null)
+            interval = confList.getFetchinterval();
+        Set<DetailRule> detailRules = new HashSet<DetailRule>();
+        for (ConfDetail cd : confDetails) {
+            DetailRule detailRule = new DetailRule(cd.getId().getHost(), cd.getReplyNum(), 
+                            cd.getReviewNum(), cd.getForwardNum(), cd.getSources(), cd.getFetchOrder(),
+                            cd.getAjax(), cd.getMaster(), cd.getAuthor(), cd.getDate(), cd.getContent(), 
+                            cd.getReply(), cd.getReplyAuthor(), cd.getReplyDate(), cd.getReplyContent(), 
+                            cd.getSubReply(), cd.getSubReplyAuthor(), cd.getSubReplyDate(), 
+                            cd.getSubReplyContent());
+            detailRules.add(detailRule);
         }
+        
+        Website website = section.getWebsite();
+        int tid = website.getTid(), source_id = 0;
+        JobConf jobConf = null;
+        try {
+            jobConf = oracleDao.querySourceId(tid);
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+            args.put("msg", e.getMessage());
+            return args;
+        }
+        
+        String source_name = website.getComment();
+        String type = section.getComment();
+        int sectionId = section.getId();
+        int country_code = website.getRegion() == null ? 0 : website.getRegion();
+        int province_code = website.getProvinceId() == null ? 0 : website.getProvinceId();
+        int city_code = website.getCityId() == null ? 0 : website.getCityId();
+        
+        JobConf jc = new JobConf(JobType.NETWORK_INSPECT, url, source_name, source_id, sectionId, type, listRule, detailRules);
+        jc.setCountry_code(country_code);
+        jc.setProvince_code(province_code);
+        jc.setCity_code(city_code);
+        jc.setFetchinterval(interval);
+        jc.setIdentify_md5("xiayun3");
+        jobConf.merge(jc);
+        jobService.addInspectJob(jobConf);
+        
         return null;
     }
 

@@ -228,8 +228,7 @@ public abstract class HttpBase extends PageHelper {
 				protocolStatusCode = STATUS_CODE.TEMP_MOVED;
 				break;
 			case 304: // not modified
-				protocolStatusCode = STATUS_CODE.NOTMODIFIED;
-				break;
+			    return new ProtocolOutput(document); // return it
 			default:
 				protocolStatusCode = STATUS_CODE.MOVED;
 			}

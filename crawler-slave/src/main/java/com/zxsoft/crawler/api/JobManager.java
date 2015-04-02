@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.zxsoft.crawler.api.JobStatus.State;
+import com.zxsoft.crawler.common.JobConf;
 
 public interface JobManager {
 
@@ -11,7 +12,7 @@ public interface JobManager {
 
         public JobStatus get(String crawlId, String id) throws Exception;
 
-        public JobCode create(Map<String, Object> args) throws Exception;
+        public JobCode create(JobConf jobConf) throws Exception;
 
         public boolean abort(String crawlId, String id) throws Exception;
 

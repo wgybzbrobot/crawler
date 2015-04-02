@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -19,6 +17,11 @@ import com.mysql.jdbc.Driver;
 import com.zxisl.commons.cache.ObjectCache;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
+import com.zxsoft.crawler.api.JobType;
+import com.zxsoft.crawler.common.CrawlerException;
+import com.zxsoft.crawler.common.JobConf;
+import com.zxsoft.crawler.common.ListRule;
+import com.zxsoft.crawler.common.CrawlerException.ErrorCode;
 
 public class MysqlDao extends BaseDao {
         private static Logger LOG = LoggerFactory.getLogger(MysqlDao.class);
@@ -90,22 +93,54 @@ public class MysqlDao extends BaseDao {
                 return url;
         }
 
-        public Map<String, Object> getBasicInfos(String engineUrl) {
-                List<Map<String, Object>> list = mysqlJdbcTemplate.query("select a.comment,  a.region, a.tid, a.provinceId, a.cityId, a.areaId, b.id from website a, section b"
-                                                + "  where b.url = ?  and a.id=b.site ",
-                                                new Object[] { engineUrl }, new RowMapper<Map<String, Object>>() {
-                                                        public Map<String, Object> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                                                                Map<String, Object> map = new HashMap<String,Object>();
-                                                                map.put("source_id", rs.getInt("tid"));
-                                                                map.put("provinceId", rs.getInt("provinceId"));
-                                                                map.put("cityId", rs.getInt("cityId"));
-                                                                map.put("areaId", rs.getInt("areaId"));
-                                                                map.put("sectionId", rs.getInt("id"));
-                                                                map.put("region", rs.getInt("region"));
-                                                                map.put("comment", rs.getString("comment"));
-                                                                return  map;
+        /**
+         * 获取任务的其它参数
+         * @param tid
+         * @return
+         * @throws CrawlerException
+         */
+        public JobConf getBasicInfos(int tid) throws CrawlerException {
+                List<JobConf> list = mysqlJdbcTemplate.query("select a.comment source_name,  a.region, a.tid , a.provinceId, a.cityId, a.areaId, "
+                                + "b.id sectionId, b.url, b.comment type from website a, section b"
+                                                + "  where a.tid = ?  and a.id=b.site and b.category='search'",
+                                                new Object[] { tid }, new RowMapper<JobConf>() {
+                                                        public JobConf mapRow(ResultSet rs, int rowNum) throws SQLException {
+                                                            JobConf jobConf = new JobConf(JobType.NETWORK_SEARCH, rs.getString("url"), 
+                                                                            rs.getString("source_name"), rs.getInt("tid"), rs.getInt("sectionId"), rs.getString("type"), null, null);
+                                                            jobConf.setProvince_code(rs.getInt("provinceId"));
+                                                            jobConf.setCity_code(rs.getInt("cityId"));
+                                                            jobConf.setLocationCode(rs.getInt("areaId"));
+                                                            jobConf.setCountry_code(rs.getInt("region"));
+                                                            return  jobConf;
                                                         }
                                                 });
-                return CollectionUtils.isEmpty(list) ? null : list.get(0);
+                if (CollectionUtils.isEmpty(list)) 
+                    throw new CrawlerException(ErrorCode.CONF_ERROR, "Cannot find website information using tid: " + tid);
+                
+                JobConf jobConf = list.get(0);
+                
+                // get list page rule
+                List<ListRule> listRules =  mysqlJdbcTemplate.query("select a.ajax, b.category, a.listdom, a.linedom, "
+                                + "a.urldom, a.datedom, a.updatedom, a.synopsisdom, a.authordom from conf_list a, section b "
+                                + "  where b.url = a.url  and b.url= ? and b.category='search'",
+                                new Object[] { jobConf.getUrl() }, new RowMapper<ListRule>() {
+                                        public ListRule mapRow(ResultSet rs, int rowNum) throws SQLException {
+                                            ListRule listRule = new ListRule(rs.getBoolean("ajax"), rs.getString("category"), 
+                                                            rs.getString("listdom"),rs.getString("linedom"),rs.getString("urldom"),
+                                                            rs.getString("datedom"),rs.getString("updatedom"),rs.getString("synopsisdom"),
+                                                            rs.getString("authordom"));
+                                            return  listRule;
+                                        }
+                                });
+                if (CollectionUtils.isEmpty(listRules))
+                    throw new CrawlerException(ErrorCode.CONF_ERROR, "Cannot find list rule by url: " + jobConf.getUrl());
+                
+                if (listRules.size() > 1)
+                    LOG.warn("Find list rule more than one, will use first one in jobcof, url is " + jobConf.getUrl());
+                
+                // search have no detail page rule, so will not get it.
+                
+                jobConf.setListRule(listRules.get(0));
+                return jobConf;
         }
 }

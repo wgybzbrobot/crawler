@@ -241,7 +241,7 @@ public class HttpClient extends HttpBase {
 		}
 		if (url != null) {
 			WebPage np = page;
-			np.setBaseUrl(url.toExternalForm());
+			np.setUrl(url.toExternalForm());
 			
 			Response response = null;
 		     for (int i = 0; i < retryNum; i++) {
@@ -272,7 +272,7 @@ public class HttpClient extends HttpBase {
 				throw new PageBarNotFoundException();
 			}
 			LOG.info(next);
-			np.setBaseUrl(next);
+			np.setUrl(next);
 
 			Response response = null;
 		     for (int i = 0; i < retryNum; i++) {
@@ -294,7 +294,7 @@ public class HttpClient extends HttpBase {
 					for (int i = 0; i < achors.size(); i++) {
 						if (Utils.isNum(achors.get(i).text()) && Integer.valueOf(achors.get(i).text().trim()) == pageNum + 1) {
 							WebPage np = page;
-							np.setBaseUrl(achors.get(i).absUrl("href"));
+							np.setUrl(achors.get(i).absUrl("href"));
 							return getResponse(np);
 						}
 					}
@@ -310,7 +310,7 @@ public class HttpClient extends HttpBase {
 		Elements lastEles = currentDoc.select("a:matchesOwn(尾页|末页|最后一页)");
 		if (!CollectionUtils.isEmpty(lastEles)) {
 			WebPage np = page;
-			np.setBaseUrl(lastEles.first().absUrl("href"));
+			np.setUrl(lastEles.first().absUrl("href"));
 			Response response = null;
 		     for (int i = 0; i < retryNum; i++) {
 		            try {
@@ -351,7 +351,7 @@ public class HttpClient extends HttpBase {
 		}
 		// LOG.info("Last Page url: " + url.toString());
 		WebPage np = page;
-		np.setBaseUrl(el.absUrl("href"));
+		np.setUrl(el.absUrl("href"));
 		return getResponse(np);
 	}
 }

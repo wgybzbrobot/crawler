@@ -10,7 +10,7 @@ import com.zxsoft.crawler.api.Machine;
 public class ScoredMachine implements Comparable<ScoredMachine>{
 	protected float score;
 	protected int runningCount;
-	protected Machine machine;
+	public Machine machine;
 	public ScoredMachine(Machine machine, int runningCount, float score) {
 		this.machine = machine;
 		this.runningCount = runningCount;

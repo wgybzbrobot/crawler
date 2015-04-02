@@ -1,7 +1,9 @@
 package com.zxsoft.crawler.master;
 
 import java.util.List;
-import com.zxsoft.crawler.api.Prey;
+
+import com.zxsoft.crawler.api.JobCode;
+import com.zxsoft.crawler.common.JobConf;
 
 public interface SlaveManager {
   
@@ -10,9 +12,6 @@ public interface SlaveManager {
   /**
    * 创建任务
    */
-  public String create(Prey prey) throws Exception;
+  public JobCode create(JobConf jobConf) throws Exception;
   
-  public boolean abort(String slaveId, String crawlId, String id) throws Exception;
-  
-  public boolean stop(String slaveId, String crawlId, String id) throws Exception;
 }

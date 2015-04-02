@@ -6,14 +6,14 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.zxsoft.crawler.api.Prey;
+import com.zxsoft.crawler.common.JobConf;
 
 public interface JobService {
 
 	/**
 	 * 添加网络巡检任务
-	 * @param args 参数:版块地址，上次抓取时间 ...
 	 */
-	Map<String, Object> addInsecptJob( Map<String, Object> args);
+	Map<String, Object> addInspectJob( JobConf jobConf);
 	
 	/**
 	 * 添加全网搜索任务

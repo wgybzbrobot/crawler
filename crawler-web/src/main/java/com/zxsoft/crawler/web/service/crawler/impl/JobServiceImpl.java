@@ -8,15 +8,13 @@ import java.util.Map;
 
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
-import org.restlet.resource.ResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.api.Machine;
-import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.api.Prey;
+import com.zxsoft.crawler.common.JobConf;
 import com.zxsoft.crawler.master.MasterPath;
 import com.zxsoft.crawler.web.service.crawler.JobService;
 
@@ -28,17 +26,14 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
         private static Logger LOG = LoggerFactory.getLogger(JobServiceImpl.class);
         
 	@Override
-	public Map<String, Object> addInsecptJob(Map<String, Object> args) {
-		final Map<String, Object> map = new HashMap<String, Object>();
-		map.put(Params.JOB_TYPE, JobType.NETWORK_INSPECT);
-		map.put(Params.ARGS, args);
+	public Map<String, Object> addInspectJob(final JobConf jobConf) {
 		try {
 	        Thread t = new Thread() {
 	        	@Override
 	        	public void run() {
 	        		ClientResource cli = new ClientResource(CRAWLER_MASTER + MasterPath.SLAVE_RESOURCE_PATH);
 	        		try {
-	        		        Representation r = cli.put(map);
+	        		        Representation r = cli.post(jobConf);
 	        		        LOG.info(r.getText());
 	        		} catch (Exception e) {
 	        		        e.printStackTrace();

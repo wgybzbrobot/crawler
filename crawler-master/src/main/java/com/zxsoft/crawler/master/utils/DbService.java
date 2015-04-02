@@ -1,11 +1,9 @@
 package com.zxsoft.crawler.master.utils;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-import com.zxisl.commons.utils.StringUtils;
+import com.zxsoft.crawler.common.CrawlerException;
+import com.zxsoft.crawler.common.JobConf;
 
 public class DbService {
         
@@ -16,52 +14,22 @@ public class DbService {
          * 此方法仅被调用一次,在master启动后被调用
          * @return
          */
-        public LinkedList<Map<String, Object>> getSearchTaskList() {
-                List<Map<String, Object>> list = oracleDao.queryTaskExecuteList();
-                if (StringUtils.isEmpty(list)) {
-                     return null;   
-                }
-                
-                LinkedList<Map<String, Object>> tasks = new LinkedList<Map<String,Object>>();
-                
-                for (Map<String, Object> map : list) {
-                        int tid = (Integer)map.get("tid");
-                        String url = mysqlDao.getSearchEngineUrl(tid);
-                        if (StringUtils.isEmpty(url))
-                                continue;
-                        map.put("engineUrl", url);
-                        tasks.add(map);
-                }
-                
-                return tasks;
+        public List<JobConf> getSearchTaskList() {
+                List<JobConf> list = oracleDao.queryTaskExecuteList();
+                return list;
         }
         
         /**
          *  读取任务列表`JHRW_RWLB`（循环读取）
          * @return
          */
-        public List<Map<String, Object>> getSearchTaskQueue() {
-                List<Map<String, Object>> list = oracleDao.queryTaskQueue();
-                if (StringUtils.isEmpty(list)) {
-                        return null;   
-                }
-                
-                List<Map<String, Object>> tasks = new ArrayList<Map<String,Object>>();
-                
-                for (Map<String, Object> map : list) {
-                        int tid = (int)map.get("tid");
-                        String url = mysqlDao.getSearchEngineUrl(tid);
-                        if (StringUtils.isEmpty(url))
-                                continue;
-                        map.put("engineUrl", url);
-                        tasks.add(map);
-                }
-                
-                return tasks;
+        public List<JobConf> getSearchTaskQueue() {
+                List<JobConf> list = oracleDao.queryTaskQueue();
+                return list;
         }
         
-        public Map<String, Object> getBasicInfos(String engineUrl) {
-                return mysqlDao.getBasicInfos(engineUrl);
+        public JobConf getBasicInfos(int tid) throws CrawlerException {
+                return mysqlDao.getBasicInfos(tid);
         }
         
 }

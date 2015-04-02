@@ -21,9 +21,9 @@ public class DbService {
         public void updateExecuteTaskStatus(int id, Status status) {
                 int num = oracleDao.updateTaskExecuteStatus(id, status);
                 if (num == -1) {
-                        LOG.error("更新从数据库中获取的全网搜索任务执行状态失败, id=" + id);
+                        LOG.error("更新JHRW_RWZX全网搜索任务执行状态失败, id=" + id);
                 } else {
-                        LOG.debug("更新从数据库中获取的全网搜索任务执行状态成功, id=" + id);
+                        LOG.debug("更新JHRW_RWZX全网搜索任务执行状态成功, id=" + id);
                 }
         }
         /**

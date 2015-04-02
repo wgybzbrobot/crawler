@@ -251,7 +251,7 @@ public class HtmlUnit extends HttpBase {
                 if (nextAnchor != null) {
                         if (NetUtils.isUrl(newUrl)) {
                                 WebPage np = page;
-                                np.setBaseUrl(newUrl);
+                                np.setUrl(newUrl);
                                 htmlPage = makeRequest(np);
                         } else {
                                 htmlPage = nextAnchor.click();

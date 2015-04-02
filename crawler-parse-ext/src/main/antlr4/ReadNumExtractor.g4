@@ -4,7 +4,7 @@
 grammar ReadNumExtractor;
 
 @header {
-	package com.zxsoft.crawler.plugin.parse.ext.generated;
+	package com.zxsoft.crawler.parse.ext.generated;
 }
 
 options {

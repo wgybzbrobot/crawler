@@ -2,6 +2,7 @@ package com.zxsoft.crawler.api;
 
 import java.util.Map;
 
+import com.zxsoft.crawler.common.JobConf;
 import com.zxsoft.crawler.parse.FetchStatus;
 
 /**
@@ -10,7 +11,7 @@ import com.zxsoft.crawler.parse.FetchStatus;
 public class FocusJob extends CrawlTool {
 
 	@Override
-    public Map<String, Object> run(Map<String, Object> args) throws Exception {
+    public Map<String, Object> run(JobConf jobConf) throws Exception {
 	    // TODO Auto-generated method stub
 	    return null;
     }

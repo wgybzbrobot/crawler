@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.zxsoft.crawler.common.JobConf;
+
 public abstract class CrawlTool  implements Serializable {
 
 	/**
@@ -54,6 +56,6 @@ public abstract class CrawlTool  implements Serializable {
 		return 1;
 	}
 
-	public abstract Map<String, Object> run(Map<String, Object> args) throws Exception;
+	public abstract Map<String, Object> run(JobConf jobConf) throws Exception;
 
 }

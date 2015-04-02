@@ -49,9 +49,7 @@ public class HtmlUnitTest {
 		Document currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
 		System.out.println(currentDoc);
-		WebPage page = new WebPage();
-		page.setAjax(true);
-		page.setDocument(currentDoc);
+		WebPage page = new WebPage(currentDoc.location(), true, currentDoc);
 		protocolOutput = httpFetcher.fetchLastPage(page);
 		Document lastDoc = protocolOutput.getDocument();
 		Assert.notNull(lastDoc);
@@ -72,7 +70,7 @@ public class HtmlUnitTest {
 		
 		LOG.debug("=================================");
 		page.setDocument(currentDoc);
-		page.setBaseUrl(currentDoc.location());
+		page.setUrl(currentDoc.location());
 		protocolOutput = htmlUnit.getProtocolOutputOfNextPage(1, page);
 		currentDoc = protocolOutput.getDocument();
 		LOG.debug("2:" + currentDoc.location());
@@ -80,7 +78,7 @@ public class HtmlUnitTest {
 		
 		LOG.debug("=================================");
 		page.setDocument(currentDoc);
-		page.setBaseUrl(currentDoc.location());
+		page.setUrl(currentDoc.location());
 		protocolOutput = htmlUnit.getProtocolOutputOfNextPage(2, page);
 		currentDoc = protocolOutput.getDocument();
 		LOG.debug("3:" + currentDoc.location());
@@ -98,7 +96,7 @@ public class HtmlUnitTest {
 		Assert.notNull(currentDoc);
 		
 		page.setDocument(currentDoc);
-		page.setBaseUrl(currentDoc.location());
+		page.setUrl(currentDoc.location());
 		page.setAjax(true);
 		
 		protocolOutput = htmlUnit.getProtocolOutputOfPrevPage(2, page);
