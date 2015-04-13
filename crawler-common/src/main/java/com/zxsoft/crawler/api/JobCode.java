@@ -11,6 +11,7 @@ public class JobCode {
 	private int code;
 	private String message;
 	
+	
 	/**
 	 * Master创建任务成功时返回。
 	 */

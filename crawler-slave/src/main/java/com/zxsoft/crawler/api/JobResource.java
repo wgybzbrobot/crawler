@@ -5,7 +5,6 @@ import java.util.concurrent.RejectedExecutionException;
 import org.restlet.data.Form;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
-import org.restlet.resource.Put;
 import org.restlet.resource.ServerResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

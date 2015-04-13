@@ -26,14 +26,14 @@ public class TaskSchedulerThread extends Thread {
     private final String host;
     private final int port;
     private final String passwd;
-    private JobCreator jobCreator;
+    private JobManager jobManager;
     
-    public TaskSchedulerThread(String host, int port, String passwd, JobCreator jobCreator) {
+    public TaskSchedulerThread(String host, int port, String passwd, JobManager jobManager) {
         setName("TaskSchedulerThread");
         this.host = host;
         this.port = port;
         this.passwd = passwd;
-        this.jobCreator = jobCreator;
+        this.jobManager = jobManager;
     }
 
     @Override
@@ -89,11 +89,13 @@ public class TaskSchedulerThread extends Thread {
                             LOG.error(json + " is not member of urlbase, cannot remove it. And it will not create job to workers.");
                             continue;
                         }
-                        // 将上次抓取时间设置为当前时间，供下次抓取使用
-                        jobConf.setPrevFetchTime(System.currentTimeMillis());
-                        jobConf.setCount(jobConf.getCount() + 1);
-                        double score = 1.0d / (System.currentTimeMillis() / 60000.0d + jobConf.getFetchinterval() * 1.0d);
-                        jedis.zadd(URLBASE, score, jobConf.toString());
+                        if (jobConf.isRecurrence()) {
+                            // 将上次抓取时间设置为当前时间，供下次抓取使用
+                            jobConf.setPrevFetchTime(System.currentTimeMillis());
+                            jobConf.setCount(jobConf.getCount() + 1);
+                            double score = 1.0d / (System.currentTimeMillis() / 60000.0d + jobConf.getFetchinterval() * 1.0d);
+                            jedis.zadd(URLBASE, score, jobConf.toString());
+                        }
                     } else {
                         long wait = realInterval - interval;
                         if (wait > 60000L)
@@ -110,8 +112,21 @@ public class TaskSchedulerThread extends Thread {
                     LOG.info("Distributing Job: " + jobConf.toString());
                     
                     try {
-                        jobCreator.submitToWorker(jobConf);
-                    } catch (CrawlerException | InterruptedException | ExecutionException e2) {
+                        if (jobConf.getPrevFetchTime() > 1200000L) {
+                            jobConf.setPrevFetchTime(jobConf.getPrevFetchTime() - 1200000L);
+                        }
+                        jobManager.submitToWorker(jobConf);
+                    } catch (CrawlerException e1) {
+                        LOG.error("Crawler exception, put it to urlbase, msg:" + e1.getMessage(), e1); 
+                        jobConf.setRecurrence(false);
+                        double score = 1.0d / (System.currentTimeMillis() / 60000.0d + jobConf.getFetchinterval() * 1.0d);
+                        jedis.zadd(URLBASE, score, jobConf.toString());
+//                        try {
+//                            TimeUnit.SECONDS.sleep(10);
+//                        } catch (InterruptedException e) {
+//                           e.printStackTrace();
+//                        }
+                    } catch ( InterruptedException | ExecutionException e2) {
                         LOG.error("Exception occur, put it to urlbase, msg:" + e2.getMessage(), e2); 
                         jobConf.setRecurrence(false);
                         double score = 1.0d / (System.currentTimeMillis() / 60000.0d + jobConf.getFetchinterval() * 1.0d);

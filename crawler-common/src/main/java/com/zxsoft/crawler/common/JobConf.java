@@ -35,7 +35,7 @@ public class JobConf implements Serializable {
         private int platform; // 平台类型，如：博客、微博、论坛等，用数字代替
         private  int source_id; // 网站id
         
-        private int jobId;
+        private long  jobId;
         
         private String ip;
         
@@ -52,7 +52,8 @@ public class JobConf implements Serializable {
          */
         private int city_code;
 
-        private State state;
+        // 默认是执行状态
+        private State state = State.JOB_EXCUTING;
 
         /**
          * 任务状态，1表示执行，0表示暂停
@@ -70,7 +71,7 @@ public class JobConf implements Serializable {
                 }
         }
         
-        private boolean recurrence;
+        private boolean recurrence = true;
         
         /**
          * 上次抓取时间，默认为0, 单位毫秒(ms)
@@ -101,7 +102,12 @@ public class JobConf implements Serializable {
         /**
          * 被执行次数
          */
-        private int count;
+        private long count;
+        
+        /**
+         * 由于网络原因，导致重爬的次数
+         */
+        private int retry;
         
         /**
          * 用户名
@@ -148,7 +154,6 @@ public class JobConf implements Serializable {
         }
 
         public JobConf() {
-            // TODO Auto-generated constructor stub
         }
 
         public JobType getJobType() {
@@ -247,11 +252,11 @@ public class JobConf implements Serializable {
             this.source_id = source_id;
         }
 
-        public int getJobId() {
+        public long getJobId() {
             return jobId;
         }
 
-        public void setJobId(int jobId) {
+        public void setJobId(long jobId) {
             this.jobId = jobId;
         }
 
@@ -335,11 +340,11 @@ public class JobConf implements Serializable {
             this.start = start;
         }
 
-        public int getCount() {
+        public long getCount() {
             return count;
         }
 
-        public void setCount(int count) {
+        public void setCount(long count) {
             this.count = count;
         }
 
@@ -391,6 +396,14 @@ public class JobConf implements Serializable {
             this.location = location;
         }
 
+        public int getRetry() {
+            return retry;
+        }
+
+        public void setRetry(int retry) {
+            this.retry = retry;
+        }
+
         public int getLocationCode() {
             return locationCode;
         }
@@ -401,13 +414,14 @@ public class JobConf implements Serializable {
         
         public void merge(JobConf a) throws IllegalArgumentException, IllegalAccessException {
             Field[] fields =  JobConf.class.getDeclaredFields();
-            System.out.println(fields.length);
+//            System.out.println(fields.length);
             for (Field field : fields) {
                 if (null == field.get(this) || field.get(this).equals(0) )
                     field.set(this, field.get(a));
                 
             }
         }
+        
         public void merge(Object obj, Object update){
             if(!obj.getClass().isAssignableFrom(update.getClass())){
                 return;

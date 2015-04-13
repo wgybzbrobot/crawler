@@ -1,8 +1,5 @@
 package com.zxsoft.crawler.master;
 
-import java.io.InputStream;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -14,10 +11,9 @@ import org.restlet.data.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zxsoft.crawler.master.impl.RAMSlaveManager;
 import com.zxsoft.crawler.master.searchjob.OnceNetworkSearchThread;
 import com.zxsoft.crawler.master.searchjob.RecurNetworkSearchThread;
-import com.zxsoft.crawler.urlbase.JobCreator;
+import com.zxsoft.crawler.urlbase.JobManager;
 import com.zxsoft.crawler.urlbase.TaskSchedulerThread;
 
 /**
@@ -35,13 +31,12 @@ public class MasterServer {
     private final String redis_host;
     private final int redis_port;
     private final String redis_passwd;
-    
-    private boolean enableInspect;
+
     private boolean enableSearch;
     private int search_interval;
-    
-    private JobCreator jobCreator;
-    
+
+    private JobManager jobManager;
+
     public MasterServer(int port, String redis_host, int redis_port, String redis_passwd) {
         this.port = port;
         this.redis_host = redis_host;
@@ -53,8 +48,8 @@ public class MasterServer {
         // Add a new HTTP server listening on port 8182.
         component.getServers().add(Protocol.HTTP, port);
         // Attach the application.
-         jobCreator = new JobCreator(redis_host, redis_port, redis_passwd);
-        app = new MasterApp(jobCreator);
+        jobManager = new JobManager(redis_host, redis_port, redis_passwd);
+        app = new MasterApp(jobManager);
         component.getDefaultHost().attach("/master", app);
         component.getContext().getParameters().add("maxThreads", "1000");
         MasterApp.server = this;
@@ -64,7 +59,7 @@ public class MasterServer {
         return running;
     }
 
-    private final long heartbeat = 1 * 60 * 1000L; // default is 1 min
+//    private final long heartbeat = 1 * 60 * 1000L; // default is 1 min
 
     public void start() throws Exception {
         LOG.info("Starting MasterNode on port " + port + "...");
@@ -73,38 +68,9 @@ public class MasterServer {
         running = true;
         MasterApp.started = System.currentTimeMillis();
 
-        
-        app.slaveMgr.list();
-
-        // 监测slave
-        Thread slaveMonitorThread = new Thread(new Runnable() {
-            public void run() {
-                while (true) {
-                    try {
-                        try {
-                            app.slaveMgr.list();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        LOG.info("SlaveMonitorThread sleep " + heartbeat / 60000
-                                        + " minutes");
-                        TimeUnit.MILLISECONDS.sleep(heartbeat);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }, "SlaveMonitorThread");
-        slaveMonitorThread.setDaemon(false);
-
-        slaveMonitorThread.start();
-
         // 任务队列管理
-        if (enableInspect) {
-            LOG.info("开启网络巡检功能.");
-            new TaskSchedulerThread(redis_host, redis_port, redis_passwd, jobCreator).start();
-        }
-        
+        new TaskSchedulerThread(redis_host, redis_port, redis_passwd, jobManager).start();
+
         if (enableSearch) {
             LOG.info("开启全网搜索功能.");
             int realInterval = 10;
@@ -112,7 +78,6 @@ public class MasterServer {
             new RecurNetworkSearchThread(realInterval).start();
         }
     }
-
 
     public boolean isEnableSearch() {
         return enableSearch;
@@ -122,13 +87,6 @@ public class MasterServer {
         this.enableSearch = enableSearch;
     }
 
-    public boolean isEnableInspect() {
-        return enableInspect;
-    }
-
-    public void setEnableInspect(boolean enableInspect) {
-        this.enableInspect = enableInspect;
-    }
 
     public int getSearch_interval() {
         return search_interval;
@@ -142,10 +100,9 @@ public class MasterServer {
 
         Options options = new Options();
         options.addOption("help", false, "Display this help imformation");
-        options.addOption("enableInspect", false, "Enable Inspect Job");
+        options.addOption("port", true, "Master Server port");
         options.addOption("enableSearch", false, "Enable Search Job");
         options.addOption("search_interval", true, "Interval to get tasks from oracle db");
-        options.addOption("port", true, "Server port");
         options.addOption("redis_host", true, "Redis host for urlbase");
         options.addOption("redis_port", true, "Redis port ");
         options.addOption("redis_passwd", true, "Redis password");
@@ -165,17 +122,14 @@ public class MasterServer {
 
             MasterServer server = new MasterServer(port, redis_host, redis_port,
                             redis_passwd);
-            
-            if (line.hasOption("enableInspect")) {
-                server.setEnableInspect(true);
-            } 
 
             if (line.hasOption("enableSearch")) {
                 server.setEnableSearch(true);
-                int search_interval = Integer.valueOf(line.getOptionValue("search_interval", "10"));
+                int search_interval = Integer.valueOf(line.getOptionValue(
+                                "search_interval", "10"));
                 server.setSearch_interval(search_interval);
-            } 
-            
+            }
+
             server.start();
         } catch (Exception exp) {
             LOG.error(exp.getMessage());
@@ -183,6 +137,21 @@ public class MasterServer {
             formatter.printHelp("com.zxsoft.crawler.master.MasterServer", options);
         }
 
+    }
+
+    public boolean stop(boolean b) throws Exception {
+        if (!running) {
+            return true;
+        }
+//        if (!canStop() && !force) {
+//            LOG.warn("Running jobs - can't stop now.");
+//            return false;
+//        }
+        LOG.info("Stopping NutchServer on port " + port + "...");
+        component.stop();
+        LOG.info("Stopped NutchServer on port " + port);
+        running = false;
+        return true;
     }
 
 }

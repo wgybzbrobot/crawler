@@ -1,55 +1,46 @@
 package com.zxsoft.crawler.master.impl;
 
-import java.util.Iterator;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SlaveScheduler {
+import com.zxsoft.crawler.common.CrawlerException;
+import com.zxsoft.crawler.common.CrawlerException.ErrorCode;
+import com.zxsoft.crawler.common.WorkerConf;
+
+public class WorkerScheduler {
 	
-	private static Logger LOG = LoggerFactory.getLogger(SlaveScheduler.class);
+	private static Logger LOG = LoggerFactory.getLogger(WorkerScheduler.class);
 	
-	private PriorityBlockingQueue<ScoredMachine> queue = new PriorityBlockingQueue<ScoredMachine>(20);
+    private  volatile static SortedMap<String,WorkerConf> workers  = new TreeMap<String,WorkerConf>();
 	
-	private static SlaveScheduler slaveScheduler;
+	private WorkerScheduler() {}
 	
-	private SlaveScheduler() {}
-	
-	public synchronized static SlaveScheduler getInstance() {
-		if (slaveScheduler == null) {
-			slaveScheduler = new SlaveScheduler();
-		}
-		return slaveScheduler;
+	public static SortedMap<String,WorkerConf> getWorkers() {
+	    return workers;
 	}
 	
-	public ScoredMachine selectSlave() {
-		if (queue == null || queue.isEmpty())
-			return null;
-		ScoredMachine sm = queue.poll();
-		if (sm != null) { // 重新计算score
-			sm.runningCount += 1;
-			sm.score = 1.0f / (1.0f + sm.runningCount);
-			queue.put(sm);
-		}
-		
-		return sm;
+	public static WorkerConf getWorker() throws CrawlerException {
+		if (workers == null || workers.isEmpty())
+			throw new CrawlerException(ErrorCode.SYSTEM_ERROR, "No workers");
+		String key = workers.lastKey();
+		WorkerConf worker = workers.get(key);
+		 worker.setRunningCount(worker.getRunningCount() + 1);
+		 workers.put(worker.getHostPort(), worker);
+		return worker;
 	}
 	
-	public void addSlave(ScoredMachine sm) {
-		if (queue.contains(sm)) queue.remove(sm);
-		queue.add(sm);
-		LOG.debug(sm.machine.getId() + ": " + sm.score);
+	public static final void addWorker(WorkerConf worker) {
+		workers.put(worker.getHostPort(),worker);
+		LOG.debug("worker: " + worker.describe() + "\t running count:" + worker.getRunningCount());
 	}
 
-	public String descibe() {
-		StringBuilder sb = new StringBuilder();
-		Iterator<ScoredMachine> iterator = queue.iterator();
-		while (iterator.hasNext()) {
-			ScoredMachine sm = iterator.next();
-			sb.append("[" + sm.machine.getId() + ": " +  sm.score + "]\n");
-		}
-		return sb.toString();
+	public static final void removeWorker(WorkerConf worker) {
+	    workers.remove(worker.getHostPort());
+	    LOG.debug("worker: " + worker.describe());
 	}
 	
+	   
 }

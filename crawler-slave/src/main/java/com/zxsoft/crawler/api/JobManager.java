@@ -20,4 +20,6 @@ public interface JobManager {
 
         Map<String, Object> list();
 
+        int getRunningCount();
+
 }

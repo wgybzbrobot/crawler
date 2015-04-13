@@ -5,7 +5,7 @@ import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
 import com.zxsoft.crawler.master.impl.RAMSlaveManager;
-import com.zxsoft.crawler.urlbase.JobCreator;
+import com.zxsoft.crawler.urlbase.JobManager;
 
 public class MasterApp extends Application {
 
@@ -14,8 +14,8 @@ public class MasterApp extends Application {
 	
 	public static SlaveManager slaveMgr;
 	
-	public MasterApp(JobCreator jobCreator) {
-	    slaveMgr = new RAMSlaveManager(jobCreator);
+	public MasterApp(JobManager jobManager) {
+	    slaveMgr = new RAMSlaveManager(jobManager);
     }
 	
 	@Override
@@ -24,7 +24,8 @@ public class MasterApp extends Application {
 		getTunnelService().setExtensionsTunnel(true);
 		Router router = new Router(getContext());
 		
-		router.attach("/" + MasterPath.SLAVE_RESOURCE_PATH, SlaveResource.class);
+		router.attach("/" + MasterPath.JOB_RESOURCE_PATH, JobResource.class);
+		router.attach("/" + MasterPath.WORKER_RESOURCE_PATH, WorkerResource.class);
 		
 		return router;
 	}

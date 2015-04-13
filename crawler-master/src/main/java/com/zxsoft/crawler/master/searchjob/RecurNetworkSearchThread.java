@@ -8,16 +8,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.zxisl.commons.utils.CollectionUtils;
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.common.CrawlerException;
 import com.zxsoft.crawler.common.JobConf;
-import com.zxsoft.crawler.master.SlaveResource;
+import com.zxsoft.crawler.master.JobResource;
+import com.zxsoft.crawler.master.utils.DNSCache;
 import com.zxsoft.crawler.master.utils.DbService;
 
 /**
  * 全网搜索任务管理器。从oracle中读取任务。
  * 
- * @author xiayun
- *
  */
 public final class RecurNetworkSearchThread extends Thread {
 
@@ -35,7 +35,7 @@ public final class RecurNetworkSearchThread extends Thread {
 
     @Override
     public void run() {
-        SlaveResource slaveResource = new SlaveResource();
+        JobResource jobResource = new JobResource();
         DbService service = new DbService();
 
         /*
@@ -53,10 +53,17 @@ public final class RecurNetworkSearchThread extends Thread {
                         try {
                             JobConf jc = service.getBasicInfos(jobConf.getSectionId());
                             jobConf.setSectionId(0);
-                            jobConf.merge(jc, jobConf);
+                            jobConf.merge(jc);
+                            String ip = DNSCache.getIp(jobConf.getUrl());
+                            jobConf.setIp(ip);
+                            if (!StringUtils.isEmpty(ip)) {
+                                jobConf.setLocation(service.getLocation(ip));
+                                jobConf.setLocationCode(service.getLocationCode(ip));
+                            }
+                            
                             LOG.debug(jobConf.toString());
-                            // Object obj = slaveResource.create(prey);
-                            // LOG.info((String) obj);
+                            /* Object obj =*/ jobResource.createJob(jobConf);
+//                             LOG.info((String) obj);
                         } catch (CrawlerException ce) {
                             LOG.error("create search job failed from JHRW_RWLB.", ce);
                         }

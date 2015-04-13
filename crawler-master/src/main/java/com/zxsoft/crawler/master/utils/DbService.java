@@ -32,4 +32,11 @@ public class DbService {
                 return mysqlDao.getBasicInfos(tid);
         }
         
+        public String getLocation(String ip) {
+            return oracleDao.getLocation(ip);
+        }
+        
+        public int getLocationCode(String ip) {
+            return oracleDao.getLocationCode(ip);
+        }
 }

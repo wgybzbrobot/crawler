@@ -5,9 +5,12 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.zxisl.commons.utils.CollectionUtils;
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.common.JobConf;
-import com.zxsoft.crawler.master.SlaveResource;
+import com.zxsoft.crawler.master.JobResource;
+import com.zxsoft.crawler.master.utils.DNSCache;
 import com.zxsoft.crawler.master.utils.DbService;
 
 /**
@@ -39,7 +42,7 @@ public final class OnceNetworkSearchThread extends Thread {
         Iterator<JobConf> iter = jobConfs.iterator();
 
         int i = 0;
-        SlaveResource slaveResource = new SlaveResource();
+        JobResource jobResource = new JobResource();
         while (iter.hasNext()) {
             try {
                 i++;
@@ -48,10 +51,16 @@ public final class OnceNetworkSearchThread extends Thread {
 
                 JobConf jc = service.getBasicInfos(jobConf.getSectionId());
                 jobConf.setSectionId(0);
-                jobConf.merge(jc, jobConf);
-
+                jobConf.merge(jc);
+                
+                String ip = DNSCache.getIp(jobConf.getUrl());
+                jobConf.setIp(ip);
+                if (!StringUtils.isEmpty(ip)) {
+                    jobConf.setLocation(service.getLocation(ip));
+                    jobConf.setLocationCode(service.getLocationCode(ip));
+                }
                 LOG.debug(jobConf.toString());
-//                Object obj = slaveResource.create(jobConf);
+                /*Object obj =*/ jobResource.createJob(jobConf);
 //                 LOG.debug((String) obj);
             } catch (Exception e) {
                 LOG.error("create search job failed from SELECT_TASK_EXECUTE_LIST.", e);

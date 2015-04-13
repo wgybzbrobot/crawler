@@ -4,9 +4,9 @@ import org.junit.Test;
 
 import com.zxsoft.crawler.api.Machine;
 
-public class TestSlaveScheduler {
+public class TestWorkerScheduler {
 	
-	SlaveScheduler scheduler = SlaveScheduler.getInstance();
+//	WorkerScheduler scheduler = WorkerScheduler.getInstance();
 
 //	@Test
 //	public void testAddAndSelectSlave() {

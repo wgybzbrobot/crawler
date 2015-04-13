@@ -48,7 +48,8 @@ public final class NetworkSearchParserController extends ParseTool {
                         JobType.NETWORK_INSPECT.getValue(),
                         jobConf.getCountry_code(), jobConf.getLocationCode(),
                         jobConf.getProvince_code(), jobConf.getCity_code());
-
+        recordInfo.setPlatform(jobConf.getPlatform());
+        
         ListRule rule = jobConf.getListRule();
 
         if (rule == null) {
@@ -74,7 +75,7 @@ public final class NetworkSearchParserController extends ParseTool {
         ProtocolOutput output = httpFetcher.fetch(_page);
 
         if (!output.getStatus().isSuccess()) {
-            throw new CrawlerException(ErrorCode.NETWORK_ERROR, "");
+            throw new CrawlerException(ErrorCode.NETWORK_ERROR, output.getStatus().toString());
         }
 
         Document document = output.getDocument();
@@ -122,9 +123,11 @@ public final class NetworkSearchParserController extends ParseTool {
                 String title = line.select(rule.getUrldom()).first().text();
                 /** 简介 */
                 String synopsis = "";
-                Elements synEles = line.select(rule.getSynopsisdom());
-                if (!CollectionUtils.isEmpty(synEles)) {
-                    synopsis = synEles.first().text();
+                if (!StringUtils.isEmpty(rule.getSynopsisdom())) {
+                    Elements synEles = line.select(rule.getSynopsisdom());
+                    if (!CollectionUtils.isEmpty(synEles)) {
+                        synopsis = synEles.first().text();
+                    }
                 }
                 
                 /** 日期 */
@@ -138,6 +141,7 @@ public final class NetworkSearchParserController extends ParseTool {
 
                 RecordInfo info = recordInfo.clone();
                 info.setTitle(title);
+                info.setUrl(curl);
                 info.setId(Md5Signatrue.generateMd5(curl));
                 info.setContent(synopsis);
                 info.setTimestamp(date);

@@ -13,8 +13,12 @@ import com.zxsoft.crawler.slave.utils.OracleDao.Status;
  */
 public class DbService {
         private static Logger LOG = LoggerFactory.getLogger(DbService.class);
-        private static final OracleDao oracleDao = new OracleDao();
+        private final OracleDao oracleDao;
 
+        public DbService (String url, String username, String passwd) {
+            oracleDao = new OracleDao(url, username, passwd);
+        }
+        
         /**
          * 更新从数据库表JHRW_RWZX中获取的全网搜索任务执行状态
          */

@@ -8,6 +8,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,10 +72,15 @@ public class RAMJobManager implements JobManager {
             }
         }
     }
-
+    
     ArrayBlockingQueue<JobStatus> jobHistory = new ArrayBlockingQueue<JobStatus>(CAPACITY);
     ArrayBlockingQueue<JobStatus> jobRunning = new ArrayBlockingQueue<JobStatus>(CAPACITY);
 
+    @Override
+    public int getRunningCount() {
+        return jobRunning.size();
+    }
+    
     private static Map<JobType, Class<? extends CrawlTool>> typeToClass = new HashMap<JobType, Class<? extends CrawlTool>>();
 
     static {
@@ -211,20 +217,19 @@ public class RAMJobManager implements JobManager {
              * 将任务执行表`JHRW_RWZX`中对应任务记录的机器号字段置为本机器
              */
             DbService dbService = null;
-            int jobId = -1;
+            int jobId = jobConf.getJobId();
             try {
 
                 /*
                  * 1. 将任务列表`JHRW_RWLB`中对应任务记录删除 2.
                  * 将任务执行表`JHRW_RWZX`中对应任务记录的机器号字段置为本机器
                  */
-                if (JobType.NETWORK_SEARCH.equals(jobConf.getJobType())) {
-                    dbService = new DbService();
+                if (SlaveServer.enableSearch() && JobType.NETWORK_SEARCH.equals(jobConf.getJobType())) {
+                    dbService = SlaveServer.getDbService();
                     dbService.deleteTaskById(jobId);
                     dbService.updateMachineFlagTaskById(jobId);
                 }
 
-                LOG.debug("set job status");
                 jobStatus.state = State.RUNNING;
                 jobStatus.msg = "OK";
                 jobStatus.result = tool.run(jobConf);
@@ -232,21 +237,22 @@ public class RAMJobManager implements JobManager {
 
                 if (jobStatus.result != null
                                 && !"SUCCESS".equals(jobStatus.result.get("status"))) {
-                    LOG.info(jobStatus.toString());
+                    LOG.debug(jobStatus.toString());
+                    
                     /*
                      * Slave执行完从数据库获取的全网搜索任务后,
                      * 如果执行成功，将任务执行表`JHRW_RWZX`中对应任务记录ZT字段置为２，ZSZT置为２.
                      */
-                    if (JobType.NETWORK_SEARCH.equals(jobConf.getJobType())) {
+                    if (SlaveServer.enableSearch() && JobType.NETWORK_SEARCH.equals(jobConf.getJobType())) {
                         dbService.updateExecuteTaskStatus(jobId, Status.SUCCESS);
                     }
-                } else if (JobType.NETWORK_SEARCH.equals(jobConf.getJobType())) {
+                } else if (SlaveServer.enableSearch() && JobType.NETWORK_SEARCH.equals(jobConf.getJobType())) {
                     /*
                      * Slave执行完从数据库获取的全网搜索任务后,
                      * 如果执行失败，将任务执行表`JHRW_RWZX`中对应任务记录ZT字段置为２，ZSZT置为1.
                      */
                     dbService.updateExecuteTaskStatus(jobId, Status.FAILURE);
-                }
+                } 
             } catch (Exception e) {
                 LOG.error("Create  Task failed.", e);
                 jobStatus.msg = "ERROR: " + e.getMessage();

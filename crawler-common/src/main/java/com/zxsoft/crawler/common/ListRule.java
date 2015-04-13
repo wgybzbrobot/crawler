@@ -21,7 +21,6 @@ public class ListRule implements Serializable {
     private String authordom;
     
     public ListRule() {
-        // TODO Auto-generated constructor stub
     }
     
     public ListRule(Boolean ajax, String category,
