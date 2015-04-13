@@ -142,7 +142,7 @@ public class RestOutput implements Output {
                                         }
                                 } else {
                                         successCount += size;
-                                        LOG.debug("success write to slolr:" + json);
+                                        LOG.debug("success write to solr:" + json);
                                 }
 			} catch (ClientHandlerException e) {
 			        for (RecordInfo _info : recordInfos) {

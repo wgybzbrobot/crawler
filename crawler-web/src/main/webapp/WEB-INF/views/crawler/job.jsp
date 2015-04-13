@@ -100,20 +100,20 @@ $(function() {
       		});
 		  }
 	});
-	$('#jobText').keydown(function(e){
+	
+	$('#jobFilterForm input').keydown(function(e){
 		  if(e.keyCode==13){
 			 $('#jobFilterForm').submit();
 		  }
 	});
-	$('a.delJob').click(function(e){
-		var comment = $(this).attr('comment');
-		var start = $(this).attr('start');
+/* 	$('a.delJob').click(function(e){
 		var $tr = $(this).parents('tr')[0];
+		var jobId = $tr.select("span:eq(1)").val();
 		$.ajax({
-   			type : 'POST',
+   			type : 'GET',
    			url : $(this).attr('href') ,
    			dataType : 'json',
- 			data: {comment: comment, start: start},
+ 			data: {jobId: jobId},
    			success: function(data) {
    				console.log(data);
    				if (data.code == 1) {
@@ -124,7 +124,7 @@ $(function() {
    				}
    			}
    		});
-	});
+	}); */
 	$('a.haltJob').click(function(e){
 		var comment = $(this).attr('comment');
 		var start = $(this).attr('start');
@@ -144,30 +144,11 @@ $(function() {
    			}
    		});
 	});
-	/*
-	 * 异步请求,查看url是否已在任务队列中
-	 */
-	var arr = $('#ruleConfigedJobList li a');
-	$.each(arr, function(i, val) {
-		$.ajax({
-   			type : 'POST',
-   			url : $('#ruleConfigedJobList').attr('url'),
-   			dataType : 'json',
-   			data: {url: val.href},
-   			success: function(data) {
-   				/* console.log(data); */
-   				if (data == true) {
-   					val.style.color='#ff0000';
-					console.log('ture');   					
-   				}
-   			}
-   		});
-	});
 });
 </script>
 </head>
 <body>
-	<div class="right-panel" >
+<%-- 	<div class="right-panel" >
 		<div><input id="sectionFilter" name="url" type="text" title="输入版块名称或网址搜索" /></div>
 		<div id="ruleConfigedJobList" style="height:92%; overflow-y:scroll;" url="<c:url value='/slaves/ajax/jobExist' />">
 			<ol>
@@ -178,7 +159,7 @@ $(function() {
 			</c:forEach>
 			</ol>
 		</div>
-	</div>
+	</div> --%>
 	<div id="body">
 	<c:choose>
 		<c:when test="${code ge 5000 }">
@@ -187,13 +168,13 @@ $(function() {
 		<c:otherwise>
 		<div style="margin: 5px 0 15px 0;">
 			<a href="#" class="linkbutton" id="addInspectJobBtn" onclick="return addInspectJob();">添加网络巡检任务</a> 
-			<a href="#" class="linkbutton" id="addSearchJobBtn" onclick="return addSearchJob();">添加全网搜索任务</a>
+			<!-- <a href="#" class="linkbutton" id="addSearchJobBtn" onclick="return addSearchJob();">添加全网搜索任务</a> -->
 		</div>
 		<div id="addInspectJobDialog" class="form-wrapper" style="display: none; width: 410px; height: 250px;">
 			<a class="form-wrapper-close" href="javascript:void(0);"></a>
 			<div class="form-wrapper-title">添加网络巡检任务</div>
 			<div class="form-wrapper-center">
-				<form id="addInspectJobForm" action="<c:url value='/slaves/ajax/addInspectJob' />" method="post" style="width: 90%; margin: 0 auto;" data-options="novalidate:true">
+				<form id="addInspectJobForm" action="<c:url value='/job/ajax/addInspectJob' />" method="post" style="width: 90%; margin: 0 auto;" data-options="novalidate:true">
 					<div>
 						<label class="form-label" for="url">版块地址:</label>
 						<input type="text" name="url" id="fetchurl" class="easyui-validatebox form-input" style="width: 260px;" data-options="required:true" />
@@ -204,7 +185,7 @@ $(function() {
 			</div>
 		</div>
 
-		<div id="addSearchJobDialog" class="form-wrapper" style="display: none; width: 410px; height: 300px;">
+<%-- 		<div id="addSearchJobDialog" class="form-wrapper" style="display: none; width: 410px; height: 300px;">
 			<a class="form-wrapper-close" href="javascript:void(0);"></a>
 			<div class="form-wrapper-title">添加全网搜索任务</div>
 			<div class="form-wrapper-center">
@@ -223,21 +204,22 @@ $(function() {
 					<div><input class="form-btn" type="button"  id="submitSearchJob" value="添加" /></div>
 				</form>
 			</div>
-		</div>
+		</div> --%>
 		<div style="text-align: center;">
 			<div id="content">
-				<div>当前系统时间:${currentTime }</div>
+				<div>当前系统时间:${currentTime },Redis任务队列总共有${page.count}个任务</div>
 				<div>
-					<form id="jobFilterForm" action="<c:url value='/slaves/jobs' />" method="post">查询任务:<input id="jobText" name="job" type="text" value="${searchJobKey }" title="输入任务名称或网址后回车搜索" /></form>
-				</div>
-				<div>Redis任务队列总共有${count}个任务, 下面为您显示
-					<form id="preyForm" action="" style="display: inline;"><input style="width: 90px;" type="text" value="${fn:length(preys)}" title="输入个数后回车"/></form>个任务
+					<form id="jobFilterForm" action="<c:url value='/job/search' />" method="get">
+					   查询任务:<input id="jobText" name="query" type="text" value="${query }" title="输入任务名称或网址后回车搜索" />
+					   显示第<input  name="start" value="${start }" type="text"  style="width: 30px;" />条至第<input name="end"  value="${end }" type="text" style="width: 30px;"/>条
+					</form>
 				</div>
 				<div>
 				<table style="text-align: left; font-size: 14px;">
 					<thead>
 						<tr>
 							<td style="width: 35px;">序号</td>
+							<td>任务ID</td>
 							<td>任务</td>
 							<td>开始时间</td>
 							<td>上次抓取时间</td>
@@ -247,44 +229,58 @@ $(function() {
 							<td>操作</td>
 						</tr>
 					</thead>
-					<c:forEach items="${preys}" var="prey" varStatus="status">
+					<c:forEach items="${page.res}" var="jobConf" varStatus="status">
 						<tr>
 							<td><span>${status.index + 1}</span></td>
+							<td><span>${jobConf.jobId}</span></td>
 							<td><span> <c:choose>
-										<c:when test="${prey.jobType eq 'NETWORK_INSPECT' }">
-											<a href="${prey.url}" target="_blank" title="网络巡检">${prey.comment}</a>
+										<c:when test="${jobConf.jobType eq 'NETWORK_INSPECT' }">
+											<a href="${jobConf.url}" target="_blank" title="网络巡检">${jobConf.source_name.concat('-').concat(jobConf.type) }</a>
 										</c:when>
-										<c:when test="${prey.jobType eq 'NETWORK_SEARCH' }">
-											<a href="${prey.url}" target="_blank" title="全网搜索">${prey.comment}</a>
+										<c:when test="${jobConf.jobType eq 'NETWORK_SEARCH' }">
+											<a href="${jobConf.url}" target="_blank" title="全网搜索">${jobConf.source_name.concat('-').concat(jobConf.type)}</a>
 										</c:when>
 									</c:choose>
 							</span></td>
 							<td><span title="开始时间"> <jsp:useBean id="startTime" class="java.util.Date" /> <jsp:setProperty
-										name="startTime" property="time" value="${prey.start }" /> <fmt:formatDate type="both"
+										name="startTime" property="time" value="${jobConf.start }" /> <fmt:formatDate type="both"
 										value="${startTime}" pattern="yyyy-MM-dd HH:mm:ss" var="startTimef" /> ${startTimef}
 							</span></td>
 							<td><span title="上次抓取时间"> <jsp:useBean id="prevFetchTime" class="java.util.Date" /> <jsp:setProperty
-										name="prevFetchTime" property="time" value="${prey.prevFetchTime }" /> <fmt:formatDate type="both"
+										name="prevFetchTime" property="time" value="${jobConf.prevFetchTime }" /> <fmt:formatDate type="both"
 										value="${prevFetchTime}" pattern="yyyy-MM-dd HH:mm:ss" var="prevFetchTimef" /> ${prevFetchTimef}
 							</span></td>
-							<td><span title="抓取间隔时间">${prey.fetchinterval}分钟</span></td>
+							<td><span title="抓取间隔时间">${jobConf.fetchinterval}分钟</span></td>
 							<td><span title="预计下次抓取时间"> <jsp:useBean id="nextFetchTime" class="java.util.Date" /> <jsp:setProperty
-										name="nextFetchTime" property="time" value="${prey.prevFetchTime + prey.fetchinterval * 60 * 1000}" /> <fmt:formatDate
+										name="nextFetchTime" property="time" value="${jobConf.prevFetchTime + jobConf.fetchinterval * 60 * 1000}" /> <fmt:formatDate
 										type="both" value="${nextFetchTime}" pattern="yyyy-MM-dd HH:mm:ss" var="nextFetchTimef" />
 									${nextFetchTimef }
 							</span></td>
-							<td>${prey.count}</td>
+							<td>${jobConf.count}</td>
 							<td>
 								<span>
-									<a class="delJob" comment="${prey.comment }" start="${prey.start}" href="<c:url value='/slaves/ajax/job/delete' />" onclick="return false;">删除</a>
+									<a class="delJob"  href="<c:url value='/job/delete/${jobConf.jobId }' />"  >删除</a>
 								</span> 
-								<span><a>修改</a></span>
-								<span> <c:choose>
-										<c:when test="${prey.state eq 'JOB_EXCUTING' }">
-											<a  class="haltJob" comment="${prey.comment }" start="${prey.start}" href="<c:url value='/slaves/ajax/job/halt' />" onclick="return false;" title="处于执行状态,点击暂停">暂停</a>
+								<span>
+								    <a href="javascript:void(0);">详细</a>
+								</span>
+
+											<div class="form-wrapper">
+												<a class="form-wrapper-close" href="javascript:void(0);"></a>
+												<div class="form-wrapper-title">添加网络巡检任务</div>
+												<div class="form-wrapper-center">
+													<form action="<c:url value='/job/update'/>" method="post">
+														<input type="hidden" value="${jobConf.jobId }" /> 
+														网站名:<input type="text" value="${jobConf.source_name }" />
+													</form>
+												</div>
+											</div>
+								 <span> <c:choose>
+										<c:when test="${jobConf.state eq 'JOB_EXCUTING' }">
+											<a  class="haltJob" href="<c:url value='/job/ajax/state' />" onclick="return false;" title="处于执行状态,点击暂停">暂停</a>
 										</c:when>
 										<c:otherwise>
-											<a class="haltJob" comment="${prey.comment }" start="${prey.start}" href="<c:url value='/slaves/ajax/job/halt' />" onclick="return false;" title="处于暂停状态,点击执行">执行</a>
+											<a class="haltJob"  href="<c:url value='/job/ajax/state' />" onclick="return false;" title="处于暂停状态,点击执行">执行</a>
 										</c:otherwise>
 									</c:choose>
 							</span></td>

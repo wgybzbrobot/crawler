@@ -67,8 +67,9 @@ public class TestASectionReply {
                     controller.parse(jobConf);
                     TimeUnit.MINUTES.sleep(20);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LOG.error("",e);
                 }
+                jobConf.setPrevFetchTime(System.currentTimeMillis() - 30 * 60 * 1000L);
             }
             LOG.info("合肥专区回复排序 stopped.");
         }

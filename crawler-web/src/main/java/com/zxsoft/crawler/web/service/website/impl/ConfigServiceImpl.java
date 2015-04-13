@@ -1,8 +1,6 @@
 package com.zxsoft.crawler.web.service.website.impl;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,7 +11,6 @@ import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.entity.ConfDetailId;
 import com.zxsoft.crawler.entity.ConfList;
-import com.zxsoft.crawler.entity.Section;
 import com.zxsoft.crawler.web.dao.website.ConfigDao;
 import com.zxsoft.crawler.web.dao.website.SectionDao;
 import com.zxsoft.crawler.web.service.website.ConfigService;
@@ -28,36 +25,25 @@ public class ConfigServiceImpl implements ConfigService {
 	private SectionDao sectionDao;
 	
 	@Override
-	public Map<String, Object> getConfig(Integer sectionId) {
-		
-		Section section = sectionDao.getSection(sectionId);
-		String url = section.getUrl();
-		
-		ConfList confList = configDao.getConfList(url);
-		List<ConfDetail> confDetails = configDao.getConfDetails(url);
-		
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("confList", confList);
-		map.put("confDetails", confDetails);
-		
-		return map;
-	}
-	
-	@Override
 	public ConfList getConfList(String url) {
-		return configDao.getConfList(url);
+	    return configDao.getConfList(url);
 	}
 
 	@Override
+	public List<ConfDetail> getConfDetail(String listUrl) {
+		List<ConfDetail> confDetails = configDao.getConfDetails(listUrl);
+		return confDetails;
+	}
+	
+
+	@Override
 	public void add(ConfList listConf) {
-		
 		String url = listConf.getUrl();
 		if (url.endsWith("/")) {
 			url = url.substring(0, url.lastIndexOf("/"));
 		}
 		listConf.setUrl(url);
 		configDao.addListConf(listConf);
-		
 	}
 
 	@Transactional

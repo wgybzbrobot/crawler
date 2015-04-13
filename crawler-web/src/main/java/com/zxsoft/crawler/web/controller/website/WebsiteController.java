@@ -17,7 +17,7 @@ import org.thinkingcloud.framework.web.utils.Page;
 
 import com.zxisl.commons.utils.Assert;
 import com.zxisl.commons.utils.StringUtils;
-import com.zxsoft.crawler.code.Code;
+import com.zxsoft.crawler.code.ClientCode;
 import com.zxsoft.crawler.entity.Auth;
 import com.zxsoft.crawler.entity.SiteType;
 import com.zxsoft.crawler.entity.Website;
@@ -93,7 +93,7 @@ public class WebsiteController {
                 website.setAreaId(areaId);
                 website.setTid(tid);
                 int code = websiteServiceImpl.save(website);
-                if (code == Code.RECORD_EXIST)
+                if (code == ClientCode.RECORD_EXIST)
                         return "urlExist";
                 return "success";
         }

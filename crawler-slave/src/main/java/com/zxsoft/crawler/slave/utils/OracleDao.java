@@ -55,7 +55,7 @@ public class OracleDao {
      *            任务状态
      * @return
      */
-    public int updateTaskExecuteStatus(int id, Status status) {
+    public int updateTaskExecuteStatus(long id, Status status) {
         int num = oracleJdbcTemplate.update("update " + TABLE_JHRW_RWZX
                         + " set ZT=?, ZSZT=? where id=?", 2, status.ordinal(), id);
         return num;
@@ -77,7 +77,7 @@ public class OracleDao {
      * 
      * @param id
      */
-    public int deleteTaskListById(int id) {
+    public int deleteTaskListById(long id) {
         int i = oracleJdbcTemplate
                         .update("delete " + TABLE_JHRW_RWLB + " where id=?", id);
         return i;
@@ -89,7 +89,7 @@ public class OracleDao {
      * @param id
      * @return
      */
-    public int updateMachineFlagTaskById(int id) {
+    public int updateMachineFlagTaskById(long id) {
         int i = oracleJdbcTemplate.update("update " + TABLE_JHRW_RWZX
                         + " set jqh=? where id=?", SlaveServer.getMachineId(), id);
         return i;

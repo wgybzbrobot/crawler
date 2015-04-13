@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HostConfiguration;
@@ -49,6 +50,10 @@ public class HttpClient extends HttpBase {
 	private static org.apache.commons.httpclient.HttpClient client = new org.apache.commons.httpclient.HttpClient(connectionManager);
 	private int maxThreadsTotal = 30;
 
+	// 统计请求次数和超时次数
+//	private AtomicLong requestCount = new AtomicLong();
+//	private AtomicLong timeoutCount = new AtomicLong();
+	
 	public HttpClient() {
 //	        setup();
 		configureClient();
@@ -139,10 +144,16 @@ public class HttpClient extends HttpBase {
 			}
 		} catch(SocketException e) {
 		        code = -2;
-		        LOG.error(e.getMessage() + ": " + url.toString());
+		        LOG.error("SocketException:" + e.getMessage() + ": " + url.toString());
 		} catch (Exception e) {
+//		    timeoutCount.addAndGet(1);
+//            LOG.debug("timeoutCount:" + timeoutCount.get());
 			throw new IOException(e.getMessage());
 		} finally {
+		    
+//		    requestCount.addAndGet(1);
+//		    LOG.debug("requestCount:" + requestCount.get());
+		    
 			get.releaseConnection();
 		}
 

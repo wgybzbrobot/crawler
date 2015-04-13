@@ -20,7 +20,6 @@
 //        
 //        @Override
 //        public int write(RecordInfo info) throws OutputException {
-//                // TODO Auto-generated method stub
 //                return 0;
 //        }
 //

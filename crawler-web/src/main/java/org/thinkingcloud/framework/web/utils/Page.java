@@ -5,10 +5,10 @@ import java.util.List;
 
 public class Page<E> {
 
-	public static final int DEFAULT_PAGE_SIZE = 100;
+	public static final int DEFAULT_PAGE_SIZE = 20;
 	
 	private List<E> res;
-	private int count = 0;
+	private long count = 0;
 	
 	public List<E> getRes() {
 		return res;
@@ -16,7 +16,7 @@ public class Page<E> {
 	public Page(){
 		
 	}
-	public Page(int count, List<E> res) {
+	public Page(long count, List<E> res) {
 		super();
 		this.count = count;
 		this.res = res;
@@ -24,10 +24,10 @@ public class Page<E> {
 	public void setRes(List<E> res) {
 		this.res = res;
 	}
-	public int getCount() {
+	public long getCount() {
 		return count;
 	}
-	public void setCount(int count) {
+	public void setCount(long count) {
 		this.count = count;
 	}
 	

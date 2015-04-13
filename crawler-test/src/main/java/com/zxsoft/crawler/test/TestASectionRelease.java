@@ -14,7 +14,6 @@ import com.zxsoft.crawler.common.DetailRule;
 import com.zxsoft.crawler.common.JobConf;
 import com.zxsoft.crawler.common.ListRule;
 import com.zxsoft.crawler.parse.NetworkInspectParserController;
-import com.zxsoft.crawler.storage.WebPage;
 
 public class TestASectionRelease {
 
@@ -65,8 +64,9 @@ public class TestASectionRelease {
                     controller.parse(jobConf);
                     TimeUnit.MINUTES.sleep(20);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LOG.error("", e);
                 }
+                jobConf.setPrevFetchTime(System.currentTimeMillis() - 30 * 60 * 1000L);
             }
             LOG.info("合肥专区发帖排序 stopped.");
         }

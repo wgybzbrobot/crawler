@@ -71,7 +71,7 @@
 				<li><a href="javascript:void(0);">爬虫监控</a>
 					<ul>
 						<li><a href="<c:url value='/slaves' />">爬虫信息</a></li>
-						<li><a href="<c:url value='/slaves/preys/20' />">任务队列</a></li>
+						<li><a href="<c:url value='/job/search' />">任务队列</a></li>
 					</ul>
 				</li>
 				<li>&nbsp;&nbsp;&nbsp;</li>

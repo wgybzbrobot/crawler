@@ -117,7 +117,7 @@
 			</div>
 		</div>
 				<div style="padding:4px 0 4px 22px ;">
-						<form id="searchForm" action="<c:url value="/section/search" />" method="post" style="display:inline; margin-right: 14px;" onkeydown="if(event.keyCode==13){return false;}">
+						<form id="searchForm" action="<c:url value="/section/search" />" method="get" style="display:inline; margin-right: 14px;" onkeydown="if(event.keyCode==13){return false;}">
 							版块名称:<input value="${section.comment }" name="comment" style="width: 150px" />
 							版块类别:<select name="category.id"  >
 													<option value=""></option>
@@ -147,8 +147,9 @@
 					<ul>
 						<c:forEach items="${page.res}" var="section" varStatus="status">
 							<li class="section-li">
-								<h3>
-									<span><a href='<c:url value="/config?sectionId=${section.id}"/>' >${section.comment}</a></span>
+							         <span style="display: none;">${section.id }</span>
+								    <h3>
+									<span><a href='<c:url value="/config?sectionId=${section.id}"/>' >${section.website.comment} - ${section.comment}</a></span>
 									</h3>
 									<span>[${section.category.comment}]</span>
 									<span title="创建者">[${section.account.username}]</span>

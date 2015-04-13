@@ -22,7 +22,7 @@ public class DbService {
         /**
          * 更新从数据库表JHRW_RWZX中获取的全网搜索任务执行状态
          */
-        public void updateExecuteTaskStatus(int id, Status status) {
+        public void updateExecuteTaskStatus(long id, Status status) {
                 int num = oracleDao.updateTaskExecuteStatus(id, status);
                 if (num == -1) {
                         LOG.error("更新JHRW_RWZX全网搜索任务执行状态失败, id=" + id);
@@ -47,7 +47,7 @@ public class DbService {
          * 
          * @param id
          */
-        public void deleteTaskById(int id) {
+        public void deleteTaskById(long id) {
                 int num = oracleDao.deleteTaskListById(id);
                 if (num == -1) {
                         LOG.error("删除任务列表JHRW_RWLB中对应任务记录失败, id=" + id);
@@ -61,7 +61,7 @@ public class DbService {
          * 
          * @param id
          */
-        public void updateMachineFlagTaskById(int id) {
+        public void updateMachineFlagTaskById(long id) {
                 int num = oracleDao.updateMachineFlagTaskById(id);
                 if (num == -1) {
                         LOG.error("将任务执行表`JHRW_RWZX`中对应任务记录的机器号字段置为本机器失败, id=" + id);

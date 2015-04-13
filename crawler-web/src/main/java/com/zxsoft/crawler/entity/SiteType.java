@@ -24,7 +24,6 @@ public class SiteType implements java.io.Serializable {
     private static final long serialVersionUID = 9139932773606914700L;
 	private String type;
 	private String comment;
-	private Set<Proxy> proxies = new HashSet<Proxy>(0);
 	private Set<Website> websites = new HashSet<Website>(0);
 
 	public SiteType() {
@@ -34,10 +33,9 @@ public class SiteType implements java.io.Serializable {
 		this.type = type;
 	}
 
-	public SiteType(String type, String comment, Set<Proxy> proxies, Set<Website> websites) {
+	public SiteType(String type, String comment,Set<Website> websites) {
 		this.type = type;
 		this.comment = comment;
-		this.proxies = proxies;
 		this.websites = websites;
 	}
 
@@ -58,15 +56,6 @@ public class SiteType implements java.io.Serializable {
 
 	public void setComment(String comment) {
 		this.comment = comment;
-	}
-
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "siteType")
-	public Set<Proxy> getProxies() {
-		return this.proxies;
-	}
-
-	public void setProxies(Set<Proxy> proxies) {
-		this.proxies = proxies;
 	}
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "siteType")

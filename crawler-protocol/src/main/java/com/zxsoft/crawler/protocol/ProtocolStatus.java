@@ -12,6 +12,11 @@ public class ProtocolStatus {
 	private STATUS_CODE code;
 	private String message;
 
+	public String toString () {
+	    return u + "\t" + code.name() + "\t" + message;
+	}
+	
+	
 	public ProtocolStatus() {
 	}
 

@@ -13,7 +13,7 @@ import org.thinkingcloud.framework.web.utils.Page;
 
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
-import com.zxsoft.crawler.code.Code;
+import com.zxsoft.crawler.code.ClientCode;
 import com.zxsoft.crawler.entity.Auth;
 import com.zxsoft.crawler.entity.Location;
 import com.zxsoft.crawler.entity.Section;
@@ -49,12 +49,12 @@ public class WebsiteServiceImpl implements WebsiteService {
                 site.setSite(website.getSite());
                 Page<Website> page = websiteDao.getWebsites(site, 1, 1);
                 if (StringUtils.isEmpty(website.getId()) && page != null && page.getRes() != null && page.getRes().size() > 0){
-                        return Code.RECORD_EXIST;
+                        return ClientCode.RECORD_EXIST;
                 }
                 
                 websiteDao.addWebsite(website);
                 
-                return Code.SAVE_SUCCESS;
+                return ClientCode.SAVE_SUCCESS;
         }
 
         @Override

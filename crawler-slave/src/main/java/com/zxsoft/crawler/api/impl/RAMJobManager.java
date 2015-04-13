@@ -217,7 +217,7 @@ public class RAMJobManager implements JobManager {
              * 将任务执行表`JHRW_RWZX`中对应任务记录的机器号字段置为本机器
              */
             DbService dbService = null;
-            int jobId = jobConf.getJobId();
+            long jobId = jobConf.getJobId();
             try {
 
                 /*

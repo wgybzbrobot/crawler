@@ -350,7 +350,7 @@ public class HtmlUnit extends HttpBase {
          */
         @Override
         public Response postForResponse(URL url, org.apache.commons.httpclient.NameValuePair[] data) throws IOException {
-                // TODO Auto-generated method stub
+                // TODO 用POST方法请求
                 return null;
         }
 

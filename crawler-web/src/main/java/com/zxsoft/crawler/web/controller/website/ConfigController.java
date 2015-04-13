@@ -44,10 +44,12 @@ public class ConfigController {
 	        Model model) {
 		Section section = sectionService.getSection(sectionId);
 		model.addAttribute("section", section);
+
+		ConfList confList = configService.getConfList(section.getUrl());
+		model.addAttribute("confList", confList);
 		
-		Map<String, Object> map = configService.getConfig(sectionId);
-		model.addAttribute("confList", (ConfList) map.get("confList"));
-		model.addAttribute("confDetails", (List<ConfDetail>) map.get("confDetails"));
+		List<ConfDetail> confDetails = configService.getConfDetail(confList.getUrl());
+		model.addAttribute("confDetails", confDetails);
 
 		return "website/config";
 	}

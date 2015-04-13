@@ -46,7 +46,9 @@ public class TickThread extends Thread {
             } catch (Exception e) {
                 LOG.error("连接主控失败", e);
                 continue;
-            } 
+            }/* finally {
+                cli.release();
+            }*/
             LOG.debug("Connect to master success.");
             try {
                 TimeUnit.MILLISECONDS.sleep(tickTimeMs);

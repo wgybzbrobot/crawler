@@ -37,14 +37,27 @@
 		</dependency>
 		<dependency>
 			<groupId>com.zxsoft.crawler</groupId>
+			<artifactId>crawler-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.zxsoft.crawler</groupId>
 			<artifactId>crawler-parse</artifactId>
 			<exclusions>
 				<exclusion>
 					<artifactId>commons-logging</artifactId>
 					<groupId>commons-logging</groupId>
 				</exclusion>
+				<!-- <exclusion>
+					<groupId>com.zxsoft.crawler</groupId>
+					<artifactId>crawler-dao</artifactId>
+				</exclusion> -->
 			</exclusions>
 		</dependency>
+		    <!--   <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.30</version>
+        </dependency> -->
 		<dependency>
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet</artifactId>
@@ -79,6 +92,15 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-orm</artifactId>
 			<version>${org.springframework-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>1.5.0.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>oracle.jdbc</groupId>
+			<artifactId>ojdbc</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-collections</groupId>
@@ -138,7 +160,7 @@
 				<artifactId>maven-site-plugin</artifactId>
 				<configuration>
 					<outputDirectory>${main.basedir}/crawler-project/target/site/${project.artifactId}</outputDirectory>
-					</configuration>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

@@ -1,41 +1,39 @@
 package com.zxsoft.crawler.web.service.crawler;
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.thinkingcloud.framework.web.utils.Page;
 
-import com.zxsoft.crawler.api.Prey;
+import com.zxsoft.crawler.common.CrawlerException;
 import com.zxsoft.crawler.common.JobConf;
 
+@Service
 public interface JobService {
 
 	/**
-	 * 添加网络巡检任务
+	 * 添加任务
+	 * @throws CrawlerException 
 	 */
-	Map<String, Object> addInspectJob( JobConf jobConf);
+	Map<String, Object> addJob( JobConf jobConf) throws CrawlerException;
 	
 	/**
-	 * 添加全网搜索任务
-	 * @param args 参数: 搜索关键字, 搜索引擎url ...
+	 * 查询任务
 	 */
-	Map<String, Object> addSearchJob( Prey prey);
-	
-	/**
-	 * get all jobs 
-	 */
-	List<Map<String, Object>> jobs();
+	Page<JobConf> getJobs(String query , int start, int end);
 
 	/**
-	 * get a job by jid
-	 * @param cid crawl id
-	 * @param jid job id
+	 * Get job detail information by job id
 	 */
-	Map<String, Object> job(String cid, String jid);
+	JobConf getJob(int jobId);
 
 	/**
-	 * @param machineId 机器号
+	 * 更新任务
+	 * @param job
 	 */
-	Map<String, Object> job(String machineId, String cid, String jid);
+	void updateJob (JobConf job);
 	
+	void deleteJob(final int jobId);
+	
+	JobConf querySourceId(int tid) throws CrawlerException;
 }
