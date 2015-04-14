@@ -47,10 +47,14 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
 		</dependency>
-		<dependency>
+	<!-- 	<dependency>
 			<groupId>oracle.jdbc</groupId>
 			<artifactId>ojdbc</artifactId>
-		</dependency>
+		</dependency> -->
+		<dependency>
+  <groupId>cn.guoyukun.jdbc</groupId>
+  <artifactId>oracle-ojdbc6</artifactId>
+</dependency>
 	</dependencies>
 	<build>
 		<plugins>
