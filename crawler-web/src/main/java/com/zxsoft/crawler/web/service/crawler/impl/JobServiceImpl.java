@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.restlet.representation.Representation;
-import org.restlet.resource.ClientResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +24,6 @@ import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.common.CrawlerException;
 import com.zxsoft.crawler.common.CrawlerException.ErrorCode;
 import com.zxsoft.crawler.common.JobConf;
-import com.zxsoft.crawler.master.MasterPath;
 import com.zxsoft.crawler.web.service.crawler.JobService;
 
 @Service
@@ -41,16 +38,6 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
 
     @Override
     public Map<String, Object> addJob(final JobConf jobConf) throws CrawlerException {
-//        ClientResource cli = new ClientResource(CRAWLER_MASTER
-//                        + MasterPath.JOB_RESOURCE_PATH);
-//        try {
-//            Representation r = cli.post(jobConf);
-//            LOG.info(r.getText());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            cli.release();
-//        }
         
         Page<JobConf> page = getJobs(jobConf.getUrl(), 0, 10);
         if (page != null && !CollectionUtils.isEmpty(page.getRes())) {
@@ -60,7 +47,7 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
         Random random = new Random(9999999);
         long jobId = System.currentTimeMillis() - random.nextLong();
         jobConf.setJobId(jobId);
-        double score = 1.0d / (System.currentTimeMillis() / 60000.0d + jobConf.getFetchinterval() * 1.0d);
+        double score = 1.0d / (1.0d + jobConf.getFetchinterval() * 1.0d);
         redisTemplate.opsForZSet().add(URLBASE, jobConf.toString(), score);
         return null;
     }
@@ -77,7 +64,7 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
         if (StringUtils.isEmpty(query)) {
-            Set<String> jsons = redisTemplate.opsForZSet().range(URLBASE, start, end);
+            Set<String> jsons = redisTemplate.opsForZSet().reverseRange(URLBASE, start, end);
             List<JobConf> res = new ArrayList<JobConf>();
 
             for (String json : jsons) {
