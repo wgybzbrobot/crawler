@@ -1,5 +1,7 @@
 package com.zxsoft.crawler.parse;
 
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,4 +76,13 @@ public abstract class ParseTool {
                 return new ProtocolOutput(null, status);
         }
 
+        protected boolean isSamePage(Elements lines, Elements oldlines) {
+            
+            if (lines == null && oldlines == null)
+                return true;
+            if (lines.text().trim().equals(oldlines.text().trim()))
+                return true;
+            return false;
+        }
+        
 }

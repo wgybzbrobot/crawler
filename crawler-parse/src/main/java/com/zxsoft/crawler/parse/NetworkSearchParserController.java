@@ -83,11 +83,13 @@ public final class NetworkSearchParserController extends ParseTool {
         LOG.info("Searching " + keyword + " with " + jobConf.getSource_name()
                         + "-->" + jobConf.getType() + "...");
 
+        Elements oldLines = null; // 用于检查页面数据是否没有变动
+        
         while (true) {
             Elements list = document.select(listDom);
             if (CollectionUtils.isEmpty(list)) 
                 throw new CrawlerException(ErrorCode.CONF_ERROR,
-                                "Cannot get records by rule: " + listDom);
+                                "Cannot get records from(" + original_url + ") by rule: " + listDom);
 
             Elements lines = list.first().select(rule.getLinedom());
             if (CollectionUtils.isEmpty(lines)) 
@@ -158,7 +160,13 @@ public final class NetworkSearchParserController extends ParseTool {
                 LOG.debug("No next page, exit.");
                 break;
             }
+            
             document = ptemp.getDocument();
+            
+            if (isSamePage(lines, oldLines))
+                break;
+            oldLines = lines;
+                
             pageNum.incrementAndGet();
 
         }

@@ -70,6 +70,9 @@ public final class NetworkInspectParserController extends ParseTool {
 		boolean hasUpdate = false, continuePage = true;
 		int sum = 0, pageNum = 1;
 		String msg = "";
+		
+		Elements oldLines = null; // 用于检查页面数据是否没有变动
+		
 		while (true) {
 			Elements list = document.select(listDom);
 			if (CollectionUtils.isEmpty(list)) {
@@ -160,7 +163,6 @@ public final class NetworkInspectParserController extends ParseTool {
 					Object[] params = new Object[]{recordInfo, detailRule, jobConf.getPrevFetchTime(), extInfo};
 					Class[] paramClassArr = new Class[]{recordInfo.getClass(), detailRule.getClass(), Long.class, extInfo.getClass()};
 					Parser parser = factory.getParserByCategory(rule.getCategory(), params, paramClassArr);
-//					Parser parser = new ForumParser(recordInfo, detailRule, prevFetchTime, extInfo);
 					FetchStatus _status = parser.parse();
 					sum += _status.getCount();
 				}catch (Exception e) {
@@ -179,10 +181,15 @@ public final class NetworkInspectParserController extends ParseTool {
 				if (ptemp == null || !ptemp.getStatus().isSuccess()) {
 					break;
 				}
+				
+				
 				document = ptemp.getDocument();
-				if (document == null) {
-					break;
-				}
+				
+			   if (isSamePage(lines, oldLines))
+		                break;
+				
+			   oldLines = lines;
+			   
 				pageNum++;
 			}
 		}
