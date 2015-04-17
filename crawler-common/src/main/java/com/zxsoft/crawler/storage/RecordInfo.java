@@ -79,7 +79,8 @@ public class RecordInfo implements Serializable, Cloneable {
             this.city_code = city_code;
             this.source_id = source_id;
             
-            this.lasttime = System.currentTimeMillis();
+            this.timestamp = System.currentTimeMillis();
+            this.lasttime = timestamp;
             this.first_time = this.lasttime;
         }
 
@@ -95,8 +96,9 @@ public class RecordInfo implements Serializable, Cloneable {
 
         public RecordInfo(String url,/* int sectionId, */String type, int platform, String ip, int country_code, int province_code, int city_code, int location_code,
                                         String location, int source_id, String source_name, int server_id, int source_type) {
-                this.lasttime = System.currentTimeMillis();
-                this.first_time = this.lasttime;
+            this.timestamp = System.currentTimeMillis();
+            this.lasttime = timestamp;
+            this.first_time = this.lasttime;
                 this.url = url;
 //                this.type_ids = sectionId;
                 this.type = type;
