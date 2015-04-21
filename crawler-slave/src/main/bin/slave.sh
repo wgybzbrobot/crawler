@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 CLASS=com.zxsoft.crawler.api.SlaveServer         
-                                                       
+                       
 # resovle links - $0 may be a softlink
 PRG="$0"
 while [ -h "$PRG" ]; do
@@ -28,91 +28,68 @@ fi
 CLASSPATH=$(echo "$PRG_HOME"/lib/*.jar | tr ' ' ':')
 CLASSPATH="${CLASSPATH}":"${PRG_HOME}/conf"
 
-
-JAVA_OPTS="-Xms512m -Xmx1024m  -server -XX:PermSize=64M -XX:MaxPermSize=256m"
-
-# init pid
-pid=0
-
-checkPid() {
-    jps=`jps -l | grep $CLASS`
-
-    if [ -n "$jps" ]; then
-        pid=`echo $jps | awk '{print $1}'`
-    else
-        pid=0
-    fi
-}
-
-PORT=8989
-start() {
-    checkPid
-
-    if [ $pid -ne 0 ]; then
-        echo "warn: $CLASS already started on port $PORT.(pid=$pid)"
-    else
-        if [ $# = 3 ]; then
-            $PORT = $2
-        fi
-        echo "Starting $CLASS"
-        `nohup java $JAVA_OPTS -classpath $CLASSPATH $CLASS $PORT enableSearchTask >/dev/null 2>&1 &`
-       # exec $CMD
-        checkPid
-        if [ $pid -ne 0 ]; then
-            echo "$CLASS is started on port $PORT (pid=$pid)[OK]"
-        else
-            echo "Start $CLASS failed"
-        fi
-    fi
-}
-
-
-stop() {
-    checkPid
-
-    if [ $pid -ne 0 ]; then
-        echo  "Stopping $CLASS ... (pid=$pid)"
-        exec kill -9 $pid
-        checkPid
-        if [ $pid -ne 0; ]; then
-            echo "Stop failed."
-        else
-            echo "$CLASS stopped."
-        fi
-    else
-        echo "$CLASS is not running."
-    fi
-}
-
-status() {
-    checkPid
-
-    if [ $pid -ne 0 ]; then
-        echo "$CLASS is running.(pid=$pid)"
-    else
-        echo "$CLASS is not running"
-    fi
-}
-
-
-help() {
-    echo "Usage: $0 {start [port] | stop | restart | help}"
-    echo "$0 start [port]: the default port is $PORT"
-    echo "$0 help: display this info."
-}
-
-
-if [ "$1" = "start" ]; then
-    start
-elif [ "$1" = "stop" ]; then
-    stop
-elif [ "$1" = "restart" ]; then
-    stop
-    start
-elif [ "$1" = "status" ]; then
-    status
-elif [ "$1" = "--help" ]; then
-    help
-else
-    help
+if [ -z $WORKERPIDFILE ]
+then WORKERPIDFILE=/tmp/worker_server.pid
 fi
+    
+WORKER_DAEMON_OUT="$WORKER_LOG_DIR/worker.out"
+
+case $1 in
+	start)
+		echo -n "Starting worker ... "
+		if [ -f $WORKERPIDFILE ]; then
+			if kill -0 `cat $WORKERPIDFILE` > /dev/null 2>&1; then
+				echo $command already running as process `cat $WORKERPIDFILE`.
+				exit 0
+			fi
+		fi
+		
+		nohup $JAVA "-Dworker.log.dir=${WORKER_LOG_DIR}" "-Dworker.log.file=${WORKER_LOG_FILE}" \
+		 $JAVA_OPTS -cp $CLASSPATH $CLASS $port $enable_search $oracle $master > /dev/null 2>&1 &
+		
+		if [ $? -eq 0 ]; then
+			echo $!
+			if  echo -n $! > "$WORKERPIDFILE"  
+			then
+				sleep 1
+				echo STARTED
+			else 
+				echo FAILED TO WRITE PID
+				exit 1
+			fi
+		else
+			echo SERVER DID NOT START
+			exit 1
+		fi
+		;;
+	stop)
+		echo -n "Stopping worker ... "
+		if [ ! -f "$WORKERPIDFILE" ]
+		then
+			echo "no worker to stop (could not find file $WORKERPIDFILE)"
+		else
+			echo $WORKERPIDFILE
+			kill -9 $(cat "$WORKERPIDFILE")
+			rm "$WORKERPIDFILE"
+			echo STOPPED
+		fi
+		;;
+	restart)
+		shift
+		./"$0" stop ${@}
+		sleep 3
+		./"$0" start ${@}
+		;;
+	status)
+		if [ ! -f "$WORKERPIDFILE" ]
+		then
+			echo "no worker is running."
+		else
+			echo "worker is running (pid=$WORKERPIDFILE)"
+		fi
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart|status}" >&2
+esac
+
+

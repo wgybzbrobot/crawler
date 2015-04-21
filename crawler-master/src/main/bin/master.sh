@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 CLASS=com.zxsoft.crawler.master.MasterServer       
-                                                       
+
 # resovle links - $0 may be a softlink
 PRG="$0"
 while [ -h "$PRG" ]; do
@@ -28,92 +28,68 @@ fi
 CLASSPATH=$(echo "$PRG_HOME"/lib/*.jar | tr ' ' ':')
 CLASSPATH="${CLASSPATH}":"${PRG_HOME}/conf"
 
-
-JAVA_OPTS="-Xms512m -Xmx1024m  -server -XX:PermSize=64M -XX:MaxPermSize=256m"
-
-# init pid
-pid=0
-
-checkPid() {
-    jps=`jps -l | grep $CLASS`
-
-    if [ -n "$jps" ]; then
-        pid=`echo $jps | awk '{print $1}'`
-    else
-        pid=0
-    fi
-}
-
-PORT=9999
-
-start() {
-    checkPid
-
-    if [ $pid -ne 0 ]; then
-        echo "warn: $CLASS already started.(pid=$pid)"
-    else
-        if [ $# = 3 ]; then
-            $PORT = $2
-        fi
-        echo "Starting $CLASS"
-        `nohup java $JAVA_OPTS -classpath $CLASSPATH $CLASS $PORT enableSearchTask >/dev/null 2>&1 &`
-       # exec $CMD
-        checkPid
-        if [ $pid -ne 0 ]; then
-            echo "$CLASS is started(pid=$pid)[OK]"
-        else
-            echo "Start $CLASS failed"
-        fi
-    fi
-}
-
-
-stop() {
-    checkPid
-
-    if [ $pid -ne 0 ]; then
-        echo  "Stopping $CLASS ... (pid=$pid)"
-        exec kill -9 $pid
-        checkPid
-        if [ $pid -ne 0; ]; then
-            echo "Stop failed."
-        else
-            echo "$CLASS stopped."
-        fi
-    else
-        echo "$CLASS is not running."
-    fi
-}
-
-status() {
-    checkPid
-
-    if [ $pid -ne 0 ]; then
-        echo "$CLASS is running.(pid=$pid)"
-    else
-        echo "$CLASS is not running"
-    fi
-}
-
-
-help() {
-    echo "Usage: $0 {start [port] | stop | restart | help}"
-    echo "$0 start [port]: the default port is $PORT"
-    echo "$0 help: display this info."
-}
-
-
-if [ "$1" = "start" ]; then
-    start
-elif [ "$1" = "stop" ]; then
-    stop
-elif [ "$1" = "restart" ]; then
-    stop
-    start
-elif [ "$1" = "status" ]; then
-    status
-elif [ "$1" = "--help" ]; then
-    help
-else
-    help
+if [ -z $PIDFILE ]
+then PIDFILE=/tmp/master_server.pid
 fi
+    
+MASTER_DAEMON_OUT="$MASTER_LOG_DIR/master.out"
+
+case $1 in
+    start)
+        echo -n "Starting master ... "
+        if [ -f $PIDFILE ]; then
+                if kill -0 `cat $PIDFILE` > /dev/null 2>&1; then
+                        echo $command already running as process `cat $PIDFILE`.
+                        exit 0
+                fi
+        fi
+        
+        nohup $JAVA "-Dmaster.log.dir=${MASTER_LOG_DIR}" "-Dmaster.log.file=${MASTER_LOG_FILE}" \
+         $JAVA_OPTS -cp $CLASSPATH $CLASS $port $enable_search > /dev/null 2>&1 &
+        
+        if [ $? -eq 0 ]; then
+                echo $!
+                if  echo -n $! > "$PIDFILE"  
+                then
+                        sleep 1
+                        echo STARTED
+                else 
+                        echo FAILED TO WRITE PID
+                        exit 1
+                fi
+        else
+                echo SERVER DID NOT START
+                exit 1
+        fi
+        ;;
+    stop)
+        echo -n "Stopping worker ... "
+        if [ ! -f "$PIDFILE" ]
+        then
+                echo "no master to stop (could not find file $PIDFILE)"
+        else
+                echo $PIDFILE
+                kill -9 $(cat "$PIDFILE")
+                rm "$PIDFILE"
+                echo STOPPED
+        fi
+        ;;
+    restart)
+        shift
+        ./"$0" stop ${@}
+        sleep 3
+        ./"$0" start ${@}
+        ;;
+    status)
+        if [ ! -f "$PIDFILE" ]
+        then
+                echo "no master is running."
+        else
+                echo "master is running (pid=$PIDFILE)"
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}" >&2
+esac
+
+
