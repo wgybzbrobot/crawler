@@ -15,6 +15,11 @@ public class WorkerConf implements Serializable, Comparable<WorkerConf> {
     private int workerId;
     private String hostPort;
     private int runningCount;
+    
+    /**
+     * 状态更新时间
+     */
+    private long update; 
 
     //
     // 可添加worker所在机器的系统环境及jvm环境，
@@ -37,12 +42,14 @@ public class WorkerConf implements Serializable, Comparable<WorkerConf> {
     }
 
     public WorkerConf() {
+        update = System.currentTimeMillis();
     }
 
     public WorkerConf(int workerId, String hostPort) {
         super();
         this.workerId = workerId;
         this.hostPort = hostPort;
+        update = System.currentTimeMillis();
     }
 
     public WorkerConf(int workerId, String hostPort, int runningCount) {
@@ -50,6 +57,15 @@ public class WorkerConf implements Serializable, Comparable<WorkerConf> {
         this.workerId = workerId;
         this.hostPort = hostPort;
         this.runningCount = runningCount;
+        update = System.currentTimeMillis();
+    }
+
+    public long getUpdate() {
+        return update;
+    }
+
+    public void setUpdate(long update) {
+        this.update = update;
     }
 
     public String describe() {
