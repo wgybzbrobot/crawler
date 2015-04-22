@@ -19,7 +19,7 @@
 		</layout>
 	</appender>
 	<logger name="com.zxsoft.crawler">
-		<level value="info" />
+		<level value="debug" />
 		<appender-ref ref="FILE" />
 	</logger>
 	<logger name="org.restlet">

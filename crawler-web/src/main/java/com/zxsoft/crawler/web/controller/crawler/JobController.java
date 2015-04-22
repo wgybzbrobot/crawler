@@ -83,7 +83,7 @@ public class JobController {
      * @return
      */
     @RequestMapping(value = "delete/{jobId}", method = RequestMethod.GET)
-    public String deleteJob(@PathVariable(value = "jobId") Integer jobId) {
+    public String deleteJob(@PathVariable(value = "jobId") Long jobId) {
 
         jobService.deleteJob(jobId);
         return "redirect:/job/search";
@@ -96,10 +96,9 @@ public class JobController {
      * @param start
      * @return
      */
-    @ResponseBody
-    @RequestMapping(value = "ajax/state", method = RequestMethod.GET)
-    public String haltOrStartJob(
-                    @RequestParam(value = "jobId", required = false) String jobId) {
+    @RequestMapping(value = "ajax/control/{jobId}", method = RequestMethod.GET)
+    public String haltOrStartJob(@PathVariable(value = "jobId") Long jobId) {
+//        jobService
         return "";
     }
 

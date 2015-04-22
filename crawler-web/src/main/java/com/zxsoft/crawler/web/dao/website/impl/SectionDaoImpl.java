@@ -24,93 +24,96 @@ import com.zxsoft.crawler.web.dao.website.SectionDao;
 @Repository
 public class SectionDaoImpl implements SectionDao {
 
-        @Autowired
-        private HibernateTemplate hibernateTemplate;
+    @Autowired
+    private HibernateTemplate hibernateTemplate;
 
-        @Override
-        public Section getSection(Integer id) {
-                return hibernateTemplate.get(Section.class, id);
-        }
+    @Override
+    public Section getSection(Integer id) {
+        return hibernateTemplate.get(Section.class, id);
+    }
 
-        @Override
-        public Page<Section> getSections(Section section, int pageNo, int pageSize) {
-                if (pageNo <= 0)
-                        pageNo = 1;
+    @Override
+    public Page<Section> getSections(Section section, int pageNo, int pageSize) {
+        if (pageNo <= 0)
+            pageNo = 1;
 
-                Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<String, Object>();
 
-                StringBuffer sb = new StringBuffer(" from Section a where 1=1 ");
-                if (section != null) {
-                        if (!StringUtils.isEmpty(section.getUrl())) {
-                                sb.append(" and a.url like :url ");
-                                params.put("url", "%" + section.getUrl().trim() + "%");
-                        }
-                        if (!StringUtils.isEmpty(section.getComment())) {
-                                sb.append(" and a.comment like :comment");
-                                params.put("comment", "%" + section.getComment() + "%");
-                        }
-                        if (section.getCategory() != null) {
-                                if ( !StringUtils.isEmpty(section.getCategory().getId())) {
-                                        sb.append(" and a.category.id =:cateId");
-                                        params.put("cateId", section.getCategory().getId());
-                                }
-                        }
-                        if (section.getWebsite() != null ) {
-                                sb.append(" and a.website.id =:id");
-                                params.put("id", section.getWebsite().getId());
-                        }
-                        if (section.getAccount() !=null ) {
-                                if (!StringUtils.isEmpty(section.getAccount().getUsername())) {
-                                        sb.append(" and a.account.username =:username");
-                                        params.put("username", section.getAccount().getUsername());
-                                }
-                        }
+        StringBuffer sb = new StringBuffer(" from Section a where 1=1 ");
+        if (section != null) {
+            if (!StringUtils.isEmpty(section.getUrl())) {
+                sb.append(" and a.url like :url ");
+                params.put("url", "%" + section.getUrl().trim() + "%");
+            }
+            if (!StringUtils.isEmpty(section.getComment())) {
+                sb.append(" and a.comment like :comment");
+                params.put("comment", "%" + section.getComment() + "%");
+            }
+            if (section.getCategory() != null) {
+                if (!StringUtils.isEmpty(section.getCategory().getId())) {
+                    sb.append(" and a.category.id =:cateId");
+                    params.put("cateId", section.getCategory().getId());
                 }
-
-                HibernateCallback<Page<Section>> action = HibernateCallbackUtil.getCallbackWithPage(sb, params, null, pageNo, pageSize);
-
-                Page<Section> page = hibernateTemplate.execute(action);
-
-                return page;
-        }
-
-        @Override
-        public void saveOrUpdate(Section section) {
-                if (StringUtils.isEmpty(section.getId())) {
-                        hibernateTemplate.save(section);
-                } else {
-                        hibernateTemplate.saveOrUpdate(section);
+            }
+            if (section.getWebsite() != null) {
+                sb.append(" and a.website.id =:id");
+                params.put("id", section.getWebsite().getId());
+            }
+            if (section.getAccount() != null) {
+                if (!StringUtils.isEmpty(section.getAccount().getUsername())) {
+                    sb.append(" and a.account.username =:username");
+                    params.put("username", section.getAccount().getUsername());
                 }
+            }
         }
 
-        @Autowired
-        private JdbcTemplate jdbcTemplate;
+        HibernateCallback<Page<Section>> action = HibernateCallbackUtil
+                        .getCallbackWithPage(sb, params, null, pageNo, pageSize);
 
-        @Override
-        public void delete(Integer id) {
-                Section section = hibernateTemplate.get(Section.class, id);
+        Page<Section> page = hibernateTemplate.execute(action);
 
-                final String url = section.getUrl();
-                ConfList confList = hibernateTemplate.get(ConfList.class, url);
-                if (confList != null)
-                        hibernateTemplate.delete(confList);
+        return page;
+    }
 
-                jdbcTemplate.update("delete from conf_detail  where listurl = ?", new Object[] { url });
-
-                hibernateTemplate.delete(section);
+    @Override
+    public void saveOrUpdate(final Section section) {
+        if (StringUtils.isEmpty(section.getId())) {
+            hibernateTemplate.save(section);
+        } else {
+            hibernateTemplate.saveOrUpdate(section);
         }
+    }
 
-        @Override
-        public void delete(Section section) {
-                final String url = section.getUrl();
-                ConfList confList = hibernateTemplate.get(ConfList.class, url);
-                if (confList != null)
-                        hibernateTemplate.delete(confList);
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
-                jdbcTemplate.update("delete from conf_detail  where listurl = ?", new Object[] { url });
+    @Override
+    public void delete(Integer id) {
+        Section section = hibernateTemplate.get(Section.class, id);
 
-                hibernateTemplate.delete(section);
+        final String url = section.getUrl();
+        ConfList confList = hibernateTemplate.get(ConfList.class, url);
+        if (confList != null)
+            hibernateTemplate.delete(confList);
 
-        }
+        jdbcTemplate.update("delete from conf_detail  where listurl = ?",
+                        new Object[] { url });
+
+        hibernateTemplate.delete(section);
+    }
+
+    @Override
+    public void delete(Section section) {
+        final String url = section.getUrl();
+        ConfList confList = hibernateTemplate.get(ConfList.class, url);
+        if (confList != null)
+            hibernateTemplate.delete(confList);
+
+        jdbcTemplate.update("delete from conf_detail  where listurl = ?",
+                        new Object[] { url });
+
+        hibernateTemplate.delete(section);
+
+    }
 
 }

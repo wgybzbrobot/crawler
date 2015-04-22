@@ -14,52 +14,45 @@ import com.zxsoft.crawler.web.service.website.SectionService;
 @Service
 public class SectionServiceImpl implements SectionService {
 
-        @Autowired
-        private SectionDao sectionDao;
+    @Autowired
+    private SectionDao sectionDao;
 
-        @Override
-        public Section getSection(Integer sectionId) {
-                return sectionDao.getSection(sectionId);
-        }
+    @Override
+    public Section getSection(Integer sectionId) {
+        return sectionDao.getSection(sectionId);
+    }
 
-        @Override
-        public Page<Section> getSections(Section section, int pageNo, int pageSize) {
-                return sectionDao.getSections(section, pageNo, pageSize);
-        }
+    @Override
+    public Page<Section> getSections(Section section, int pageNo, int pageSize) {
+        return sectionDao.getSections(section, pageNo, pageSize);
+    }
 
-        /**
-	 * 新增或修改版块
-	 */
-        @Override
-        public void saveOrUpdate(Section section) {
+    /**
+     * 新增或修改版块
+     */
+    @Override
+    public void saveOrUpdate(Section section) {
+        sectionDao.saveOrUpdate(section);
+    }
 
-                String url = section.getUrl();
-                if (url.endsWith("/")) {
-                        url = url.substring(0, url.lastIndexOf("/"));
-                }
-                section.setUrl(url);
+    @Override
+    public void delete(Integer id) {
+        sectionDao.delete(id);
+    }
 
-                sectionDao.saveOrUpdate(section);
-        }
+    @Override
+    public void delete(Section section) {
+        sectionDao.delete(section);
+    }
 
-        @Override
-        public void delete(Integer id) {
-                sectionDao.delete(id);
-        }
-
-        @Override
-        public void delete(Section section) {
-                sectionDao.delete(section);
-        }
-
-        @Override
-        public Section getSectionByUrl(String url) {
-                Section section = new Section(url);
-                Page<Section> page = sectionDao.getSections(section, 1, 10);
-                List<Section> sections = page.getRes();
-                if (CollectionUtils.isEmpty(sections))
-                        return null;
-                return sections.get(0);
-        }
+    @Override
+    public Section getSectionByUrl(String url) {
+        Section section = new Section(url);
+        Page<Section> page = sectionDao.getSections(section, 1, 10);
+        List<Section> sections = page.getRes();
+        if (CollectionUtils.isEmpty(sections))
+            return null;
+        return sections.get(0);
+    }
 
 }

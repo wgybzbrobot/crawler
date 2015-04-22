@@ -56,7 +56,7 @@
 
 	function submitForm() {
 		$('#sectionForm').form('submit', {
-			url : 'section/ajax/add',
+			url : $('#sectionForm').attr('action'),
 			onSubmit : function(param) {
 				return $(this).form('enableValidation').form('validate');
 			},
@@ -108,7 +108,7 @@
 			<a class="form-wrapper-close" href="javascript:void(0);"></a>
 			<div class="form-wrapper-title">添加版块</div>
 			<div class="form-wrapper-center">
-				<form id="sectionForm" method="post" action="section/add" >
+				<form id="sectionForm" method="get" action="<c:url value='/section/ajax/add' />" >
 					<div>
 						<input type="hidden"  name="website.id" value="${website.id}" />
 						<input type="hidden"  name="id" />
@@ -134,10 +134,10 @@
 					<div>
 						<label class="form-label" for="category">URL地址是否动态变化</label> 
 						是<input name="autoUrl" type="radio"  value="true"	/>
-						否<input name="autoUrl" type="radio" value="false" checked="checked"/>
+						否<input name="autoUrl" type="radio" value="false" checked />
 					</div>
 					<div>
-						<input class="form-btn" type="button" onclick="return submitForm();" value="保存" />
+						<input class="form-btn" type="button"  onclick="return submitForm();" value="保存" />
 					</div>
 					<div>
 						<span id="savemessage"></span>

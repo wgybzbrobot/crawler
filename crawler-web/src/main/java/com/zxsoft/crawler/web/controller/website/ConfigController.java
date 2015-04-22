@@ -48,9 +48,10 @@ public class ConfigController {
 		ConfList confList = configService.getConfList(section.getUrl());
 		model.addAttribute("confList", confList);
 		
-		List<ConfDetail> confDetails = configService.getConfDetail(confList.getUrl());
-		model.addAttribute("confDetails", confDetails);
-
+		if (confList != null) {
+    		List<ConfDetail> confDetails = configService.getConfDetail(confList.getUrl());
+    		model.addAttribute("confDetails", confDetails);
+		}
 		return "website/config";
 	}
 

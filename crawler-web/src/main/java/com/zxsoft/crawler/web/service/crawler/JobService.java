@@ -33,7 +33,7 @@ public interface JobService {
 	 */
 	void updateJob (JobConf job);
 	
-	void deleteJob(final int jobId);
+	void deleteJob(final long jobId);
 	
 	JobConf querySourceId(int tid) throws CrawlerException;
 }

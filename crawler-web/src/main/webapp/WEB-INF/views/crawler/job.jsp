@@ -226,6 +226,7 @@ $(function() {
 							<td>时间间隔</td>
 							<td>预计下次抓取时间</td>
 							<td>抓取次数</td>
+							<td>是否循环</td>
 							<td>操作</td>
 						</tr>
 					</thead>
@@ -238,7 +239,7 @@ $(function() {
 											<a href="${jobConf.url}" target="_blank" title="网络巡检">${jobConf.source_name.concat('-').concat(jobConf.type) }</a>
 										</c:when>
 										<c:when test="${jobConf.jobType eq 'NETWORK_SEARCH' }">
-											<a href="${jobConf.url}" target="_blank" title="全网搜索">${jobConf.source_name.concat('-').concat(jobConf.type)}</a>
+											<a href="${jobConf.url}" target="_blank" title="全网搜索">${jobConf.source_name.concat('-').concat(jobConf.type)}-${jobConf.keyword}</a>
 										</c:when>
 									</c:choose>
 							</span></td>
@@ -257,6 +258,12 @@ $(function() {
 									${nextFetchTimef }
 							</span></td>
 							<td>${jobConf.count}</td>
+							<td>
+							<c:choose>
+							 <c:when test="${jobConf.recurrence}">循环</c:when>
+							 <c:otherwise>不循环</c:otherwise>
+							</c:choose>
+							</td>
 							<td>
 								<span>
 									<a class="delJob"  href="<c:url value='/job/delete/${jobConf.jobId }' />"  >删除</a>
@@ -277,10 +284,10 @@ $(function() {
 											</div>
 								 <span> <c:choose>
 										<c:when test="${jobConf.state eq 'JOB_EXCUTING' }">
-											<a  class="haltJob" href="<c:url value='/job/ajax/state' />" onclick="return false;" title="处于执行状态,点击暂停">暂停</a>
+											<a  class="haltJob" href="<c:url value='/job/ajax/control/${jobConf.jobId }' />" onclick="return false;" title="处于执行状态,点击暂停">暂停</a>
 										</c:when>
 										<c:otherwise>
-											<a class="haltJob"  href="<c:url value='/job/ajax/state' />" onclick="return false;" title="处于暂停状态,点击执行">执行</a>
+											<a class="haltJob"  href="<c:url value='/job/ajax/control/${jobConf.jobId }' />" onclick="return false;" title="处于暂停状态,点击执行">执行</a>
 										</c:otherwise>
 									</c:choose>
 							</span></td>

@@ -32,7 +32,7 @@ public class WebsiteDaoImpl implements WebsiteDao {
                 if (pageSize < 0)
                         pageSize = 100;
 
-                Map<String, String> params = new HashMap<String, String>();
+                Map<String, Object> params = new HashMap<String, Object>();
 
                 StringBuffer sb = new StringBuffer(" from Website a where 1=1 ");
                 if (website != null) {
@@ -48,6 +48,16 @@ public class WebsiteDaoImpl implements WebsiteDao {
                                 sb.append(" and a.comment like :comment");
                                 params.put("comment", "%" + website.getComment() + "%");
                         }
+                        if (null != website.getProvinceId() && website.getProvinceId() != 0) {
+                            sb.append(" and a.provinceId = :provinceId");
+                            params.put("provinceId", website.getProvinceId());
+                        }
+                        sb.append(" and a.region = :region");
+                        params.put("region", website.getRegion() == null ? 1 : website.getRegion());
+                        
+                        sb.append(" and a.status = :status");
+                        params.put("status", website.getStatus() == null ? "open" : website.getStatus());
+                    
                 }
                 
                 sb.append(" order by a.comment ");

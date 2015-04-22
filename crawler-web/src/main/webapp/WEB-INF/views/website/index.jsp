@@ -55,9 +55,9 @@
 		
           $("input[name=region]").change(function () {
         	  if (this.value == 1) {
-        		  $('#location').css('visibility', 'visible');
+        		  $('.location').css('visibility', 'visible');
         	  } else {
-	        	  $('#location').css('visibility', 'hidden');
+	        	  $('.location').css('visibility', 'hidden');
         	  }
           });
 		
@@ -116,9 +116,9 @@
 		});
 		$('#searchForm span.searchbox input:first').focus();
 	});
-	function doSearch(value) {
+	/* function doSearch(value) {
 		$('#searchForm').submit();
-	}
+	} */
 	function submitForm() {
 		$('#retmsg').text('');
 		$('#websiteForm').form('submit', {
@@ -164,11 +164,30 @@
 <body>
 	<div id="body">
 		<div style="padding-left: 43px;">
-			<form id="searchForm" action="website" method="post" style="display:inline; margin-right: 14px;">
-				<input value="${website.comment }" name="comment" class="easyui-searchbox" data-options="prompt:'输入网站名称进行搜索',searcher:doSearch" style="width: 200px" />
-			</form>
-			<a id="addWebsiteBtn" class="linkbutton" href="javascript:void(0);">添加网站</a>
-			<a id="addWebsiteBtn" class="linkbutton" href='<c:url value="/section/search"/>'>查找版块</a>
+		     <div style="border: 1px solid #e3e3e3; line-height: 15px;" >
+				<form id="searchForm" action="<c:url value='/website' />" method="get" style="display:inline; margin-right: 14px;">
+	                 <label class="form-label" for="region">区域:</label>
+		                 <span>境内</span><input type="radio" name="region" value="1"  ${website.region!=0?'checked':'' }>&nbsp;
+		                 <span>境外</span><input type="radio" name="region" value="0"  ${website.region==0?'checked':''}>
+	                     <div class="location" style="display: inline;">
+	                         <select id="selProvince" name="provinceId" >
+	                             <option value="0">--请选择省份--</option>
+	                         </select>
+	                         <select id="selCity" name="cityId">
+	                             <option value="0">--请选择城市--</option>
+	                         </select>
+	                         <select id="selDistrict" name="areaId">
+	                             <option value="0">--请选择区/县--</option>
+	                         </select>
+	                     </div>
+	                     <label class="form-label" for="status">状态:</label>
+	                     <input type="radio"  name="status" value="open"  ${website.status ne 'close' ? 'checked':'' }>启用&nbsp;&nbsp;&nbsp;
+	                     <input type="radio" name="status" value="close"  ${website.status eq 'close' ? 'checked':'' }>禁用
+	                     名称:<input value="${website.comment }" name="comment"  style="width: 100px" />
+	                     <input type="submit" value="查询"/>
+				</form>
+			</div>
+			<div><a id="addWebsiteBtn" class="linkbutton" href="javascript:void(0);">添加网站</a></div>
 		</div>
 		<div class="form-wrapper" style="display: none; height: 386px; width:445px;">
 			<a class="form-wrapper-close" href="javascript:;"></a>
@@ -191,7 +210,7 @@
 					<div>
 						<label class="form-label" for="region">区域:</label><span>境内</span><input type="radio" name="region" value="1"
 							checked="checked">&nbsp;&nbsp;&nbsp;<span>境外</span><input type="radio" name="region" value="0">
-							<div id="location">
+							<div class="location">
 								<select id="selProvince" name="provinceId">
 							        <option value="0">--请选择省份--</option>
 							    </select>

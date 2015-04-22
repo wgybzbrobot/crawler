@@ -27,7 +27,7 @@ import com.zxsoft.crawler.common.JobConf;
 import com.zxsoft.crawler.web.service.crawler.JobService;
 
 @Service
-public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobService {
+public class JobServiceImpl  implements JobService {
 
     private static Logger LOG = LoggerFactory.getLogger(JobServiceImpl.class);
 
@@ -171,7 +171,7 @@ public class JobServiceImpl extends SimpleCrawlerServiceImpl implements JobServi
     }
 
     @Override
-    public void deleteJob(int jobId) {
+    public void deleteJob(long jobId) {
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         long count = redisTemplate.opsForZSet().zCard(URLBASE);
         long i = 0, j = 100;

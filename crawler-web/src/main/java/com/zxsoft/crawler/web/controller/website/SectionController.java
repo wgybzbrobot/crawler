@@ -81,7 +81,7 @@ public class SectionController {
 
         List<Category> categories = dictService.getCategories();
         model.addAttribute("categories", categories);
-        
+
         Page<Section> page = sectionService.getSections(section, start, pageSize);
         model.addAttribute("page", page);
         return "section/index";
@@ -91,7 +91,7 @@ public class SectionController {
      * 添加或修改版块
      */
     @ResponseBody
-    @RequestMapping(value = "ajax/add", method = RequestMethod.POST)
+    @RequestMapping(value = "ajax/add", method = RequestMethod.GET)
     public String addOrUpdate(
                     @RequestParam(value = "copy", required = false) String copy,
                     Section section, String oldUrl, Model model, HttpSession session) {
@@ -124,13 +124,18 @@ public class SectionController {
             configService.add(confList);
             configService.add(confDetails);
         } else {
-            sectionService.saveOrUpdate(section);
+            String url = section.getUrl();
+            if (url.endsWith("/")) {
+                url = url.substring(0, url.lastIndexOf("/"));
+            }
+            section.setUrl(url);
             if (!StringUtils.isEmpty(section.getId())) { // 修改
                 if (!section.getUrl().equals(oldUrl)) {
                     configService.updateConfListKey(oldUrl, section.getUrl());
                     configService.updateConfDetailKey(oldUrl, section.getUrl());
                 }
             }
+            sectionService.saveOrUpdate(section);
         }
 
         return "success";
