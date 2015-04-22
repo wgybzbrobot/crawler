@@ -71,7 +71,6 @@
 				<configuration>
 					<excludes>
 						<exclude>**/log4j.xml</exclude>
-						<exclude>**/slaves.ini</exclude>
 						<exclude>**/redis.properties</exclude>
 						<exclude>**/oracle.properties</exclude>
 						<exclude>**/mysql.properties</exclude>
@@ -104,7 +103,7 @@
 					<tarLongFileMode>gnu</tarLongFileMode>
 					<appendAssemblyId>false</appendAssemblyId>
 					<attach>false</attach>
-					<finalName>${project.artifactId}</finalName>
+					<finalName>${project.artifactId}-${project.version}</finalName>
 					<descriptorRefs>
 						<descriptorRef>master-dist</descriptorRef>
 					</descriptorRefs>

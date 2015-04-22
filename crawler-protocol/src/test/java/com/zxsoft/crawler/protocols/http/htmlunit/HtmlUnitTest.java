@@ -89,21 +89,19 @@ public class HtmlUnitTest {
 	public void testLoadPrevPage() throws IOException, PrevPageNotFoundException, PageBarNotFoundException {
 		WebPage page = new WebPage("http://roll.news.sina.com.cn/s/channel.php#col=89&spec=&type=&ch=&k=&offset_page=0&offset_num=0&num=60&asc=&page=2", true);
 		
-		
 		ProtocolOutput protocolOutput = httpFetcher.fetch(page);
 		Assert.notNull(protocolOutput);
 		Document currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
 		
-		page.setDocument(currentDoc);
-		page.setUrl(currentDoc.location());
-		page.setAjax(true);
+		page = new WebPage(currentDoc.location(), true, currentDoc);
 		
+		System.out.println(currentDoc.html());
+
 		protocolOutput = htmlUnit.getProtocolOutputOfPrevPage(2, page);
 		Assert.notNull(protocolOutput);
 		currentDoc = protocolOutput.getDocument();
 		Assert.notNull(currentDoc);
-//		System.out.println(currentDoc.html());
 	}
 
 }

@@ -22,7 +22,7 @@ public final class OnceNetworkSearchThread extends Thread {
     private static Logger LOG = LoggerFactory.getLogger(OnceNetworkSearchThread.class);
 
     public OnceNetworkSearchThread() {
-        setName("OnceNetworkSearchJob");
+        setName("OnceNetworkSearchJobThread");
     }
 
     @Override
@@ -70,7 +70,7 @@ public final class OnceNetworkSearchThread extends Thread {
                 try {
                     Thread.sleep(10000L);
                 } catch (InterruptedException e) {
-
+                    continue;
                 }
         }
         LOG.info("Finish read job from SELECT_TASK_EXECUTE_LIST.");

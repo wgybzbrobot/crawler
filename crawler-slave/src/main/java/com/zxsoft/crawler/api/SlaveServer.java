@@ -30,9 +30,31 @@ public class SlaveServer {
     private static boolean running;
 
     private static boolean enableSearch = false;
-    private String oracle_url;
-    private String oracle_username;
-    private String oracle_passwd;
+    private static String oracle_url;
+    private static String oracle_username;
+    private static String oracle_passwd;
+
+    public static String getOracle_url() {
+        return oracle_url;
+    }
+    public static void setOracle_url(String oracle_url) {
+        SlaveServer.oracle_url = oracle_url;
+    }
+    public static String getOracle_username() {
+        return oracle_username;
+    }
+
+    public static void setOracle_username(String oracle_username) {
+        SlaveServer.oracle_username = oracle_username;
+    }
+
+    public static String getOracle_passwd() {
+        return oracle_passwd;
+    }
+
+    public static void setOracle_passwd(String oracle_passwd) {
+        SlaveServer.oracle_passwd = oracle_passwd;
+    }
 
     private String master;
 
@@ -65,7 +87,7 @@ public class SlaveServer {
     private static int machineId;
     private static DbService dbService;
 
-    public static DbService getDbService() {
+    public static  DbService getDbService() {
         return dbService;
     }
 
@@ -93,13 +115,14 @@ public class SlaveServer {
 
         if (enableSearch) {
             Assert.hasLength(oracle_url);
-            Assert.hasLength(oracle_username);
+            Assert.hasLength(oracle_username);  
+            
             dbService = new DbService(oracle_url.trim(), oracle_username.trim(), oracle_passwd.trim());
             dbService.updateExecuteTaskStatus();
         }
 
         if (master != null && master.length() != 0) {  // 集群模式
-            new TickThread(master, machineId, hostPort, 60000L).start();
+            new TickThread(master, machineId, hostPort, 30000L).start();
             // 配置错误处理器
             ErrorHandler.setMaster(master);
         }
@@ -155,9 +178,9 @@ public class SlaveServer {
             
             if (line.hasOption("enableSearch")) {
                 SlaveServer.enableSearch = true;
-                server.oracle_url = line.getOptionValue("oracle_url");
-                server.oracle_username = line.getOptionValue("oracle_username", null);
-                server.oracle_passwd = line.getOptionValue("oracle_passwd", null);
+                SlaveServer.oracle_url = line.getOptionValue("oracle_url");
+                SlaveServer.oracle_username = line.getOptionValue("oracle_username", null);
+                SlaveServer.oracle_passwd = line.getOptionValue("oracle_passwd", null);
             }
 
             server.start();

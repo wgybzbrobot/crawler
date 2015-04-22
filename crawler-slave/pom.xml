@@ -28,10 +28,6 @@
 			<groupId>com.zxsoft.crawler</groupId>
 			<artifactId>crawler-parse</artifactId>
 		</dependency>
-		<!-- <dependency>
-			<groupId>oracle.jdbc</groupId>
-			<artifactId>ojdbc</artifactId>
-		</dependency> -->
 		<dependency>
   <groupId>cn.guoyukun.jdbc</groupId>
   <artifactId>oracle-ojdbc6</artifactId>
@@ -55,7 +51,26 @@
 					</excludes>
 				</configuration>
 			</plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>package</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                            <configuration>
+                               <tasks>
+                                <copy todir="${basedir}/target">
+                                    <fileset dir="${basedir}/src/main/bin/" includes="slave.py"/>
+                                </copy>
+                               </tasks>
+                            </configuration>
+                        </execution>
+                    </executions>
+            </plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<dependencies>
@@ -69,7 +84,7 @@
 					<tarLongFileMode>gnu</tarLongFileMode>
 					<appendAssemblyId>false</appendAssemblyId>
 					<attach>false</attach>
-					<finalName>${project.artifactId}</finalName>
+					<finalName>${project.artifactId}-${project.version}</finalName>
 					<descriptorRefs>
 						<descriptorRef>slave-dist</descriptorRef>
 					</descriptorRefs>

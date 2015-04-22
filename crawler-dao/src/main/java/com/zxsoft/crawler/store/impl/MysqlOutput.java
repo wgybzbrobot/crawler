@@ -6,11 +6,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zxisl.commons.utils.Assert;
 import com.zxsoft.crawler.dao.BaseDao;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.store.Output;
-import com.zxsoft.crawler.store.OutputException;
 
 /**
  * 写数据到Mysql

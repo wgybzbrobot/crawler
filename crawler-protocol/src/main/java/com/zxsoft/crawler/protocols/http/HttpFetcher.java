@@ -37,6 +37,7 @@ public class HttpFetcher {
         ProtocolOutput protocolOutput = new ProtocolOutput();
         String url = page.getBaseUrl();
 
+        // FIXME: 当搜索任务时，需要对查询参数; 当巡检任务时，不需要， 如新浪新闻
         try {
             URL u = new URL(url);
             try {

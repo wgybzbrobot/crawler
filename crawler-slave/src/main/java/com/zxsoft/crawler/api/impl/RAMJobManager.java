@@ -8,8 +8,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +32,8 @@ import com.zxsoft.crawler.util.ReflectionUtils;
  *
  */
 public class RAMJobManager implements JobManager {
-    int CAPACITY = 100;
-    ThreadPoolExecutor exec = new MyPoolExecutor(10, CAPACITY, 1, TimeUnit.HOURS,
+    int CAPACITY = 110;
+    ThreadPoolExecutor exec = new MyPoolExecutor(10, CAPACITY, 20, TimeUnit.MINUTES,
                     new ArrayBlockingQueue<Runnable>(CAPACITY));
     private Logger LOG = LoggerFactory.getLogger(RAMJobManager.class);
 
@@ -63,17 +61,17 @@ public class RAMJobManager implements JobManager {
             synchronized (jobRunning) {
                 jobRunning.remove(((JobWorker) r).jobStatus);
             }
-            JobStatus status = ((JobWorker) r).jobStatus;
-            synchronized (jobHistory) {
-                if (!jobHistory.offer(status)) {
-                    jobHistory.poll();
-                    jobHistory.add(status);
-                }
-            }
+//            JobStatus status = ((JobWorker) r).jobStatus;
+//            synchronized (jobHistory) {
+//                if (!jobHistory.offer(status)) {
+//                    jobHistory.poll();
+//                    jobHistory.add(status);
+//                }
+//            }
         }
     }
     
-    ArrayBlockingQueue<JobStatus> jobHistory = new ArrayBlockingQueue<JobStatus>(CAPACITY);
+//    ArrayBlockingQueue<JobStatus> jobHistory = new ArrayBlockingQueue<JobStatus>(CAPACITY);
     ArrayBlockingQueue<JobStatus> jobRunning = new ArrayBlockingQueue<JobStatus>(CAPACITY);
 
     @Override
@@ -90,24 +88,23 @@ public class RAMJobManager implements JobManager {
     }
 
     @Override
-    @SuppressWarnings("fallthrough")
     public List<JobStatus> list(String crawlId, State state) throws Exception {
         List<JobStatus> res = new ArrayList<JobStatus>();
         if (state == null)
             state = State.ANY;
         switch (state) {
         case FINISHED:
-            res.addAll(jobHistory);
+//            res.addAll(jobHistory);
             break;
         case ANY:
-            res.addAll(jobHistory);
+//            res.addAll(jobHistory);
             /* FALLTHROUGH */
         case RUNNING:
         case IDLE:
             res.addAll(jobRunning);
             break;
         default:
-            res.addAll(jobHistory);
+//            res.addAll(jobHistory);
         }
         return res;
     }
@@ -116,7 +113,7 @@ public class RAMJobManager implements JobManager {
     public Map<String, Object> list() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("runningNum", jobRunning.size());
-        map.put("historyNum", jobHistory.size());
+//        map.put("historyNum", jobHistory.size());
         return map;
     }
 
@@ -127,11 +124,11 @@ public class RAMJobManager implements JobManager {
                 return job;
             }
         }
-        for (JobStatus job : jobHistory) {
-            if (job.id.equals(jobId)) {
-                return job;
-            }
-        }
+//        for (JobStatus job : jobHistory) {
+//            if (job.id.equals(jobId)) {
+//                return job;
+//            }
+//        }
         return null;
     }
 
@@ -189,7 +186,7 @@ public class RAMJobManager implements JobManager {
 
         JobWorker(JobConf jobConf) throws Exception {
             JobType _jobType = jobConf.getJobType();
-            this.id = _jobType + "-" + hashCode();
+            this.id = jobConf.getJobType().name() + jobConf.getJobId();
             this.jobType = _jobType;
             this.jobConf = jobConf;
             Class<? extends CrawlTool> clz = typeToClass.get(jobType);
@@ -210,8 +207,6 @@ public class RAMJobManager implements JobManager {
 
         @Override
         public void run() {
-            LOG.info(jobStatus.toString());
-
             /*
              * 判断是否是从数据库中获取的全网搜索任务. 若是,则 1. 将任务列表`JHRW_RWLB`中对应任务记录删除 2.
              * 将任务执行表`JHRW_RWZX`中对应任务记录的机器号字段置为本机器
@@ -226,6 +221,7 @@ public class RAMJobManager implements JobManager {
                  */
                 if (SlaveServer.enableSearch() && JobType.NETWORK_SEARCH.equals(jobConf.getJobType())) {
                     dbService = SlaveServer.getDbService();
+//                    dbService = new DbService(SlaveServer.getOracle_url(),SlaveServer.getOracle_username(), SlaveServer.getOracle_passwd());
                     dbService.deleteTaskById(jobId);
                     dbService.updateMachineFlagTaskById(jobId);
                 }

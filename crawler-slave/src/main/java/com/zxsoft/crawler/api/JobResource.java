@@ -91,7 +91,7 @@ public class JobResource extends ServerResource {
         try {
             jobCode = SlaveApp.jobMgr.create(jobConf);
         } catch (RejectedExecutionException e) {
-            LOG.error(e.getMessage());
+            LOG.error("RejectedExecutionException:" + e.getMessage());
             jobCode = new JobCode(ErrorCode.SYSTEM_ERROR.code, e.getMessage());
         } catch (CrawlerException e) {
             jobCode = new JobCode(e.code(), e.getMessage());

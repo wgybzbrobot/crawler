@@ -1,6 +1,5 @@
 package com.zxsoft.crawler.master;
 
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -59,7 +58,7 @@ public class MasterServer {
         return running;
     }
 
-//    private final long heartbeat = 1 * 60 * 1000L; // default is 1 min
+    // private final long heartbeat = 1 * 60 * 1000L; // default is 1 min
 
     public void start() throws Exception {
         LOG.info("Starting MasterNode on port " + port + "...");
@@ -86,7 +85,6 @@ public class MasterServer {
     public void setEnableSearch(boolean enableSearch) {
         this.enableSearch = enableSearch;
     }
-
 
     public int getSearch_interval() {
         return search_interval;
@@ -143,10 +141,10 @@ public class MasterServer {
         if (!running) {
             return true;
         }
-//        if (!canStop() && !force) {
-//            LOG.warn("Running jobs - can't stop now.");
-//            return false;
-//        }
+        // if (!canStop() && !force) {
+        // LOG.warn("Running jobs - can't stop now.");
+        // return false;
+        // }
         LOG.info("Stopping NutchServer on port " + port + "...");
         component.stop();
         LOG.info("Stopped NutchServer on port " + port);

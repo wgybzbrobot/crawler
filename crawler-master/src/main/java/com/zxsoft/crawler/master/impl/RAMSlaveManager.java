@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -59,7 +60,7 @@ public class RAMSlaveManager implements SlaveManager {
     @Override
     public List<WorkerConf> getWorkers() {
         List<WorkerConf> list = new ArrayList<WorkerConf>();
-        SortedMap<String,WorkerConf> confs = WorkerScheduler.getWorkers();
+        ConcurrentMap<String,WorkerConf> confs = WorkerScheduler.getWorkers();
         Set<String> keys = confs.keySet();
         for (String key : keys) {
             WorkerConf worker = confs.get(key);

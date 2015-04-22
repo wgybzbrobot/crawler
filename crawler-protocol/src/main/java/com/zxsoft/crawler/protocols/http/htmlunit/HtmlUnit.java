@@ -219,9 +219,9 @@ public class HtmlUnit extends HttpBase {
                 try {
                         host = Utils.getHost(urlStr);
                 } catch (MalformedURLException e1) {
-                        e1.printStackTrace();
                         return null;
                 }
+                if (htmlPage == null) return null;
                 String pageXml = htmlPage.asXml();
                 Document document = Jsoup.parse(pageXml, host);
                 Elements elements = document.select("a:matchesOwn(下一页|下页|加载更多)");

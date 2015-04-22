@@ -1,5 +1,6 @@
 package com.zxsoft.crawler.urlbase;
 
+import java.net.NoRouteToHostException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -18,7 +19,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
-import com.zxsoft.crawler.api.JobCode;
 import com.zxsoft.crawler.common.CrawlerException;
 import com.zxsoft.crawler.common.CrawlerException.ErrorCode;
 import com.zxsoft.crawler.common.JobConf;
@@ -27,7 +27,7 @@ import com.zxsoft.crawler.master.impl.WorkerScheduler;
 import com.zxsoft.crawler.slave.SlavePath;
 
 /**
- * 添加巡检任务到redis中
+ * 添加任务到redis中
  */
 public class JobManager {
 
@@ -48,7 +48,7 @@ public class JobManager {
             throw new CrawlerException(ErrorCode.SYSTEM_ERROR, "Job is exist");
         Jedis jedis = pool.getResource();
         try {
-            double score = 1.0d / (System.currentTimeMillis() / 60000);
+            double score = 1.0d / (System.currentTimeMillis() / 60000.0d);
             jedis.zadd(URLBASE, score, jobConf.toString());
         } finally {
             pool.returnResource(jedis);
@@ -86,8 +86,8 @@ public class JobManager {
                     if (_url.endsWith("/")) {
                         _url = _url.substring(0, _url.lastIndexOf("/"));
                     }
-                    if (url.equals(_url) && jobConf.isRecurrence() == true
-                                    && jobConf.isRecurrence() == jc.isRecurrence()) {
+                    if ((url.equals(_url) && jobConf.isRecurrence() == true
+                                    && jobConf.isRecurrence() == jc.isRecurrence()) || jobConf.getJobId() == jc.getJobId()) {
                         return true;
                     }
                 }
@@ -114,7 +114,7 @@ public class JobManager {
      * @throws ExecutionException
      */
     public void submitToWorker(JobConf jobConf) throws CrawlerException,
-                    InterruptedException, ExecutionException {
+                    InterruptedException, ExecutionException, NoRouteToHostException {
         boolean flag = true;
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         while (flag) {
@@ -132,6 +132,7 @@ public class JobManager {
             String json = gson.toJson(jobConf, JobConf.class);
             ClientResponse response = null;
             try {
+                LOG.info("Distributing Job: " + jobConf.toString());
                 response = webResource.type("application/json").post(
                                 ClientResponse.class, json);
                 // TODO: 处理worker节点RejectedExecutionException 任务满的异常， 应该等待再分配
@@ -156,9 +157,10 @@ public class JobManager {
         throw new CrawlerException(ErrorCode.SYSTEM_ERROR, "No Workers available");
     }
 
+    // TODO: 查询任务
     public Page<JobConf> get(String query, int start, int end) {
         if (StringUtils.isEmpty(query)) {
-
+            
         }
         return null;
     }

@@ -27,7 +27,7 @@ public class JobResource extends ServerResource {
      */
     @Post("json")
     public Object createJob(JobConf jobConf) throws Exception {
-        LOG.info("Create Job: " + jobConf.toString());
+        LOG.debug("Create Job: " + jobConf.toString());
         JobCode code = MasterApp.slaveMgr.create(jobConf);
         return code;
     }

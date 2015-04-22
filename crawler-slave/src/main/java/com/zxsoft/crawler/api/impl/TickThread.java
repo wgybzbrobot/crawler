@@ -35,20 +35,25 @@ public class TickThread extends Thread {
     
     @Override
     public void run() {
-        ClientResource cli = new ClientResource(masterWorkerLoc);
+        LOG.info("Master Location:" + masterWorkerLoc);
         while (SlaveServer.isRunning()) {
             JacksonRepresentation<WorkerConf> jr = null;
             int count = SlaveApp.jobMgr.getRunningCount();
             WorkerConf worker = new WorkerConf(machineId, hostPort, count);
             jr = new JacksonRepresentation<WorkerConf>(worker);
+            ClientResource cli= null;
             try {
+                cli = new ClientResource(masterWorkerLoc);
+                cli.setRetryOnError(false);
                 cli.post(jr);
             } catch (Exception e) {
                 LOG.error("连接主控失败", e);
                 continue;
-            }/* finally {
-                cli.release();
-            }*/
+            } finally {
+                if (cli != null) {
+                    cli.release();
+                }
+            }
             LOG.debug("Connect to master success.");
             try {
                 TimeUnit.MILLISECONDS.sleep(tickTimeMs);

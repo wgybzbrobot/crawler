@@ -99,7 +99,7 @@ public abstract class HttpBase extends PageHelper {
 			e1.printStackTrace();
 		}
 		proxyHost = prop.getProperty("http.proxy.host");
-		proxyPort = Integer.valueOf(prop.getProperty("http.proxy.port"));
+		proxyPort = Integer.valueOf(prop.getProperty("http.proxy.port","28129"));
 		proxyUsername =  prop.getProperty("http.proxy.username");
 		proxyPassword =  prop.getProperty("http.proxy.password");
 //		LOG.info("proxy:" + proxyHost + ":" + proxyPort);

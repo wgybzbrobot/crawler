@@ -12,7 +12,7 @@
 		<main.basedir>${project.basedir}</main.basedir>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.7</java.version>
-		<restlet.version>2.0.14</restlet.version>
+		<restlet.version>2.3.1</restlet.version>
 		<jedis.version>2.6.0</jedis.version>
 		<spring.version>3.2.10.RELEASE</spring.version>
 	</properties>
@@ -117,12 +117,12 @@
 						<encoding>UTF-8</encoding>
 					</configuration>
 				</plugin>
-<!-- 				<plugin>
+			<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-antrun-plugin</artifactId>
 					<version>1.7</version>
 				</plugin>
-				<plugin>
+	<!--   			<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
 					<version>3.3</version>

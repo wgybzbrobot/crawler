@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.NetUtils;
 import com.zxsoft.crawler.dao.BaseDao;
-import com.zxsoft.crawler.dao.ConfDao;
 import com.zxsoft.crawler.storage.DetailConf;
 import com.zxsoft.crawler.storage.ListConf;
 

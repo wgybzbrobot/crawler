@@ -41,9 +41,9 @@ public class OracleDao extends BaseDao {
                 oracleJdbcTemplate = new JdbcTemplate(dataSource);
         }
 
-        public JdbcTemplate getOracleJdbcTemplate() {
-                return oracleJdbcTemplate;
-        }
+//        public JdbcTemplate getOracleJdbcTemplate() {
+//                return oracleJdbcTemplate;
+//        }
 
         /**
          * 读取视图`SELECT_TASK_EXECUTE_LIST`（读取一次），全部读取

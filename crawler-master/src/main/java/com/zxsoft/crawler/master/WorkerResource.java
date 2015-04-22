@@ -32,7 +32,7 @@ public class WorkerResource extends ServerResource {
      * @throws Exception
      */
     @Get("json")
-    public Object workers() throws Exception {
+    public List<WorkerConf> workers() throws Exception {
         List<WorkerConf> workers = MasterApp.slaveMgr.getWorkers();
         return workers;
     }

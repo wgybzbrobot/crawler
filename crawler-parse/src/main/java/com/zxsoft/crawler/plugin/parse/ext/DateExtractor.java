@@ -1,8 +1,11 @@
 package com.zxsoft.crawler.plugin.parse.ext;
 
 import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.zxisl.commons.utils.StringUtils;
 import com.zxisl.nldp.Nldp;
 
 public class DateExtractor {
@@ -10,6 +13,9 @@ public class DateExtractor {
         private static Logger LOG = LoggerFactory.getLogger(DateExtractor.class);
         
         public static Date extract(String text)  {
+            if (StringUtils.isEmpty(text ) )
+                return new Date();
+            
                 text = text.replaceAll("\u00A0", " ");
                 text = text.replaceAll("&nbsp;", " ");
                 Date date = null;
@@ -28,6 +34,6 @@ public class DateExtractor {
                 if (date != null) {
                         return date.getTime() ;
                 }
-                return 0L;
+                return System.currentTimeMillis();
         }
 }

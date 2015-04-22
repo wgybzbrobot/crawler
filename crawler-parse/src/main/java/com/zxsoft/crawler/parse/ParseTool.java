@@ -5,7 +5,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zxsoft.crawler.dao.ConfDao;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.ProtocolStatus;
 import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
@@ -23,8 +22,6 @@ public abstract class ParseTool {
         
         protected static Output indexWriter = new RestOutput();
         
-        protected ConfDao confDao = new ConfDao();
-
         protected ProtocolOutput fetch(WebPage page) {
                 return httpFetcher.fetch(page);
         }
@@ -78,8 +75,9 @@ public abstract class ParseTool {
 
         protected boolean isSamePage(Elements lines, Elements oldlines) {
             
-            if (lines == null && oldlines == null)
-                return true;
+            if (lines == null || oldlines == null)
+                return false;
+            
             if (lines.text().trim().equals(oldlines.text().trim()))
                 return true;
             return false;

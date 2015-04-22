@@ -23,8 +23,6 @@
 			<directory>src/main/resources</directory>
 			<outputDirectory>/conf</outputDirectory>
 			<includes>
-				<include>redis.properties</include>
-				<include>slaves.ini</include>
 				<include>oracle.properties</include>
 				<include>mysql.properties</include>
 				<include>log4j.xml</include>
@@ -35,6 +33,7 @@
 			<outputDirectory>/bin</outputDirectory>
 			<includes>
 				<include>master.sh</include>
+				<include>setenv.sh</include>
 			</includes>
 			<fileMode>0755</fileMode>
 		</fileSet>

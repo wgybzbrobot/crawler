@@ -1,7 +1,5 @@
 package com.zxsoft.crawler.slave.utils;
 
-import java.util.List;
-
 import oracle.jdbc.driver.OracleDriver;
 
 import org.slf4j.Logger;
@@ -9,8 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
-import com.zxisl.commons.utils.CollectionUtils;
-import com.zxisl.commons.utils.IPUtil;
 import com.zxsoft.crawler.api.SlaveServer;
 
 /**

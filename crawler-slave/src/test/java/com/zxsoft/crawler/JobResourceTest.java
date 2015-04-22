@@ -1,19 +1,19 @@
 package com.zxsoft.crawler;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
-import org.restlet.resource.ResourceException;
 
 import com.zxsoft.crawler.api.JobType;
-import com.zxsoft.crawler.api.Params;
 import com.zxsoft.crawler.api.SlaveServer;
+import com.zxsoft.crawler.common.DetailRule;
+import com.zxsoft.crawler.common.JobConf;
+import com.zxsoft.crawler.common.ListRule;
 
 public class JobResourceTest {
 
@@ -35,12 +35,12 @@ public class JobResourceTest {
                 } catch (Exception e) {
                 };
                 server.stop(false);
-                if (!server.isRunning()) {
+                if (!SlaveServer.isRunning()) {
                     break;
                 }
             }
         }
-        if (server.isRunning()) {
+        if (SlaveServer.isRunning()) {
             System.err.println("Forcibly stopping server...");
             server.stop(true);
         }
@@ -48,81 +48,58 @@ public class JobResourceTest {
     
 	@Test
 	public void testCreateNetworkInspectJob() throws IOException {
-		ClientResource client = new ClientResource(baseUrl);
-
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put(Params.CRAWL_ID, "test");
-		map.put(Params.JOB_TYPE, JobType.NETWORK_INSPECT.toString());
-
-		Map<String, Object> args = new HashMap<String, Object>();
-		args.put(Params.Interval, 100 * 200 * 60 * 1000);
-
-		args.put(Params.URL, "http://tieba.baidu.com/f?ie=utf-8&kw=%E8%9A%8C%E5%9F%A0");
-		map.put(Params.ARGS, args);
-		client.put(map);
-	}
-
-	@Test
-	public void testInspectNews() {
-		ClientResource client = new ClientResource(baseUrl);
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put(Params.CRAWL_ID, "test");
-		map.put(Params.JOB_TYPE, JobType.NETWORK_INSPECT.toString());
-		Map<String, Object> args = new HashMap<String, Object>();
-		args.put(Params.URL, "http://roll.news.sina.com.cn/s/channel.php");
-		args.put(Params.Interval, 20 * 60 * 1000);
-		map.put(Params.ARGS, args);
-		client.put(map);
+		
+        int source_id = 4;
+        String source_name = "合肥论坛";
+        String url = "http://bbs.hefei.cc/forum-196-1.html";
+        String type = "合肥专区";
+        int sectionId = 807;
+        ListRule listRule = new ListRule(false, "forum", "div#threadlist ", "tbody[id^=normalthread]", "a.xst", "td.by em span", "td.by em a", "", "");
+        DetailRule detailRule = new DetailRule("bbs.hefei.cc", "div#ct  p.hm  span:eq(1)  em:eq(1)", 
+                        "div#ct  p.hm  span:eq(1)  em:eq(0)", "", "", true, false, "div#postlist div[id^=post_]", 
+                        "div.pi div.authi  a.xw1", "", "div.pcb table td", "div#postlist > div[id^=post_]:gt(0)", 
+                        "div.pi div.authi  a.xw1", "div.authi  em[id^=authorpost]", "div.pcb > div.t_fsz  table  td", "", "", "", "");
+        Set<DetailRule> detailRules = new HashSet<DetailRule>();
+        detailRules.add(detailRule);
+        
+        JobConf job = new JobConf(JobType.NETWORK_INSPECT, url, source_name, source_id, sectionId, type, listRule, detailRules);
+        job.setPrevFetchTime( System.currentTimeMillis() - 24 * 60 * 60 * 1000L);
+        job.setLocation( "江苏省南京市 电信");
+        job.setIp("221.231.141.168");
+        job.setLocationCode(320000);
+        job.setWorkerId(321);
+        job.setCountry_code(1);
+        job.setProvince_code(340000);
+        job.setCity_code(340100);
+        
+        ClientResource client = new ClientResource(baseUrl);
+		client.post(job);
 	}
 
 	@Test
 	public void testCreateNetworkSearchJob() throws IOException {
-		ClientResource client = new ClientResource(baseUrl);
-
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put(Params.CRAWL_ID, "百度搜索吸毒");
-		map.put(Params.JOB_TYPE, JobType.NETWORK_SEARCH.toString());
-
-		Map<String, Object> args = new HashMap<String, Object>();
-		args.put(Params.KEYWORD, "吸毒");
-		// args.put(Params.ENGINE_URL, "sougou");
-		args.put(Params.ENGINE_URL, "http://www.baidu.com/s?wd=%s");
-		args.put(Params.Interval, 0L);
-
-		map.put(Params.ARGS, args);
-		Representation r = client.put(map);
-		System.out.println(r.getText());
-	}
-
-	@Test
-	public void testGetJob() throws IOException {
-		String param = "?crawl=&job=&cmd=" + Params.JOB_CMD_GET;
-		ClientResource client = new ClientResource(baseUrl + param);
-		Representation representation = client.get();
-		System.out.println(representation.getText());
-	}
-
-	@Test
-	public void testInfoAPI() throws ResourceException, IOException {
-		ClientResource client = new ClientResource(baseUrl);
-		System.out.println(client.get().getText());
-	}
-
-	@Test
-	public void testCreateWeiboSearchJob() throws IOException {
-		ClientResource client = new ClientResource(baseUrl);
-
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put(Params.CRAWL_ID, "test");
-		map.put(Params.JOB_TYPE, JobType.NETWORK_SEARCH.toString());
-
-		Map<String, Object> args = new HashMap<String, Object>();
-		args.put(Params.KEYWORD, "吸毒");
-		args.put(Params.ENGINE_URL, "baidu");
-		args.put(Params.Interval, 0L);
-
-		map.put(Params.ARGS, args);
-		Representation representation = client.put(map);
-		System.out.println(representation.getText());
+		
+        int source_id = 10;
+        String source_name = "百度搜索";
+        String url = "http://www.baidu.com/s?wd=%s";
+        String type = "百度搜索吸毒";
+        int sectionId = 51;
+        ListRule listRule = new ListRule(false, "search", "div#content_left ", "div.c-container", "h3.t > a", "div.f13 span", "", "div.c-abstract", "");
+        Set<DetailRule> detailRules = null;
+        
+        JobConf job = new JobConf(JobType.NETWORK_SEARCH, url, source_name, source_id, sectionId, type, listRule, detailRules);
+        job.setKeyword("吸毒");
+        job.setPrevFetchTime( System.currentTimeMillis() - 24 * 60 * 60 * 1000L);
+        job.setLocation( "江苏省南京市 电信");
+        job.setIp("221.231.141.168");
+        job.setLocationCode(320000);
+        job.setWorkerId(321);
+        job.setCountry_code(1);
+        job.setProvince_code(340000);
+        job.setCity_code(340100);
+        
+        ClientResource client = new ClientResource(baseUrl);
+        client.post(job);
+        
 	}
 }
