@@ -46,7 +46,7 @@ public class TieBaParser extends Parser {
         private List<RecordInfo> recordInfos = new LinkedList<RecordInfo>();
 
         public TieBaParser(RecordInfo recordInfo, DetailRule detailRule,
-                        long prevFetchTime, ExtInfo extInfo) {
+                        Long prevFetchTime, ExtInfo extInfo) {
             super(recordInfo, detailRule, prevFetchTime, extInfo);
         }
 

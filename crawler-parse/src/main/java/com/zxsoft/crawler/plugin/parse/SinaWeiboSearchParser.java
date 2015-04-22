@@ -13,7 +13,7 @@ import com.zxsoft.crawler.storage.WebPage;
 public class SinaWeiboSearchParser extends Parser {
 
 	public SinaWeiboSearchParser(RecordInfo recordInfo, DetailRule detailRule,
-                    long prevFetchTime, ExtInfo extInfo) {
+                    Long prevFetchTime, ExtInfo extInfo) {
         super(recordInfo, detailRule, prevFetchTime, extInfo);
     }
 

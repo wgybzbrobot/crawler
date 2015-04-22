@@ -33,7 +33,7 @@ public class NewsParser extends Parser {
     private static Logger LOG = LoggerFactory.getLogger(NewsParser.class);
 
     public NewsParser(RecordInfo recordInfo, DetailRule detailRule,
-                    long prevFetchTime, ExtInfo extInfo) {
+                    Long prevFetchTime, ExtInfo extInfo) {
         super(recordInfo, detailRule, prevFetchTime, extInfo);
     }
 

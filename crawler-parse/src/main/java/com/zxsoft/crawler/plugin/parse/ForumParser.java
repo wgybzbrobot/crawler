@@ -120,10 +120,8 @@ public class ForumParser extends Parser {
                 if (!StringUtils.isEmpty(dateDom)
                                 && !CollectionUtils.isEmpty(masterEle.select(dateDom))) {
                     String dateField = masterEle.select(dateDom).first().html();
-                    if (!StringUtils.isEmpty(dateField)) {
                         info.setTimestamp(DateExtractor.extractInMilliSecs(dateField));
-                    }
-                }
+                } 
             } else {
                 info.setTimestamp(extInfo.getTimestamp());
             }
@@ -274,7 +272,7 @@ public class ForumParser extends Parser {
         } else {
             // LOG.error("");
             throw new CrawlerException(ErrorCode.CONF_ERROR,
-                            "Cannot get reply content using rule:"
+                            "Cannot get reply content from " + reply.getUrl() + " using rule:"
                                             + detailRule.getReplyContent() + ", Html: "
                                             + element.html());
             // return null;
