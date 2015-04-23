@@ -115,7 +115,8 @@ public final class NetworkInspectParserController extends ParseTool {
                  * 如果详细页没有这些字段，则在列表页获取
                  */
                 ExtInfo extInfo = new ExtInfo();
-
+                extInfo.setIdentify_md5(jobConf.getIdentify_md5());
+                
                 Date update = null;
                 if (!StringUtils.isEmpty(updateDom)
                                 && !CollectionUtils.isEmpty(line.select(updateDom))) {

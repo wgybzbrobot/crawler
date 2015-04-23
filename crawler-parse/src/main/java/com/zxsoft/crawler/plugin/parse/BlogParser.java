@@ -119,7 +119,7 @@ public class BlogParser extends Parser {
                 } else {
                         info.setTimestamp(extInfo.getTimestamp());
                 }
-                String original_id = Md5Signatrue.generateMd5(info.getNickname(), info.getContent(), info.getPic_url(), info.getVoice_url(),
+                String original_id = Md5Signatrue.generateMd5(extInfo.getIdentify_md5(),info.getNickname(), info.getContent(), info.getPic_url(), info.getVoice_url(),
                                 info.getVideo_url());
                 info.setId(original_id);
                 info.setOriginal_id(original_id);
@@ -252,7 +252,7 @@ public class BlogParser extends Parser {
                         reply.setTimestamp(DateExtractor.extractInMilliSecs(dateField));
                 }
                 reply.setOriginal_id(parentId);
-                String id = Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(), reply.getPic_url(), reply.getVoice_url(),
+                String id = Md5Signatrue.generateMd5(extInfo.getIdentify_md5(),reply.getNickname(), reply.getContent(), reply.getPic_url(), reply.getVoice_url(),
                         reply.getVideo_url());
                 reply.setId(id);
                 if (reply.getTimestamp() == 0L)
@@ -290,7 +290,7 @@ public class BlogParser extends Parser {
                         String dateField = element.select(subReplyDate).first().text();
                         reply.setTimestamp(DateExtractor.extractInMilliSecs(dateField));
                 }
-                String id = Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(), reply.getPic_url(), reply.getVoice_url(),
+                String id = Md5Signatrue.generateMd5(extInfo.getIdentify_md5(),reply.getNickname(), reply.getContent(), reply.getPic_url(), reply.getVoice_url(),
                         reply.getVideo_url());
                 reply.setId(id);
                 if (reply.getTimestamp() == 0L)

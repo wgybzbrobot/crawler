@@ -12,6 +12,8 @@ public class ExtInfo {
     private String author;
     
     private String homeUrl;
+    
+    private String identify_md5;
 
     public long getTimestamp() {
         return timestamp;
@@ -31,6 +33,14 @@ public class ExtInfo {
 
     public String getAuthor() {
         return author;
+    }
+
+    public String getIdentify_md5() {
+        return identify_md5;
+    }
+
+    public void setIdentify_md5(String identify_md5) {
+        this.identify_md5 = identify_md5;
     }
 
     public void setAuthor(String author) {

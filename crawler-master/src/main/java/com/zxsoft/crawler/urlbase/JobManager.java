@@ -88,6 +88,15 @@ public class JobManager {
                     }
                     if ((url.equals(_url) && jobConf.isRecurrence() == true
                                     && jobConf.isRecurrence() == jc.isRecurrence()) || jobConf.getJobId() == jc.getJobId()) {
+                        
+                        // identify_md5都不存在，则规定为任务一致
+                        if (StringUtils.isEmpty(jobConf.getIdentify_md5()) && StringUtils.isEmpty(jc.getIdentify_md5()))  {
+                            return true;
+                        } else if (jobConf.getIdentify_md5().trim().equals(jc.getIdentify_md5().trim())) {
+                            // identify_md5有一个不存在，或者不一样，则规定任务不一致
+                            return false;
+                        }
+                        
                         return true;
                     }
                 }

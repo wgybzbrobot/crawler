@@ -120,7 +120,7 @@ public class NewsParser extends Parser {
         if (info.getTimestamp() == 0L)
             info.setTimestamp(info.getLasttime());
         
-        info.setId(Md5Signatrue.generateMd5(info.getUrl()));
+        info.setId(Md5Signatrue.generateMd5(extInfo.getIdentify_md5(),info.getUrl()));
         LOG.info(info.toString());
         recordInfos.add(info);
 

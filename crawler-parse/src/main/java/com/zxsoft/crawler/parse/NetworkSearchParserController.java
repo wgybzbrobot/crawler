@@ -144,7 +144,7 @@ public final class NetworkSearchParserController extends ParseTool {
                 RecordInfo info = recordInfo.clone();
                 info.setTitle(title);
                 info.setUrl(curl);
-                info.setId(Md5Signatrue.generateMd5(curl));
+                info.setId(Md5Signatrue.generateMd5(jobConf.getIdentify_md5(),curl));
                 info.setContent(synopsis);
                 info.setTimestamp(date);
                 if (info.getTimestamp() == 0L)
