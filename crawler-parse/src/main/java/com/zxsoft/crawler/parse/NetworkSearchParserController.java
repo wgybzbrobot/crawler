@@ -147,6 +147,8 @@ public final class NetworkSearchParserController extends ParseTool {
                 info.setId(Md5Signatrue.generateMd5(curl));
                 info.setContent(synopsis);
                 info.setTimestamp(date);
+                if (info.getTimestamp() == 0L)
+                    info.setTimestamp(info.getLasttime());
                 infos.add(info);
             }
 

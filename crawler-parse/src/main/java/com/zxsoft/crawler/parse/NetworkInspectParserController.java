@@ -130,8 +130,10 @@ public final class NetworkInspectParserController extends ParseTool {
                     // }
                     // count++;
                     // }
-                    extInfo.setUpdate(update.getTime());
-                    hasUpdate = true;
+                    if (update != null) {
+                        extInfo.setUpdate(update.getTime());
+                        hasUpdate = true;
+                    }
                 }
 
                 if (!StringUtils.isEmpty(rule.getDatedom())
@@ -188,7 +190,7 @@ public final class NetworkInspectParserController extends ParseTool {
                     FetchStatus _status = parser.parse();
                     sum += _status.getCount();
                 } catch (Exception e) {
-                    LOG.error(msg, e);
+                    LOG.error(listUrl + "," + msg, e);
                 }
                 if (!continuePage) {
                     break;

@@ -131,6 +131,8 @@ public class ForumParser extends Parser {
                             info.getVideo_url());
             info.setOriginal_id(original_id);
             info.setId(original_id);
+            if (info.getTimestamp() == 0L)
+                info.setTimestamp(info.getLasttime());
             recordInfo.setOriginal_id(original_id);
             recordInfos.add(info);
         } else {
@@ -287,6 +289,8 @@ public class ForumParser extends Parser {
         String id = Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(),
                         reply.getPic_url(), reply.getVoice_url(), reply.getVideo_url());
         reply.setId(id);
+        if (reply.getTimestamp() == 0L)
+            reply.setTimestamp(reply.getLasttime());
         recordInfos.add(reply);
         return id;
     }
@@ -326,6 +330,8 @@ public class ForumParser extends Parser {
         String id = Md5Signatrue.generateMd5(reply.getNickname(), reply.getContent(),
                         reply.getPic_url(), reply.getVoice_url(), reply.getVideo_url());
         reply.setId(id);
+        if (reply.getTimestamp() == 0L)
+            reply.setTimestamp(reply.getLasttime());
         recordInfos.add(reply);
         return id;
     }
