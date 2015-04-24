@@ -15,25 +15,32 @@ public interface JobService {
 	 * 添加任务
 	 * @throws CrawlerException 
 	 */
-	Map<String, Object> addJob( JobConf jobConf) throws CrawlerException;
+	Map<String, Object> addJob(Integer reptileId, JobConf jobConf) throws CrawlerException;
+	
+	/**
+	 * 更新任务
+	 * @param job
+	 */
+	void addOrUpdate(Integer reptileId, JobConf job) ;
 	
 	/**
 	 * 查询任务
+	 * @param reptileId 
 	 */
-	Page<JobConf> getJobs(String query , int start, int end);
+	Page<JobConf> getJobs(Integer reptileId, String query , int start, int end);
 
 	/**
 	 * Get job detail information by job id
 	 */
-	JobConf getJob(int jobId);
+	JobConf getJob(Integer reptileId, long jobId);
 
 	/**
 	 * 更新任务
 	 * @param job
 	 */
-	void updateJob (JobConf job);
+	void updateJob (Integer reptileId, JobConf job);
 	
-	void deleteJob(final long jobId);
+	void deleteJob(Integer reptileId, final long jobId);
 	
 	JobConf querySourceId(int tid) throws CrawlerException;
 }

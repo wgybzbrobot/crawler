@@ -26,9 +26,11 @@ import com.zxsoft.crawler.common.JobConf;
 import com.zxsoft.crawler.common.ListRule;
 import com.zxsoft.crawler.entity.ConfDetail;
 import com.zxsoft.crawler.entity.ConfList;
+import com.zxsoft.crawler.entity.Reptile;
 import com.zxsoft.crawler.entity.Section;
 import com.zxsoft.crawler.entity.Website;
 import com.zxsoft.crawler.web.service.crawler.JobService;
+import com.zxsoft.crawler.web.service.crawler.ReptileService;
 import com.zxsoft.crawler.web.service.website.ConfigService;
 import com.zxsoft.crawler.web.service.website.DictService;
 import com.zxsoft.crawler.web.service.website.SectionService;
@@ -51,7 +53,9 @@ public class JobController {
     private DictService dictService;
     @Autowired
     private ConfigService configService;
-
+    @Autowired
+    private ReptileService reptileService;
+    
     /**
      * 查询任务
      * 
@@ -61,17 +65,22 @@ public class JobController {
      * @param model
      * @return
      */
-    @RequestMapping(value = "search", method = RequestMethod.GET)
+    @RequestMapping(value = "search/{reptileId}", method = RequestMethod.GET)
     public String jobs(
+                    @PathVariable(value = "reptileId") Integer reptileId,
                     @RequestParam(value = "query", required = false) String query,
                     @RequestParam(value = "start", required = false, defaultValue = "1") Integer start,
                     @RequestParam(value = "end", required = false, defaultValue = "10") Integer end,
                     Model model) {
+        model.addAttribute("reptileId", reptileId);
         model.addAttribute("query", query);
         model.addAttribute("start", start);
         model.addAttribute("end", end);
 
-        Page<JobConf> page = jobService.getJobs(query, start, end);
+        Reptile reptile = reptileService.getReptile(reptileId);
+        model.addAttribute("reptile", reptile);
+        
+        Page<JobConf> page = jobService.getJobs(reptileId, query, start, end);
         model.addAttribute("page", page);
         return "/crawler/job";
     }
@@ -82,11 +91,12 @@ public class JobController {
      * @param jobId
      * @return
      */
-    @RequestMapping(value = "delete/{jobId}", method = RequestMethod.GET)
-    public String deleteJob(@PathVariable(value = "jobId") Long jobId) {
+    @RequestMapping(value = "delete/{reptileId}/{jobId}", method = RequestMethod.GET)
+    public String deleteJob(@PathVariable(value = "reptileId") Integer reptileId,
+                    @PathVariable(value = "jobId") Long jobId) {
 
-        jobService.deleteJob(jobId);
-        return "redirect:/job/search";
+        jobService.deleteJob(reptileId, jobId);
+        return "redirect:/job/search/" + reptileId;
     }
 
     /**
@@ -96,9 +106,10 @@ public class JobController {
      * @param start
      * @return
      */
-    @RequestMapping(value = "ajax/control/{jobId}", method = RequestMethod.GET)
-    public String haltOrStartJob(@PathVariable(value = "jobId") Long jobId) {
-//        jobService
+    @RequestMapping(value = "ajax/control/{reptileId}/{jobId}", method = RequestMethod.GET)
+    public String haltOrStartJob(@PathVariable(value = "reptileId") Integer reptileId,
+                    @PathVariable(value = "jobId") Long jobId) {
+        // TODO: 暂停任务
         return "";
     }
 
@@ -112,8 +123,9 @@ public class JobController {
      * @throws IllegalArgumentException
      */
     @ResponseBody
-    @RequestMapping(value = "ajax/addInspectJob", method = RequestMethod.GET)
+    @RequestMapping(value = "ajax/addInspectJob/{reptileId}", method = RequestMethod.GET)
     public Map<String, Object> addInspectJob(
+                    @PathVariable(value = "reptileId") Integer reptileId,
                     @RequestParam(value = "ids", required = false) Set<Integer> ids)
                     throws IllegalArgumentException, IllegalAccessException {
 
@@ -169,9 +181,9 @@ public class JobController {
                 jc.setProvince_code(province_code);
                 jc.setCity_code(city_code);
                 jc.setFetchinterval(confList.getFetchinterval());
-                jc.setIdentify_md5("xiayun3");
+                jc.setIdentify_md5("xiayun");
                 jobConf.merge(jc);
-                jobService.addJob(jobConf);
+                jobService.addJob(reptileId, jobConf);
             } catch (CrawlerException e) {
 
             } catch (NullPointerException e) {
@@ -180,7 +192,24 @@ public class JobController {
                 e.printStackTrace();
             }
         }
+
+        // TODO 页面没有完成
+
         return null;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "ajax/edit/{reptileId}/{jobId}", method = RequestMethod.GET)
+    public JobConf edit(@PathVariable(value = "reptileId") Integer reptileId,
+                    @PathVariable(value = "jobId") Long jobId) {
+        JobConf job = jobService.getJob(reptileId, jobId);
+        return job;
+    }
+
+    @RequestMapping(value = "addJob/{reptileId}", method = RequestMethod.POST)
+    public String addJob(@PathVariable(value = "reptileId") Integer reptileId, JobConf job)
+                    throws CrawlerException {
+        // TODO 添加任务，处理页面
+        return "redirect:/job/search";
+    }
 }

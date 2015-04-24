@@ -5,10 +5,10 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>爬虫监控</title>
+<title>爬虫监控-${reptile.name}</title>
 </head>
 <body>
-	<div id="body">
+	<div id="body">爬虫区域：${reptile.name}
 		<div style="text-align: center;">
 			<div id="content">
 				<c:if test="${empty workers }">

@@ -25,18 +25,34 @@
 <link href="<c:url value="/resources/css/main.css" />" rel="stylesheet" type="text/css" />
 <link href="<c:url value="/resources/css/form.css" />" rel="stylesheet" type="text/css" />
 <link href="<c:url value="/resources/css/index.css" />" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="<c:url value="/resources/superfish/js/superfish.js" />"></script>
+<script type="text/javascript" src="<c:url value="/resources/superfish/js/hoverIntent.js" />"></script>
+<link href="<c:url value="/resources/superfish/css/superfish.css" />" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
-	$(function() {
-		$('#menu li').hover(
-	      function () { //appearing on hover
-	        $('ul', this).fadeIn();
-	      },
-	      function () { //disappearing on hover
-	        $('ul', this).fadeOut();
-	      }
-	    );
+$(function() {
+	$('ul.sf-menu').superfish();
+	 
+	$.get($('#moni').attr('href') + '/reptile/list', function(data) {
+		
+		   $.each(data,function(i, val) {
+				var html = "<li style='height:35px;'>"
+					+ val.name
+					+ "<ul><li><a href='"
+					+ $('#moni').attr('href')
+					+ "worker/"
+					+ val.id
+					+ "'>爬虫信息</a></li><li><a href='"
+					+ $('#moni').attr('href') + "job/search/" + val.id + "'>任务队列</a><li></ul></li>";
+			$('#monitor').append(html);
+		});
+		   if (data == null)
+			   alert('he');
 	});
+});
 </script>
+<style type="text/css">
+.tree_1, .tree_2{display: none;margin: 0 0 0 10px;overflow: hidden;}
+</style>
 <decorator:head />
 </head>
 <body>
@@ -60,23 +76,17 @@
 			</div>
 		</div>
 		<div id="navigation">
-			<ul id="menu">
+			<ul  class="sf-menu">
 				<li><a href="javascript:void(0);">网站管理</a>
 					<ul>
 						<li><a id="website" href="<c:url value='/website' />">网站配置</a></li>
 						<li><a id="website" href="<c:url value='/section/search' />">版块搜索</a></li>
 					</ul>
 				</li>
-				<li>&nbsp;&nbsp;&nbsp;</li>
-				<li><a href="javascript:void(0);">爬虫监控</a>
-					<ul>
-						<li><a href="<c:url value='/worker' />">爬虫信息</a></li>
-						<li><a href="<c:url value='/job/search' />">任务队列</a></li>
-					</ul>
+				<li><a id="moni" href="<c:url value='/' />" onclick="return false;">爬虫监控</a>
+				    <ul id="monitor"></ul>
 				</li>
-				<li>&nbsp;&nbsp;&nbsp;</li>
-				<li><a id="proxy" href="<c:url value='/proxy' />">代理配置</a></li>
-				<li>&nbsp;&nbsp;&nbsp;</li>
+				<li><a href="<c:url value='/reptile' />">区域爬虫信息管理</a></li>
 				<li><a id="help" href="help">帮助</a></li>
 			</ul>
 		</div>

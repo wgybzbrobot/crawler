@@ -4,20 +4,8 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>爬虫监控</title>
+<title>爬虫监控-${reptile.name}</title>
 <script type="text/javascript">
-function addInspectJob() {
-	$("#submitInspectJob").val('添加');
-	$('div.form-wrapper-center form').form('clear');
-	$('#addInspectJobDialog').show();
-	$('div.message').text('');
-}
-function addSearchJob() {
-	$("#submitSearchJob").val('添加');
-	$('div.form-wrapper-center form').form('clear');
-	$('#addSearchJobDialog').show();
-	$('div.message').text('');
-}
 $(function() {
 	$('a.form-wrapper-close').click(function() {
 		$('div.form-wrapper').hide();
@@ -144,72 +132,66 @@ $(function() {
    			}
    		});
 	});
+$(".edit").click(function () {
+    console.log('hello');
+    $('#jobForm').form('load', $(this).attr("href"));
+    $('#jobInfo').show();
+    return false;
+});
+
 });
 </script>
 </head>
 <body>
-<%-- 	<div class="right-panel" >
-		<div><input id="sectionFilter" name="url" type="text" title="输入版块名称或网址搜索" /></div>
-		<div id="ruleConfigedJobList" style="height:92%; overflow-y:scroll;" url="<c:url value='/slaves/ajax/jobExist' />">
-			<ol>
-			<c:forEach items="${confLists}" var="confList" varStatus="status">
-				<li style="line-height: 22px;">
-					<a href="${confList.url}"  target="_blank" title="点击添加网络巡检任务">${confList.comment }</a>
-				</li>
-			</c:forEach>
-			</ol>
-		</div>
-	</div> --%>
+    <!-- job detail data -->
+    <div id="jobInfo" class="form-wrapper"
+        style="display: none; height: 686px; width: 645px;">
+        <a class="form-wrapper-close" href="javascript:;"></a>
+        <div class="form-wrapper-title">编辑任务信息</div>
+        <div class="form-wrapper-center">
+            <form id="jobForm" method="post" action="<c:url value='/job/addJob/${reptileId}' />">
+                <input type="hidden" name="jobId" >
+                <div>
+                    url<input  type="text" name="url" />
+                    来源<input  type="text" name="source_name" />
+                </div>
+                <div>
+                版块名称<input  type="text" name="type" />
+                时间间隔<input  type="text" name="fetchinterval" />
+                </div>
+                <div>
+                    循环<input  type="text" name="recurrence" />
+                    网页编码<input type="text" name="encode" />
+                </div>
+                <div>
+                    列表页规则:
+                    是否ajax加载<input type="radio" name="listRule.ajax" /><br />
+                    listdom<input type="text" name="listRule.listdom" /><br />
+                    linedom<input type="text" name="listRule.linedom" /><br />
+                    urldom<input type="text" name="listRule.urldom" /><br />
+                </div>
+                <div>
+                    详细页规则:
+                    
+                </div>
+                <div>
+                    <input style="width: 160px;" class="form-btn" type="submit" value="保存" />
+                </div>
+            </form>
+        </div>
+    </div>
 	<div id="body">
+	爬虫区域：${reptile.name}
 	<c:choose>
 		<c:when test="${code ge 5000 }">
 			<div>${msg}</div>
 		</c:when>
 		<c:otherwise>
-		<div style="margin: 5px 0 15px 0;">
-			<a href="#" class="linkbutton" id="addInspectJobBtn" onclick="return addInspectJob();">添加网络巡检任务</a> 
-			<!-- <a href="#" class="linkbutton" id="addSearchJobBtn" onclick="return addSearchJob();">添加全网搜索任务</a> -->
-		</div>
-		<div id="addInspectJobDialog" class="form-wrapper" style="display: none; width: 410px; height: 250px;">
-			<a class="form-wrapper-close" href="javascript:void(0);"></a>
-			<div class="form-wrapper-title">添加网络巡检任务</div>
-			<div class="form-wrapper-center">
-				<form id="addInspectJobForm" action="<c:url value='/job/ajax/addInspectJob' />" method="post" style="width: 90%; margin: 0 auto;" data-options="novalidate:true">
-					<div>
-						<label class="form-label" for="url">版块地址:</label>
-						<input type="text" name="url" id="fetchurl" class="easyui-validatebox form-input" style="width: 260px;" data-options="required:true" />
-					</div>
-					<div class="message"></div>
-					<div><input class="form-btn" type="button"  id="submitInspectJob" value="添加" /></div>
-				</form>
-			</div>
-		</div>
-
-<%-- 		<div id="addSearchJobDialog" class="form-wrapper" style="display: none; width: 410px; height: 300px;">
-			<a class="form-wrapper-close" href="javascript:void(0);"></a>
-			<div class="form-wrapper-title">添加全网搜索任务</div>
-			<div class="form-wrapper-center">
-				<form id="addSearchJobForm" action="<c:url value='/slaves/ajax/addSearchtJob' />" method="post" style="width: 90%; margin: 0 auto;">
-					<div>
-						<label class="form-label" for="keyword">关键词:</label>
-						<input type="text" name="keyword" />
-					</div>
-					<div>
-						<label class="form-label" for="url">搜索引擎:</label>
-						<c:forEach items="${engines }" var="engine">
-							<span style="margin-right: 2px;"><input name="engineId" value="${engine.url}" type="checkbox" />${engine.comment}</span>
-						</c:forEach>
-					</div>
-					<div class="message"></div>
-					<div><input class="form-btn" type="button"  id="submitSearchJob" value="添加" /></div>
-				</form>
-			</div>
-		</div> --%>
 		<div style="text-align: center;">
 			<div id="content">
 				<div>当前系统时间:${currentTime },Redis任务队列总共有${page.count}个任务</div>
 				<div>
-					<form id="jobFilterForm" action="<c:url value='/job/search' />" method="get">
+					<form id="jobFilterForm" action="<c:url value='/job/search/${reptileId}' />" method="get">
 					   查询任务:<input id="jobText" name="query" type="text" value="${query }" title="输入任务名称或网址后回车搜索" />
 					   显示第<input  name="start" value="${start }" type="text"  style="width: 30px;" />条至第<input name="end"  value="${end }" type="text" style="width: 30px;"/>条
 					</form>
@@ -266,17 +248,16 @@ $(function() {
 							</td>
 							<td>
 								<span>
-									<a class="delJob"  href="<c:url value='/job/delete/${jobConf.jobId }' />"  >删除</a>
+									<a class="delJob"  href="<c:url value='/job/delete/${reptileId}/${jobConf.jobId }' />"  >删除</a>
 								</span> 
 								<span>
-								    <a href="javascript:void(0);">详细</a>
+								    <a class="edit" href="<c:url value='/job/ajax/edit/${reptileId}/${jobConf.jobId }' />" onclick="return false;">详细</a>
 								</span>
-
 											<div class="form-wrapper">
 												<a class="form-wrapper-close" href="javascript:void(0);"></a>
 												<div class="form-wrapper-title">添加网络巡检任务</div>
 												<div class="form-wrapper-center">
-													<form action="<c:url value='/job/update'/>" method="post">
+													<form action="<c:url value='/job/update/${reptileId}'/>" method="post">
 														<input type="hidden" value="${jobConf.jobId }" /> 
 														网站名:<input type="text" value="${jobConf.source_name }" />
 													</form>
@@ -284,10 +265,10 @@ $(function() {
 											</div>
 								 <span> <c:choose>
 										<c:when test="${jobConf.state eq 'JOB_EXCUTING' }">
-											<a  class="haltJob" href="<c:url value='/job/ajax/control/${jobConf.jobId }' />" onclick="return false;" title="处于执行状态,点击暂停">暂停</a>
+											<a  class="haltJob" href="<c:url value='/job/ajax/control/${reptileId}/${jobConf.jobId }' />" onclick="return false;" title="处于执行状态,点击暂停">暂停</a>
 										</c:when>
 										<c:otherwise>
-											<a class="haltJob"  href="<c:url value='/job/ajax/control/${jobConf.jobId }' />" onclick="return false;" title="处于暂停状态,点击执行">执行</a>
+											<a class="haltJob"  href="<c:url value='/job/ajax/control/${reptileId}/${jobConf.jobId }' />" onclick="return false;" title="处于暂停状态,点击执行">执行</a>
 										</c:otherwise>
 									</c:choose>
 							</span></td>

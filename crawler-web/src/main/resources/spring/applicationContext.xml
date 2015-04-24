@@ -82,6 +82,7 @@
 				<value>com.zxsoft.crawler.entity.Category</value>
 				<value>com.zxsoft.crawler.entity.Auth</value>
 				<value>com.zxsoft.crawler.entity.Location</value>
+				<value>com.zxsoft.crawler.entity.Reptile</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">
@@ -112,17 +113,5 @@
 	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
-
-<!-- 	<bean id="oracleHibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
-		<property name="sessionFactory" ref="oracleSessionFactory" />
-	</bean> -->
-
-	<bean id="jedisConnFactory"
-		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
-		p:use-pool="true" p:hostName="${redis.host}" p:port="${redis.port}" />
-
-	<!-- redis template definition -->
-	<bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate"
-		p:connection-factory-ref="jedisConnFactory" />
 
 </beans>
