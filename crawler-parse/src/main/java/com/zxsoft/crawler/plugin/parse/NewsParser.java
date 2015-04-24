@@ -110,10 +110,7 @@ public class NewsParser extends Parser {
                             && !CollectionUtils.isEmpty(document.select(dateDom))) {
                 String str = document.select(dateDom).first().html();
                 info.setTimestamp(DateExtractor.extractInMilliSecs(str));
-            } else {
-                // 从url中获取时间
-                info.setTimestamp(DateExtractor.extractInMilliSecs(mainUrl));
-            }
+            } 
         } else {
             info.setTimestamp(extInfo.getTimestamp());
         }
@@ -121,12 +118,12 @@ public class NewsParser extends Parser {
             info.setTimestamp(info.getLasttime());
         
         info.setId(Md5Signatrue.generateMd5(extInfo.getIdentify_md5(),info.getUrl()));
-        LOG.info(info.toString());
+//        LOG.info(info.toString());
         recordInfos.add(info);
 
         int count = recordInfos.size();
 
-//        indexWriter.write(recordInfos);
+        indexWriter.write(recordInfos);
 
         return new FetchStatus(mainUrl, 21, Status.SUCCESS, count);
     }
