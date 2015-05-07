@@ -123,7 +123,7 @@ public class JobController {
      * @throws IllegalArgumentException
      */
     @ResponseBody
-    @RequestMapping(value = "ajax/addInspectJob/{reptileId}", method = RequestMethod.GET)
+    @RequestMapping(value = "ajax/addInspectJob/{reptileId}.html", method = RequestMethod.GET)
     public Map<String, Object> addInspectJob(
                     @PathVariable(value = "reptileId") Integer reptileId,
                     @RequestParam(value = "ids", required = false) Set<Integer> ids)
@@ -161,7 +161,7 @@ public class JobController {
                 }
 
                 Website website = section.getWebsite();
-                int tid = website.getTid(), source_id = 0;
+                int tid = website.getTid(), source_id = website.getTid();
                 JobConf jobConf = null;
 
                 jobConf = jobService.querySourceId(tid);

@@ -2,7 +2,10 @@ package com.zxsoft.crawler.parse;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,15 +21,20 @@ import com.zxisl.commons.utils.StringUtils;
 import com.zxisl.nldp.Nldp;
 import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.common.CrawlerException;
+import com.zxsoft.crawler.common.CrawlerException.ErrorCode;
 import com.zxsoft.crawler.common.JobConf;
 import com.zxsoft.crawler.common.ListRule;
-import com.zxsoft.crawler.common.CrawlerException.ErrorCode;
+import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
+import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.protocol.util.Md5Signatrue;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.URLFormatter;
+
+import de.jetwick.snacktory.ArticleTextExtractor;
+import de.jetwick.snacktory.JResult;
 
 /**
  * 解析全网搜索，与网络巡检不同的是不用进入详细页
@@ -42,19 +50,17 @@ public final class NetworkSearchParserController extends ParseTool {
                     MalformedURLException, CrawlerException {
 
         RecordInfo recordInfo = new RecordInfo(jobConf.getSource_id(), jobConf.getType(),
-                        jobConf.getWorkerId(), jobConf.getIdentify_md5(), jobConf.getKeyword(),
-                        jobConf.getIp(), jobConf.getLocation(),
-                        jobConf.getSource_name(),
-                        JobType.NETWORK_INSPECT.getValue(),
+                        jobConf.getWorkerId(), jobConf.getIdentify_md5(),
+                        jobConf.getKeyword(), jobConf.getIp(), jobConf.getLocation(),
+                        jobConf.getSource_name(), JobType.NETWORK_INSPECT.getValue(),
                         jobConf.getCountry_code(), jobConf.getLocationCode(),
                         jobConf.getProvince_code(), jobConf.getCity_code());
         recordInfo.setPlatform(jobConf.getPlatform());
-        
+
         ListRule rule = jobConf.getListRule();
 
         if (rule == null) {
-            throw new CrawlerException(ErrorCode.CONF_ERROR,
-                            "No List Page Rule");
+            throw new CrawlerException(ErrorCode.CONF_ERROR, "No List Page Rule");
         }
 
         String keyword = jobConf.getKeyword();
@@ -75,30 +81,32 @@ public final class NetworkSearchParserController extends ParseTool {
         ProtocolOutput output = httpFetcher.fetch(_page);
 
         if (!output.getStatus().isSuccess()) {
-            throw new CrawlerException(ErrorCode.NETWORK_ERROR, output.getStatus().toString());
+            throw new CrawlerException(ErrorCode.NETWORK_ERROR, output.getStatus()
+                            .toString());
         }
 
         Document document = output.getDocument();
 
-        LOG.info("Searching " + keyword + " with " + jobConf.getSource_name()
-                        + "-->" + jobConf.getType() + "...");
+        LOG.info("Searching " + keyword + " with " + jobConf.getSource_name() + "-->"
+                        + jobConf.getType() + "...");
 
         Elements oldLines = null; // 用于检查页面数据是否没有变动
-        
+
+        int likeCount = 0;
         while (true) {
             Elements list = document.select(listDom);
-            if (CollectionUtils.isEmpty(list)) 
+            if (CollectionUtils.isEmpty(list))
                 throw new CrawlerException(ErrorCode.CONF_ERROR,
-                                "Cannot get records from(" + original_url + ") by rule: " + listDom);
+                                "Cannot get records from(" + original_url + ") by rule: "
+                                                + listDom);
 
             Elements lines = list.first().select(rule.getLinedom());
-            if (CollectionUtils.isEmpty(lines)) 
+            if (CollectionUtils.isEmpty(lines))
                 throw new CrawlerException(ErrorCode.CONF_ERROR,
-                                "Cannot get record lines by rule: "
-                                                + rule.getLinedom());
+                                "Cannot get record lines by rule: " + rule.getLinedom());
 
-            LOG.info("【" + jobConf.getType() + "】第" + pageNum.get()
-                            + " 页, 数量: " + lines.size());
+            LOG.info("【" + jobConf.getType() + "】第" + pageNum.get() + " 页, 数量: "
+                            + lines.size());
 
             List<RecordInfo> infos = new LinkedList<RecordInfo>();
 
@@ -131,25 +139,79 @@ public final class NetworkSearchParserController extends ParseTool {
                         synopsis = synEles.first().text();
                     }
                 }
-                
+
+                RecordInfo info = recordInfo.clone();
+
                 /** 日期 */
+                info.setTimestamp(0L);
                 long date = 0L;
                 if (!StringUtils.isEmpty(rule.getDatedom())
                                 && !CollectionUtils.isEmpty(line.select(rule
                                                 .getDatedom()))) {
                     String str = line.select(rule.getDatedom()).first().html();
-                    date = new Nldp(str).extractDateInMillis();
+                    date = DateExtractor.extractInMilliSecs(str);
+                    if (date != 0L)
+                        info.setTimestamp(date);
                 }
-
-                RecordInfo info = recordInfo.clone();
+                
                 info.setTitle(title);
                 info.setUrl(curl);
-                info.setId(Md5Signatrue.generateMd5(jobConf.getIdentify_md5(),curl));
                 info.setContent(synopsis);
-                info.setTimestamp(date);
-                if (info.getTimestamp() == 0L)
-                    info.setTimestamp(info.getLasttime());
-                infos.add(info);
+
+                /*
+                 * 进入页面链接中抓取数据
+                 */
+                if (jobConf.getGoInto()) {
+                    try { // click into
+                        WebPage _p = new WebPage(curl, rule.getAjax());
+                        ProtocolOutput _o = fetch(_p);
+                        if (STATUS_CODE.NOTFOUND.equals(_o.getStatus().getCode()) 
+                                        || STATUS_CODE.ACCESS_DENIED.equals(_o.getStatus().getCode())
+                                        || _o.getDocument() == null) {
+                            continue;// 过滤403,404网页
+                        }
+
+                        // 先从synopsis中抽取时间
+//                        if (!StringUtils.isEmpty(synopsis)) {
+//                            long _time = DateExtractor.extractInMilliSecs(synopsis);
+//                            if (_time < info.getTimestamp())
+//                                info.setTimestamp(_time);
+//                        }
+
+                        Document _d = _o.getDocument();
+                        ArticleTextExtractor extractor = new ArticleTextExtractor();
+                        
+                        JResult res = extractor.extractContent(_d.html());
+                        
+                        try { // 过滤链接是网站主页
+                            URL _u = new URL(_d.location());
+                            if (StringUtils.isEmpty(_u.getPath()) || "/".equals(_u.getPath()))
+                                continue;
+                        } catch (Exception e) {
+                            continue;
+                        }
+                        info.setUrl(_d.location());
+                        String text = res.getText();
+                        if (text.length() > info.getContent().length())
+                            info.setContent(text);
+                        
+                        // 设置时间
+                        info.setTimestamp(calTime(_d, info.getTimestamp()));
+
+                        String imageUrl = res.getImageUrl();
+                        info.setPic_url(imageUrl == null ? "" : imageUrl);
+                        info.setVideo_url(res.getVideoUrl());
+                    } catch (Exception e) {
+                        LOG.error("Click into search page error: " + e.getMessage(), e);
+                    }
+                } 
+
+                info.setId(Md5Signatrue.generateMd5(jobConf.getIdentify_md5(), curl));
+
+                if (info.getTimestamp() != 0L && !StringUtils.isEmpty(info.getContent()))
+                    infos.add(info);
+                System.out.println(keyword + new Date(info.getTimestamp()).toLocaleString() + "\t"
+                                + info.getUrl());
             }
 
             indexWriter.write(infos);
@@ -162,18 +224,92 @@ public final class NetworkSearchParserController extends ParseTool {
                 LOG.debug("No next page, exit.");
                 break;
             }
-            
+
             document = ptemp.getDocument();
-            
-            if (isSamePage(lines, oldLines))
+
+            if (isSamePage(lines, oldLines) && likeCount++ > 10)
                 break;
             oldLines = lines;
-                
+
             pageNum.incrementAndGet();
 
         }
-        LOG.info("Complete search" + keyword + " with "
-                        + jobConf.getSource_name() + "-->" + jobConf.getType()
-                        + " , total fetch record number is " + sum);
+        LOG.info("Complete search" + keyword + " with " + jobConf.getSource_name()
+                        + "-->" + jobConf.getType() + " , total fetch record number is "
+                        + sum);
+    }
+    
+    private long calTime(Document _d, long outTime) {
+        
+        if (outTime <= 315504000000L)
+            outTime = 0L;
+        
+        long _timeIn = 0;
+        
+        if (!CollectionUtils.isEmpty(_d.getElementsByTag("script")))
+        _d.getElementsByTag("script").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsByTag("style")))
+        _d.getElementsByTag("style").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsByTag("a")))
+        _d.getElementsByTag("a").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsByTag("img")))
+        _d.getElementsByTag("img").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsByTag("form")))
+        _d.getElementsByTag("form").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsByTag("textarea")))
+        _d.getElementsByTag("textarea").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsByTag("h1")))
+        _d.getElementsByTag("h1").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsByTag("h2")))
+        _d.getElementsByTag("h2").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsByTag("h3")))
+        _d.getElementsByTag("h3").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsByTag("h4")))
+        _d.getElementsByTag("h4").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsByTag("h5")))
+        _d.getElementsByTag("h5").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsByTag("dd")))
+        _d.getElementsByTag("dd").remove();
+        if (null != _d.getElementById("top"))
+            _d.getElementById("top").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsByTag("footer")))
+            _d.getElementsByTag("footer").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsByClass("menu")))
+        _d.getElementsByClass("menu").remove();
+        if (!CollectionUtils.isEmpty(_d.getElementsMatchingOwnText("客户|联系|Copyright|电话|热线")))
+        _d.getElementsMatchingOwnText("客户|联系|Copyright|电话|热线").remove();
+        
+        Elements eles = _d.body().getAllElements();
+        for (Element ele : eles) {
+            String _t = ele.ownText();
+            _t = _t.replaceAll("(昨|前天)", "");
+            if (StringUtils.isEmpty(_t))
+                continue;
+            _timeIn = DateExtractor.extractInMilliSecs(_t);
+            // 去除和当前时间一样的时间
+            if (_timeIn > 0 && _timeIn / 60000L != System.currentTimeMillis() / 60000)
+                break;
+        }
+        
+//        if (outTime == 0L)
+//            return _timeIn;
+        
+        if (_timeIn == 0 )
+            return outTime;
+        
+        // 比较outTime和_timeIn，采用准确的时间
+//        Calendar _outCal = Calendar.getInstance();
+//        _outCal.setTimeInMillis(outTime);
+//        
+//        Calendar _inCal = Calendar.getInstance();
+//        _inCal.setTimeInMillis(_timeIn);
+//        
+//        if (_outCal.get(Calendar.YEAR) == _inCal.get(Calendar.YEAR) 
+//                        && _outCal.get(Calendar.MONTH) == _inCal.get(Calendar.MONTH)
+//                        && _outCal.get(Calendar.DAY_OF_MONTH) == _inCal.get(Calendar.DAY_OF_MONTH))
+            return _timeIn;
+        
+        
+        
     }
 }

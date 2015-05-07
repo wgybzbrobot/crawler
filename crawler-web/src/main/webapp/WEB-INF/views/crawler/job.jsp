@@ -154,6 +154,7 @@ $(".edit").click(function () {
                 <div>
                     url<input  type="text" name="url" />
                     来源<input  type="text" name="source_name" />
+                    来源id<input  type="text" name="source_id" />
                 </div>
                 <div>
                 版块名称<input  type="text" name="type" />

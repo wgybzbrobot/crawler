@@ -41,8 +41,8 @@ public final class RecurNetworkSearchThread extends Thread {
         /*
          * 读取任务列表`JHRW_RWLB`（循环读取）
          */
-        try {
-            while (true) {
+        while (true) {
+            try {
                 List<JobConf> tasks = service.getSearchTaskQueue();
                 if (!CollectionUtils.isEmpty(tasks)) {
                     Iterator<JobConf> iter = tasks.iterator();
@@ -60,10 +60,10 @@ public final class RecurNetworkSearchThread extends Thread {
                                 jobConf.setLocation(service.getLocation(ip));
                                 jobConf.setLocationCode(service.getLocationCode(ip));
                             }
-                            
+
                             LOG.debug(jobConf.toString());
-                            /* Object obj =*/ jobResource.createJob(jobConf);
-//                             LOG.info((String) obj);
+                            /* Object obj = */jobResource.createJob(jobConf);
+                            // LOG.info((String) obj);
                         } catch (CrawlerException ce) {
                             LOG.error("create search job failed from JHRW_RWLB.", ce);
                         }
@@ -75,9 +75,9 @@ public final class RecurNetworkSearchThread extends Thread {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+            } catch (Exception e) {
+                LOG.error("create search job failed from JHRW_RWLB.", e);
             }
-        } catch (Exception e) {
-            LOG.error("create search job failed from JHRW_RWLB.", e);
         }
     }
 

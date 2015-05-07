@@ -211,7 +211,7 @@ public class RestOutput implements Output {
             String msg = response.getEntity(String.class);
             LOG.debug(msg);
         } catch (Exception e) {
-            LOG.error("Write to lucene " + _url + " failed: ", e);
+            LOG.error("Write to lucene " + _url + " failed: " + e.getMessage());
         } finally {
             if (response != null) {
                 response.close();

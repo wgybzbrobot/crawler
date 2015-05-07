@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.IllegalCharsetNameException;
 import java.util.Properties;
 
 import org.apache.commons.httpclient.NameValuePair;
@@ -12,7 +13,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import com.zxisl.commons.utils.StringUtils;
 //import com.zxsoft.crawler.metadata.Metadata;
@@ -87,7 +87,7 @@ public abstract class HttpBase extends PageHelper {
 	static {
 		Properties prop = new Properties();
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
-		LOG.info("Loading protocol.properites ...");
+		LOG.info("Loading protocol.properties ...");
 		InputStream stream = loader.getResourceAsStream("protocol.properties");
 		if (stream == null) {
 		        LOG.error("Load protocol.properties failed.");
@@ -105,6 +105,9 @@ public abstract class HttpBase extends PageHelper {
 //		LOG.info("proxy:" + proxyHost + ":" + proxyPort);
 		try {
 			useProxy = (proxyHost != null && proxyHost.length() > 0);
+			if (useProxy) {
+			    LOG.info("use proxy " + proxyHost + ":" + proxyPort);
+			}
 		} catch (NumberFormatException e ) {
 			if (StringUtils.isEmpty(proxyHost)) {
 				LOG.warn("http.proxy.port set error, use default:" + proxyPort);
@@ -140,6 +143,8 @@ public abstract class HttpBase extends PageHelper {
     		} catch (IOException e) {
     		    LOG.debug("IOException, try again");
     		   continue; 
+    		} catch (Exception e) {
+    		    response = null;
     		}
     		break;
 		}
@@ -198,8 +203,16 @@ public abstract class HttpBase extends PageHelper {
 			return new ProtocolOutput(ProtocolStatusUtils.makeStatus(STATUS_CODE.FAILED, u.toString(), "content is null"));
 		InputStream in = new ByteArrayInputStream(content);
 
-		Document document = Jsoup.parse(in, response.charset, u.toString());
-
+		Document document = null;
+		try {
+		     document = Jsoup.parse(in, response.charset, u.toString());
+		} catch (IllegalCharsetNameException e) {
+		    throw new IOException("Jsoup parse exception:" + e.getMessage());
+		} finally {
+		    if (in != null)
+		        in.close();
+		}
+		
 		if (code == 200) { // got a good response
 			return new ProtocolOutput(document); // return it
 		} else if (code == 410) { // page is gone
@@ -218,11 +231,11 @@ public abstract class HttpBase extends PageHelper {
 			case 300: // multiple choices, preferred value in Location
 				protocolStatusCode = STATUS_CODE.MOVED;
 				break;
-			case 301: // moved permanently
 			case 305: // use proxy (Location is URL of proxy)
 				protocolStatusCode = STATUS_CODE.MOVED;
 				break;
-			case 302: // found (temporarily moved)
+			case 301: // moved permanently
+			case 302: // found (temporarily moved), such as tianya mobile
 			case 303: // see other (redirect after POST)
 			case 307: // temporary redirect
 				protocolStatusCode = STATUS_CODE.TEMP_MOVED;
@@ -237,7 +250,7 @@ public abstract class HttpBase extends PageHelper {
 		} else if (code == 400) { // bad request, mark as GONE
 			LOG.error("400 Bad request: " + u);
 			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.GONE, u.toString()));
-		} else if (code == 401) { // requires authorization, but no valid
+		} else if (code == 401 || code == 403) { // requires authorization, but no valid
 			                      // auth provided.
 			LOG.error("401 Authentication Required: " + u);
 			return new ProtocolOutput(document, ProtocolStatusUtils.makeStatus(STATUS_CODE.ACCESS_DENIED,

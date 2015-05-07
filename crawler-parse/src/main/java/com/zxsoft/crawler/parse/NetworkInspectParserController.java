@@ -191,7 +191,7 @@ public final class NetworkInspectParserController extends ParseTool {
                     FetchStatus _status = parser.parse();
                     sum += _status.getCount();
                 } catch (Exception e) {
-                    LOG.error(listUrl + "," + msg, e);
+                    LOG.error(jobConf.getSource_name() + "-->" + jobConf.getType() + listUrl + "," + msg, e);
                 }
                 if (!continuePage) {
                     break;

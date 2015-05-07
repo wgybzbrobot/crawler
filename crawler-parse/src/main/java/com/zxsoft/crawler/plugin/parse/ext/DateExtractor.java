@@ -27,7 +27,7 @@ public class DateExtractor {
             Nldp nldp = new Nldp(text);
             date = nldp.extractDate();
         } catch (Exception e) {
-            LOG.error("解析时间失败:" + text, e);
+//            LOG.error("解析时间失败:" + text, e);
         }
 
         return date;

@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zxisl.commons.utils.StringUtils;
 import com.zxsoft.crawler.api.JobCode;
 import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.api.Machine;
@@ -40,7 +41,12 @@ public class RAMSlaveManager implements SlaveManager {
      */
     @Override
     public JobCode create(JobConf jobConf) {
-
+        
+        //测试进入详细页抽取数据
+        jobConf.setGoInto(true);
+        if (StringUtils.isEmpty(jobConf.getIdentify_md5()))
+            jobConf.setIdentify_md5("gointo");
+        
         if (JobType.NETWORK_SEARCH.equals(jobConf.getJobType())) {
             jobConf.setRecurrence(false);
         } else if (JobType.NETWORK_INSPECT.equals(jobConf.getJobType())) {

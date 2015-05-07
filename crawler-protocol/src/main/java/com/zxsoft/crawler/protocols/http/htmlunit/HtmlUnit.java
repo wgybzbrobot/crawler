@@ -116,6 +116,7 @@ public class HtmlUnit extends HttpBase {
         @Override
         public Response getResponse(WebPage page) throws ProtocolException, IOException {
                 try {
+                    // TODO : 处理连接超时,and connection reset
                         htmlPage = makeRequest(page);
                         // LOG.debug(htmlPage.asText());
                         processResponse();

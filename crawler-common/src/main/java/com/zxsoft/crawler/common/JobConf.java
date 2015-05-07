@@ -132,6 +132,8 @@ public class JobConf implements Serializable {
          */
         private String identify_md5;
         
+        private Boolean goInto = false; 
+        
          public String toString () {
              Gson gson = new GsonBuilder().disableHtmlEscaping().create();
              String json = gson.toJson(this);
@@ -158,6 +160,14 @@ public class JobConf implements Serializable {
 
         public JobType getJobType() {
             return jobType;
+        }
+
+        public Boolean getGoInto() {
+            return goInto;
+        }
+
+        public void setGoInto(Boolean goInto) {
+            this.goInto = goInto;
         }
 
         public void setJobType(JobType jobType) {

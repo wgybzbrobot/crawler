@@ -31,7 +31,7 @@ public class PageHelper {
 	public static Element getPageBar(Element document) throws PageBarNotFoundException {
 		if (document == null) return null;
 		
-		Elements eles = document.select("a:matches(上一页|上页|<上一页|下一页|下页|下一页>|尾页|末页)");
+		Elements eles = document.select("a:matches(上一页|上页|<上一页|下一页|下页|下一页>|尾页|末页|Next)");
 		if (!CollectionUtils.isEmpty(eles)) { // bug: if only has '下一页'
 			Elements siblingEles = eles.first().siblingElements();
 			Element parentEle = eles.first().parent();

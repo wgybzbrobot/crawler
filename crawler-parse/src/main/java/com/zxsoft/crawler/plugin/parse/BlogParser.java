@@ -179,8 +179,7 @@ public class BlogParser extends Parser {
                         }
                 }
 
-                int count = 0;
-                        count = indexWriter.write(recordInfos);
+                int count = indexWriter.write(recordInfos);
                 return new FetchStatus(mainUrl, 21, Status.SUCCESS, count);
         }
         
