@@ -1,6 +1,5 @@
 package com.zxsoft.crawler.parse;
 
-import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,6 @@ import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.protocols.http.HttpFetcher;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.store.Output;
-import com.zxsoft.crawler.store.impl.MysqlOutput;
 import com.zxsoft.crawler.store.impl.RestOutput;
 import com.zxsoft.crawler.util.page.PageBarNotFoundException;
 import com.zxsoft.crawler.util.page.PrevPageNotFoundException;
@@ -50,7 +48,7 @@ public abstract class ParseTool {
                 try {
                         return httpFetcher.fetchNextPage(pageNum, page);
                 } catch (PageBarNotFoundException e) {
-                        LOG.debug("Cannot get Next page of " + page.getBaseUrl() + ", may be it has no next page.");
+                        LOG.info("Cannot get Next page of " + page.getBaseUrl() + ", may be it has no next page.");
                 }
                 ProtocolStatus status = new ProtocolStatus();
                 status.setCode(STATUS_CODE.FAILED);

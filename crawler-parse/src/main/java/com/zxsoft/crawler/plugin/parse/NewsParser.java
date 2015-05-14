@@ -1,6 +1,5 @@
 package com.zxsoft.crawler.plugin.parse;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -119,6 +118,9 @@ public class NewsParser extends Parser {
         
         info.setId(Md5Signatrue.generateMd5(extInfo.getIdentify_md5(),info.getUrl()));
 //        LOG.info(info.toString());
+        if (StringUtils.isEmpty(info.getContent())) {
+            return new FetchStatus(mainUrl, 21, Status.SUCCESS, 0);
+        }
         recordInfos.add(info);
 
         int count = recordInfos.size();

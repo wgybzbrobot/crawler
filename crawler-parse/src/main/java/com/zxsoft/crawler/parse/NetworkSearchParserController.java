@@ -16,6 +16,8 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import scala.remote;
+
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
 import com.zxisl.nldp.Nldp;
@@ -25,6 +27,8 @@ import com.zxsoft.crawler.common.CrawlerException.ErrorCode;
 import com.zxsoft.crawler.common.JobConf;
 import com.zxsoft.crawler.common.ListRule;
 import com.zxsoft.crawler.plugin.parse.ext.DateExtractor;
+import com.zxsoft.crawler.plugin.parse.ext.DateExtractor2;
+import com.zxsoft.crawler.plugin.parse.ext.TextExtract;
 import com.zxsoft.crawler.protocol.ProtocolOutput;
 import com.zxsoft.crawler.protocol.ProtocolStatus.STATUS_CODE;
 import com.zxsoft.crawler.protocol.util.Md5Signatrue;
@@ -33,8 +37,6 @@ import com.zxsoft.crawler.storage.RecordInfo;
 import com.zxsoft.crawler.storage.WebPage;
 import com.zxsoft.crawler.util.URLFormatter;
 
-import de.jetwick.snacktory.ArticleTextExtractor;
-import de.jetwick.snacktory.JResult;
 
 /**
  * 解析全网搜索，与网络巡检不同的是不用进入详细页
@@ -93,7 +95,8 @@ public final class NetworkSearchParserController extends ParseTool {
         Elements oldLines = null; // 用于检查页面数据是否没有变动
 
         int likeCount = 0;
-        while (true) {
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() - start < 1200000L) {
             Elements list = document.select(listDom);
             if (CollectionUtils.isEmpty(list))
                 throw new CrawlerException(ErrorCode.CONF_ERROR,
@@ -170,6 +173,16 @@ public final class NetworkSearchParserController extends ParseTool {
                                         || _o.getDocument() == null) {
                             continue;// 过滤403,404网页
                         }
+                        
+                        int i = 0;
+                        while (STATUS_CODE.RETRY.equals(_o.getStatus().getCode()) && i++ <= 3) {
+                            _o = fetch(_p);
+                        }
+                        if (STATUS_CODE.RETRY.equals(_o.getStatus().getCode())
+                                        || STATUS_CODE.NOTFOUND.equals(_o.getStatus().getCode()) 
+                                        || STATUS_CODE.ACCESS_DENIED.equals(_o.getStatus().getCode())
+                                        || _o.getDocument() == null)
+                            continue;
 
                         // 先从synopsis中抽取时间
 //                        if (!StringUtils.isEmpty(synopsis)) {
@@ -179,9 +192,9 @@ public final class NetworkSearchParserController extends ParseTool {
 //                        }
 
                         Document _d = _o.getDocument();
-                        ArticleTextExtractor extractor = new ArticleTextExtractor();
-                        
-                        JResult res = extractor.extractContent(_d.html());
+//                        ArticleTextExtractor extractor = new ArticleTextExtractor();
+//                        
+//                        JResult res = extractor.extractContent(_d.html());
                         
                         try { // 过滤链接是网站主页
                             URL _u = new URL(_d.location());
@@ -191,16 +204,23 @@ public final class NetworkSearchParserController extends ParseTool {
                             continue;
                         }
                         info.setUrl(_d.location());
-                        String text = res.getText();
-                        if (text.length() > info.getContent().length())
-                            info.setContent(text);
+//                        String text = res.getText();
+//                        if (text.contains("While trying to retrieve the URL")) {
+//                            System.out.println(_d.location());
+//                        }
+                        
+//                        if (text.length() > info.getContent().length())
+//                            info.setContent(text);
                         
                         // 设置时间
                         info.setTimestamp(calTime(_d, info.getTimestamp()));
-
-                        String imageUrl = res.getImageUrl();
-                        info.setPic_url(imageUrl == null ? "" : imageUrl);
-                        info.setVideo_url(res.getVideoUrl());
+                        String text = TextExtract.parse(_d.html());
+                        info.setContent(text);
+                        
+                        
+//                        String imageUrl = res.getImageUrl();
+//                        info.setPic_url(imageUrl == null ? "" : imageUrl);
+//                        info.setVideo_url(res.getVideoUrl());
                     } catch (Exception e) {
                         LOG.error("Click into search page error: " + e.getMessage(), e);
                     }
@@ -246,70 +266,13 @@ public final class NetworkSearchParserController extends ParseTool {
         
         long _timeIn = 0;
         
-        if (!CollectionUtils.isEmpty(_d.getElementsByTag("script")))
-        _d.getElementsByTag("script").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsByTag("style")))
-        _d.getElementsByTag("style").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsByTag("a")))
-        _d.getElementsByTag("a").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsByTag("img")))
-        _d.getElementsByTag("img").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsByTag("form")))
-        _d.getElementsByTag("form").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsByTag("textarea")))
-        _d.getElementsByTag("textarea").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsByTag("h1")))
-        _d.getElementsByTag("h1").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsByTag("h2")))
-        _d.getElementsByTag("h2").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsByTag("h3")))
-        _d.getElementsByTag("h3").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsByTag("h4")))
-        _d.getElementsByTag("h4").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsByTag("h5")))
-        _d.getElementsByTag("h5").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsByTag("dd")))
-        _d.getElementsByTag("dd").remove();
-        if (null != _d.getElementById("top"))
-            _d.getElementById("top").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsByTag("footer")))
-            _d.getElementsByTag("footer").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsByClass("menu")))
-        _d.getElementsByClass("menu").remove();
-        if (!CollectionUtils.isEmpty(_d.getElementsMatchingOwnText("客户|联系|Copyright|电话|热线")))
-        _d.getElementsMatchingOwnText("客户|联系|Copyright|电话|热线").remove();
-        
-        Elements eles = _d.body().getAllElements();
-        for (Element ele : eles) {
-            String _t = ele.ownText();
-            _t = _t.replaceAll("(昨|前天)", "");
-            if (StringUtils.isEmpty(_t))
-                continue;
-            _timeIn = DateExtractor.extractInMilliSecs(_t);
-            // 去除和当前时间一样的时间
-            if (_timeIn > 0 && _timeIn / 60000L != System.currentTimeMillis() / 60000)
-                break;
-        }
-        
-//        if (outTime == 0L)
-//            return _timeIn;
+        DateExtractor2 dateExtractor2 = new DateExtractor2();
+        dateExtractor2.extract(_d);
+        _timeIn = dateExtractor2.getTimeInMs();
         
         if (_timeIn == 0 )
             return outTime;
         
-        // 比较outTime和_timeIn，采用准确的时间
-//        Calendar _outCal = Calendar.getInstance();
-//        _outCal.setTimeInMillis(outTime);
-//        
-//        Calendar _inCal = Calendar.getInstance();
-//        _inCal.setTimeInMillis(_timeIn);
-//        
-//        if (_outCal.get(Calendar.YEAR) == _inCal.get(Calendar.YEAR) 
-//                        && _outCal.get(Calendar.MONTH) == _inCal.get(Calendar.MONTH)
-//                        && _outCal.get(Calendar.DAY_OF_MONTH) == _inCal.get(Calendar.DAY_OF_MONTH))
-            return _timeIn;
-        
-        
-        
+        return _timeIn;
     }
 }
