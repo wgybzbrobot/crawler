@@ -33,6 +33,7 @@ public class Section implements java.io.Serializable {
 	private String comment;
 	private String status;
 	private Boolean autoUrl;
+	private String keywordEncode;
 	
 //	private ConfList confList;
 
@@ -117,8 +118,16 @@ public class Section implements java.io.Serializable {
 		this.comment = comment;
 	}
 
+	@Column(name = "keywordEncode", length = 45)
+	public String getKeywordEncode() {
+        return keywordEncode;
+    }
 
-	@Column(name = "status", length = 45)
+    public void setKeywordEncode(String keywordEncode) {
+        this.keywordEncode = keywordEncode;
+    }
+
+    @Column(name = "status", length = 45)
 	public String getStatus() {
 		return this.status;
 	}

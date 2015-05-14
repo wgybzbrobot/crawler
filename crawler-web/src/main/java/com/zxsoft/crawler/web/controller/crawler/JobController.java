@@ -187,7 +187,7 @@ public class JobController {
             } catch (CrawlerException e) {
 
             } catch (NullPointerException e) {
-                LOG.error("May be no tid, section id is " + id);
+                LOG.error("May be no tid, section id is " + id,e);
             } catch (Exception e) {
                 e.printStackTrace();
             }

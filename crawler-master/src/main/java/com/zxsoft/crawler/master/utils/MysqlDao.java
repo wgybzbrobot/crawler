@@ -101,7 +101,7 @@ public class MysqlDao extends BaseDao {
          */
         public JobConf getBasicInfos(int tid) throws CrawlerException {
                 List<JobConf> list = mysqlJdbcTemplate.query("select a.comment source_name,  a.region, a.tid , a.provinceId, a.cityId, a.areaId, "
-                                + "b.id sectionId, b.url, b.comment type from website a, section b"
+                                + "b.id sectionId, b.url, b.comment type, b.keywordEncode from website a, section b"
                                                 + "  where a.tid = ?  and a.id=b.site and b.category='search'",
                                                 new Object[] { tid }, new RowMapper<JobConf>() {
                                                         public JobConf mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -111,6 +111,7 @@ public class MysqlDao extends BaseDao {
                                                             jobConf.setCity_code(rs.getInt("cityId"));
                                                             jobConf.setLocationCode(rs.getInt("areaId"));
                                                             jobConf.setCountry_code(rs.getInt("region"));
+                                                            jobConf.setKeywordEncode(rs.getString("keywordEncode"));
                                                             return  jobConf;
                                                         }
                                                 });

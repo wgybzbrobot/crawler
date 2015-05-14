@@ -85,7 +85,7 @@ public class ConfigController {
 	        }
 	        boolean autoUrl = section.getAutoUrl();
 	        
-		listRes = listConfigVerification.verify(listConf, keyword, autoUrl);
+		listRes = listConfigVerification.verify(listConf, keyword, section.getKeywordEncode(),autoUrl);
 		return listRes;
 	}
 

@@ -171,7 +171,11 @@ public class JobServiceImpl  implements JobService {
                             p++;
                             if (p >= start) {
                                 JobConf job = gson.fromJson(json, JobConf.class);
-                                res.add(job);
+                                if (job.getUrl().equalsIgnoreCase(query) 
+                                                || job.getSource_name().contains(query)
+                                                || job.getType().contains(query)) {
+                                    res.add(job);
+                                }
                             }
                             if (res.size() >= end - start) {
                                 flag = true;

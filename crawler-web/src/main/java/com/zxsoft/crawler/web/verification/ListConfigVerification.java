@@ -33,20 +33,28 @@ public class ListConfigVerification extends ParseTool {
 
     private static Logger LOG = LoggerFactory.getLogger(ListConfigVerification.class);
 
-    public Map<String, Object> verify(ConfList listConf, String keyword, boolean autoUrl) {
+    public Map<String, Object> verify(ConfList listConf, String keyword,
+                    String keywordEncode, boolean autoUrl) {
 
         Map<String, Object> map = new HashMap<String, Object>();
         Map<String, String> errors = new HashMap<String, String>();
 
         List<ThreadInfo> list = new ArrayList<ThreadInfo>();
         String pageStr = "", testurl = listConf.getUrl();
-        
-//        try {
-//            keyword = URLEncoder.encode(keyword, "GBK");
-//        } catch (UnsupportedEncodingException e1) {
-//            e1.printStackTrace();
-//        }
+
+        // try {
+        // keyword = URLEncoder.encode(keyword, "GBK");
+        // } catch (UnsupportedEncodingException e1) {
+        // e1.printStackTrace();
+        // }
         if ("search".equals(listConf.getCategory())) {
+            if (!StringUtils.isEmpty(keywordEncode)) {
+                try {
+                    keyword = URLEncoder.encode(keyword, keywordEncode);
+                } catch (UnsupportedEncodingException e1) {
+                    e1.printStackTrace();
+                }
+            }
             if (autoUrl) {
                 try {
                     testurl = URLFormatter.format(testurl, keyword);
@@ -57,12 +65,11 @@ public class ListConfigVerification extends ParseTool {
             } else {
                 testurl = String.format(testurl, keyword);
             }
-            try {
-//                testurl = URLDecoder.decode(testurl, "UTF-8");
+            /*try {
                 testurl = URIUtil.encodePathQuery(testurl, "UTF-8");
-            } catch (URIException /*| UnsupportedEncodingException*/ e) {
+            } catch (URIException e) {
                 e.printStackTrace();
-            }
+            }*/
         } else {
             try {
                 testurl = URLFormatter.format(testurl);
