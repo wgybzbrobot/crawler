@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -118,6 +119,7 @@ public class HttpClient extends HttpBase {
         try {
             code = client.executeMethod(get);
 
+            
             Header[] heads = get.getResponseHeaders();
             for (int i = 0; i < heads.length; i++)
                 metadata.set(heads[i].getName(), heads[i].getValue());
@@ -147,7 +149,7 @@ public class HttpClient extends HttpBase {
             if (content != null) {
                 // check if we have to uncompress it
                 String contentEncoding = metadata.get(Response.CONTENT_ENCODING);
-                if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
+                if ("gzip".equalsIgnoreCase(contentEncoding) || "x-gzip".equals(contentEncoding)) {
                     content = processGzipEncoded(content, url);
                 } else if ("deflate".equals(contentEncoding)) {
                     content = processDeflateEncoded(content, url);
@@ -298,6 +300,7 @@ public class HttpClient extends HttpBase {
                 throw new PageBarNotFoundException();
             }
 //            LOG.info(next);
+//            next = URLDecoder.decode(next, "UTF-8");
             np.setUrl(next);
 
             Response response = null;

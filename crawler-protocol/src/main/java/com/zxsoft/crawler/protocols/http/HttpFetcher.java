@@ -102,12 +102,16 @@ public class HttpFetcher {
                                     Matcher _m = _p.matcher(_u);
                                     if (_m.find()) {
                                         _u = _m.group(0);
-                                        try {
-                                            URL _url = new URL(_u);
-                                            page.setUrl(_u);
-                                            protocolOutput = fetch(page);
-                                        } catch (Exception e) {
-                                            protocolOutput.setStatus(new ProtocolStatus(url, STATUS_CODE.FAILED, "Not valid url"));
+                                        if (!StringUtils.isEmpty(_u)) {
+                                            try {
+                                                URL _url = new URL(_u);
+                                                page.setUrl(_u);
+                                                protocolOutput = fetch(page);
+                                            } catch (Exception e) {
+                                                protocolOutput.setStatus(new ProtocolStatus(url, STATUS_CODE.FAILED, "Not valid url"));
+                                            }
+                                        }else {
+                                            protocolOutput.setStatus(new ProtocolStatus(url, STATUS_CODE.FAILED, "url length is zero"));
                                         }
                                     }
                                 }
