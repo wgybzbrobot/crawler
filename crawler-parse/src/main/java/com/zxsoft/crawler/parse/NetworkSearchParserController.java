@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,11 +15,8 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import scala.remote;
-
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxisl.commons.utils.StringUtils;
-import com.zxisl.nldp.Nldp;
 import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.common.CrawlerException;
 import com.zxsoft.crawler.common.CrawlerException.ErrorCode;
@@ -184,17 +180,8 @@ public final class NetworkSearchParserController extends ParseTool {
                                         || _o.getDocument() == null)
                             continue;
 
-                        // 先从synopsis中抽取时间
-//                        if (!StringUtils.isEmpty(synopsis)) {
-//                            long _time = DateExtractor.extractInMilliSecs(synopsis);
-//                            if (_time < info.getTimestamp())
-//                                info.setTimestamp(_time);
-//                        }
 
                         Document _d = _o.getDocument();
-//                        ArticleTextExtractor extractor = new ArticleTextExtractor();
-//                        
-//                        JResult res = extractor.extractContent(_d.html());
                         
                         try { // 过滤链接是网站主页
                             URL _u = new URL(_d.location());
@@ -216,11 +203,6 @@ public final class NetworkSearchParserController extends ParseTool {
                         info.setTimestamp(calTime(_d, info.getTimestamp()));
                         String text = TextExtract.parse(_d.html());
                         info.setContent(text);
-                        
-                        
-//                        String imageUrl = res.getImageUrl();
-//                        info.setPic_url(imageUrl == null ? "" : imageUrl);
-//                        info.setVideo_url(res.getVideoUrl());
                     } catch (Exception e) {
                         LOG.error("Click into search page error: " + e.getMessage(), e);
                     }
