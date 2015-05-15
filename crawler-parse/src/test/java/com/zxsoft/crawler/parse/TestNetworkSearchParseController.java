@@ -2,7 +2,6 @@ package com.zxsoft.crawler.parse;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;

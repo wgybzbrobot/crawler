@@ -212,8 +212,8 @@ public final class NetworkSearchParserController extends ParseTool {
 
                 if (info.getTimestamp() != 0L && !StringUtils.isEmpty(info.getContent()))
                     infos.add(info);
-                System.out.println(keyword + new Date(info.getTimestamp()).toLocaleString() + "\t"
-                                + info.getUrl());
+//                System.out.println(keyword + new Date(info.getTimestamp()).toLocaleString() + "\t"
+//                                + info.getUrl());
             }
 
             indexWriter.write(infos);
