@@ -16,7 +16,7 @@ public class DateExtractor2 {
     private float weight;
 
     public void extract(Document doc) {
-        String[] tags = new String[]{"script", "style", "a", "img", "form",
+        String[] tags = new String[]{"script", "style", "a", "img",
                         "textarea","dd","footer"};
         for (String tag : tags) {
             if (!CollectionUtils.isEmpty(doc.getElementsByTag(tag)))
