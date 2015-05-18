@@ -101,7 +101,7 @@ public class TextExtract {
         boolean boolstart = false, boolend = false;
         text.setLength(0);
         
-        for (int i = 0; i < indexDistribution.size() - 1; i++) {
+        for (int i = 0; i < indexDistribution.size() - 3; i++) {
             if (indexDistribution.get(i) > threshold && ! boolstart) {
                 if (indexDistribution.get(i+1).intValue() != 0 
                     || indexDistribution.get(i+2).intValue() != 0
