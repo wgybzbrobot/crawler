@@ -46,6 +46,12 @@ def start():
 
 @task
 @parallel
+def restart():
+    with cd('~'):
+        run("nohup sh crawler-slave/bin/slave.sh restart >& /dev/null < /dev/null &", pty=False)
+
+@task
+@parallel
 def stop():
     with cd('~/crawler-slave/'):
         run('sh bin/slave.sh stop')
