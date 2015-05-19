@@ -22,7 +22,7 @@ public class SearchParserTest {
 //        // "http://bj.crntt.com/doc/1037/3/3/9/103733985.html?coluid=50&kindid=1110&docid=103733985"
 //        // "http://lib.cnki.net/cdmd/10270-2010084526.html"
 //        // "http://www.chinaso.com/search/link?url=kaVK3z12tTrkGIrigexQNhUGeOOP8N0wZQN+3KZ9OQKSm4ciXKocEi+zjUL82oKOMGActw5SAtOu4nMBSuNwWMD+zQ95Hv/w8wzAhZ02kwY=&_typeid_=130"
-//        "http://www.chinaso.com/search/pagesearch.htm?q=%E5%8F%B0%E6%B9%BE%E5%8D%8E%E8%88%AA%E5%AE%A2%E6%9C%B"
+//        "http://www.chinaso.com/search/link?url=3c96J9zT1P%2Fb5MW7dnF%2FLmBJe4orNfPlz5iKow2vMoaLPcmUOj2q3RRqstb%2BclDe&pos=0&wd=%E5%8F%B0%E6%B9%BE%E5%8D%8E%E8%88%AA%E5%AE%A2"
 //        // "http://www.baidu.com/s?rtt=2&tn=baiduwb&rn=20&cl=2&wd=%CE%F7%C4%CF%BF%C6%B4%F3%BA%CF%B3%AA%D7%DF%BA%EC",
 //        // "http://yantai.dzwww.com/2010sy/gdxw/201505/t20150513_12371942.htm"
 //        };
