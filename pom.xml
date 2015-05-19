@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.zxsoft.crawler</groupId>
 	<artifactId>crawler</artifactId>
-	<version>2.0.1-SNAPSHOT</version>
+	<version>2.0.1</version>
 	<name>Crawler</name>
 	<description>  Crawler ${project.version}是一个网络與情爬虫</description>
 	<packaging>pom</packaging>
