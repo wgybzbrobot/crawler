@@ -59,6 +59,7 @@ public final class OnceNetworkSearchThread extends Thread {
                     jobConf.setLocation(service.getLocation(ip));
                     jobConf.setLocationCode(service.getLocationCode(ip));
                 }
+                jobConf.setIdentify_md5("xiayun");
                 LOG.debug(jobConf.toString());
                 /*Object obj =*/ jobResource.createJob(jobConf);
 //                 LOG.debug((String) obj);
