@@ -41,19 +41,19 @@ public class SearchParserTest {
 //        }
 //    }
 
-//    @Test
-//    public void test3() throws Exception {
-//        String url = "http://m.tianya.cn/bbs/art.jsp?item=news&id=132087&vu=28456309174";
-//        HttpFetcher fetcher = new HttpFetcher();
-//        WebPage page = new WebPage(url, false);
-//
-//        ProtocolOutput output = fetcher.fetch(page);
-//        Document _d = output.getDocument();
-////        System.out.println(_d.text());
-//        DateExtractor2 dateExtractor2 = new DateExtractor2();
-//        dateExtractor2.extract(_d);
-//        System.out.println(new Date(dateExtractor2.getTimeInMs()).toLocaleString() + "\t"
-//                        + dateExtractor2.getWeight());
-//    }
+    @Test
+    public void testTime() throws Exception {
+        String url = "http://slide.news.sina.com.cn/s/slide_1_2841_84597.html#p=1";
+        HttpFetcher fetcher = new HttpFetcher();
+        WebPage page = new WebPage(url, false);
+
+        ProtocolOutput output = fetcher.fetch(page);
+        Document _d = output.getDocument();
+//        System.out.println(_d.text());
+        DateExtractor2 dateExtractor2 = new DateExtractor2();
+        dateExtractor2.extract(_d);
+        System.out.println(new Date(dateExtractor2.getTimeInMs()).toLocaleString() + "\t"
+                        + dateExtractor2.getWeight());
+    }
 
 }

@@ -138,8 +138,20 @@ public final class NetworkSearchParserController extends ParseTool {
                         synopsis = synEles.first().text();
                     }
                 }
-
+                
                 RecordInfo info = recordInfo.clone();
+
+                //计算百度快照
+                Elements anchors = line.getElementsByTag("a");;
+                if (!CollectionUtils.isEmpty(anchors)) {
+                    for (Element anchor : anchors) {
+                        if (anchor.ownText().contains("百度快照")) {
+                            info.setHome_url(anchor.absUrl("href"));
+                        }
+                    }
+                }
+                
+
 
                 /** 日期 */
                 info.setTimestamp(0L);

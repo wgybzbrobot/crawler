@@ -30,6 +30,24 @@
 //        ListRule listRule = new ListRule(false, "search", listdom, linedom, urldom, datedom, updatedom, synopsisdom, authordom);
 //        Set<DetailRule> detailRules = null;
 //        JobConf job = new JobConf(JobType.NETWORK_SEARCH, url, "百度", 3, 2, "百度搜索", listRule, detailRules);
+//        job.setCountry_code(1);
+//        job.setKeyword("合肥传销");
+//        
+//        NetworkSearchParserController parserController = new NetworkSearchParserController();
+//        parserController.parse(job);
+//    }
+//
+//    @Test
+//    public void testBingSearch() throws  CrawlerException, UnsupportedEncodingException, MalformedURLException {
+//        String url = "http://cn.bing.com/search?q=%s";
+//        String listdom = "ol#b_results", linedom="[class~=(b_algo|b_ans|b_pag)", urldom="h2 a";
+//        String synopsisdom = "div.b_caption p";
+//        
+//        ListRule listRule = new ListRule(false, "search", listdom, linedom, urldom, "", "", synopsisdom, "");
+//        Set<DetailRule> detailRules = null;
+//        JobConf job = new JobConf(JobType.NETWORK_SEARCH, url, "微软", 3, 2, "必应搜索", listRule, detailRules);
+//        job.setCountry_code(1);
+//        job.setGoInto(true);
 //        job.setKeyword("合肥传销");
 //        
 //        NetworkSearchParserController parserController = new NetworkSearchParserController();
