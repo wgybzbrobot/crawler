@@ -43,7 +43,7 @@ public class SearchParserTest {
 
     @Test
     public void testTime() throws Exception {
-        String url = "http://slide.news.sina.com.cn/s/slide_1_2841_84597.html#p=1";
+        String url = "http://money.163.com/12/1023/01/8EFBRJ0J00253B0H.html";
         HttpFetcher fetcher = new HttpFetcher();
         WebPage page = new WebPage(url, false);
 
