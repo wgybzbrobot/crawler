@@ -36,10 +36,10 @@
 		<url>scm:git:git@192.168.3.21:spider/crawler.git</url>
 	</scm>
 	<!-- 持续集成 -->
-<!-- 	<ciManagement>
-		<system>Hudson</system>
-		<url>http://${distribution.repository}:8080/hudson</url>
-	</ciManagement> -->
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>http://192.168.3.161:8080/jenkins/</url>
+	</ciManagement>
 	<!-- 问题跟踪 -->
 	<issueManagement>
 		<system>JIRA</system>
