@@ -5,7 +5,7 @@
 	<artifactId>crawler</artifactId>
 	<version>2.2.0-SNAPSHOT</version>
 	<name>Crawler</name>
-	<description>  Crawler ${project.version}是一个网络與情爬虫</description>
+	<description>Crawler ${project.version}是一个网络與情爬虫</description>
 	<packaging>pom</packaging>
 	<properties>
 		<main.basedir>${project.basedir}</main.basedir>
@@ -66,10 +66,10 @@
 			<id>zxsoft-dist</id>
 			<url>http://192.168.3.23:18081/nexus/content/repositories/releases</url>
 		</repository>
-		<!-- <site>
-			<id>website</id>
-			<url>scp:192.168.4.137/var/www</url>
-		</site> -->
+		<site>
+			<id>project-doc</id>
+			<url>scp://192.168.3.161/root/apache-tomcat-7.0.56/webapps/crawler/${project.version}</url>
+		</site>
 	</distributionManagement>
 	<profiles>
 		<profile>
@@ -121,7 +121,7 @@
 					<artifactId>maven-antrun-plugin</artifactId>
 					<version>1.7</version>
 				</plugin>
-	<!--   			<plugin>
+	  			<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
 					<version>3.3</version>
@@ -130,7 +130,7 @@
 						<stagingDirectory>/tmp/stage</stagingDirectory>
 					</configuration>
 					<dependencies>
-						<dependency>add support for ssh/scp
+						<dependency>
 							<groupId>org.apache.maven.wagon</groupId>
 							<artifactId>wagon-ssh</artifactId>
 							<version>1.0</version>
@@ -144,7 +144,7 @@
 					<configuration>
 						<testFailureIgnore>true</testFailureIgnore>
 					</configuration>
-				</plugin> -->
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -197,11 +197,6 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.zxsoft.crawler</groupId>
-				<artifactId>crawler-parse-ext</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.restlet.jee</groupId>
 				<artifactId>org.restlet</artifactId>
 				<version>${restlet.version}</version>
@@ -242,11 +237,6 @@
 				<version>4.10</version>
 				<scope>test</scope>
 			</dependency>
-			<!-- <dependency>
-			<groupId>oracle.jdbc</groupId>
-			<artifactId>ojdbc</artifactId>
-			<version>1.0.0</version>
-		</dependency> -->
 		<dependency>
   <groupId>cn.guoyukun.jdbc</groupId>
   <artifactId>oracle-ojdbc6</artifactId>

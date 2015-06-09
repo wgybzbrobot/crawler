@@ -1,19 +1,19 @@
-package com.zxsoft.crawler.plugin.parse;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.Date;
-import org.jsoup.nodes.Document;
-import org.junit.Test;
-
-import com.zxsoft.crawler.plugin.parse.ext.DateExtractor2;
-import com.zxsoft.crawler.plugin.parse.ext.TextExtract;
-import com.zxsoft.crawler.protocol.ProtocolOutput;
-import com.zxsoft.crawler.protocols.http.HttpFetcher;
-import com.zxsoft.crawler.storage.WebPage;
-
-public class SearchParserTest {
-
+//package com.zxsoft.crawler.plugin.parse;
+//
+//import java.io.IOException;
+//import java.net.MalformedURLException;
+//import java.util.Date;
+//import org.jsoup.nodes.Document;
+//import org.junit.Test;
+//
+//import com.zxsoft.crawler.plugin.parse.ext.DateExtractor2;
+//import com.zxsoft.crawler.plugin.parse.ext.TextExtract;
+//import com.zxsoft.crawler.protocol.ProtocolOutput;
+//import com.zxsoft.crawler.protocols.http.HttpFetcher;
+//import com.zxsoft.crawler.storage.WebPage;
+//
+//public class SearchParserTest {
+//
 //    @Test
 //    public void test2() throws MalformedURLException, IOException {
 //        String[] urls = new String[] {
@@ -40,20 +40,20 @@ public class SearchParserTest {
 //            System.out.println(url + "\t" + t);
 //        }
 //    }
-
-    @Test
-    public void testTime() throws Exception {
-        String url = "http://money.163.com/12/1023/01/8EFBRJ0J00253B0H.html";
-        HttpFetcher fetcher = new HttpFetcher();
-        WebPage page = new WebPage(url, false);
-
-        ProtocolOutput output = fetcher.fetch(page);
-        Document _d = output.getDocument();
-//        System.out.println(_d.text());
-        DateExtractor2 dateExtractor2 = new DateExtractor2();
-        dateExtractor2.extract(_d);
-        System.out.println(new Date(dateExtractor2.getTimeInMs()).toLocaleString() + "\t"
-                        + dateExtractor2.getWeight());
-    }
-
-}
+//
+//    @Test
+//    public void testTime() throws Exception {
+//        String url = "http://money.163.com/12/1023/01/8EFBRJ0J00253B0H.html";
+//        HttpFetcher fetcher = new HttpFetcher();
+//        WebPage page = new WebPage(url, false);
+//
+//        ProtocolOutput output = fetcher.fetch(page);
+//        Document _d = output.getDocument();
+////        System.out.println(_d.text());
+//        DateExtractor2 dateExtractor2 = new DateExtractor2();
+//        dateExtractor2.extract(_d);
+//        System.out.println(new Date(dateExtractor2.getTimeInMs()).toLocaleString() + "\t"
+//                        + dateExtractor2.getWeight());
+//    }
+//
+//}
