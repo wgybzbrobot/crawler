@@ -244,18 +244,23 @@
 		</div>
 		<div id="content">
 			<ul>
-				<c:forEach items="${page.res}" var="web">
+				<c:forEach items="${page.res}" var="web" begin="0" end="49">
 					<li class="site-li">
 						<span class="edit" style="display: none;"><a href="website/moreinfo/${web.id}" onclick="return false;" id="${web.id}" class="moreinfo"  style="font-size: 8px;color:#bbE3F9;">编辑</a></span>
 						<a href="section?websiteId=${web.id}" title="${web.comment}" >${web.comment }</a>
 					</li>
+					
 				</c:forEach>
-			</ul>
-			<%-- <c:if test="${page.count > 50}">
 				<div class="website-more" id="website_more">
-					<a href="javascript:void(0)"><span>加载更多</span></a>
+					<a href="javascript:void(0)"><span>下一页</span></a>
 				</div>
-			</c:if> --%>
+				
+			</ul>
+<%-- 					<c:if test="${page.count > 50}"> --%>
+<!-- 						<div class="website-more" id="website_more"> -->
+<!-- 							<a href="javascript:void(0)"><span>加载更多</span></a> -->
+<!-- 						</div> -->
+<%-- 					</c:if>  --%>
 
 		</div>
 	</div>

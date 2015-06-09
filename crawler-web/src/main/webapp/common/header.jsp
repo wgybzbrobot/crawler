@@ -37,6 +37,8 @@ $(function() {
 		top.location = '../logout';
 	});
 });
+
+
 </script>
 </head>
 <body>
@@ -48,6 +50,7 @@ $(function() {
 			if (account == null) {
 			%>
 			<a class="mnav" id="j_login" href="javascript:void(0);">登录</a>
+			
 			<% } else { %>
 			<a class="mnav" id="j_login" href="javascript:void(0);" onclick="return false;"><%=account.getUsername() %></a>
 			<a class="mnav" id="j_logout" href="javascript:void(0);">退出</a>

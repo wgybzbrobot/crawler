@@ -65,11 +65,12 @@ $(function() {
 					if (account == null) {
 				%>
 				<a class="mnav" id="j_login" href='<c:url value="login'"/>'>登录</a>
+				<a class="mnav"  href='<c:url value="register'"/>'>注册</a>
 				<%
 					} else {
 				%>
 				<a class="mnav" id="j_login" href="javascript:void(0);" onclick="return false;"><%=account.getUsername()%></a> <a
-					class="mnav" id="j_logout" href="javascript:void(0);">退出</a>
+					class="mnav" id="j_logout" href='<c:url value="logout'"/>'>退出</a>
 				<%
 					}
 				%>

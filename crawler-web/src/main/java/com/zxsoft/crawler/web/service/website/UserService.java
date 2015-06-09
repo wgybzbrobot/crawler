@@ -8,4 +8,6 @@ import com.zxsoft.crawler.entity.Account;
 public interface UserService {
 
 	Account getAccount(String username, String password);
+	
+	public void newAccount(Account account); 
 }
