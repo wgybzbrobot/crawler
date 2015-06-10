@@ -5,11 +5,11 @@
 
   <bannerLeft>
     <name>${project.name}</name>
-    <src>http://maven.apache.org/images/apache-maven-project.png</src>
+    <src>images/logo2.png</src>
     <href>http://192.168.3.161:8080/crawler-web/</href>
   </bannerLeft>
   <bannerRight>
-    <src>http://maven.apache.org/images/maventxt_logo_200.gif</src>
+    <src>images/logo1.gif</src>
   </bannerRight>
 
   <skin>
@@ -29,13 +29,11 @@
         <item name="下载" href="download.html"/>
         <item name="发布说明" href="release.html"/>
       <item name="JavaDocs" href="apidocs/index.html"/>
-      <item name="源码" href="xref/index.html"/>
       <item name="常见问题" href="faq.html"/>
     </menu>
 
     <menu name="开发">
-      <item name="开发者中心" href="../../developers/index.html"/>
-      <item name="开发环境" href="../../core-its/index.html"/>
+      <item name="开发环境" href="develop.html"/>
     </menu>
 
     <menu ref="modules"/>
