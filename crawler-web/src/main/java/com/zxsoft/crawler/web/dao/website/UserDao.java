@@ -8,6 +8,9 @@ import com.zxsoft.crawler.entity.Account;
 public interface UserDao {
 
 	Account getAccount(String username, String password);
+	
+	//register
+	public void newAccount(Account account);
 
 	
 }

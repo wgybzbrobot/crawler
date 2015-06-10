@@ -23,6 +23,12 @@ public class LoginController {
 		
 		return "login";
 	}
+	
+	@RequestMapping(value = "/register", method = RequestMethod.GET)
+	public String index1(Account account, Model model) {
+		
+		return "register";
+	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String login(Account acc, Model model, HttpSession session) {
@@ -38,6 +44,19 @@ public class LoginController {
 		
 		return "redirect:/";
 	}
+	
+	@RequestMapping(value = "/register", method = RequestMethod.POST)
+	public String register(Account account, Model model, HttpSession session) {
+		
+		userService.newAccount(account);
+
+		session.setAttribute("account", account);
+		
+		return "redirect:/";
+	}
+	
+	
+	
 	
 	@RequestMapping(value = "logout", method = RequestMethod.GET)
 	public String logout(@RequestParam(value="accountId", required=false) String accountId, HttpSession session) {

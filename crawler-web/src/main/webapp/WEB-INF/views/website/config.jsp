@@ -386,6 +386,10 @@
 											</label> <input name="testUrl" type="text" />
 										</div>
 										<div>
+											<label class="form-label" for="encode">网页编码
+											</label> <input name="encode" type="text" />
+										</div>
+										<div>
 											<label class="form-label" for="ajax">是否Ajax加载</label>
 											<input type="radio" name="ajax" value="true" checked="checked" />是<input type="radio" name="ajax"
 												value="false" /> 否
@@ -492,6 +496,10 @@
 												<label class="form-label" for="testUrl">测试页URL地址<span class="red">*</span></label>
 												<input name="testUrl" />
 											</div>
+											<div>
+	                                            <label class="form-label" for="encode">网页编码
+	                                            </label> <input name="encode" value=${confDetail.encode} type="text" />
+	                                        </div>
 											<div>
 												<label class="form-label" for="ajax">是否Ajax加载</label>
 												<c:choose>

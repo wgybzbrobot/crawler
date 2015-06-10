@@ -39,6 +39,8 @@ public class ConfDetail implements java.io.Serializable {
 	private String subReplyAuthor;
 	private String subReplyDate;
 	private String subReplyContent;
+	
+	private String encode;
 
 	/*private String testUrl;
 	
@@ -129,8 +131,18 @@ public class ConfDetail implements java.io.Serializable {
 	public void setSources(String sources) {
 		this.sources = sources;
 	}
+	
+	
+	@Column(name = "encode", length = 45)
+	public String getEncode() {
+        return encode;
+    }
 
-	@Column(name = "fetchOrder")
+    public void setEncode(String encode) {
+        this.encode = encode;
+    }
+
+    @Column(name = "fetchOrder")
 	public Boolean getFetchOrder() {
 		return this.fetchOrder;
 	}

@@ -157,6 +157,7 @@ public class JobController {
                                     cd.getReplyDate(), cd.getReplyContent(),
                                     cd.getSubReply(), cd.getSubReplyAuthor(),
                                     cd.getSubReplyDate(), cd.getSubReplyContent());
+                    detailRule.setEncode(cd.getEncode());
                     detailRules.add(detailRule);
                 }
 
@@ -203,7 +204,7 @@ public class JobController {
     public JobConf edit(@PathVariable(value = "reptileId") Integer reptileId,
                     @PathVariable(value = "jobId") Long jobId) {
         JobConf job = jobService.getJob(reptileId, jobId);
-        return job;
+        return job; 
     }
 
     @RequestMapping(value = "addJob/{reptileId}", method = RequestMethod.POST)
