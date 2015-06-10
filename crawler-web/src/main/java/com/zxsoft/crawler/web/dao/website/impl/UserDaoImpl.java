@@ -27,4 +27,15 @@ public class UserDaoImpl implements UserDao {
 		return list.get(0);
 		
 	}
+
+	@Override
+	public void newAccount(Account account) {
+		System.out.println("id:"+account.getId());
+		System.out.println("name:"+account.getUsername());
+		System.out.println("password:"+account.getPassword());
+		hibernateTemplate.save(account);
+	}
+	
+
+
 }

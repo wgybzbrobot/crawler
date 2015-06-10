@@ -19,4 +19,9 @@ public class UserServiceImpl implements UserService {
 		return userDao.getAccount(username, password);
 	}
 
+	@Override
+	public void newAccount(Account account) {
+		userDao.newAccount(account);
+	}
+
 }
