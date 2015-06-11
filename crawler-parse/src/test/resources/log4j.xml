@@ -7,7 +7,7 @@
 			<param name="ConversionPattern" value="%d{ISO8601} [%t] %5p %c [Line:%L] - %m%n" />
 		</layout>
 	</appender>      
-	<logger name="com.zxsoft.crawler.protocols">
+	<logger name="com.zxsoft.crawler">
 		<level value="debug" />
 	</logger>
 	<logger name="com.springframework.jdbc">
