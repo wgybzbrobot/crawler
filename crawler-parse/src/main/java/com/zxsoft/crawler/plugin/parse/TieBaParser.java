@@ -56,6 +56,7 @@ public class TieBaParser extends Parser {
         String mainUrl = recordInfo.getOriginal_url();
 
         WebPage page = new WebPage(mainUrl, detailRule.getAjax(), null);
+        page.setEncode(detailRule.getEncode());
         ProtocolOutput _output = fetch(page);
         if (!_output.getStatus().isSuccess())
             return new FetchStatus(mainUrl, 51, Status.PROTOCOL_FAILURE);
