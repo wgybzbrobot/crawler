@@ -59,7 +59,6 @@ public class BlogParser extends Parser {
             
         String mainUrl = recordInfo.getOriginal_url();
         WebPage page = new WebPage(mainUrl, detailRule.getAjax(), null);
-        page.setEncode(detailRule.getEncode());
                 ProtocolOutput _output = fetch(page);
                 
                 if (!_output.getStatus().isSuccess()) {

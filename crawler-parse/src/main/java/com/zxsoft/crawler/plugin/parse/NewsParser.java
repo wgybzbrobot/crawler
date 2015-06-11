@@ -45,9 +45,7 @@ public class NewsParser extends Parser {
             throw new CrawlerException(ErrorCode.CONF_ERROR, "Detail page rule is null.");
 
         String mainUrl = recordInfo.getOriginal_url();
-        
         WebPage page = new WebPage(mainUrl, detailRule.getAjax(), null);
-        page.setEncode(detailRule.getEncode());
 
         ProtocolOutput _output = fetch(page);
         if (!_output.getStatus().isSuccess()) {
@@ -61,19 +59,9 @@ public class NewsParser extends Parser {
         info.setUrl(mainUrl);
         info.setPlatform(Platform.PLATFORM_NEWS);
 
-        if (StringUtils.isEmpty(detailRule.getMaster()))
-            throw new CrawlerException(ErrorCode.CONF_ERROR, "Detail rule master dom is null.");
-        
-        Elements masters = document.select(detailRule.getMaster());
-        if (CollectionUtils.isEmpty(masters))
-            throw new CrawlerException(ErrorCode.CONF_ERROR, 
-                            "Cannot select elements using detail rule master dom " + detailRule.getMaster());
-        
-        Element master = masters.first();
-        
         Elements contentEles = null;
         if (!StringUtils.isEmpty(detailRule.getContent())
-                        && !CollectionUtils.isEmpty(contentEles = master
+                        && !CollectionUtils.isEmpty(contentEles = document
                                         .select(detailRule.getContent()))) {
             Element contentEle = contentEles.first();
             info.setContent(contentEle.text());
@@ -83,8 +71,8 @@ public class NewsParser extends Parser {
         }
         String authorDom = detailRule.getAuthor();
         if (!StringUtils.isEmpty(authorDom)
-                        && !CollectionUtils.isEmpty(master.select(authorDom))) {
-            String text = master.select(authorDom).first().text();
+                        && !CollectionUtils.isEmpty(document.select(authorDom))) {
+            String text = document.select(authorDom).first().text();
             info.setNickname(ExtExtractor.extractAuthor(text));
         }
         String sourcesDom = detailRule.getSources();
@@ -118,8 +106,8 @@ public class NewsParser extends Parser {
         if (extInfo.getTimestamp() == 0) {
             String dateDom = detailRule.getDate();
             if (!StringUtils.isEmpty(dateDom)
-                            && !CollectionUtils.isEmpty(master.select(dateDom))) {
-                String str = master.select(dateDom).first().html();
+                            && !CollectionUtils.isEmpty(document.select(dateDom))) {
+                String str = document.select(dateDom).first().html();
                 info.setTimestamp(DateExtractor.extractInMilliSecs(str));
             } 
         } else {
@@ -129,7 +117,7 @@ public class NewsParser extends Parser {
             info.setTimestamp(info.getLasttime());
         
         info.setId(Md5Signatrue.generateMd5(extInfo.getIdentify_md5(),info.getUrl()));
-        LOG.debug(info.toString());
+//        LOG.info(info.toString());
         if (StringUtils.isEmpty(info.getContent())) {
             return new FetchStatus(mainUrl, 21, Status.SUCCESS, 0);
         }
