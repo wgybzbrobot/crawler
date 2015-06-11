@@ -45,10 +45,8 @@ public class NewsParser extends Parser {
             throw new CrawlerException(ErrorCode.CONF_ERROR, "Detail page rule is null.");
 
         String mainUrl = recordInfo.getOriginal_url();
-        
         WebPage page = new WebPage(mainUrl, detailRule.getAjax(), null);
         page.setEncode(detailRule.getEncode());
-
         ProtocolOutput _output = fetch(page);
         if (!_output.getStatus().isSuccess()) {
             return new FetchStatus(mainUrl, 61, Status.PROTOCOL_FAILURE);
@@ -62,13 +60,12 @@ public class NewsParser extends Parser {
         info.setPlatform(Platform.PLATFORM_NEWS);
 
         if (StringUtils.isEmpty(detailRule.getMaster()))
-            throw new CrawlerException(ErrorCode.CONF_ERROR, "Detail rule master dom is null.");
-        
+                throw new CrawlerException(ErrorCode.CONF_ERROR, "Detail rule master dom is null.");
         Elements masters = document.select(detailRule.getMaster());
         if (CollectionUtils.isEmpty(masters))
             throw new CrawlerException(ErrorCode.CONF_ERROR, 
                             "Cannot select elements using detail rule master dom " + detailRule.getMaster());
-        
+                
         Element master = masters.first();
         
         Elements contentEles = null;
