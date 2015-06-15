@@ -128,7 +128,7 @@ public class ExtExtractor {
                 String str = rContext.getText();
                 if (str.contains("missing") || str.contains("EOF")) {
                         // do not find use antlr4
-                        str = text;
+                        str = "";
                 } else {
                         int pos = str.indexOf(":") == -1 ? str.indexOf("：") : str.indexOf(":");
                         str = str.substring(pos + 1);
