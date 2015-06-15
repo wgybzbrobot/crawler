@@ -90,9 +90,9 @@ public class JobServiceImpl  implements JobService {
             if (page != null && !CollectionUtils.isEmpty(page.getRes())) {
                 throw new CrawlerException(ErrorCode.SYSTEM_ERROR, "Job exist");
             }
-            
-            Random random = new Random(9999999);
-            long jobId = System.currentTimeMillis() - random.nextLong();
+            // 1434342855662
+            Random random = new Random();
+            long jobId = System.currentTimeMillis() - random.nextInt(9999999);
             jobConf.setJobId(jobId);
             double score = 1.0d / (1.0d + jobConf.getFetchinterval() * 1.0d);
             jedis.zadd(URLBASE,score, jobConf.toString());
@@ -113,9 +113,9 @@ public class JobServiceImpl  implements JobService {
             if (_job != null) {
                 jedis.zrem(URLBASE, _job.toString());
             }
-            
-            Random random = new Random(9999999);
-            long jobId = System.currentTimeMillis() - random.nextLong();
+           
+            Random random = new Random();
+            long jobId = System.currentTimeMillis() - random.nextInt(9999999);
             job.setJobId(jobId);
             double score = 1.0d / (1.0d + job.getFetchinterval() * 1.0d);
             jedis.zadd(URLBASE, score, job.toString());
@@ -123,7 +123,7 @@ public class JobServiceImpl  implements JobService {
             pool.returnResource(jedis);
         }
     }
-
+    
     @Override
     public Page<JobConf> getJobs(Integer reptileId,String query, int start, int end) {
         if (start < 0) // redis index begin with zero
