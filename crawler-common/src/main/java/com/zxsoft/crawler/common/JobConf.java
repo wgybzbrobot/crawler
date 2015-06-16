@@ -16,10 +16,10 @@ public class JobConf implements Serializable {
         private static final long serialVersionUID = -5812527440561239425L;
 
         // 任务类型, 默认是网络巡检
-        private  JobType jobType; 
+        	private  JobType jobType;  
         private  String url;             // 任务url地址
-        private int workerId; //  指定该任务到具体的worker机器上执行 
-        private String keyword;
+        	private int workerId; //  指定该任务到具体的worker机器上执行 
+        	private String keyword;
         private String keywordEncode; 
         /**
          * url地址是否动态变化， 目前支持根据时间动态编码, deault is false.
@@ -53,7 +53,7 @@ public class JobConf implements Serializable {
         private int city_code;
 
         // 默认是执行状态
-        private State state = State.JOB_EXCUTING;
+        	private State state = State.JOB_EXCUTING;
 
         /**
          * 任务状态，1表示执行，0表示暂停
@@ -76,7 +76,7 @@ public class JobConf implements Serializable {
         /**
          * 上次抓取时间，默认为0, 单位毫秒(ms)
          */
-        private long prevFetchTime;
+        	private long prevFetchTime;
         
         /**
          * 版块id
@@ -97,35 +97,35 @@ public class JobConf implements Serializable {
         /**
          * 开始时间
          */
-        private long start;
+        	private long start;
 
         /**
          * 被执行次数
          */
-        private long count;
+        	private long count;
         
         /**
          * 由于网络原因，导致重爬的次数
          */
-        private int retry;
+        	private int retry;
         
         /**
          * 用户名
          */
-        private String username;
+        	private String username;
         /**
          *  密码
          */
-        private String password;
+        	private String password;
         
-        private Boolean auth;
+        	private Boolean auth;
         
         private   ListRule listRule;
         
         private  Set<DetailRule> detailRules;
         
-        private String location;
-        private int locationCode; 
+        	private String location;
+        	private int locationCode; 
         
         /**
          * 这个字段仅用于测试

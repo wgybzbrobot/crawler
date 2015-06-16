@@ -134,8 +134,34 @@ $(function() {
 	});
 $(".edit").click(function () {
     console.log('hello');
-    $('#jobForm').form('load', $(this).attr("href"));
-    $('#jobInfo').show();
+   /*  $('#jobForm').form('load', $(this).attr("href"));
+    $('#jobInfo').show(); */
+    $('#jobForm').find("input[type=text]").val("");
+    $.ajax({
+   	   type: "GET",
+   	   url: this.href,
+   	   success: function(jobConf){
+   	     //console.log( "Data Saved: " + jobConf.url );
+	   	 for (var field in jobConf) {
+	   		 console.log (field);
+	         $('input[name="'+ field +'"]').val(jobConf[field]);
+	         
+	         if(field=="listRule"){
+	        	 for (var rule in jobConf.listRule) {
+	        		 $('input[name="listRule.'+ rule +'"]').val(jobConf.listRule[rule]);
+	        		 console.log(rule);
+	        	 }
+	         }
+	         if(field=="detailRules"){
+	        	 for (var detail in jobConf.detailRules[0]) {
+	        		 $('input[name="detailRules.'+ detail +'"]').val(jobConf.detailRules[0][detail]);
+	        		 console.log(detail);
+	        	 }
+	         }
+	     }
+	   	 $('#jobInfo').show();
+   	   }
+   	});
     return false;
 });
 
@@ -152,28 +178,77 @@ $(".edit").click(function () {
             <form id="jobForm" method="post" action="<c:url value='/job/addJob/${reptileId}' />">
                 <input type="hidden" name="jobId" >
                 <div>
-                    url<input  type="text" name="url" />
-                    来源<input  type="text" name="source_name" />
-                    来源id<input  type="text" name="source_id" />
+                    url:<input  type="text" name="url" />
+                    来源:<input  type="text" name="source_name" /><br />
+                    来源id:<input  type="text" name="source_id" />
+					版块名称:<input  type="text" name="type" /><br />
+               		时间间隔:<input  type="text" name="fetchinterval" />
+                    循环:<input  type="text" name="recurrence" /><br />
+                    网页编码:<input type="text" name="encode" />
+                    关键字:<input type="text" name="keywordEncode" /><br />
+                    动态url:<input type="text" name="autoUrl" />
+                    平台类型:<input type="text" name="platform" /><br />
+                    jobId:<input  type="text" name="jobId" />
+                    ip:<input  type="text" name="ip" /><br />
+                    境内外标识:<input  type="text" name="country_code" />
+					省份代码:<input  type="text" name="province_code" /><br />
+               		城市代码:<input  type="text" name="city_code" />
+                    版块id:<input  type="text" name="sectionId" /><br />
+                </div>
+                <div style="display:none">
+                	<input type="text" name="jobType" />
+                    <input type="text" name="workerId" />
+                    <input type="text" name="keyword" />
+                    <input type="text" name="state" />
+                    <input type="text" name="prevFetchTime" />
+                    <input type="text" name="start" />
+                    <input type="text" name="count" />
+                    <input type="text" name="retry" />
+                    <input type="text" name="username" />
+                    <input type="text" name="password" />
+                    <input type="text" name="auth" />
+                    <input type="text" name="location" />
+                    <input type="text" name="locationCode" />
                 </div>
                 <div>
-                版块名称<input  type="text" name="type" />
-                时间间隔<input  type="text" name="fetchinterval" />
+                    列表页规则:<br />
+                    ajax加载:<input type="text" name="listRule.ajax" value="false"/>
+                    列表页dom:<input type="text" name="listRule.listdom" /><br />
+                    列表行dom:<input type="text" name="listRule.linedom" />
+                    详细页url:<input type="text" name="listRule.urldom" /><br />
+                    更新时间:<input type="text" name="listRule.updatedom" />
+                    类型:<input type="text" name="listRule.category" /><br />
+                    时间dom:<input type="text" name="listRule.datedom" />
+                    简介dom:<input type="text" name="listRule.synopsisdom" /><br />
+                    作者dom:<input type="text" name="listRule.authordom" />
                 </div>
                 <div>
-                    循环<input  type="text" name="recurrence" />
-                    网页编码<input type="text" name="encode" />
-                </div>
-                <div>
-                    列表页规则:
-                    是否ajax加载<input type="radio" name="listRule.ajax" /><br />
-                    listdom<input type="text" name="listRule.listdom" /><br />
-                    linedom<input type="text" name="listRule.linedom" /><br />
-                    urldom<input type="text" name="listRule.urldom" /><br />
-                </div>
-                <div>
-                    详细页规则:
-                    
+                    详细页规则:<br />
+                    来源:<input type="text" name="detailRules.sources" />
+                    host:<input type="text" name="detailRules.host" /><br />
+                    回复数:<input type="text" name="detailRules.replyNum" />
+                    浏览数:<input type="text" name="detailRules.reviewNum" /><br />
+                    forwardNum:<input type="text" name="detailRules.forwardNum" />
+                    sources:<input type="text" name="detailRules.sources" /><br />
+                    抓取顺序（true从最后一页开始抓）:<input type="text" name="detailRules.fetchorder" />
+                    ajax:<input type="text" name="detailRules.ajax" /><br />
+                    主帖模块:<br />
+                    主贴dom:<input type="text" name="detailRules.master" />
+                    作者dom:<input type="text" name="detailRules.author" /><br />
+                    发布时间:<input type="text" name="detailRules.date" />
+                    内容dom:<input type="text" name="detailRules.content" /><br />
+                    回复模块:<br />
+                    reply:<input type="text" name="detailRules.reply" />
+                    回复用户:<input type="text" name="detailRules.replyAuthor" /><br />
+                    回复日期:<input type="text" name="detailRules.replyDate" />
+                    回复内容:<input type="text" name="detailRules.replyContent" /><br />
+                    <div style="display:none">
+                    <input type="text" name="detailRules.subReply" />
+                    <input type="text" name="detailRules.subReplyAuthor" /><br />
+                    <input type="text" name="detailRules.subReplyDate" />
+                    <input type="text" name="detailRules.subReplyContent" /><br />
+                    </div>
+
                 </div>
                 <div>
                     <input style="width: 160px;" class="form-btn" type="submit" value="保存" />

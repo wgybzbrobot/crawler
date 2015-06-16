@@ -198,6 +198,12 @@ public class JobController {
         return null;
     }
 
+    /**
+     * 编辑任务
+     * @param reptileId
+     * @param jobId
+     * @return
+     */
     @ResponseBody
     @RequestMapping(value = "ajax/edit/{reptileId}/{jobId}", method = RequestMethod.GET)
     public JobConf edit(@PathVariable(value = "reptileId") Integer reptileId,
@@ -210,6 +216,7 @@ public class JobController {
     public String addJob(@PathVariable(value = "reptileId") Integer reptileId, JobConf job)
                     throws CrawlerException {
         // TODO 添加任务，处理页面
-        return "redirect:/job/search";
+    	jobService.addOrUpdate(reptileId, job);
+        return "redirect:/job/search/" + reptileId;
     }
 }

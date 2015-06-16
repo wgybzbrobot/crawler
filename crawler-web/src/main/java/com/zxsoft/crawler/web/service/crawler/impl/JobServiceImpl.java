@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,6 +103,9 @@ public class JobServiceImpl  implements JobService {
         return null;
     }
     
+    /**
+     * 
+     */
     @Override
     public void addOrUpdate(Integer reptileId, JobConf job){
         
@@ -119,6 +123,11 @@ public class JobServiceImpl  implements JobService {
             job.setJobId(jobId);
             double score = 1.0d / (1.0d + job.getFetchinterval() * 1.0d);
             jedis.zadd(URLBASE, score, job.toString());
+            
+            
+            LOG.info("更新任务为："+job.getSource_name()+"-->"+job.getType());
+ 
+          
         } finally {
             pool.returnResource(jedis);
         }

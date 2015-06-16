@@ -27,10 +27,10 @@ public class DetailRule implements Serializable {
     private String replyContent;
 
     // 子回复
-    private String subReply;
-    private String subReplyAuthor;
-    private String subReplyDate;
-    private String subReplyContent;
+	    private String subReply;
+	    private String subReplyAuthor;
+	    private String subReplyDate;
+	    private String subReplyContent;
     
     public DetailRule() {
        super();
