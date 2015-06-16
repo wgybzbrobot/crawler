@@ -17,7 +17,7 @@ FILTER: . -> skip ;
 WITHESPACE: [ \t\r\n\u00A0];
 WS : WITHESPACE+ -> skip ; // skip spaces, tabs, newlines
 
-// 来源：安徽财经网 
+
 Author_Token1: ('作者' | '编辑')  WITHESPACE* ('：' | ':') WITHESPACE* ~[ \t\r\n\u00A0]+  WITHESPACE*;
 extractAuthor: Author_Token1 ;
 

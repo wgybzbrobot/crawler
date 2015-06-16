@@ -32,6 +32,11 @@ public class DetailRule implements Serializable {
 	    private String subReplyDate;
 	    private String subReplyContent;
     
+    /**
+     * 网页编码
+     */
+    private String encode;
+    
     public DetailRule() {
        super();
     }
@@ -64,6 +69,16 @@ public class DetailRule implements Serializable {
         this.subReplyDate = subReplyDate;
         this.subReplyContent = subReplyContent;
     }
+    
+    
+    public String getEncode() {
+        return encode;
+    }
+
+    public void setEncode(String encode) {
+        this.encode = encode;
+    }
+
     public String getHost() {
         return host;
     }

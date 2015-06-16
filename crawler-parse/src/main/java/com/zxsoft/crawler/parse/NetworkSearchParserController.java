@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -91,7 +90,7 @@ public final class NetworkSearchParserController extends ParseTool {
         Elements oldLines = null; // 用于检查页面数据是否没有变动
 
         int likeCount = 0;
-        long start = System.currentTimeMillis();
+        final long start = System.currentTimeMillis();
         while (System.currentTimeMillis() - start < 1200000L) {
             Elements list = document.select(listDom);
             if (CollectionUtils.isEmpty(list))

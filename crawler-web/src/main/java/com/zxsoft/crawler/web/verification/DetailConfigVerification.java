@@ -35,6 +35,7 @@ public class DetailConfigVerification extends ParseTool {
 		// info.put("测试页URL", detailConf.getTestUrl());
 		List<Map<String, String>> errors = new LinkedList<Map<String, String>>();
 		WebPage page = new WebPage(testUrl, detailConf.getAjax());
+		page.setEncode(detailConf.getEncode());
 		ProtocolOutput protocolOutput = fetch(page);
 		Document document = null;
 		if (protocolOutput == null || protocolOutput.getDocument() == null || !protocolOutput.getStatus().isSuccess()) {

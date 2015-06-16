@@ -134,9 +134,13 @@ public class HttpClient extends HttpBase {
             InputStream in = get.getResponseBodyAsStream();
             try {
                 content = IOUtils.toByteArray(in);
-                EncodingDetector detector = new EncodingDetector();
-                detector.detect(contentType, content, url);
-                _charset = detector.getCharset();
+                if (StringUtils.isEmpty(page.getEncode())) {
+                    EncodingDetector detector = new EncodingDetector();
+                    detector.detect(contentType, content, url);
+                    _charset = detector.getCharset();
+                } else {
+                    _charset = page.getEncode();
+                }
             } catch (Exception e) {
                 if (code == 200) {
                     LOG.error(e.getMessage() + ": " + url.toExternalForm());

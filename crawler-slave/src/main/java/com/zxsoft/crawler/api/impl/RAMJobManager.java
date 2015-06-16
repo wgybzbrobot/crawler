@@ -33,7 +33,7 @@ import com.zxsoft.crawler.util.ReflectionUtils;
  */
 public class RAMJobManager implements JobManager {
     int CAPACITY = 110;
-    ThreadPoolExecutor exec = new MyPoolExecutor(10, CAPACITY, 20, TimeUnit.MINUTES,
+    ThreadPoolExecutor exec = new MyPoolExecutor(10, CAPACITY, 30, TimeUnit.MINUTES,
                     new ArrayBlockingQueue<Runnable>(CAPACITY));
     private Logger LOG = LoggerFactory.getLogger(RAMJobManager.class);
 
