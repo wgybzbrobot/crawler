@@ -498,7 +498,7 @@
 											</div>
 											<div>
 	                                            <label class="form-label" for="encode">网页编码
-	                                            </label> <input name="encode" value=${confDetail.encode} type="text" />
+	                                            </label> <input name="encode" value="${confDetail.encode}" type="text" />
 	                                        </div>
 											<div>
 												<label class="form-label" for="ajax">是否Ajax加载</label>
