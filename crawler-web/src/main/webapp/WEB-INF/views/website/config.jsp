@@ -44,6 +44,7 @@
 			$('#loading').show();
 			$.post('config/ajax/testListConf', $('#conflist').serialize(), function(data) {
 				$('#loading').hide();
+// 				alert("success!!!");
 				$('#conflist').find('label').css('border', 'none');
 				$('#conflist').find('label').attr('title', '');
 				if (data.errors != undefined) {

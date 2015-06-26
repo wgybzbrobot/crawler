@@ -264,12 +264,14 @@ public class JobServiceImpl  implements JobService {
                         _job = gson.fromJson(json, JobConf.class);
                         if (job.getJobId() == _job.getJobId()) {
                             // FIXME: use transaction
-                            jedis.zrem(URLBASE, json);
+                            jedis.zrem(URLBASE, _job.toString());
                             double score = 1.0d / (System.currentTimeMillis() / 60000.0d + job.getFetchinterval() * 1.0d);
                             jedis.zadd(URLBASE, score,job.toString());
                             return;
                         }
                     } catch (Exception e) {
+                    	System.out.println(e.getMessage());
+                    	LOG.error("", e);
                         continue;
                     }
                 }

@@ -24,7 +24,7 @@
 				$('div.form-wrapper').show();
 				var oldurl = $(this).attr('idx');
 				console.log(oldurl);
-				$('#sectionForm input[name=oldUrl]').val(oldurl);				
+				$('#sectionForm input[name=oldUrl]').val(oldurl);	
 				$('#sectionForm').form('load', 'section/ajax/moreinfo/' + $(this).attr('id'));
 		});
 		/* 创建 */
@@ -130,6 +130,10 @@
 								<option value="${category.id }">${category.comment }</option>
 							</c:forEach>
 						</select>
+					</div>
+					<div>
+						<label class="form-label" for="keywordEncode">编码</label> <input class="form-input" type="text"
+							name="keywordEncode" data-options="required:true" />
 					</div>
 					<div>
 						<label class="form-label" for="category">URL地址是否动态变化</label> 

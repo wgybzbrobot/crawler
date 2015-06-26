@@ -157,6 +157,7 @@ public class SectionController {
         map.put("comment", section.getComment());
         map.put("category.id", section.getCategory().getId());
         map.put("website.id", section.getWebsite().getId());
+        map.put("keywordEncode",section.getKeywordEncode());
 
         return map;
     }

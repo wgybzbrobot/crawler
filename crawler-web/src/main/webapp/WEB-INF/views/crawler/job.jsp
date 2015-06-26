@@ -137,29 +137,30 @@ $(".edit").click(function () {
    /*  $('#jobForm').form('load', $(this).attr("href"));
     $('#jobInfo').show(); */
     $('#jobForm').find("input[type=text]").val("");
+//    var jobFormData = $("#jobForm").serialize(); //自动将form表单封装成json 
     $.ajax({
    	   type: "GET",
    	   url: this.href,
+//    	   contentType: "application/json", //WebService 会返回Json类型 
+//    	   data: jobFormData, //这里是要传递的参数
+//        dataType: 'json',    
    	   success: function(jobConf){
    	     //console.log( "Data Saved: " + jobConf.url );
 	   	 for (var field in jobConf) {
-	   		 console.log (field);
 	         $('input[name="'+ field +'"]').val(jobConf[field]);
-	         
 	         if(field=="listRule"){
 	        	 for (var rule in jobConf.listRule) {
 	        		 $('input[name="listRule.'+ rule +'"]').val(jobConf.listRule[rule]);
-	        		 console.log(rule);
 	        	 }
 	         }
 	         if(field=="detailRules"){
 	        	 for (var detail in jobConf.detailRules[0]) {
 	        		 $('input[name="detailRules.'+ detail +'"]').val(jobConf.detailRules[0][detail]);
-	        		 console.log(detail);
 	        	 }
 	         }
 	     }
 	   	 $('#jobInfo').show();
+// 	   	console.log(jobFormData);
    	   }
    	});
     return false;
@@ -176,24 +177,24 @@ $(".edit").click(function () {
         <div class="form-wrapper-title">编辑任务信息</div>
         <div class="form-wrapper-center">
             <form id="jobForm" method="post" action="<c:url value='/job/addJob/${reptileId}' />">
-                <input type="hidden" name="jobId" >
+<!--                 <input type="hidden" name="jobId" > -->
                 <div>
-                    url:<input  type="text" name="url" />
-                    来源:<input  type="text" name="source_name" /><br />
-                    来源id:<input  type="text" name="source_id" />
+                	url:<input  type="text" name="url"/>
+                	来源:<input  type="text" name="source_name" /><br />
+					来源id:<input  type="text" name="source_id" />
 					版块名称:<input  type="text" name="type" /><br />
-               		时间间隔:<input  type="text" name="fetchinterval" />
-                    循环:<input  type="text" name="recurrence" /><br />
-                    网页编码:<input type="text" name="encode" />
-                    关键字:<input type="text" name="keywordEncode" /><br />
-                    动态url:<input type="text" name="autoUrl" />
-                    平台类型:<input type="text" name="platform" /><br />
-                    jobId:<input  type="text" name="jobId" />
-                    ip:<input  type="text" name="ip" /><br />
-                    境内外标识:<input  type="text" name="country_code" />
+					时间间隔:<input  type="text" name="fetchinterval" />
+					循环:<input  type="text" name="recurrence" /><br />
+					网页编码:<input type="text" name="encode" />
+					关键字:<input type="text" name="keywordEncode" /><br />
+					动态url:<input type="text" name="autoUrl" />
+					平台类型:<input type="text" name="platform" /><br />
+					jobId:<input  type="text" name="jobId" />
+					ip:<input  type="text" name="ip" /><br />
+					境内外标识:<input  type="text" name="country_code" />
 					省份代码:<input  type="text" name="province_code" /><br />
-               		城市代码:<input  type="text" name="city_code" />
-                    版块id:<input  type="text" name="sectionId" /><br />
+					城市代码:<input  type="text" name="city_code" />
+					版块id:<input  type="text" name="sectionId" /><br />
                 </div>
                 <div style="display:none">
                 	<input type="text" name="jobType" />
@@ -212,7 +213,7 @@ $(".edit").click(function () {
                 </div>
                 <div>
                     列表页规则:<br />
-                    ajax加载:<input type="text" name="listRule.ajax" value="false"/>
+                    ajax加载:<input type="text" name="listRule.ajax"/>
                     列表页dom:<input type="text" name="listRule.listdom" /><br />
                     列表行dom:<input type="text" name="listRule.linedom" />
                     详细页url:<input type="text" name="listRule.urldom" /><br />
@@ -229,8 +230,7 @@ $(".edit").click(function () {
                     回复数:<input type="text" name="detailRules.replyNum" />
                     浏览数:<input type="text" name="detailRules.reviewNum" /><br />
                     forwardNum:<input type="text" name="detailRules.forwardNum" />
-                    sources:<input type="text" name="detailRules.sources" /><br />
-                    抓取顺序（true从最后一页开始抓）:<input type="text" name="detailRules.fetchorder" />
+                    抓取顺序（true从最后一页开始抓）:<input type="text" name="detailRules.fetchorder" /><br />
                     ajax:<input type="text" name="detailRules.ajax" /><br />
                     主帖模块:<br />
                     主贴dom:<input type="text" name="detailRules.master" />

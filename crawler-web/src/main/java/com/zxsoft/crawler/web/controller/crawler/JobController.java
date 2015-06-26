@@ -1,10 +1,16 @@
 package com.zxsoft.crawler.web.controller.crawler;
 
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.thinkingcloud.framework.web.utils.Page;
 
+import com.coremedia.iso.boxes.CompositionTimeToSample.Entry;
 import com.zxisl.commons.utils.CollectionUtils;
 import com.zxsoft.crawler.api.JobType;
 import com.zxsoft.crawler.common.CrawlerException;
@@ -213,11 +220,41 @@ public class JobController {
         return job; 
     }
 
-    @RequestMapping(value = "addJob/{reptileId}", method = RequestMethod.POST)
-    public String addJob(@PathVariable(value = "reptileId") Integer reptileId, JobConf job)
-                    throws CrawlerException {
-        // TODO 添加任务，处理页面
-    	jobService.addOrUpdate(reptileId, job);
+    
+
+	@RequestMapping(value = "addJob/{reptileId}", method = RequestMethod.POST)
+    public String addJob(@PathVariable(value = "reptileId") Integer reptileId, HttpServletRequest request,JobConf jobConf)
+                    throws CrawlerException{
+    	@SuppressWarnings("unchecked")
+		Map<String,Object> map = request.getParameterMap();
+    	DetailRule detailRule = new DetailRule();
+    	Set<DetailRule> detailRules = new HashSet<DetailRule>();
+    		
+    	detailRule.setSources(((String[]) map.get("detailRules.sources"))[0]);
+    	detailRule.setHost(((String[]) map.get("detailRules.host"))[0]);
+    	detailRule.setReplyNum(((String[]) map.get("detailRules.replyNum"))[0]);
+    	detailRule.setReviewNum(((String[]) map.get("detailRules.reviewNum"))[0]);
+    	detailRule.setForwardNum(((String[]) map.get("detailRules.forwardNum"))[0]);
+    	String[] strings = (String[]) map.get("detailRules.ajax");
+    	detailRule.setFetchorder(Boolean.parseBoolean(strings[0]));
+    	strings = (String[]) map.get("detailRules.ajax");
+    	detailRule.setAjax(Boolean.parseBoolean(strings[0]));
+    	detailRule.setMaster(((String[]) map.get("detailRules.master"))[0]);
+    	detailRule.setAuthor(((String[]) map.get("detailRules.author"))[0]);
+    	detailRule.setDate(((String[]) map.get("detailRules.date"))[0]);
+    	detailRule.setContent(((String[]) map.get("detailRules.content"))[0]);
+    	detailRule.setReply(((String[]) map.get("detailRules.reply"))[0]);
+    	detailRule.setReplyAuthor(((String[]) map.get("detailRules.replyAuthor"))[0]);
+    	detailRule.setReplyDate(((String[]) map.get("detailRules.replyDate"))[0]);
+    	detailRule.setReplyContent(((String[]) map.get("detailRules.replyContent"))[0]);
+    	detailRule.setSubReply(((String[]) map.get("detailRules.subReply"))[0]);
+    	detailRule.setSubReplyAuthor(((String[]) map.get("detailRules.subReplyAuthor"))[0]);
+    	detailRule.setSubReplyDate(((String[]) map.get("detailRules.subReplyDate"))[0]);
+    	detailRule.setSubReplyContent(((String[]) map.get("detailRules.subReplyContent"))[0]);
+    	
+    	detailRules.add(detailRule);
+    	jobConf.setDetailRules(detailRules);
+    	jobService.updateJob(reptileId, jobConf);
         return "redirect:/job/search/" + reptileId;
     }
 }
