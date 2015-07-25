@@ -108,23 +108,23 @@ public class MasterServer {
 		CommandLineParser parser = new GnuParser();
 		try {
 			CommandLine line = parser.parse(options, args);
-			if (line.hasOption("help")) {
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("com.zxsoft.crawler.master.MasterServer", options);
-				System.exit(0);
-			}
+			//			if (line.hasOption("help")) {
+			//				HelpFormatter formatter = new HelpFormatter();
+			//				formatter.printHelp("com.zxsoft.crawler.master.MasterServer", options);
+			//				System.exit(0);
+			//			}
 			int port = Integer.valueOf(line.getOptionValue("port", "9999"));
-			String redis_host = line.getOptionValue("redis_host", "localhost");
+			String redis_host = line.getOptionValue("redis_host", "192.168.32.72");
 			String redis_passwd = line.getOptionValue("redis_passwd", null);
 			int redis_port = Integer.valueOf(line.getOptionValue("redis_port", "6379"));
 
 			MasterServer server = new MasterServer(port, redis_host, redis_port, redis_passwd);
 
-			if (line.hasOption("enableSearch")) {
-				server.setEnableSearch(true);
-				int search_interval = Integer.valueOf(line.getOptionValue("search_interval", "10"));
-				server.setSearch_interval(search_interval);
-			}
+			//			if (line.hasOption("enableSearch")) {
+			server.setEnableSearch(true);
+			int search_interval = Integer.valueOf(line.getOptionValue("search_interval", "10"));
+			server.setSearch_interval(search_interval);
+			//			}
 
 			server.start();
 		} catch (Exception exp) {

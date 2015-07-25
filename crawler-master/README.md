@@ -42,6 +42,10 @@ sh bin/master.sh start
 sh bin/master.sh stop
 ```
 
+### 存在问题
+
+> setenv.sh配置参数不起作用。
+
 
 
 
