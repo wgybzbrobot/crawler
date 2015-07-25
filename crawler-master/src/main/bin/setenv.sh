@@ -4,10 +4,10 @@
 JAVA=java
 
 port="-port=9999"
-redis_host=" -redis_host=localhost"
+redis_host=" -redis_host=192.168.32.72"
 enable_search=" -enableSearch"
 # when enable_search is not empty, set oracle
-oracle="-oracle_url=jdbc:oracle:thin:@192.168.31.22:1521:yqjk -oracle_username=yqjk -oracle_passwd=yqjk#OLAP#2014"
+oracle="-oracle_url=jdbc:oracle:thin:@192.168.32.200:1521:yqjk -oracle_username=yqjk -oracle_passwd=yqjk#OLAP#2014"
       
 
   
