@@ -5,7 +5,7 @@
 	<session-factory name="org.hibernate.dialect.MySQLDialect">
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</property>
 		<property name="connection.url">
-			jdbc:mysql://192.168.32.17:3306/crawler?useUnicode=true&amp;characterEncoding=UTF-8
+			jdbc:mysql://192.168.32.20:3306/crawler?useUnicode=true&amp;characterEncoding=UTF-8
 		</property>
 		<property name="connection.username">root</property>
 		<property name="connection.password"></property>

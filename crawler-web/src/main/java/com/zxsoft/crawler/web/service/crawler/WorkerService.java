@@ -10,6 +10,6 @@ import com.zxsoft.crawler.common.WorkerConf;
 @Service
 public interface WorkerService {
 
-    List<WorkerConf> getWorkers(Integer reptileId) throws CrawlerException;
-    
+	List<WorkerConf> getWorkers(Integer reptileId) throws CrawlerException;
+
 }
